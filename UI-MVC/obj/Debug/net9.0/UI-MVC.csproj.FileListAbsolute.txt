@@ -95,3 +95,11 @@ C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\obj\Debug\ne
 C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\obj\Debug\net9.0\UI-MVC.pdb
 C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\obj\Debug\net9.0\UI-MVC.genruntimeconfig.cache
 C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\obj\Debug\net9.0\ref\UI-MVC.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\bin\Debug\net9.0\BL.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\bin\Debug\net9.0\DAL.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\bin\Debug\net9.0\Domain.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\bin\Debug\net9.0\BL.pdb
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\bin\Debug\net9.0\DAL.pdb
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\bin\Debug\net9.0\Domain.pdb
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\obj\Debug\net9.0\UI-MVC.csproj.AssemblyReference.cache
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\UI-MVC\obj\Debug\net9.0\UI-MVC.csproj.Up2Date
