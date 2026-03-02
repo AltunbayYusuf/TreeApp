@@ -1,0 +1,40 @@
+<div id="chat-container">
+    <div id="chat-history"></div>
+    <input type="text" id="message-input" placeholder="Type your message..." />
+    <button id="send-button">Send</button>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("send-button").addEventListener("click", sendMessage);
+        document.getElementById("message-input").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            var input = document.getElementById("message-input");
+            var message = input.value;
+            if (message.trim() === "") return;
+
+            var chatHistory = document.getElementById("chat-history");
+            chatHistory.innerHTML += "<div><strong>You:</strong> " + message + "</div>";
+
+            fetch("/Chat/SendMessage", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "message=" + encodeURIComponent(message)
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatHistory.innerHTML += "<div><strong>AI:</strong> " + data.response + "</div>";
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            });
+
+            input.value = "";
+        }
+    </script>
+}
