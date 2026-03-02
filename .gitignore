@@ -1,6 +1,6 @@
 # Build folders
-bin/
-obj/
+**/bin/
+**/obj/
 
 # Rider
 .idea/
@@ -19,3 +19,4 @@ obj/
 # OS
 .DS_Store
 Thumbs.db
+*.cache
