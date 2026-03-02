@@ -15,11 +15,12 @@ public class Project
     public DateTime ReleaseDate { get; set; }
 
     public ProjectType Type { get; set; }
-     public Media Photo { get; set; }
+    public Media Photo { get; set; }
     public Media Logo { get; set; }
-
+    public SubPlatform SubPlatform { get; set; }
+    
     public IEnumerable<Topic> Topics { get; set; }
-
+    
 
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }

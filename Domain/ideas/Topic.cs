@@ -1,10 +1,12 @@
 
+using IntergratieProject.Domain.project;
+
 namespace IntergratieProject.Domain.ideas;
 
 public class Topic
 {
-    private int Id { get; set; }
-    private string Theme { get; set; }
-    
-    private IEnumerable<Idea> Ideas { get; set; }
+    public int Id { get; set; }
+    public string Theme { get; set; }
+    public Project Project  { get; set; }
+    public IEnumerable<Idea> Ideas { get; set; }
 }
