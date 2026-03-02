@@ -66,19 +66,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\nadia\\.nuget\\packages\\": {}
+    "C:\\Users\\mehdi\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\UI-MVC\\UI-MVC.csproj",
+      "projectUniqueName": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\UI-MVC\\UI-MVC.csproj",
       "projectName": "UI-MVC",
-      "projectPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\UI-MVC\\UI-MVC.csproj",
-      "packagesPath": "C:\\Users\\nadia\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\UI-MVC\\obj\\",
+      "projectPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\UI-MVC\\UI-MVC.csproj",
+      "packagesPath": "C:\\Users\\mehdi\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\UI-MVC\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\nadia\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\mehdi\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -90,14 +90,14 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\BL\\BL.csproj": {
-              "projectPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\BL\\BL.csproj"
+            "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\BL\\BL.csproj": {
+              "projectPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\BL\\BL.csproj"
             },
-            "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\DAL\\DAL.csproj": {
-              "projectPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\DAL\\DAL.csproj"
+            "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\DAL\\DAL.csproj": {
+              "projectPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\DAL\\DAL.csproj"
             },
-            "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\Domain\\Domain.csproj": {
-              "projectPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\Domain\\Domain.csproj"
+            "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\Domain\\Domain.csproj"
             }
           }
         }
