@@ -1,4 +1,4 @@
-namespace IntergratieProject.Domain.Questions;
+namespace IntergratieProject.Domain.project;
 
 public enum Status: byte
 {
