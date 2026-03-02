@@ -27,19 +27,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\nadia\\.nuget\\packages\\": {}
+    "C:\\Users\\mehdi\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\DAL\\DAL.csproj",
+      "projectUniqueName": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\DAL\\DAL.csproj",
       "projectName": "DAL",
-      "projectPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\DAL\\DAL.csproj",
-      "packagesPath": "C:\\Users\\nadia\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\DAL\\obj\\",
+      "projectPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\DAL\\DAL.csproj",
+      "packagesPath": "C:\\Users\\mehdi\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\DAL\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\nadia\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\mehdi\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net9.0"
@@ -51,8 +51,8 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "projectReferences": {
-            "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\Domain\\Domain.csproj": {
-              "projectPath": "C:\\Users\\nadia\\Desktop\\kdg\\JAAR2\\IP\\intergratieproject\\Domain\\Domain.csproj"
+            "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\Domain\\Domain.csproj": {
+              "projectPath": "C:\\Users\\mehdi\\Desktop\\IntergratieProject\\IntergratieProject\\Domain\\Domain.csproj"
             }
           }
         }
