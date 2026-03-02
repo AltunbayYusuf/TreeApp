@@ -1,0 +1,16 @@
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\bin\Debug\net9.0\DAL.deps.json
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\bin\Debug\net9.0\DAL.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\bin\Debug\net9.0\DAL.pdb
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\bin\Debug\net9.0\Domain.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\bin\Debug\net9.0\Domain.pdb
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.csproj.AssemblyReference.cache
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.AssemblyInfoInputs.cache
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.AssemblyInfo.cs
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.csproj.CoreCompileInputs.cache
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.sourcelink.json
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.csproj.Up2Date
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\refint\DAL.dll
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\DAL.pdb
+C:\Users\mehdi\Desktop\IntergratieProject\IntergratieProject\DAL\obj\Debug\net9.0\ref\DAL.dll
