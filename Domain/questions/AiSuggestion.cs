@@ -4,7 +4,7 @@ namespace IntergratieProject.Domain.Questions;
 
 public class AiSuggestion
 {
-    public int SuggestionId { get; set; }
-    public string SugestionAnswer { get; set; }
+    public int Id { get; set; }
+    public string SuggestionAnswer { get; set; }
     public Status SuggestionStatus { get; set; }
 }

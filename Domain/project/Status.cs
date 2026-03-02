@@ -2,7 +2,7 @@ namespace IntergratieProject.Domain.project;
 
 public enum Status: byte
 {
-    DRAFT,
-    ACTIF,
-    ARCHIVED,
+    Draft,
+    Active,
+    Archived,
 }

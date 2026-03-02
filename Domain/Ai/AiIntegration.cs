@@ -1,8 +1,8 @@
 namespace IntergratieProject.Domain.Ai;
 
-public class AiIntergration
+public class AiIntegration
 {
-    public int InteractionId { get; set; }
+    public int Id { get; set; }
     public string ModelName { get; set; }
     public string Prompt { get; set; }
     public string Response { get; set; }

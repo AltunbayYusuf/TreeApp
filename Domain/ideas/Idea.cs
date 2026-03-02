@@ -1,12 +1,14 @@
+using IntergratieProject.Domain.Ai;
+
 namespace IntergratieProject.Domain.ideas;
 
 public class Idea
 {
-    public string Titel { get; set; }
-    public string Tekst { get; set; }
-    public ModerationSatatus ModerationSatatus { get; set; }
+    public string Title { get; set; }
+    public string Text { get; set; }
+    public ModerationStatus ModerationStatus { get; set; }
     public IEnumerable<Reaction> Reactions { get; set; }
     
-    // public AiInteraction AiInteraction { get; set; }
+    public AiIntegration AiIntegration { get; set; }
     
 }

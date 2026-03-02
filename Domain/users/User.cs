@@ -9,4 +9,4 @@ public class User
 
     public IEnumerable<Idea> Ideas { get; set; }
     public IEnumerable<Reaction> Reactions { get; set; }
-}
+}   

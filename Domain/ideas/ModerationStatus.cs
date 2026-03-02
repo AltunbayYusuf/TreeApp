@@ -1,6 +1,6 @@
 namespace IntergratieProject.Domain.ideas;
 
-public enum ModerationSatatus
+public enum ModerationStatus
 {
     Accepted, InReview
 }

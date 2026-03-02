@@ -1,12 +1,14 @@
-using System.Security.Principal;
+using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;
+using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.socialeMedia;
 
 namespace IntergratieProject.Domain.project;
 
 public class Project
 {
     private int Id { get; set; }
-    public String Introduction { get; set; }
+    public string Introduction { get; set; }
     public Status Status { get; set; }
     public string Prompt { get; set; }
     public int Duration { get; set; }
@@ -19,7 +21,7 @@ public class Project
     public IEnumerable<Topic> Topics { get; set; }
 
 
-    // public SocialMediaPost SocialMediaPost { get; set; }
-    // public AiIneraction AiIneraction { get; set; }
-    //  public QuestionList  QuestionList { get; set; }
+    public SocialMediaPost SocialMediaPost { get; set; }
+    public AiIntegration AiIntegration { get; set; }
+    public QuestionList  QuestionList { get; set; }
 }
