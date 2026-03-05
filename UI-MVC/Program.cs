@@ -19,7 +19,7 @@ using (var scope = app.Services.CreateScope())
     if (context.CreateDatabase(dropDatabase: true))
     {
         context.Database.EnsureCreated();
-        Dataseeder.Seed(context);
+        DataSeeder.Seed(context);
     }
 }
 
