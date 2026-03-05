@@ -11,6 +11,17 @@ builder.Services.AddDbContext<TreeDbContext>(options =>
 
 var app = builder.Build();
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider
+        .GetRequiredService<TreeDbContext>();
+    if (context.CreateDatabase(dropDatabase: true))
+    {
+        DataSeeder.Seed(context);
+    }
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {

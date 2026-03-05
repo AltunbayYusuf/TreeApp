@@ -4,6 +4,7 @@ namespace IntergratieProject.Domain.ideas;
 
 public class Reaction
 {
+    public int Id { get; set; }
     public ModerationStatus ModerationStatus  { get; set; }
     public string Text { get; set; }
     public User User { get; set; }
