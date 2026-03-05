@@ -18,7 +18,6 @@ using (var scope = app.Services.CreateScope())
         .GetRequiredService<TreeDbContext>();
     if (context.CreateDatabase(dropDatabase: true))
     {
-        context.Database.EnsureCreated();
         DataSeeder.Seed(context);
     }
 }

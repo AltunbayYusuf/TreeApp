@@ -108,7 +108,8 @@ namespace IntergratieProject.DAL.Ef;
             {
                 new Topic { Theme = "Stress & studies", Project = project },
                 new Topic { Theme = "Ondersteuning hogeschool", Project = project },
-                new Topic { Theme = "Ideeën voor acties (ideation)", Project = project }
+                new Topic { Theme = "Ideeën voor acties (ideation)", Project = project },
+                new Topic { Theme = "Het gebruik van drugs op school", Project = project }
             };
 
             dbContext.Platforms.Add(platform);
