@@ -105,61 +105,7 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
             .WithOne(a => a.Question)
             .HasForeignKey("QuestionId");
     }
-    // protected override void OnModelCreating(ModelBuilder modelBuilder)
-    // {
-    //     base.OnModelCreating(modelBuilder);
-    //
-    //     modelBuilder.Entity<GeneralAdmin>()
-    //         .HasMany(g => g.SubAdmins)
-    //         .WithOne(s => s.GeneralAdmin);
-    //     modelBuilder.Entity<SubAdmin>()
-    //         .HasOne(s => s.SubPlatform)
-    //         .WithMany(s => s.SubAdmins);
-    //     modelBuilder.Entity<User>()
-    //         .HasMany(u => u.Ideas)
-    //         .WithOne(i => i.User);
-    //     modelBuilder.Entity<User>()
-    //         .HasMany(u => u.Reactions)
-    //         .WithOne(r => r.User);
-    //     modelBuilder.Entity<Reaction>()
-    //         .HasOne(r => r.Idea)
-    //         .WithMany(i => i.Reactions);
-    //     modelBuilder.Entity<Topic>()
-    //         .HasMany(t => t.Ideas)
-    //         .WithOne(i => i.Topic);
-    //     modelBuilder.Entity<Platform>()
-    //         .HasOne(p => p.GeneralAdmin)
-    //         .WithOne(g => g.Platform);
-    //     modelBuilder.Entity<SubPlatform>()
-    //         .HasOne(s => s.Platform)
-    //         .WithMany(s => s.SubPlatforms);
-    //     modelBuilder.Entity<SubPlatform>()
-    //         .HasMany(s => s.Projects)
-    //         .WithOne(p => p.SubPlatform);
-    //     modelBuilder.Entity<Project>()
-    //         .HasOne(p => p.QuestionList)
-    //         .WithOne(q => q.Project);
-    //     modelBuilder.Entity<Project>()
-    //         .HasMany(p => p.Topics)
-    //         .WithOne(t => t.Project);
-    //     modelBuilder.Entity<Answer>()
-    //         .HasOne(a => a.Question)
-    //         .WithMany(q => q.Answers);
-    //     modelBuilder.Entity<Question>()
-    //         .HasOne(q => q.Section)
-    //         .WithMany(a => a.Questions);
-    //     modelBuilder.Entity<User>()
-    //         .HasMany(u => u.Answers)
-    //         .WithOne(a => a.User);
-    //     modelBuilder.Entity<QuestionList>()
-    //         .HasMany(ql => ql.Sections)
-    //         .WithOne(s => s.QuestionList);
-    //     modelBuilder.Entity<Section>()
-    //         .HasMany(s => s.Questions)
-    //         .WithOne(q => q.Section);
-    // }
-
-  
+    
     public bool CreateDatabase(bool dropDatabase)
     {
         if (dropDatabase)
