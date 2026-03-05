@@ -4,6 +4,7 @@ namespace IntergratieProject.Domain.project;
 
 public class SubPlatform
 {
+    public int Id { get; set; }
     public string CompanyName { get; set; }
     public Platform Platform { get; set; }
     public Language Language { get; set; }

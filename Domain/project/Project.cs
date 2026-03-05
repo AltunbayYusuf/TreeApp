@@ -7,7 +7,7 @@ namespace IntergratieProject.Domain.project;
 
 public class Project
 {
-    private int Id { get; set; }
+    public int Id { get; set; }
     public string Introduction { get; set; }
     public Status Status { get; set; }
     public string Prompt { get; set; }

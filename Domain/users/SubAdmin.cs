@@ -4,6 +4,8 @@ namespace IntergratieProject.Domain.users;
 
 public class SubAdmin : Admin
 {
+    public int Id { get; set; }
+
     public IEnumerable<Project> Projects { get; set; }
     
     public string Name { get; set; }
