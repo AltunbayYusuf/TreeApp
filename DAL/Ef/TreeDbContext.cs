@@ -89,7 +89,7 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql("Data source=treeapp.db");
+            optionsBuilder.UseNpgsql("Data source=treeAppDb.db");
         }
         optionsBuilder.LogTo(message => Debug.WriteLine(message),
             LogLevel.Information);

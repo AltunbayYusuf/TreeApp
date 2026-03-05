@@ -1,6 +1,6 @@
 ﻿namespace IntergratieProject.BL;
 
-public class IManager
+public interface  IManager
 {
-    
+    public Task<string> AskAiForIdea(string idea);
 }
