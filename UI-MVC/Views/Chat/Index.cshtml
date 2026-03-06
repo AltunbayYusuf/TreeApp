@@ -1,0 +1,108 @@
+<div id="chat-container">
+    <div id="chat-history"></div>
+    <input type="text" id="message-input" placeholder="Type your message..." />
+    <button id="send-button">Send</button>
+</div>
+
+@section Scripts {
+   <script>
+    const sendBtn = document.getElementById("send-button");
+    const input = document.getElementById("message-input");
+    const chatHistory = document.getElementById("chat-history");
+
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+            sendMessage();
+        }
+    });
+
+    function escapeHtml(str) {
+        return str
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function append(html) {
+        chatHistory.insertAdjacentHTML("beforeend", html);
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+
+    async function sendMessage() {
+        const message = input.value.trim();
+        if (message === "") return;
+
+        append("<div><strong>You:</strong> " + escapeHtml(message) + "</div>");
+
+        try {
+            const response = await fetch("/Chat/Send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "message=" + encodeURIComponent(message)
+            });
+
+            const text = await response.text();
+
+            let data;
+
+            try {
+                data = JSON.parse(text);
+            } catch {
+                append("<div><strong>AI:</strong> ❌ Server returned non-JSON:<br/><pre style='white-space:pre-wrap;'>" 
+                    + escapeHtml(text) + "</pre></div>");
+                return;
+            }
+
+            if (!data || data.ok === false) {
+                append("<div><strong>AI:</strong> ❌ Er ging iets mis.</div>");
+                return;
+            }
+
+            if (data.isToxic === false) {
+                append("<div><strong>AI:</strong> ✅ Tekst is oké.</div>");
+                if (data.info && data.info.trim() !== "") {
+                    append("<div style='font-size:12px; opacity:0.8;'><strong>Debug:</strong> " + escapeHtml(data.info) + "</div>");
+                }
+                return;
+            }
+
+            const warning = escapeHtml(data.warning || "De tekst bevat toxische woorden.");
+            const explanation = escapeHtml(data.explanation || "");
+            const suggested = escapeHtml(data.suggestedText || "");
+
+            const id = Date.now();
+
+            append(`
+                <div style="margin-top:6px; padding:8px; border:1px solid #f0c36d; background:#fff7e6;">
+                    <strong>AI:</strong> ${warning}<br/>
+                    ${explanation ? `<em>${explanation}</em><br/>` : ""}
+                    <strong>Alternatieve tekst:</strong> ${suggested}<br/><br/>
+                    <button type="button" id="use-${id}">Gebruik alternatief</button>
+                    <button type="button" id="edit-${id}">Bewerk zelf</button>
+                </div>
+            `);
+
+            document.getElementById(`use-${id}`).addEventListener("click", () => {
+                input.value = data.suggestedText || "";
+                input.focus();
+            });
+
+            document.getElementById(`edit-${id}`).addEventListener("click", () => {
+                input.value = message;
+                input.focus();
+            });
+
+        } catch (err) {
+            append("<div><strong>AI:</strong> ❌ Network/JS error: " + escapeHtml(String(err)) + "</div>");
+        }
+
+        input.value = "";
+        input.focus();
+    }
+</script>
+}

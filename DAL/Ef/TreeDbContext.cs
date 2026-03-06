@@ -14,7 +14,7 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
 {
     public DbSet<GeneralAdmin>  GeneralAdmins { get; set; }
     public DbSet<SubAdmin>  SubAdmins { get; set; }
-    public new DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; set; }
     public DbSet<Idea> Ideas { get; set; }
     public DbSet<Reaction>  Reactions { get; set; }
     public DbSet<Topic>  Topics { get; set; }
@@ -30,12 +30,7 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
     {
         
     }
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-       
-        optionsBuilder.LogTo(message => Debug.WriteLine(message),
-            LogLevel.Information);
-    }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -105,7 +100,16 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
             .WithOne(a => a.Question)
             .HasForeignKey("QuestionId");
     }
-    
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql("Data source=treeAppDb.db");
+        }
+        optionsBuilder.LogTo(message => Debug.WriteLine(message),
+            LogLevel.Information);
+    }
     public bool CreateDatabase(bool dropDatabase)
     {
         if (dropDatabase)
