@@ -18,13 +18,33 @@ namespace UI_MVC.Controllers
             return View();
         }
 
-        // ontvangt chat bericht
         [HttpPost]
         public async Task<IActionResult> Send(string message)
         {
-            var response = await _manager.AskAiForIdea(message);
+            if (string.IsNullOrWhiteSpace(message))
+                return BadRequest(new { ok = false, error = "Empty message" });
 
-            return Ok(response);
+            var result = await _manager.ModerateTextAsync(message);
+
+            if (result.IsToxic && string.IsNullOrWhiteSpace(result.SuggestedText))
+            {
+                return Ok(new {
+                    ok = true,
+                    isToxic = true,
+                    warning = "Moderatie kon niet uitgevoerd worden. Probeer opnieuw of pas je tekst aan.",
+                    explanation = result.Explanation,
+                    suggestedText = ""
+                });
+            }
+
+            // toxisch -> geef voorstel terug
+            return Ok(new {
+                ok = true,
+                isToxic = true,
+                warning = "De tekst bevat toxische woorden. Het kan zijn dat de tekst niet goedgekeurd wordt.",
+                explanation = result.Explanation,
+                suggestedText = result.SuggestedText
+            });
         }
     }
 }
