@@ -12,6 +12,6 @@ public class Idea
     public Topic Topic { get; set; }
     public ModerationStatus ModerationStatus { get; set; }
     public IEnumerable<Reaction> Reactions { get; set; }
-    
+
     public AiIntegration AiIntegration { get; set; }
 }
