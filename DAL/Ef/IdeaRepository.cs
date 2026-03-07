@@ -1,5 +1,6 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
+using IntergratieProject.Domain.Questions;
 using Microsoft.EntityFrameworkCore;
 
 namespace IntergratieProject.DAL.Ef;
@@ -37,6 +38,22 @@ public class IdeaRepository :  IIdeaRepository
             .Include(i => i.Reactions)
             .Where(i => i.Topic.Project == project && i.Topic.Id == topicId)
             .ToList();
+    }
+
+    public IEnumerable<Question> ReadAllQuestionsBySection(int sectionId)
+    {
+        return _context.Questions
+            .Include(q => q.Answers)
+            .Include(q => q.Image)
+            .Where(q => q.Section.Id == sectionId)
+            .ToList();
+    }
+
+    public IEnumerable<Question> ReadAllQuestions()
+    {
+        return _context.Questions
+            .Include(q => q.Answers)
+            .Include(q => q.Image).ToList();
     }
 
     public Topic? ReadTopicById(int topicId)

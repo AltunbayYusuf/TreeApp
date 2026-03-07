@@ -3,6 +3,7 @@ using IntergratieProject.DAL;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
+using IntergratieProject.Domain.Questions;
 
 namespace IntergratieProject.BL;
 
@@ -86,11 +87,12 @@ public class Manager : IManager
         return _repository.ReadIdeasByProject(project);
     }
 
-    
-
-   
-
-  
+    public IEnumerable<Question> GetAllQuestionsBySection(int sectionId)
+    {
+        return _repository.ReadAllQuestionsBySection(sectionId);
+    }
+    public IEnumerable<Question> GetAllQuestions()
+    {
+        return _repository.ReadAllQuestions();
+    }
 }
-    
-    

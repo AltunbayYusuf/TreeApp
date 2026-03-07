@@ -52,51 +52,40 @@ namespace IntergratieProject.DAL.Ef;
 
             questions.Add(new Question
             {
-                Description =
-                    "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?\n" +
-                    "- Zeer goed\n- Goed\n- Neutraal\n- Eerder slecht\n- Zeer slecht",
-                QuestionType = QuestionType.Range,
-                Section = section
-            });
-
-            questions.Add(new Question
-            {
-                Description =
-                    "Wat zijn voor jou momenteel de grootste bronnen van stress? (meerdere mogelijk)\n" +
-                    "- Studies / examens\n- Combinatie studie-werk\n- Financiële zorgen\n- Sociale druk / eenzaamheid / relaties\n" +
-                    "- Fysieke of mentale gezondheid\n- Thuissituatie\n- Toekomstzorgen\n- Andere: ____",
-                QuestionType = QuestionType.MultipleChoice,
-                Section = section
-            });
-
-            questions.Add(new Question
-            {
-                Description =
-                    "In welke mate ervaar jij stress door je studies? (1 = geen stress, 10 = extreem veel stress)",
-                QuestionType = QuestionType.Range,
-                Section = section
-            });
-
-            questions.Add(new Question
-            {
-                Description =
-                    "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?\n" +
-                    "- Ja, meestal wel\n- Soms wel, soms niet\n- Eerder niet\n- Helemaal niet",
+                Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
                 QuestionType = QuestionType.SingleChoice,
                 Section = section
             });
 
             questions.Add(new Question
             {
-                Description =
-                    "Wat doe jij meestal wanneer je het mentaal moeilijk hebt? (meerdere mogelijk)\n" +
-                    "- Ik weet niet goed wat ik kan of moet doen\n- Erover praten met ouders/familie/partner\n" +
-                    "- Erover praten met vrienden/medestudenten\n- Professionele hulp zoeken\n- Sporten/bewegen\n" +
-                    "- Afleiding zoeken\n- Studietaken uitstellen/vermijden\n- Bewust rust inplannen\n" +
-                    "- Medicatie/alcohol/andere middelen\n- Iets anders: ____",
+                Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
                 QuestionType = QuestionType.MultipleChoice,
                 Section = section
             });
+
+            questions.Add(new Question
+            {
+                Description = "In welke mate ervaar jij stress door je studies?",
+                QuestionType = QuestionType.Range,
+                Section = section
+            });
+
+            questions.Add(new Question
+            {
+                Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
+                QuestionType = QuestionType.SingleChoice,
+                Section = section
+            });
+
+            questions.Add(new Question
+            {
+                Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
+                QuestionType = QuestionType.OpenQuestion,
+                Section = section
+            }); 
+            
+           
 
             questionList.Sections = new List<Section> { section };
 
