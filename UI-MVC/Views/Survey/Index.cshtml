@@ -6,7 +6,7 @@
     int questionNumber = 1;
 }
 
-<h2 class="mb-4">Beatnwoord de onderstaande vragenlijst</h2>
+<h2 class="text-center mt-4" >@Model.Project.Introduction</h2>
 
 @foreach(var s  in Model.Sections){
     <div>
@@ -155,7 +155,12 @@
     </div>
     
 }   
-<button type="button" class="btn btn-primary" id="verzendbtn">Bevraging afronden</button>
+
+<div class="text-center mt-4">
+    <button type="button" class="btn btn-primary" id="verzendbtn">
+        Bevraging afronden
+    </button>
+</div>
 
 @section Scripts{
     <script src="/js/survey/index.js" defer></script>
