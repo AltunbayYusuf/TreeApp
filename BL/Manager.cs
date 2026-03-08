@@ -106,6 +106,11 @@ public class Manager : IManager
         return _repository.ReadAllQuestions();
     }
 
+    public Question GetQuestion(int questionId)
+    {
+        return _repository.ReadQuestion(questionId);
+    }
+
     public QuestionList GetQuestionListByProject(Project project)
     {
         return _repository.ReadQuestionListByProject(project);
@@ -124,5 +129,10 @@ public class Manager : IManager
     public void AddUser(User user)
     {
         _repository.CreateUser(user);
+    }
+
+    public void SaveAnswers(int userId, List<Answer> answers)
+    {
+        _repository.SaveAnswers(userId, answers);
     }
 }

@@ -1,42 +1,49 @@
 const button = document.getElementById("verzendbtn");
 
-document.querySelectorAll('.range-box').forEach(btn => {
-    btn.addEventListener('click', function() {
-        // Verwijder 'active' van broertjes in dezelfde vraag
-        this.parentElement.querySelectorAll('.range-box').forEach(b => b.classList.remove('active'));
-        // Voeg toe aan deze
-        this.classList.add('active');
-    });
-});
 button.addEventListener("click", (e) => {
-    const allAnswers = [];
-    const questions = document.getElementsByClassName(".survey-question");
+    const formData = new URLSearchParams();
+    const questions = document.querySelectorAll(".survey-question");
 
-    questions.forEach(block => {
+    questions.forEach((block, index) => {
         const questionId = block.getAttribute("data-question-id");
         const type = block.getAttribute("data-type");
-        let answer = null;
-
-        if (type === "SingleChoice"){
+        let resultValue = ""; 
+        if (type === "SingleChoice") {
             const selected = block.querySelector('input[type="radio"]:checked');
-            answer = selected ? selected.value : null;
+            resultValue = selected ? selected.value : "";
         }
-        else if(type === "MultipleChoice"){
+        else if (type === "MultipleChoice") {
             const selected = Array.from(block.querySelectorAll('input[type="checkbox"]:checked'));
-            answer = selected.map(cb => cb.value);
+           
+            resultValue = selected.map(cb => cb.value).join(", ");
         }
         else if (type === "OpenQuestion") {
-            answer = block.querySelector(".question-text").value;
+            resultValue = block.querySelector(".question-text").value;
         }
         else if (type === "Range") {
             const activeBtn = block.querySelector(".range-box.active");
-            answer = activeBtn ? activeBtn.getAttribute("data-val") : null;
+            resultValue = activeBtn ? activeBtn.getAttribute("data-val") : "";
         }
-        allAnswers.push({
-            QuestionId: questionId,
-            Value: answer
-        });
+
+        formData.append(`answers[${index}].QuestionId`, questionId);
+        formData.append(`answers[${index}].Value`, resultValue);
     });
 
-
-})
+    fetch('/Survey/Submit', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formData.toString()
+    })
+        .then(response => {
+            if (response.ok) return response.json();
+            throw new Error('Netwerk response was niet ok');
+        })
+        .then(data => {
+            if (data.redirectUrl) window.location.href = data.redirectUrl;
+        })
+        .catch(error => console.error('Fout bij verzenden:', error));
+    
+    //Deze redirect moet weg het is gewoon om te testen dat de antwoorden opgeslagen werden
+});

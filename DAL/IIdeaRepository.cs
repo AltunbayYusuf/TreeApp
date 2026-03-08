@@ -15,7 +15,7 @@ public interface IIdeaRepository
     IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId);
     IEnumerable<Question> ReadAllQuestionsBySection(int sectionId);
     IEnumerable<Question> ReadAllQuestions();
-    
+    Question ReadQuestion(int questionId);
     Topic? ReadTopicById(int topicId);
     Idea? ReadIdeaById(int ideaId);
     QuestionList ReadQuestionListByProject(Project projectId);
@@ -23,4 +23,5 @@ public interface IIdeaRepository
     Project ReadProject(int projectId);
     User ReadUser(string cookieId);
     void CreateUser(User user);   
+    void SaveAnswers(int userId, List<Answer> answers);
 }
