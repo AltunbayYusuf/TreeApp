@@ -18,6 +18,27 @@ public class IdeaRepository : IIdeaRepository
     {
         _context.Ideas.Add(idea);
     }
+    
+    public void AddReaction(int ideaId, string emoji, string text)
+    {
+        var idea = _context.Ideas.FirstOrDefault(i => i.Id == ideaId);
+
+        if (idea == null)
+        {
+            throw new Exception("Idea niet gevonden");
+        }
+
+        var reaction = new Reaction
+        {
+            Idea = idea,
+            Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
+            Text = string.IsNullOrWhiteSpace(text) ? null : text,
+            ModerationStatus = ModerationStatus.InReview
+        };
+
+        _context.Reactions.Add(reaction);
+        _context.SaveChanges();
+    }
 
     public IEnumerable<Topic> ReadTopicsByProject(Project project)
     {

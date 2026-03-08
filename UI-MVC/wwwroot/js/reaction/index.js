@@ -1,0 +1,22 @@
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".reaction-emoji-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const ideaId = this.dataset.ideaId;
+            const emoji = this.dataset.emoji;
+            const hiddenInput = document.getElementById("emoji-" + ideaId);
+            const buttonsForIdea = document.querySelectorAll(`.reaction-emoji-btn[data-idea-id='${ideaId}']`);
+
+            if (!hiddenInput) return;
+
+            if (hiddenInput.value === emoji) {
+                hiddenInput.value = "";
+                this.classList.remove("selected");
+                return;
+            }
+
+            buttonsForIdea.forEach(btn => btn.classList.remove("selected"));
+            this.classList.add("selected");
+            hiddenInput.value = emoji;
+        });
+    });
+});

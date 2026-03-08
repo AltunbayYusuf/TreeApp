@@ -19,6 +19,15 @@ public class Manager : IManager
         _repository = repository;
     }
     
+    public void AddReaction(int ideaId, string emoji, string text)
+    {
+        if (string.IsNullOrWhiteSpace(emoji) && string.IsNullOrWhiteSpace(text))
+        {
+            return;
+        }
+
+        _repository.AddReaction(ideaId, emoji, text);
+    }
 
     public async Task<string> AskAiForIdea(string idea)
     {

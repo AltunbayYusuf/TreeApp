@@ -6,6 +6,7 @@ namespace IntergratieProject.BL;
 
 public interface  IManager
 {
+    void AddReaction(int ideaId, string emoji, string text);
     public Task<string> AskAiForIdea(string idea);
     Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input);
     public IEnumerable<Topic> GetTopicsByProject(Project project);
