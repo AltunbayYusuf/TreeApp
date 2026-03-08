@@ -23,6 +23,7 @@ namespace IntergratieProject.DAL.Ef;
 
             var project = new Project
             {
+                Id = 1,
                 Introduction =
                     "Jouw welzijn telt. Denk met ons mee.\n\n" +
                     "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",

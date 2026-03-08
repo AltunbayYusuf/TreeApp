@@ -13,8 +13,8 @@ public class Survey : Controller
     }
     
       
-    [HttpGet("survey/{projectId}")]
-    public IActionResult Index(int projectId)
+    [HttpGet]
+    public IActionResult Index(int projectId = 1)  //default om te teste dat het getoont wordt, later verwijderen
     {
         var project = _manager.GetProject(projectId);
 
