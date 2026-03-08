@@ -13,10 +13,17 @@ public class Survey : Controller
     }
     
       
-    [HttpGet]
-    public IActionResult Index()
+    [HttpGet("survey/{projectId}")]
+    public IActionResult Index(int projectId)
     {
-        var questions= _manager.GetAllQuestions();
+        var project = _manager.GetProject(projectId);
+
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        var questions= _manager.GetQuestionListByProject(project);
         return View(questions);
     } 
     

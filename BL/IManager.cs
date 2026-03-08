@@ -12,4 +12,6 @@ public interface  IManager
     public IEnumerable<Idea> GetIdeasByProject(Project project, int? topicId = null);
     IEnumerable<Question> GetAllQuestionsBySection(int sectionId);
     IEnumerable<Question> GetAllQuestions();
+    QuestionList GetQuestionListByProject(Project projectId);
+    Project GetProject(int projectId);
 }

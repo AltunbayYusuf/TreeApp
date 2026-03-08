@@ -6,7 +6,7 @@ namespace IntergratieProject.DAL;
 
 public interface IIdeaRepository
 {
-   // void addIdea(Idea idea);
+    // void addIdea(Idea idea);
     
     IEnumerable<Topic> ReadTopicsByProject(Project project);
     IEnumerable<Idea> ReadIdeasByProject(Project project);
@@ -16,7 +16,8 @@ public interface IIdeaRepository
     
     Topic? ReadTopicById(int topicId);
     Idea? ReadIdeaById(int ideaId);
+    QuestionList ReadQuestionListByProject(Project projectId);
     
-    
+    Project ReadProject(int projectId);
     
 }

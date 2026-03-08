@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IntergratieProject.DAL.Ef;
 
-public class IdeaRepository :  IIdeaRepository
+public class IdeaRepository : IIdeaRepository
 {
     private readonly TreeDbContext _context;
 
@@ -67,5 +67,20 @@ public class IdeaRepository :  IIdeaRepository
         return _context.Ideas.Include(i => i.Topic)
             .Include(i => i.Reactions)
             .FirstOrDefault(i => i.Id == ideaId);
+    }
+
+    public QuestionList ReadQuestionListByProject(Project project)
+    {
+        return _context.Projects.Include(p => p.QuestionList)
+            .ThenInclude(q => q.Sections)
+            .ThenInclude(s => s.Questions)
+            .Where(p => p.Id == project.Id)
+            .Select(p => p.QuestionList)
+            .FirstOrDefault();
+    }
+
+    public Project ReadProject(int projectId)
+    {
+        return _context.Projects.FirstOrDefault(p => p.Id == projectId);
     }
 }

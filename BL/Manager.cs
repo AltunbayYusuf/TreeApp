@@ -95,4 +95,14 @@ public class Manager : IManager
     {
         return _repository.ReadAllQuestions();
     }
+
+    public QuestionList GetQuestionListByProject(Project project)
+    {
+        return _repository.ReadQuestionListByProject(project);
+    }
+
+    public Project GetProject(int projectId)
+    {
+        return _repository.ReadProject(projectId);
+    }
 }
