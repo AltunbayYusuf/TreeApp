@@ -1,6 +1,7 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 
 namespace IntergratieProject.BL;
 
@@ -15,4 +16,6 @@ public interface  IManager
     IEnumerable<Question> GetAllQuestions();
     QuestionList GetQuestionListByProject(Project projectId);
     Project GetProject(int projectId);
+    User GetUser(string cookieId);
+    void AddUser(User user);
 }

@@ -1,6 +1,7 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 
 namespace IntergratieProject.DAL;
 
@@ -20,5 +21,6 @@ public interface IIdeaRepository
     QuestionList ReadQuestionListByProject(Project projectId);
     
     Project ReadProject(int projectId);
-    
+    User ReadUser(string cookieId);
+    void CreateUser(User user);   
 }

@@ -4,6 +4,7 @@ using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 
 namespace IntergratieProject.BL;
 
@@ -113,5 +114,15 @@ public class Manager : IManager
     public Project GetProject(int projectId)
     {
         return _repository.ReadProject(projectId);
+    }
+
+    public User GetUser(string cookieId)
+    {
+        return _repository.ReadUser(cookieId);
+    }
+
+    public void AddUser(User user)
+    {
+        _repository.CreateUser(user);
     }
 }

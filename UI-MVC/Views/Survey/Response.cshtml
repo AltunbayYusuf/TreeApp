@@ -1,0 +1,16 @@
+@model IntergratieProject.Domain.users.User
+
+    @{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+
+<h2>Je hebt deze vragenlijst al beantwoord!</h2>
+    <h3>Jouw antwoorden:</h3>
+    @foreach (var answer in Model.Answers)
+{
+    <div class="answer-row">
+        <strong>Vraag:</strong> @answer.Question.Description <br/>
+        <strong>Jouw antwoord:</strong> <span>@answer.Text</span>
+        </div>
+}

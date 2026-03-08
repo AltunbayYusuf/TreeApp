@@ -6,14 +6,14 @@
     int questionNumber = 1;
 }
 
-<h2 class="mb-4">Beantwoord de onderstaande vragenlijst</h2>
+<h2 class="mb-4">Beatnwoord de onderstaande vragenlijst</h2>
 
 @foreach(var s  in Model.Sections){
     <div>
         
         @foreach (Question question in s.Questions)
         {
-            <div class="survey-question mb-5 pb-4 border-bottom survey-container">
+            <div class="survey-question mb-5 pb-4 border-bottom survey-container" data-question-id="@question.Id" data-type="@question.QuestionType">
                 <div class="d-flex align-items-start gap-3">
                     <div class="question-number-circle">
                         @questionNumber
@@ -41,7 +41,7 @@
                                     foreach (var option in options)
                                     {
                                         <label class="survey-option-card d-flex align-items-center">
-                                            <input type="radio" name="q@question.Id" class="me-3"/>
+                                            <input type="radio" name="q@question.Id" value="@option" class="me-3"/>
                                             <span>@option</span>
                                         </label>
                                     }
@@ -59,7 +59,7 @@
                                     foreach (var option in options)
                                     {
                                         <label class="survey-option-card d-flex align-items-center">
-                                            <input type="radio" name="q@question.Id" class="me-3"/>
+                                            <input type="radio" name="q@question.Id" value="@option" class="me-3"/>
                                             <span>@option</span>
                                         </label>
                                     }
@@ -88,7 +88,7 @@
                                     foreach (var option in options)
                                     {
                                         <label class="survey-option-card d-flex align-items-center">
-                                            <input type="checkbox" class="me-3"/>
+                                            <input type="checkbox" value="@option" class="me-3"/>
                                             <span>@option</span>
                                         </label>
                                     }
@@ -112,7 +112,7 @@
                                     foreach (var option in options)
                                     {
                                         <label class="survey-option-card d-flex align-items-center">
-                                            <input type="checkbox" class="me-3"/>
+                                            <input type="checkbox" value="@option" class="me-3"/>
                                             <span>@option</span>
                                         </label>
                                     }
@@ -131,7 +131,7 @@
                                 <div class="d-flex gap-3 flex-wrap mb-2">
                                     @for (int i = 1; i <= 5; i++)
                                     {
-                                        <button type="button" class="range-box">@i</button>
+                                        <button type="button" class="range-box range-value" data-val="@i">@i</button>
                                     }
                                 </div>
 
@@ -143,7 +143,7 @@
 
                             case QuestionType.OpenQuestion:
                                 <p class="survey-question-meta">[Open text field]</p>
-                                <textarea class="survey-textarea" placeholder="Type hier je antwoord..."></textarea>
+                                <textarea class="survey-textarea question-text" placeholder="Type hier je antwoord..."></textarea>
                                 break;
                         }
                     </div>
@@ -154,4 +154,5 @@
         }
     </div>
     
-}
+}   
+<button type="button" class="btn btn-primary" id="verzendbtn">Bevraging afronden</button>

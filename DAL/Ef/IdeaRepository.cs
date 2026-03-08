@@ -1,6 +1,7 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 using Microsoft.EntityFrameworkCore;
 
 namespace IntergratieProject.DAL.Ef;
@@ -103,5 +104,16 @@ public class IdeaRepository : IIdeaRepository
     public Project ReadProject(int projectId)
     {
         return _context.Projects.FirstOrDefault(p => p.Id == projectId);
+    }
+    public User ReadUser(string cookieId)
+    {
+        return _context.Users.Include(u => u.Answers).FirstOrDefault(u => u.CookieIdentifier == cookieId);
+    }
+
+    public void CreateUser(User user)
+    {
+        _context.Users.Add(user);
+        _context.SaveChanges();
+
     }
 }
