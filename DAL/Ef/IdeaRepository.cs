@@ -108,8 +108,13 @@ public class IdeaRepository : IIdeaRepository
 
     public Project ReadProject(int projectId)
     {
-        return _context.Projects.FirstOrDefault(p => p.Id == projectId);
+        return _context.Projects
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .FirstOrDefault(p => p.Id == projectId);
     }
+
 
     public User ReadUser(string cookieId)
     {

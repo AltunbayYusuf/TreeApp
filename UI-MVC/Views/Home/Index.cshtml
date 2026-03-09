@@ -1,8 +1,68 @@
-﻿@{
+﻿@model IntergratieProject.Domain.project.Project
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4 home-container">
+
+    <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-4 home-topbar">
+        <div>
+            @if (Model.Logo != null && !string.IsNullOrWhiteSpace(Model.Logo.Uri))
+            {
+                <img src="@Model.Logo.Uri" alt="Logo" class="home-logo" />
+            }
+            else
+            {
+                <div class="border px-4 py-2 text-muted">[LOGO]</div>
+            }
+        </div>
+
+        <div class="border rounded px-3 py-2 home-lang-switch">
+            NL
+        </div>
+    </div>
+
+    <div class="border rounded mb-4 bg-light text-center home-image-box">
+        @if (Model.Photo != null && !string.IsNullOrWhiteSpace(Model.Photo.Uri))
+        {
+            <img src="@Model.Photo.Uri" alt="Project afbeelding" class="img-fluid rounded" />
+        }
+        else
+        {
+            <span class="text-muted">[PROJECT IMAGE]</span>
+        }
+    </div>
+
+    <div class="mb-3">
+        <div class="border rounded px-3 py-2 bg-light fw-bold">
+            Welkom bij de bevraging
+        </div>
+        <p class="mt-2 mb-0 text-muted">@Model.SubPlatform?.CompanyName</p>
+    </div>
+
+    <div class="border rounded p-4 mb-3 home-card">
+        <p class="mb-0">@Model.Introduction</p>
+    </div>
+
+    <div class="border rounded p-3 mb-3 home-card">
+        ⏱️ Duurt ongeveer @Model.Duration minuten
+    </div>
+
+    <div class="border rounded p-3 mb-4 home-card">
+        🔒 Anoniem & Vertrouwelijk
+    </div>
+
+    <a asp-controller="Survey"
+       asp-action="Index"
+       asp-route-projectId="@Model.Id"
+       class="btn btn-dark home-start-btn">
+        Start bevraging
+    </a>
+
+    <div class="mt-4">
+        <div class="border rounded p-3 mb-2 text-muted">→ Over dit project</div>
+        <div class="border rounded p-3 mb-2 text-muted">→ Over de hogeschool</div>
+        <div class="border rounded p-3 text-muted">→ Privacy policy</div>
+    </div>
 </div>

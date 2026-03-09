@@ -20,4 +20,5 @@ public interface  IManager
     User GetUser(string cookieId);
     void AddUser(User user);
     void SaveAnswers(int userId, List<Answer> answers);
+    
 }
