@@ -3,12 +3,12 @@ const btnBekijken = document.getElementById("ideeenBekijken");
 
 if (btnGeven) {
     btnGeven.addEventListener("click", () => {
-        window.location.href = "/Chat/Index";
+        window.location.href = "/Idea/Create";
     });
 }
 
 if (btnBekijken) {
     btnBekijken.addEventListener("click", () => {
-        window.location.href = "/Ideas/Index";
+        window.location.href = "/Idea/Index";
     });
 }
