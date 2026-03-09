@@ -5,36 +5,34 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
 
-public class IdeasController : Controller
+public class IdeaController : Controller
 {
     private readonly IManager _manager;
 
-    public IdeasController(IManager manager)
+    public IdeaController(IManager manager)
     {
         _manager = manager;
     }
 
-    [HttpGet]
+
     public IActionResult Index(int? topicId)
     {
-        Project project = GetCurrentProject();
+        Project project = (getCurrentProject());
 
-        var vm = new IdeasOverviewViewModel
+        var vm = new IdeasOverviewViewModel()
         {
             Project = project,
             SelectedTopicId = topicId,
             Topics = _manager.GetTopicsByProject(project),
-            Ideas = _manager.GetIdeasByProject(project, topicId),
-            NewIdeaTopicId = topicId ?? 0
+            Ideas = _manager.GetIdeasByProject(project, topicId)
         };
-
         return View(vm);
     }
     
     [HttpGet]
     public IActionResult Create()
     {
-        Project project = GetCurrentProject();
+        Project project = getCurrentProject();
 
         var vm = new IdeasOverviewViewModel
         {
@@ -123,9 +121,9 @@ public class IdeasController : Controller
         });
     }
 
-    private Project GetCurrentProject()
+    private Project getCurrentProject()
     {
-        return new Project
+        return new Project()
         {
             Id = 1
         };
