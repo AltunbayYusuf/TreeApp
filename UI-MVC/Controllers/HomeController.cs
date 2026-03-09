@@ -1,21 +1,29 @@
 using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+using IntergratieProject.BL;
 using IntergratieProject.Models;
+using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.Controllers;
+namespace IntergratieProject.UI.MVC.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+    private readonly IManager _manager;
 
-    public HomeController(ILogger<HomeController> logger)
+    public HomeController(ILogger<HomeController> logger, IManager manager)
     {
         _logger = logger;
+        _manager = manager;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(int id = 1)
     {
-        return View();
+        var project = _manager.GetProject(id);
+        if (project == null)
+        {
+            return NotFound();
+        }
+        return View(project);
     }
 
     public IActionResult Privacy()

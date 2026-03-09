@@ -1,6 +1,7 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 
 namespace IntergratieProject.DAL;
 
@@ -14,11 +15,13 @@ public interface IIdeaRepository
     IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId);
     IEnumerable<Question> ReadAllQuestionsBySection(int sectionId);
     IEnumerable<Question> ReadAllQuestions();
-    
+    Question ReadQuestion(int questionId);
     Topic? ReadTopicById(int topicId);
     Idea? ReadIdeaById(int ideaId);
     QuestionList ReadQuestionListByProject(Project projectId);
     
     Project ReadProject(int projectId);
-    
+    User ReadUser(string cookieId);
+    void CreateUser(User user);   
+    void SaveAnswers(int userId, List<Answer> answers);
 }

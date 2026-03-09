@@ -1,6 +1,7 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 using Microsoft.EntityFrameworkCore;
 
 namespace IntergratieProject.DAL.Ef;
@@ -19,7 +20,7 @@ public class IdeaRepository : IIdeaRepository
         _context.Ideas.Add(idea);
         _context.SaveChanges();
     }
-    
+
     public void AddReaction(int ideaId, string emoji, string text)
     {
         var idea = _context.Ideas.FirstOrDefault(i => i.Id == ideaId);
@@ -78,6 +79,11 @@ public class IdeaRepository : IIdeaRepository
             .Include(q => q.Image).ToList();
     }
 
+    public Question ReadQuestion(int questionId)
+    {
+        return _context.Questions.FirstOrDefault(q => q.Id == questionId);
+    }
+
     public Topic? ReadTopicById(int topicId)
     {
         return _context.Topics.Include(t => t.Ideas)
@@ -103,6 +109,37 @@ public class IdeaRepository : IIdeaRepository
 
     public Project ReadProject(int projectId)
     {
-        return _context.Projects.FirstOrDefault(p => p.Id == projectId);
+        return _context.Projects
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .FirstOrDefault(p => p.Id == projectId);
+    }
+
+    public User ReadUser(string cookieId)
+    {
+        return _context.Users
+            .Include(u => u.Answers) // Zorg dat antwoorden worden geladen
+            .ThenInclude(a => a.Question) // Zorg dat de vraagtekst ook wordt geladen voor je Results view
+            .FirstOrDefault(u => u.CookieIdentifier == cookieId);
+    }
+
+    public void CreateUser(User user)
+    {
+        _context.Users.Add(user);
+        _context.SaveChanges();
+    }
+
+    public void SaveAnswers(int userId, List<Answer> answers)
+    {
+        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+        foreach (var an in answers)
+        {
+            an.User = user;
+            _context.Answers.Add(an);
+        }
+
+        _context.SaveChanges();
     }
 }
