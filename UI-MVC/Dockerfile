@@ -2,13 +2,16 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
 
-# Copy only the project file first (for caching)
+# Copy alle project files eerst (voor caching)
 COPY UI-MVC/UI-MVC.csproj UI-MVC/
+COPY BL/BL.csproj BL/
+COPY DAL/DAL.csproj DAL/
+COPY Domain/Domain.csproj Domain/
 
 # Restore dependencies
 RUN dotnet restore UI-MVC/UI-MVC.csproj
 
-# Copy the rest of the source code
+# Copy de rest van de code
 COPY . .
 
 # Publish
@@ -19,8 +22,6 @@ RUN dotnet publish UI-MVC.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 COPY --from=build /app/publish .
-
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
-
 ENTRYPOINT ["dotnet", "UI-MVC.dll"]
