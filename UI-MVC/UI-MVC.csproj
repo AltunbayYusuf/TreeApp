@@ -22,4 +22,9 @@
       </PackageReference>
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Survey\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Chat\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

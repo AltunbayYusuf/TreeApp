@@ -1,0 +1,165 @@
+﻿@model IntergratieProject.Models.IdeasOverviewViewModel
+
+@{
+    ViewData["Title"] = "Deel jouw idee";
+}
+
+<h1>Deel jouw idee</h1>
+
+<div class="row">
+    <div class="col-lg-7">
+        <div class="card mb-4">
+            <div class="card-body">
+                <p class="text-muted">
+                    We willen graag jouw ideeën horen om het mentaal welzijn te verbeteren. Deel je suggestie hieronder.
+                </p>
+
+                <div class="mb-3">
+                    <label for="idea-title" class="form-label">Titel van je idee</label>
+                    <input id="idea-title" class="form-control" type="text" placeholder="Geef je idee een korte titel..." maxlength="100" />
+                </div>
+
+                <div class="mb-3">
+                    <label for="idea-topic" class="form-label">Kies een topic</label>
+                    <select id="idea-topic" class="form-select">
+                        <option value="0">Waar gaat je idee over?</option>
+                        @foreach (var topic in Model.Topics)
+                        {
+                            <option value="@topic.Id">@topic.Theme</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="idea-text" class="form-label">Beschrijf je idee</label>
+                    <textarea id="idea-text" class="form-control" rows="6" maxlength="1000"
+                              placeholder="Beschrijf hier je idee zo gedetailleerd mogelijk. Wat wil je verbeteren? Hoe zou het werken? Wie zou het helpen?"></textarea>
+                </div>
+
+                <div id="idea-ai-message" class="mb-3" style="display:none;"></div>
+
+                <div class="d-grid">
+                    <button type="button" id="submit-idea-btn" class="btn btn-primary">
+                        Verstuur idee
+                    </button>
+                </div>
+
+                <div class="mt-3">
+                    <a asp-controller="Ideas" asp-action="Index" class="btn btn-link ps-0">
+                        ← Terug naar ideeën
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const submitIdeaBtn = document.getElementById("submit-idea-btn");
+    const ideaTitle = document.getElementById("idea-title");
+    const ideaTopic = document.getElementById("idea-topic");
+    const ideaText = document.getElementById("idea-text");
+    const aiMessage = document.getElementById("idea-ai-message");
+
+    function escapeHtml(str) {
+        return (str || "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    async function postForm(url, topicId, title, text) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body:
+                "TopicId=" + encodeURIComponent(topicId) +
+                "&Title=" + encodeURIComponent(title) +
+                "&Text=" + encodeURIComponent(text)
+        });
+
+        return await response.json();
+    }
+
+    function clearAiMessage() {
+        aiMessage.style.display = "none";
+        aiMessage.innerHTML = "";
+    }
+
+    function showAiWarning(data, topicId, title, text) {
+        aiMessage.style.display = "block";
+        aiMessage.innerHTML = `
+            <div class="alert alert-warning mb-0">
+                <strong>${escapeHtml(data.warning || "AI: je tekst bevat mogelijk toxische inhoud.")}</strong>
+                ${data.explanation ? `<div class="mt-2"><em>${escapeHtml(data.explanation)}</em></div>` : ""}
+                ${data.suggestedText ? `<div class="mt-2"><strong>Alternatief:</strong><br>${escapeHtml(data.suggestedText)}</div>` : ""}
+                <div class="mt-3 d-flex gap-2 flex-wrap">
+                    <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">Toch versturen</button>
+                    <button type="button" id="use-alternative-btn" class="btn btn-outline-primary btn-sm">Alternatief gebruiken</button>
+                </div>
+            </div>
+        `;
+
+        document.getElementById("force-submit-btn").addEventListener("click", async function () {
+            const forceResult = await postForm("/Ideas/ForceSubmitIdea", topicId, title, text);
+
+            if (!forceResult.ok) {
+                aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(forceResult.message || "Er ging iets mis.")}</div>`;
+                return;
+            }
+
+            clearAiMessage();
+            alert("Idee doorgestuurd voor moderatie.");
+            window.location.href = "/Ideas";
+        });
+
+        document.getElementById("use-alternative-btn").addEventListener("click", function () {
+            ideaText.value = data.suggestedText || "";
+            clearAiMessage();
+            ideaText.focus();
+        });
+    }
+
+    submitIdeaBtn.addEventListener("click", async function () {
+        const topicId = ideaTopic.value;
+        const title = ideaTitle.value.trim();
+        const text = ideaText.value.trim();
+
+        clearAiMessage();
+
+        if (!topicId || topicId === "0") {
+            aiMessage.style.display = "block";
+            aiMessage.innerHTML = `<div class="alert alert-danger mb-0">Kies eerst een topic.</div>`;
+            return;
+        }
+
+        if (!text) {
+            aiMessage.style.display = "block";
+            aiMessage.innerHTML = `<div class="alert alert-danger mb-0">Beschrijf eerst je idee.</div>`;
+            return;
+        }
+
+        const data = await postForm("/Ideas/SubmitIdea", topicId, title, text);
+
+        if (!data.ok) {
+            aiMessage.style.display = "block";
+            aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(data.message || "Er ging iets mis.")}</div>`;
+            return;
+        }
+
+        if (data.isToxic) {
+            showAiWarning(data, topicId, title, text);
+            return;
+        }
+
+        clearAiMessage();
+        alert("Idee succesvol verstuurd.");
+        window.location.href = "/Ideas";
+    });
+</script>
+}

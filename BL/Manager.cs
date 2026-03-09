@@ -18,6 +18,11 @@ public class Manager : IManager
         _aiService = aiService;
         _repository = repository;
     }
+
+    public void SubmitIdeaFromChatAsync(int topicId, string text)
+    {
+        
+    }
     
     public void AddReaction(int ideaId, string emoji, string text)
     {
@@ -80,7 +85,57 @@ public class Manager : IManager
             // AI faalde / output niet parsebaar => GEEN toxic claim
             return (true, "", $"Moderation check failed: {ex.Message}. Raw: {aiText}");        }
     }
+    public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
+    {
+        var topic = _repository.ReadTopicById(topicId);
+        if (topic == null)
+        {
+            throw new Exception("Topic niet gevonden");
+        }
 
+        var idea = new Idea
+        {
+            Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
+            Text = text,
+            Topic = topic,
+            ModerationStatus = ModerationStatus.InReview
+        };
+
+        _repository.AddIdea(idea);
+        await Task.CompletedTask;
+    }
+    public async Task<(bool Saved, bool IsToxic, string SuggestedText, string Explanation)> SubmitIdeaAsync(int topicId, string title, string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return (false, false, "", "Lege tekst kan niet opgeslagen worden.");
+        }
+
+        var moderation = await ModerateTextAsync($"{title}\n{text}");
+
+        if (moderation.IsToxic)
+        {
+            return (false, true, moderation.SuggestedText, moderation.Explanation);
+        }
+
+        var topic = _repository.ReadTopicById(topicId);
+        if (topic == null)
+        {
+            throw new Exception("Topic niet gevonden");
+        }
+
+        var idea = new Idea
+        {
+            Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
+            Text = text,
+            Topic = topic,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        _repository.AddIdea(idea);
+
+        return (true, false, "", "");
+    }
     public IEnumerable<Topic> GetTopicsByProject(Project project)
     {
         return _repository.ReadTopicsByProject(project);
