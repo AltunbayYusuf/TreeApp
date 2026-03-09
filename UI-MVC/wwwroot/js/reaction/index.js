@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".reaction-emoji-btn").forEach(button => {
-        button.addEventListener("click", function () {
+        button.addEventListener("click", function (e) {
             const ideaId = this.dataset.ideaId;
             const emoji = this.dataset.emoji;
             const hiddenInput = document.getElementById("emoji-" + ideaId);
@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
             buttonsForIdea.forEach(btn => btn.classList.remove("selected"));
             this.classList.add("selected");
             hiddenInput.value = emoji;
+            e.preventDefault();
         });
     });
 
