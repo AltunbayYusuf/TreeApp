@@ -19,4 +19,17 @@ document.addEventListener("DOMContentLoaded", function () {
             hiddenInput.value = emoji;
         });
     });
+
+    document.querySelectorAll(".reaction-form").forEach(form => {
+        form.addEventListener("submit", function (e) {
+
+            const text = form.querySelector("textarea[name='text']").value;
+            const emoji = form.querySelector("input[name='emoji']").value;
+
+            if (text === "" && emoji === "") {
+                e.preventDefault();
+                alert("Je reactie is leeg.");
+            }
+        });
+    });
 });

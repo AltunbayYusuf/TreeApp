@@ -83,15 +83,17 @@ else
                         <small>Nog geen reacties.</small>
                     </div>
                 }
+                
+                <form action="@Url.Action("Add", "Reaction")" method="post" class="mt-3 reaction-form">
 
-                <form action="@Url.Action("Add", "Reaction")" method="post" class="mt-3">
                     <input type="hidden" name="ideaId" value="@idea.Id" />
                     <input type="hidden" name="emoji" id="emoji-@idea.Id" value="" />
+                    
 
                     <div class="mb-2">
                         <textarea name="text" class="form-control" rows="3" placeholder="Schrijf een reactie" required></textarea>
                     </div>
-
+                    
                     <div class="reaction-error text-danger mt-2" id="reaction-error-@idea.Id" style="display:none;">
                         Je reactie is leeg.
                     </div>
