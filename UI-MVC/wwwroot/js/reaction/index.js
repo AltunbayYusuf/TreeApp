@@ -31,6 +31,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 e.preventDefault();
                 alert("Je reactie is leeg.");
             }
+            else if (!confirm("Wil je dit idee zeker verzenden?")) {
+                e.preventDefault();
+                return;
+            }
         });
     });
 });
