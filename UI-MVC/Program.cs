@@ -1,4 +1,7 @@
+using IntergratieProject.BL;
+using IntergratieProject.DAL;
 using IntergratieProject.DAL.Ef;
+using IntergratieProject.Domain.Ai;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,9 +11,11 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<TreeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+ builder.Services.AddHttpClient<IAiService, GeminiService>();
+ builder.Services.AddScoped<IManager, Manager>();
+ builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 
 var app = builder.Build();
-
 
 using (var scope = app.Services.CreateScope())
 {
