@@ -1,7 +1,7 @@
 using IntergratieProject.BL;
 using Microsoft.AspNetCore.Mvc;
 
-namespace UI_MVC.Controllers
+namespace IntergratieProject.UI.MVC.Controllers
 {
     public class ChatController : Controller
     {
