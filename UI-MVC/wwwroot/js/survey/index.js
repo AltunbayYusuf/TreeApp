@@ -1,34 +1,59 @@
 const button = document.getElementById("verzendbtn");
 
 button.addEventListener("click", (e) => {
+    e.preventDefault();
     const formData = new URLSearchParams();
     const questions = document.querySelectorAll(".survey-question");
+    let allFilled = true;
 
     questions.forEach((block, index) => {
         const questionId = block.getAttribute("data-question-id");
         const type = block.getAttribute("data-type");
-        let resultValue = ""; 
+        let resultValue = "";
+        let questionAnswered = false;
+
         if (type === "SingleChoice") {
             const selected = block.querySelector('input[type="radio"]:checked');
-            resultValue = selected ? selected.value : "";
-        }
-        else if (type === "MultipleChoice") {
+            if (selected) {
+                resultValue = selected.value;
+                questionAnswered = true;
+            }
+        } else if (type === "MultipleChoice") {
             const selected = Array.from(block.querySelectorAll('input[type="checkbox"]:checked'));
-           
-            resultValue = selected.map(cb => cb.value).join(", ");
+            if (selected.length > 0) {
+                resultValue = selected.map(cb => cb.value).join(", ");
+                questionAnswered = true;
+            }
+        } else if (type === "OpenQuestion") {
+            resultValue = block.querySelector(".question-text").value.trim();
+            if (resultValue !== "") {
+                questionAnswered = true;
+            }
         }
-        else if (type === "OpenQuestion") {
-            resultValue = block.querySelector(".question-text").value;
+         else if (type === "Range") {
+        //     const activeBtn = block.querySelector(".range-box.active");
+        //     if (activeBtn) {
+        //         resultValue = activeBtn.getAttribute("data-val");
+                questionAnswered = true;
+        //     }
         }
-        else if (type === "Range") {
-            const activeBtn = block.querySelector(".range-box.active");
-            resultValue = activeBtn ? activeBtn.getAttribute("data-val") : "";
+        
+        if (!questionAnswered) {
+            block.style.border = "2px solid red";
+            allFilled = false;
+        } else {
+            block.style.border = "";
         }
 
         formData.append(`answers[${index}].QuestionId`, questionId);
         formData.append(`answers[${index}].Value`, resultValue);
     });
 
+    if (!allFilled) {
+        alert("Niet alle vragen zijn beantwoord!");
+        return;
+    }
+    
     fetch('/Survey/Submit', {
         method: 'POST',
         headers: {
@@ -44,6 +69,5 @@ button.addEventListener("click", (e) => {
             if (data.redirectUrl) window.location.href = data.redirectUrl;
         })
         .catch(error => console.error('Fout bij verzenden:', error));
-    
-    //Deze redirect moet weg het is gewoon om te testen dat de antwoorden opgeslagen werden
+
 });

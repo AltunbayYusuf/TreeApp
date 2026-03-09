@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
 using IntergratieProject.Models;
+using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.Controllers;
+namespace IntergratieProject.UI.MVC.Controllers;
 
 public class HomeController : Controller
 {

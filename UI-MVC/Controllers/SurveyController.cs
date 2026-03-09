@@ -38,7 +38,7 @@ public class SurveyController : Controller
     public IActionResult Submit(List<AnswerDto> answers) 
     {
         if (answers == null || !answers.Any()) return BadRequest("Geen antwoorden ontvangen");
-
+        
         var user = GetOrCreateUser();
         var answersList = new List<Answer>();
         foreach (var dto in answers)
@@ -54,7 +54,6 @@ public class SurveyController : Controller
         _manager.SaveAnswers(user.Id, answersList);
 
         return Ok(new { redirectUrl = Url.Action("Index") });
-        //Deze redirect moet weg het is gewoon om te testen dat de antwoorden opgeslagen werden
 
     }
 

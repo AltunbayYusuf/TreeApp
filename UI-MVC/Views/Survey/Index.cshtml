@@ -41,7 +41,7 @@
                                     foreach (var option in options)
                                     {
                                         <label class="survey-option-card d-flex align-items-center">
-                                            <input type="radio" name="q@question.Id" value="@option" class="me-3"/>
+                                            <input type="radio" name="q@(question.Id)" value="@option" class="me-3"/>
                                             <span>@option</span>
                                         </label>
                                     }
@@ -59,7 +59,7 @@
                                     foreach (var option in options)
                                     {
                                         <label class="survey-option-card d-flex align-items-center">
-                                            <input type="radio" name="q@question.Id" value="@option" class="me-3"/>
+                                            <input type="radio" name="q@(question.Id)" value="@option" class="me-3"/>
                                             <span>@option</span>
                                         </label>
                                     }
@@ -121,24 +121,25 @@
                                 break;
 
                             case QuestionType.Range:
-                                <p class="survey-question-meta">[Range 1-5]</p>
-
-                                <div class="d-flex justify-content-between range-labels mb-2">
-                                    <span>1 = geen stress</span>
-                                    <span>5 = extreem veel stress</span>
-                                </div>
-
-                                <div class="d-flex gap-3 flex-wrap mb-2">
-                                    @for (int i = 1; i <= 5; i++)
-                                    {
-                                        <button type="button" class="range-box range-value" data-val="@i">@i</button>
-                                    }
-                                </div>
-
-                                <div class="d-flex justify-content-between range-labels-small">
-                                    <span>1</span>
-                                    <span>5</span>
-                                </div>
+                                <p> Voor volgende milestone</p>
+                                @* <p class="survey-question-meta">[Range 1-5]</p> *@
+                                @* *@
+                                @* <div class="d-flex justify-content-between range-labels mb-2"> *@
+                                @*     <span>1 = geen stress</span> *@
+                                @*     <span>5 = extreem veel stress</span> *@
+                                @* </div> *@
+                                @* *@
+                                @* <div class="d-flex gap-3 flex-wrap mb-2"> *@
+                                @*     @for (int i = 1; i <= 5; i++) *@
+                                @*     { *@
+                                @*         <button type="button" class="range-box range-value" data-val="@i">@i</button> *@
+                                @*     } *@
+                                @* </div> *@
+                                @* *@
+                                @* <div class="d-flex justify-content-between range-labels-small"> *@
+                                @*     <span>1</span> *@
+                                @*     <span>5</span> *@
+                                @* </div> *@
                                 break;
 
                             case QuestionType.OpenQuestion:

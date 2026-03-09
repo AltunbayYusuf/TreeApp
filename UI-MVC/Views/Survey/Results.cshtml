@@ -5,7 +5,7 @@
     Layout = "_Layout";
 }
 
-<h2>Je hebt deze vragenlijst al beantwoord!</h2>
+<h2>Je hebt deze vragenlijst beantwoord!</h2>
 <h3>Jouw antwoorden:</h3>
 @foreach (var answer in Model.Answers)
 {
@@ -13,4 +13,11 @@
         <strong>Vraag:</strong> @answer.Question.Description <br/>
         <strong>Jouw antwoord:</strong> <span>@answer.Text</span>
     </div>
+}
+
+<button type="button" class="btn btn-primary" id="ideeGeven">Geef een idee</button>
+<button type="button" class="btn btn-primary" id="ideeenBekijken">Bekijk andere ideeen</button>
+
+@section Scripts{
+    <script src="/js/survey/results.js" defer></script>
 }
