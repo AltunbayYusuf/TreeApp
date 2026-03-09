@@ -115,7 +115,6 @@ public class IdeaRepository : IIdeaRepository
             .FirstOrDefault(p => p.Id == projectId);
     }
 
-
     public User ReadUser(string cookieId)
     {
         return _context.Users
