@@ -30,12 +30,12 @@ button.addEventListener("click", (e) => {
                 questionAnswered = true;
             }
         }
-         else if (type === "Range") {
-        //     const activeBtn = block.querySelector(".range-box.active");
-        //     if (activeBtn) {
-        //         resultValue = activeBtn.getAttribute("data-val");
+        else if (type === "Range") {
+            const selected = block.querySelector('input[type="radio"]:checked');
+            if (selected) {
+                resultValue = selected.value;
                 questionAnswered = true;
-        //     }
+            }
         }
         
         if (!questionAnswered) {
@@ -69,5 +69,20 @@ button.addEventListener("click", (e) => {
             if (data.redirectUrl) window.location.href = data.redirectUrl;
         })
         .catch(error => console.error('Fout bij verzenden:', error));
+
+});
+document.querySelectorAll(".range-box").forEach(btn => {
+
+    btn.addEventListener("click", function () {
+
+        const parent = this.closest(".d-flex");
+
+        parent.querySelectorAll(".range-box").forEach(b => {
+            b.classList.remove("active");
+        });
+
+        this.classList.add("active");
+
+    });
 
 });

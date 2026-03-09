@@ -122,24 +122,35 @@
 
                             case QuestionType.Range:
                                 <p> Voor volgende milestone</p>
-                                @* <p class="survey-question-meta">[Range 1-5]</p> *@
-                                @* *@
-                                @* <div class="d-flex justify-content-between range-labels mb-2"> *@
-                                @*     <span>1 = geen stress</span> *@
-                                @*     <span>5 = extreem veel stress</span> *@
-                                @* </div> *@
-                                @* *@
-                                @* <div class="d-flex gap-3 flex-wrap mb-2"> *@
-                                @*     @for (int i = 1; i <= 5; i++) *@
-                                @*     { *@
-                                @*         <button type="button" class="range-box range-value" data-val="@i">@i</button> *@
-                                @*     } *@
-                                @* </div> *@
-                                @* *@
-                                @* <div class="d-flex justify-content-between range-labels-small"> *@
-                                @*     <span>1</span> *@
-                                @*     <span>5</span> *@
-                                @* </div> *@
+                                <p class="survey-question-meta">[Range 1-5]</p>
+                                
+                                <div class="d-flex justify-content-between range-labels mb-2">
+                                    <span>1 = geen stress</span>
+                                    <span>5 = extreem veel stress</span>
+                                </div>
+                                
+                                <div class="d-flex">
+
+                                    <div class="btn-group w-50" role="group">
+
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <input type="radio"
+                                                   class="btn-check"
+                                                   name="range@question.Id"
+                                                   id="range@question.Id-@i"
+                                                   value="@i"
+                                                   autocomplete="off">
+
+                                            <label class="btn btn-outline-primary px-4 py-3 fs-4 text-center flex-fill"
+                                                   for="range@question.Id-@i">
+                                                @i
+                                            </label>
+                                        }
+
+                                    </div>
+
+                                </div>
                                 break;
 
                             case QuestionType.OpenQuestion:
