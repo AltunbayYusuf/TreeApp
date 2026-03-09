@@ -5,21 +5,31 @@ services:
       dockerfile: UI-MVC/Dockerfile
     ports:
       - "8080:8080"
-    depends_on:
-      - db
+    # depends_on is niet meer nodig omdat de DB in de cloud altijd aan staat
     environment:
       ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Development
+      # CONNECTIE NAAR GOOGLE CLOUD SQL:
+      ConnectionStrings__DefaultConnection: Host=34.14.80.108;Port=5432;Database=TreeApp;Username=postgres;Password=Student_1234
+      Gemini__ApiKey: ${GEMINI_API_KEY}
 
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: appdb
-      POSTGRES_USER: appuser
-      POSTGRES_PASSWORD: apppass
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+# De lokale database is nu uitgeschakeld. 
+# Wil je deze ooit weer gebruiken? Haal dan de '#' weg.
+# db:
+#   image: postgres:16
+#   environment:
+#     POSTGRES_DB: TreeApp
+#     POSTGRES_USER: postgres
+#     POSTGRES_PASSWORD: Student_1234
+#   ports:
+#     - "5432:5432"
+#   volumes:
+#     - pgdata:/var/lib/postgresql/data
+#   healthcheck:
+#     test: ["CMD-SHELL", "pg_isready -U postgres"]
+#     interval: 5s
+#     timeout: 5s
+#     retries: 5
 
 volumes:
   pgdata:

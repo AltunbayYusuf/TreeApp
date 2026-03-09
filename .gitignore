@@ -13,8 +13,6 @@
 *.user
 *.suo
 
-
-
 # Logs
 *.log
 
@@ -22,3 +20,6 @@
 .DS_Store
 Thumbs.db
 *.cache
+
+.env
+appsettings.Development.json
