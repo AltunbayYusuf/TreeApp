@@ -1,0 +1,12 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: UI-MVC/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DefaultConnection: Host=34.14.80.108;Port=5432;Database=TreeApp;Username=postgres;Password=Student_1234
+      Gemini__ApiKey: ${GEMINI_API_KEY}
