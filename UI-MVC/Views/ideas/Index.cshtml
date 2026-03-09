@@ -88,9 +88,12 @@ else
                     
 
                     <div class="mb-2">
-                        <textarea name="text" class="form-control" rows="3" placeholder="Schrijf een reactie"></textarea>
+                        <textarea name="text" class="form-control" rows="3" placeholder="Schrijf een reactie" required></textarea>
                     </div>
                     
+                    <div class="reaction-error text-danger mt-2" id="reaction-error-@idea.Id" style="display:none;">
+                        Je reactie is leeg.
+                    </div>
                     <button type="submit" class="btn btn-primary">Verzenden</button>
                     <button type="button" class="reaction-emoji-btn" data-idea-id="@idea.Id" data-emoji="👍">👍</button>
                     <button type="button" class="reaction-emoji-btn" data-idea-id="@idea.Id" data-emoji="❤️">❤️</button>
