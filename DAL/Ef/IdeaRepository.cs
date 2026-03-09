@@ -18,6 +18,7 @@ public class IdeaRepository : IIdeaRepository
     public void AddIdea(Idea idea)
     {
         _context.Ideas.Add(idea);
+        _context.SaveChanges();
     }
 
     public void AddReaction(int ideaId, string emoji, string text)

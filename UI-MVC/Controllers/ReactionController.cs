@@ -17,6 +17,6 @@ public class ReactionController : Controller
     public IActionResult Add(int ideaId, string emoji, string text)
     {
         _manager.AddReaction(ideaId, emoji, text);
-        return RedirectToAction("Index", "Ideas");
+        return RedirectToAction("Index", "Idea");
     }
 }

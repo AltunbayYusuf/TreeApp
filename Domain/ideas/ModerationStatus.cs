@@ -2,5 +2,5 @@ namespace IntergratieProject.Domain.ideas;
 
 public enum ModerationStatus
 {
-    Accepted, InReview
+    Accepted = 1, InReview = 0
 }

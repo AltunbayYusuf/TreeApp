@@ -7,7 +7,7 @@
 <h1>Ideeën</h1>
 
 <div class="mb-4 d-flex gap-3 align-items-end flex-wrap">
-    <form method="get" asp-controller="Ideas" asp-action="Index">
+    <form method="get" asp-controller="Idea" asp-action="Index">
         <label for="topicId" class="form-label">Filter op topic</label>
         <select id="topicId" name="topicId" class="form-select" onchange="this.form.submit()">
             <option value="">Alle topics</option>
@@ -27,7 +27,7 @@
     </form>
 
     <div>
-        <a asp-controller="Chat" asp-action="Index" class="btn btn-primary">
+        <a asp-controller="Idea" asp-action="Create" class="btn btn-primary">
             Ik heb een idee!
         </a>
     </div>
