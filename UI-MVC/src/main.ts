@@ -5,7 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './main.scss';
 
-import './js/survey';
+import './js/survey/index';
 import './js/survey/results';
-import './js/reaction';
+import './js/reaction/index';
+import './js/idea/create';
 

@@ -2,7 +2,7 @@
 export default {
     content: [
         "./Views/**/*.{cshtml,html}",
-        "./Assets/**/*.{js,ts,scss}",
+        "./src/**/*.{js,ts,scss}",
     ],
     theme: {
         extend: {},
