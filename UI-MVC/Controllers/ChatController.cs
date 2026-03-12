@@ -28,7 +28,8 @@ namespace IntergratieProject.UI.MVC.Controllers
 
             if (result.IsToxic && string.IsNullOrWhiteSpace(result.SuggestedText))
             {
-                return Ok(new {
+                return Ok(new
+                {
                     ok = true,
                     isToxic = true,
                     warning = "Moderatie kon niet uitgevoerd worden. Probeer opnieuw of pas je tekst aan.",
@@ -37,13 +38,26 @@ namespace IntergratieProject.UI.MVC.Controllers
                 });
             }
 
+            if (result.IsToxic)
+            {
+                return Ok(new
+                {
+                    ok = true,
+                    isToxic = true,
+                    warning = "De tekst bevat toxische woorden. Het kan zijn dat de tekst niet goedgekeurd wordt.",
+                    explanation = result.Explanation,
+                    suggestedText = result.SuggestedText
+                });
+            }
+
             // toxisch -> geef voorstel terug
-            return Ok(new {
+            return Ok(new
+            {
                 ok = true,
-                isToxic = true,
-                warning = "De tekst bevat toxische woorden. Het kan zijn dat de tekst niet goedgekeurd wordt.",
+                isToxic = false,
+                warning = "",
                 explanation = result.Explanation,
-                suggestedText = result.SuggestedText
+                suggestedText = ""
             });
         }
     }

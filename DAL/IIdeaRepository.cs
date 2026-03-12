@@ -8,7 +8,8 @@ namespace IntergratieProject.DAL;
 public interface IIdeaRepository
 {
      void AddIdea(Idea idea);
-    void AddReaction(int ideaId, string? emoji, string? text);
+   // void AddReaction(int ideaId, string? emoji, string? text);
+   void AddReaction(Reaction reaction);
     
     IEnumerable<Topic> ReadTopicsByProject(Project project);
     IEnumerable<Idea> ReadIdeasByProject(Project project);

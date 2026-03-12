@@ -21,27 +21,32 @@ public class IdeaRepository : IIdeaRepository
         _context.SaveChanges();
     }
 
-    public void AddReaction(int ideaId, string emoji, string text)
+    // public void AddReaction(int ideaId, string emoji, string text)
+    // {
+    //     var idea = _context.Ideas.FirstOrDefault(i => i.Id == ideaId);
+    //
+    //     if (idea == null)
+    //     {
+    //         throw new Exception("Idea niet gevonden");
+    //     }
+    //
+    //     var reaction = new Reaction
+    //     {
+    //         Idea = idea,
+    //         Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
+    //         Text = string.IsNullOrWhiteSpace(text) ? null : text,
+    //         ModerationStatus = ModerationStatus.InReview
+    //     };
+    //
+    //     _context.Reactions.Add(reaction);
+    //     _context.SaveChanges();
+    // }
+   
+    public void AddReaction(Reaction reaction)
     {
-        var idea = _context.Ideas.FirstOrDefault(i => i.Id == ideaId);
-
-        if (idea == null)
-        {
-            throw new Exception("Idea niet gevonden");
-        }
-
-        var reaction = new Reaction
-        {
-            Idea = idea,
-            Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
-            Text = string.IsNullOrWhiteSpace(text) ? null : text,
-            ModerationStatus = ModerationStatus.InReview
-        };
-
         _context.Reactions.Add(reaction);
         _context.SaveChanges();
     }
-
     public IEnumerable<Topic> ReadTopicsByProject(Project project)
     {
         return _context.Topics.Where(t => t.Project == project).ToList();
