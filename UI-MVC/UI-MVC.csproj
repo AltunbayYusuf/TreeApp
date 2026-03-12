@@ -27,4 +27,5 @@
       <_ContentIncludedByDefault Remove="Views\Chat\Index.cshtml" />
     </ItemGroup>
 
+
 </Project>
