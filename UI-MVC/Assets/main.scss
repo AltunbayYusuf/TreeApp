@@ -1,186 +1,192 @@
 ﻿@tailwind components;
 @tailwind utilities;
 
-.home-container {
-  max-width: 700px;
-}
+@import "./styles/survey";
+@import "./styles/base";
+@import "./styles/layout";
+@import "./styles/home";
+@import "./styles/reaction";
 
-.home-topbar {
-  background: white;
-}
-
-.home-logo {
-  max-height: 60px;
-}
-
-.home-lang-switch {
-  min-width: 80px;
-  text-align: center;
-}
-
-.home-image-box {
-  min-height: 250px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.home-card {
-  background: white;
-}
-
-.home-start-btn {
-  width: 100%;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
-}
-
-html {
-  font-size: 14px;
-}
-
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
-}
-
-body {
-  margin-bottom: 60px;
-}
-
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
-}
-
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
-}
-/* vanaf hier is het voor de survey */
-
-.survey-question-title {
-  font-size: 2rem;
-  font-weight: 700;
-  max-width: 520px;
-  line-height: 1.35;
-  margin-bottom: 0.4rem;
-}
-
-.question-number-circle {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 50%;
-  background-color: #1f2940;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  margin-top: 4px;
-}
-
-.survey-question-meta {
-  color: #4b5563;
-  font-family: monospace;
-  margin-bottom: 1rem;
-}
-
-.survey-question-extra {
-  font-style: italic;
-  color: #444;
-  margin-bottom: 0.2rem;
-}
-
-.survey-option-card {
-  border: 2px solid #d1d5db;
-  padding: 1.1rem 1.2rem;
-  margin-bottom: 0.9rem;
-  max-width: 520px;
-  background: white;
-  text-decoration: none;
-  color: black;
-}
-
-.survey-option-card input[type="radio"],
-.survey-option-card input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
-}
-
-.range-box {
-  width: 62px;
-  height: 62px;
-  border: 2px solid #d1d5db;
-  background: white;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.range-labels,
-.range-labels-small {
-  max-width: 520px;
-  color: #374151;
-}
-
-.survey-textarea {
-  width: 100%;
-  max-width: 520px;
-  min-height: 190px;
-  border: 2px solid #d1d5db;
-  padding: 1rem;
-  font-size: 1.1rem;
-  resize: vertical;
-}
-.survey-container{
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 20px;
-}
-.range-box{
-  border:1px solid #ccc;
-  padding:8px 14px;
-  margin:4px;
-  border-radius:6px;
-  background:white;
-  cursor:pointer;
-}
-
-/* hover effect */
-.range-box:hover{
-  background-color:#2563eb;
-  color:white;
-}
-
-/* geselecteerde knop */
-.range-box.selected{
-  background-color:#1d4ed8;
-  color:white;
-}
-
-.reaction-emoji-btn {
-  border: 1px solid #ccc;
-  background: white;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 20px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.reaction-emoji-btn.selected {
-  background: #e8f0fe;
-  border-color: #7aa7ff;
-  transform: scale(1.05);
-}
-
+//.home-container {
+//  max-width: 700px;
+//}
+//
+//.home-topbar {
+//  background: white;
+//}
+//
+//.home-logo {
+//  max-height: 60px;
+//}
+//
+//.home-lang-switch {
+//  min-width: 80px;
+//  text-align: center;
+//}
+//
+//.home-image-box {
+//  min-height: 250px;
+//  display: flex;
+//  align-items: center;
+//  justify-content: center;
+//}
+//
+//.home-card {
+//  background: white;
+//}
+//
+//.home-start-btn {
+//  width: 100%;
+//  padding-top: 1rem;
+//  padding-bottom: 1rem;
+//}
+//
+//html {
+//  font-size: 14px;
+//}
+//
+//@media (min-width: 768px) {
+//  html {
+//    font-size: 16px;
+//  }
+//}
+//
+//.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+//  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+//}
+//
+//html {
+//  position: relative;
+//  min-height: 100%;
+//}
+//
+//body {
+//  margin-bottom: 60px;
+//}
+//
+//.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+//  color: var(--bs-secondary-color);
+//  text-align: end;
+//}
+//
+//.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+//  text-align: start;
+//}
+///* vanaf hier is het voor de survey */
+//
+//.survey-question-title {
+//  font-size: 2rem;
+//  font-weight: 700;
+//  max-width: 520px;
+//  line-height: 1.35;
+//  margin-bottom: 0.4rem;
+//}
+//
+//.question-number-circle {
+//  width: 40px;
+//  height: 40px;
+//  min-width: 40px;
+//  border-radius: 50%;
+//  background-color: #1f2940;
+//  color: white;
+//  display: flex;
+//  align-items: center;
+//  justify-content: center;
+//  font-weight: 700;
+//  margin-top: 4px;
+//}
+//
+//.survey-question-meta {
+//  color: #4b5563;
+//  font-family: monospace;
+//  margin-bottom: 1rem;
+//}
+//
+//.survey-question-extra {
+//  font-style: italic;
+//  color: #444;
+//  margin-bottom: 0.2rem;
+//}
+//
+//.survey-option-card {
+//  border: 2px solid #d1d5db;
+//  padding: 1.1rem 1.2rem;
+//  margin-bottom: 0.9rem;
+//  max-width: 520px;
+//  background: white;
+//  text-decoration: none;
+//  color: black;
+//}
+//
+//.survey-option-card input[type="radio"],
+//.survey-option-card input[type="checkbox"] {
+//  width: 22px;
+//  height: 22px;
+//}
+//
+//.range-box {
+//  width: 62px;
+//  height: 62px;
+//  border: 2px solid #d1d5db;
+//  background: white;
+//  font-weight: 700;
+//  font-size: 1.1rem;
+//}
+//
+//.range-labels,
+//.range-labels-small {
+//  max-width: 520px;
+//  color: #374151;
+//}
+//
+//.survey-textarea {
+//  width: 100%;
+//  max-width: 520px;
+//  min-height: 190px;
+//  border: 2px solid #d1d5db;
+//  padding: 1rem;
+//  font-size: 1.1rem;
+//  resize: vertical;
+//}
+//.survey-container{
+//  max-width: 720px;
+//  margin: 0 auto;
+//  padding: 20px;
+//}
+//.range-box{
+//  border:1px solid #ccc;
+//  padding:8px 14px;
+//  margin:4px;
+//  border-radius:6px;
+//  background:white;
+//  cursor:pointer;
+//}
+//
+///* hover effect */
+//.range-box:hover{
+//  background-color:#2563eb;
+//  color:white;
+//}
+//
+///* geselecteerde knop */
+//.range-box.selected{
+//  background-color:#1d4ed8;
+//  color:white;
+//}
+//
+//.reaction-emoji-btn {
+//  border: 1px solid #ccc;
+//  background: white;
+//  border-radius: 999px;
+//  padding: 8px 14px;
+//  font-size: 20px;
+//  cursor: pointer;
+//  transition: all 0.2s ease;
+//}
+//
+//.reaction-emoji-btn.selected {
+//  background: #e8f0fe;
+//  border-color: #7aa7ff;
+//  transform: scale(1.05);
+//}
+//

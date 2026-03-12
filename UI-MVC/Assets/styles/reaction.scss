@@ -1,0 +1,15 @@
+﻿.reaction-emoji-btn {
+  border: 1px solid #ccc;
+  background: white;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.reaction-emoji-btn.selected {
+  background: #e8f0fe;
+  border-color: #7aa7ff;
+  transform: scale(1.05);
+}
