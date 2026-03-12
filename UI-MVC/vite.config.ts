@@ -4,16 +4,16 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig(async () => {
     const config: UserConfig = {
         appType: 'custom',
-        root: 'Assets',
+        root: 'src',
         publicDir: 'public',
         plugins: [tailwindcss()],
         build: {
             emptyOutDir: true,
             manifest: true,
-            outDir: '../wwwroot',
+            outDir: '../wwwroot/dist',
             assetsDir: '',
             rollupOptions: {
-                input: 'Assets/main.ts'
+                input: 'main.ts'
             },
         },
         server: {
@@ -25,7 +25,6 @@ export default defineConfig(async () => {
         css: {
             preprocessorOptions: {
                 scss: {
-                    api: "modern-compiler",
                 },
             },
         },

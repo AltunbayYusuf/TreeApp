@@ -5,8 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './main.scss';
 
-import './js/survey/index.js';
-import './js/survey/results.js';
-import './js/reaction/index.js';
+import './js/survey';
+import './js/survey/results';
+import './js/reaction';
 
-console.log('hello, world');
