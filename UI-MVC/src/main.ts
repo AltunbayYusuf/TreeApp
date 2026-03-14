@@ -9,4 +9,5 @@ import './js/survey/index';
 import './js/survey/results';
 import './js/reaction/index';
 import './js/idea/create';
+import './js/idea/ideas';
 
