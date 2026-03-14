@@ -1,6 +1,9 @@
+const ideas = document.querySelectorAll(".idea-item");
+const showMoreBtn = document.getElementById("show-more-btn");
+
+
 function toonMeer() {
-    const ideas = document.querySelectorAll(".idea-item");
-    const showMoreBtn = document.getElementById("show-more-btn");
+
 
     let visibleCount = 2;
 
@@ -24,4 +27,8 @@ function toonMeer() {
     updateIdeas();
 }
 
+
+
 document.addEventListener("DOMContentLoaded", toonMeer);
+
+
