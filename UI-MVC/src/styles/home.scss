@@ -1,0 +1,20 @@
+﻿.home-container {
+  max-width: 700px;
+}
+
+.home-image-box {
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-card {
+  background: white;
+}
+
+.home-start-btn {
+  width: 100%;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}

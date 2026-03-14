@@ -3,6 +3,7 @@ using IntergratieProject.DAL;
 using IntergratieProject.DAL.Ef;
 using IntergratieProject.Domain.Ai;
 using Microsoft.EntityFrameworkCore;
+using Vite.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +15,17 @@ builder.Services.AddDbContext<TreeDbContext>(options =>
  builder.Services.AddHttpClient<IAiService, GeminiService>();
  builder.Services.AddScoped<IManager, Manager>();
  builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
+ builder.Services.AddViteServices();
+
+ 
 
 var app = builder.Build();
 
+if (app.Environment.IsDevelopment())
+ {
+
+     app.UseViteDevelopmentServer();
+ }
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
