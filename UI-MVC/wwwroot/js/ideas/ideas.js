@@ -1,7 +1,7 @@
 const ideas = document.querySelectorAll(".idea-item");
 const showMoreBtn = document.getElementById("show-more-btn");
 
-
+console.log("reaction/index.js geladen");
 function toonMeer() {
 
 
