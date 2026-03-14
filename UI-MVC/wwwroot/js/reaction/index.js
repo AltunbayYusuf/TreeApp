@@ -99,6 +99,8 @@ document.addEventListener("DOMContentLoaded", function () {
                                 <button type="button" class="btn btn-outline-primary btn-sm use-alternative-btn">
                                     Alternatief gebruiken
                                 </button>
+                    <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">Toch versturen</button>
+                                
                             </div>
                         </div>
                     `;
