@@ -16,4 +16,8 @@
       <Content Include="obj\.gitignore" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Vite.AspNetCore" Version="2.4.1" />
+    </ItemGroup>
+
 </Project>

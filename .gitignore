@@ -24,3 +24,13 @@ Thumbs.db
 
 .env
 appsettings.Development.json
+
+# Node / Vite
+node_modules/
+AspNetVite/node_modules/
+.vite/
+dist/
+
+# build output
+dist/
+wwwroot/dist/
