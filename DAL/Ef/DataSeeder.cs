@@ -4,167 +4,177 @@ using IntergratieProject.Domain.ideas;
 
 namespace IntergratieProject.DAL.Ef;
 
-    public class DataSeeder
+public class DataSeeder
+{
+    public static void Seed(TreeDbContext dbContext)
     {
-        public static void Seed(TreeDbContext dbContext)
+        var platform = new Platform
         {
+            CompanyName = "Tree Platform"
+        };
 
-            var platform = new Platform
-            {
-                CompanyName = "Tree Platform"
-            };
+        var subPlatform = new SubPlatform
+        {
+            CompanyName = "KdG Hogeschool (Demo)",
+            Language = Language.Nl,
+            Platform = platform
+        };
 
-            var subPlatform = new SubPlatform
-            {
-                CompanyName = "KdG Hogeschool (Demo)",
-                Language = Language.Nl,
-                Platform = platform
-            };
+        var project = new Project
+        {
+            Id = 1,
+            Introduction =
+                "Jouw welzijn telt. Denk met ons mee.\n\n" +
+                "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
+            Status = Status.Active,
+            Type = ProjectType.VerticalScroll,
+            Prompt = "", // AI aan de kant gezet
+            Duration = 10, // minuten (demo)
+            ReleaseDate = DateTime.UtcNow,
+            SubPlatform = subPlatform
+        };
+        var project2 = new Project
+        {
+            Id = 2,
+            Introduction =
+                "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
+            Status = Status.Active,
+            Type = ProjectType.VerticalScroll,
+            Prompt = "", // AI aan de kant gezet
+            Duration = 30, // minuten (demo)
+            ReleaseDate = DateTime.UtcNow,
+            SubPlatform = subPlatform
+        };
 
-            var project = new Project
-            {
-                Id = 1,
-                Introduction =
-                    "Jouw welzijn telt. Denk met ons mee.\n\n" +
-                    "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
-                Status = Status.Active,
-                Type = ProjectType.VerticalScroll,
-                Prompt = "",                 // AI aan de kant gezet
-                Duration = 10,               // minuten (demo)
-                ReleaseDate = DateTime.UtcNow,
-                SubPlatform = subPlatform
-            };
 
-          
-            var questionList = new QuestionList
-            {
-                Project = project
-            };
+        var questionList = new QuestionList
+        {
+            Project = project
+        };
 
-            var section = new Section
-            {
-                Title = "Bevraging (mentaal welzijn)",
-                Order = 1,
-                QuestionList = questionList,
-                Questions = new List<Question>()
-            };
-            
-            var questions = (List<Question>)section.Questions;
+        var section = new Section
+        {
+            Title = "Bevraging (mentaal welzijn)",
+            Order = 1,
+            QuestionList = questionList,
+            Questions = new List<Question>()
+        };
 
-            questions.Add(new Question
-            {
-                Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
-                QuestionType = QuestionType.SingleChoice,
-                Section = section
-            });
+        var questions = (List<Question>)section.Questions;
 
-            questions.Add(new Question
-            {
-                Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
-                QuestionType = QuestionType.MultipleChoice,
-                Section = section
-            });
+        questions.Add(new Question
+        {
+            Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section
+        });
 
-            questions.Add(new Question
-            {
-                Description = "In welke mate ervaar jij stress door je studies?",
-                QuestionType = QuestionType.Range,
-                Section = section
-            });
+        questions.Add(new Question
+        {
+            Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section
+        });
 
-            questions.Add(new Question
-            {
-                Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
-                QuestionType = QuestionType.SingleChoice,
-                Section = section
-            });
+        questions.Add(new Question
+        {
+            Description = "In welke mate ervaar jij stress door je studies?",
+            QuestionType = QuestionType.Range,
+            Section = section
+        });
 
-            questions.Add(new Question
-            {
-                Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
-                QuestionType = QuestionType.OpenQuestion,
-                Section = section
-            }); 
-            
-           
+        questions.Add(new Question
+        {
+            Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section
+        });
 
-            questionList.Sections = new List<Section> { section };
+        questions.Add(new Question
+        {
+            Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
+            QuestionType = QuestionType.OpenQuestion,
+            Section = section
+        });
 
-            project.QuestionList = questionList;
 
-            
-            //dit is om tussen topics kiezen. voorlopig nogniet nodif
-            var topicStress = new Topic
-            {
-                Theme = "Stress & studies",
-                Project = project
-            };
+        questionList.Sections = new List<Section> { section };
 
-            var topicSupport = new Topic
-            {
-                Theme = "Ondersteuning hogeschool",
-                Project = project
-            };
+        project.QuestionList = questionList;
 
-            var topicActions = new Topic
-            {
-                Theme = "Ideeën voor acties (ideation)",
-                Project = project
-            };
 
-            var topicDrugs = new Topic
-            {
-                Theme = "Het gebruik van drugs op school",
-                Project = project
-            };
+        //dit is om tussen topics kiezen. voorlopig nogniet nodif
+        var topicStress = new Topic
+        {
+            Theme = "Stress & studies",
+            Project = project
+        };
 
-            project.Topics = new List<Topic>
-            {
-                topicStress,
-                topicSupport,
-                topicActions,
-                topicDrugs
-            };
-            
-            var idea1 = new Idea
-            {
-                Title = "Spreid deadlines beter",
-                Text = "Veel stress komt doordat meerdere deadlines in dezelfde week vallen.",
-                Topic = topicStress,
-                ModerationStatus = ModerationStatus.Accepted
-            };
+        var topicSupport = new Topic
+        {
+            Theme = "Ondersteuning hogeschool",
+            Project = project
+        };
 
-            var idea2 = new Idea
-            {
-                Title = "Extra stille blokruimtes",
-                Text = "Tijdens examens zijn er te weinig rustige studieplaatsen.",
-                Topic = topicStress,
-                ModerationStatus = ModerationStatus.Accepted
-            };
+        var topicActions = new Topic
+        {
+            Theme = "IdeeÃ«n voor acties (ideation)",
+            Project = project2
+        };
 
-            var idea3 = new Idea
-            {
-                Title = "Meer zichtbaarheid van hulpdiensten",
-                Text = "Veel studenten weten niet waar ze terecht kunnen bij mentale problemen.",
-                Topic = topicSupport,
-                ModerationStatus = ModerationStatus.Accepted
-            };
+        var topicDrugs = new Topic
+        {
+            Theme = "Het gebruik van drugs op school",
+            Project = project2
+        };
 
-            var idea4 = new Idea
-            {
-                Title = "Mentale welzijnsweek",
-                Text = "Een week met workshops rond stress, slaap en planning.",
-                Topic = topicActions,
-                ModerationStatus = ModerationStatus.Accepted
-            };
+        project.Topics = new List<Topic>
+        {
+            topicStress,
+            topicSupport,
+            topicActions,
+            topicDrugs
+        };
 
-            var idea5 = new Idea
-            {
-                Title = "Betere preventie rond middelengebruik",
-                Text = "Meer informatie en begeleiding rond alcohol en drugs.",
-                Topic = topicDrugs,
-                ModerationStatus = ModerationStatus.Accepted
-            };
+        var idea1 = new Idea
+        {
+            Title = "Spreid deadlines beter",
+            Text = "Veel stress komt doordat meerdere deadlines in dezelfde week vallen.",
+            Topic = topicStress,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea2 = new Idea
+        {
+            Title = "Extra stille blokruimtes",
+            Text = "Tijdens examens zijn er te weinig rustige studieplaatsen.",
+            Topic = topicStress,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea3 = new Idea
+        {
+            Title = "Meer zichtbaarheid van hulpdiensten",
+            Text = "Veel studenten weten niet waar ze terecht kunnen bij mentale problemen.",
+            Topic = topicSupport,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea4 = new Idea
+        {
+            Title = "Mentale welzijnsweek",
+            Text = "Een week met workshops rond stress, slaap en planning.",
+            Topic = topicActions,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea5 = new Idea
+        {
+            Title = "Betere preventie rond middelengebruik",
+            Text = "Meer informatie en begeleiding rond alcohol en drugs.",
+            Topic = topicDrugs,
+            ModerationStatus = ModerationStatus.Accepted
+        };
 
         var reaction1 = new Reaction
         {
@@ -193,14 +203,14 @@ namespace IntergratieProject.DAL.Ef;
             Idea = idea3,
             ModerationStatus = ModerationStatus.Accepted
         };
-        
+
 
         idea1.Reactions = new List<Reaction> { reaction1, reaction2 };
         idea2.Reactions = new List<Reaction> { reaction3 };
         idea3.Reactions = new List<Reaction> { reaction4 };
         idea4.Reactions = new List<Reaction>();
         idea5.Reactions = new List<Reaction>();
-        
+
 
         var ideas = new List<Idea>
         {
@@ -212,19 +222,20 @@ namespace IntergratieProject.DAL.Ef;
             reaction1, reaction2, reaction3, reaction4
         };
 
-            dbContext.Platforms.Add(platform);
-            dbContext.SubPlatforms.Add(subPlatform);
-            dbContext.Projects.Add(project);
+        dbContext.Platforms.Add(platform);
+        dbContext.SubPlatforms.Add(subPlatform);
+        dbContext.Projects.Add(project);
+        dbContext.Projects.Add(project2);
 
-            
-            dbContext.QuestionList.Add(questionList);
-            dbContext.Section.Add(section);
-            dbContext.Questions.AddRange(questions);
 
-            dbContext.Topics.AddRange(project.Topics);
-            dbContext.Ideas.AddRange(ideas);
-            dbContext.Reactions.AddRange(reactions);
-            
-            dbContext.SaveChanges();
-        }
+        dbContext.QuestionList.Add(questionList);
+        dbContext.Section.Add(section);
+        dbContext.Questions.AddRange(questions);
+
+        dbContext.Topics.AddRange(project.Topics);
+        dbContext.Ideas.AddRange(ideas);
+        dbContext.Reactions.AddRange(reactions);
+
+        dbContext.SaveChanges();
     }
+}
