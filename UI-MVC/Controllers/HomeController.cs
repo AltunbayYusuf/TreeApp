@@ -8,22 +8,16 @@ namespace IntergratieProject.UI.MVC.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IManager _manager;
 
     public HomeController(ILogger<HomeController> logger, IManager manager)
     {
         _logger = logger;
-        _manager = manager;
     }
 
-    public IActionResult Index(int id = 1)
+    public IActionResult Index()
     {
-        var project = _manager.GetProject(id);
-        if (project == null)
-        {
-            return NotFound();
-        }
-        return View(project);
+     
+        return View();
     }
 
     public IActionResult Privacy()
