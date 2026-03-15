@@ -131,7 +131,7 @@ namespace IntergratieProject.DAL.Ef;
                 Title = "Spreid deadlines beter",
                 Text = "Veel stress komt doordat meerdere deadlines in dezelfde week vallen.",
                 Topic = topicStress,
-                ModerationStatus = default
+                ModerationStatus = ModerationStatus.Accepted
             };
 
             var idea2 = new Idea
@@ -139,7 +139,7 @@ namespace IntergratieProject.DAL.Ef;
                 Title = "Extra stille blokruimtes",
                 Text = "Tijdens examens zijn er te weinig rustige studieplaatsen.",
                 Topic = topicStress,
-                ModerationStatus = default
+                ModerationStatus = ModerationStatus.Accepted
             };
 
             var idea3 = new Idea
@@ -147,7 +147,7 @@ namespace IntergratieProject.DAL.Ef;
                 Title = "Meer zichtbaarheid van hulpdiensten",
                 Text = "Veel studenten weten niet waar ze terecht kunnen bij mentale problemen.",
                 Topic = topicSupport,
-                ModerationStatus = default
+                ModerationStatus = ModerationStatus.Accepted
             };
 
             var idea4 = new Idea
@@ -155,7 +155,7 @@ namespace IntergratieProject.DAL.Ef;
                 Title = "Mentale welzijnsweek",
                 Text = "Een week met workshops rond stress, slaap en planning.",
                 Topic = topicActions,
-                ModerationStatus = default
+                ModerationStatus = ModerationStatus.Accepted
             };
 
             var idea5 = new Idea
@@ -163,35 +163,35 @@ namespace IntergratieProject.DAL.Ef;
                 Title = "Betere preventie rond middelengebruik",
                 Text = "Meer informatie en begeleiding rond alcohol en drugs.",
                 Topic = topicDrugs,
-                ModerationStatus = default
+                ModerationStatus = ModerationStatus.Accepted
             };
 
         var reaction1 = new Reaction
         {
             Text = "Dit zou echt helpen, zeker in de examenperiode wanneer alles samenkomt.",
             Idea = idea1,
-            ModerationStatus = default
+            ModerationStatus = ModerationStatus.Accepted
         };
 
         var reaction2 = new Reaction
         {
             Text = "Mee eens. Vooral groepswerken en individuele deadlines zitten nu vaak te dicht op elkaar.",
             Idea = idea1,
-            ModerationStatus = default
+            ModerationStatus = ModerationStatus.Accepted
         };
 
         var reaction3 = new Reaction
         {
             Text = "Goede suggestie. Ik vind ook dat stille ruimtes vaak te snel volzet zijn.",
             Idea = idea2,
-            ModerationStatus = default
+            ModerationStatus = ModerationStatus.Accepted
         };
 
         var reaction4 = new Reaction
         {
             Text = "Ik wist eerlijk gezegd ook niet goed waar ik terechtkon, dus een centrale pagina lijkt me nuttig.",
             Idea = idea3,
-            ModerationStatus = default
+            ModerationStatus = ModerationStatus.Accepted
         };
         
 

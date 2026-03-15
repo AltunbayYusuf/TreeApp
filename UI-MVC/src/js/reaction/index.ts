@@ -1,71 +1,266 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿function escapeHtmll(str: string): string {
+    return (str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
 
     const emojiButtons = document.querySelectorAll<HTMLButtonElement>(".reaction-emoji-btn");
 
-    emojiButtons.forEach(button => {
-        button.addEventListener("click", function (e: MouseEvent) {
+    emojiButtons.forEach((button) => {
+        button.addEventListener("click", function () {
 
             const ideaId = this.dataset.ideaId;
-            const emoji = this.dataset.emoji;
+            const emoji = this.dataset.emoji ?? "";
 
-            if (!ideaId || !emoji) return;
+            if (!ideaId) return;
 
             const hiddenInput = document.getElementById(`emoji-${ideaId}`) as HTMLInputElement | null;
-            const buttonsForIdea = document.querySelectorAll<HTMLButtonElement>(`.reaction-emoji-btn[data-idea-id='${ideaId}']`);
+
+            const buttonsForIdea = document.querySelectorAll<HTMLButtonElement>(
+                `.reaction-emoji-btn[data-idea-id='${ideaId}']`
+            );
 
             if (!hiddenInput) return;
 
             if (hiddenInput.value === emoji) {
-                hiddenInput.value = "";
+
                 this.classList.remove("selected");
+                this.classList.remove("btn-primary");
+                this.classList.add("btn-outline-secondary");
+
+                hiddenInput.value = "";
+
+                console.log("emoji verwijderd:", emoji);
+
                 return;
             }
 
-            buttonsForIdea.forEach(btn => btn.classList.remove("selected"));
+            buttonsForIdea.forEach((btn) => {
+                btn.classList.remove("selected");
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-outline-secondary");
+            });
+
             this.classList.add("selected");
+            this.classList.remove("btn-outline-secondary");
+            this.classList.add("btn-primary");
+
             hiddenInput.value = emoji;
 
-            e.preventDefault();
+            console.log("emoji gezet:", hiddenInput.value);
+
         });
     });
-
 
     const reactionForms = document.querySelectorAll<HTMLFormElement>(".reaction-form");
 
-    reactionForms.forEach(form => {
-        form.addEventListener("submit", (e: SubmitEvent) => {
+    reactionForms.forEach((form) => {
 
-            const textArea = form.querySelector<HTMLTextAreaElement>("textarea[name='text']");
-            const emojiInput = form.querySelector<HTMLInputElement>("input[name='emoji']");
+        form.addEventListener("submit", async (e: SubmitEvent) => {
 
-            const text = textArea?.value ?? "";
-            const emoji = emojiInput?.value ?? "";
+            e.preventDefault();
+
+            const ideaId = form.dataset.ideaId;
+            if (!ideaId) return;
+
+            const textArea = form.querySelector("textarea[name='text']") as HTMLTextAreaElement | null;
+            const emojiInput = form.querySelector("input[name='emoji']") as HTMLInputElement | null;
+
+            if (!textArea || !emojiInput) return;
+
+            const text = textArea.value.trim();
+            const emoji = emojiInput.value.trim();
+
+            const resultBox = document.getElementById(`reaction-result-${ideaId}`) as HTMLDivElement | null;
+            const reactionsList = document.getElementById(`reactions-list-${ideaId}`) as HTMLUListElement | null;
+            const noReactionsMessage = document.getElementById(`no-reactions-${ideaId}`) as HTMLElement | null;
+
+            const emojiButtonsForIdea = document.querySelectorAll<HTMLButtonElement>(
+                `.reaction-emoji-btn[data-idea-id='${ideaId}']`
+            );
+
+            if (resultBox) {
+                resultBox.style.display = "none";
+                resultBox.innerHTML = "";
+            }
 
             if (text === "" && emoji === "") {
-                e.preventDefault();
-                alert("Je reactie is leeg.");
+                if (resultBox) {
+                    resultBox.style.display = "block";
+                    resultBox.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            Schrijf een reactie of kies een emoji.
+                        </div>
+                    `;
+                }
+                return;
             }
-            else if (!confirm("Wil je dit idee zeker verzenden?")) {
-                e.preventDefault();
+
+            if (!confirm("Wil je deze reactie zeker verzenden?")) {
+                return;
             }
+
+            try {
+                const response = await fetch("/api/reactions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        ideaId: parseInt(ideaId, 10),
+                        emoji: emoji,
+                        text: text
+                    })
+                });
+
+                const data: ReactionApiResponse = await response.json();
+
+                if (!response.ok) {
+                    if (resultBox) {
+                        resultBox.style.display = "block";
+                        resultBox.innerHTML = `
+                            <div class="alert alert-danger mb-0">
+                                ${data.message ?? "Er ging iets mis."}
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                if (data.isToxic) {
+                    if (resultBox) {
+                        resultBox.style.display = "block";
+                        resultBox.innerHTML = `
+                            <div class="alert alert-warning mb-0">
+                                <strong>${data.warning ?? "AI: je reactie bevat mogelijk toxische inhoud."}</strong>
+                                ${data.explanation ? `<div class="mt-2"><em>${data.explanation}</em></div>` : ""}
+                                ${data.suggestedText ? `<div class="mt-2"><strong>Alternatief:</strong><br>${data.suggestedText}</div>` : ""}
+                                <div class="mt-3 d-flex gap-2 flex-wrap">
+                                    <button type="button" class="btn btn-outline-primary btn-sm use-alternative-btn">
+                                        Alternatief gebruiken
+                                    </button>
+                                    <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">
+                                        Toch versturen
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                        const forceBtn = resultBox.querySelector("#force-submit-btn") as HTMLButtonElement | null;
+
+                        if (forceBtn) {
+                            forceBtn.addEventListener("click", async () => {
+
+                                const response = await fetch("/api/reactions/force", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        ideaId: parseInt(ideaId, 10),
+                                        emoji: emoji,
+                                        text: text,
+                                        forceSubmit: true
+                                    })
+                                });
+
+                                if (!response.ok) {
+                                    alert("Fout bij toch versturen.");
+                                    return;
+                                }
+
+                                location.reload();
+                            });
+                        }
+
+                        const useAlternativeBtn = resultBox.querySelector(".use-alternative-btn") as HTMLButtonElement | null;
+
+                        if (useAlternativeBtn) {
+                            useAlternativeBtn.addEventListener("click", () => {
+                                textArea.value = data.suggestedText || "";
+                                resultBox.style.display = "none";
+                                resultBox.innerHTML = "";
+                                textArea.focus();
+                            });
+                        }
+                    }
+                    return;
+                }
+
+                if (data.saved) {
+                    if (resultBox) {
+                        resultBox.style.display = "block";
+                        resultBox.innerHTML = `
+                            <div class="alert alert-success mb-0">
+                                ${data.message ?? "Reactie succesvol toegevoegd."}
+                            </div>
+                        `;
+                    }
+
+                    if (reactionsList) {
+                        const li = document.createElement("li");
+
+                        let html = "";
+
+                        if (emoji) {
+                            html += `<span>${escapeHtmll(emoji)} </span>`;
+                        }
+
+                        if (text) {
+                            html += `<span>${escapeHtmll(text)}</span>`;
+                        }
+    
+                        li.innerHTML = html;
+                        reactionsList.prepend(li);
+                        reactionsList.style.display = "block";
+                    }
+
+                    if (noReactionsMessage) {
+                        noReactionsMessage.style.display = "none";
+                        noReactionsMessage.remove();
+                    }
+
+                    textArea.value = "";
+                    emojiInput.value = "";
+
+                    emojiButtonsForIdea.forEach((btn) => {
+                        btn.classList.remove("selected");
+                        btn.classList.remove("btn-primary");
+                        btn.classList.add("btn-outline-secondary");
+                    });
+                }
+
+            } catch (error) {
+                console.error("Fout bij verzenden van reactie:", error);
+
+                if (resultBox) {
+                    resultBox.style.display = "block";
+                    resultBox.innerHTML = `
+                        <div class="alert alert-danger mb-0">
+                            Er ging iets mis bij het verzenden van je reactie.
+                        </div>
+                    `;
+                }
+            }
+
         });
-    });
 
-
-    reactionForms.forEach(form => {
-        form.addEventListener("submit", (e: SubmitEvent) => {
-
-            const textArea = form.querySelector<HTMLTextAreaElement>("textarea[name='text']");
-            const emojiInput = form.querySelector<HTMLInputElement>("input[name='emoji']");
-
-            const text = textArea?.value ?? "";
-            const emoji = emojiInput?.value ?? "";
-
-            if (text === "" && emoji === "") {
-                e.preventDefault();
-                alert("Je reactie is leeg.");
-            }
-        });
     });
 
 });
+
+
+interface ReactionApiResponse {
+    message?: string;
+    warning?: string;
+    explanation?: string;
+    suggestedText?: string;
+    isToxic?: boolean;
+    saved?: boolean;
+}

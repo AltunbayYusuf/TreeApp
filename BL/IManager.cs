@@ -1,4 +1,5 @@
-﻿using IntergratieProject.Domain.ideas;
+﻿using IntergratieProject.Domain.Ai;
+using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
 using IntergratieProject.Domain.users;
@@ -7,14 +8,16 @@ namespace IntergratieProject.BL;
 
 public interface IManager
 {
-    void AddReaction(int ideaId, string emoji, string text);
+   Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text);
+   Task ForceAddReactionAsync(int ideaId, string? emoji, string? text);
+   
     public Task<string> AskAiForIdea(string idea);
-    Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input);
-
-    Task<(bool Saved, bool IsToxic, string SuggestedText, string Explanation)> SubmitIdeaAsync(int topicId,
-        string title, string text);
+    //Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input);
+    Task<ToxicityResult> ModerateTextAsync(string input);
+    Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text);
 
     Task ForceSubmitIdeaAsync(int topicId, string title, string text);
+   // Task<ToxicityResult> SubmitReactionAsync(int ideaId, string emoji, string text);
 
     public IEnumerable<Topic> GetTopicsByProject(Project project);
     public IEnumerable<Idea> GetIdeasByProject(Project project, int? topicId = null);

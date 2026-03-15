@@ -26,6 +26,13 @@
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Views\Survey\Index.cshtml" />
       <_ContentIncludedByDefault Remove="Views\Chat\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\ideas\ideas.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\survey\index.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\js\survey\results.js" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\js\" />
     </ItemGroup>
 
 

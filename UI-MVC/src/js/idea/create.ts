@@ -22,16 +22,17 @@ function escapeHtml(str: string): string {
         .replace(/'/g, "&#039;");
 }
 
-async function postForm(url: string, topicId: string, title: string, text: string): Promise<IdeaResponse> {
+async function postIdea(url: string, topicId: string, title: string, text: string): Promise<IdeaResponse> {
     const response = await fetch(url, {
         method: "POST",
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
+            "Content-Type": "application/json"
         },
-        body:
-            "TopicId=" + encodeURIComponent(topicId) +
-            "&Title=" + encodeURIComponent(title) +
-            "&Text=" + encodeURIComponent(text)
+        body: JSON.stringify({
+            topicId: Number(topicId),
+            title: title,
+            text: text
+        })
     });
 
     return await response.json() as IdeaResponse;
@@ -63,8 +64,8 @@ function showAiWarning(data: IdeaResponse, topicId: string, title: string, text:
     const useAlternativeBtn = document.getElementById("use-alternative-btn") as HTMLButtonElement | null;
 
     forceSubmitBtn?.addEventListener("click", async (): Promise<void> => {
-        const forceResult = await postForm("/Idea/ForceSubmitIdea", topicId, title, text);
-
+        const forceResult = await postIdea("/api/ideas/force", topicId, title, text);
+        
         if (!forceResult.ok) {
             aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(forceResult.message || "Er ging iets mis.")}</div>`;
             return;
@@ -102,8 +103,7 @@ if (submitIdeaBtn && ideaTitle && ideaTopic && ideaText && aiMessage) {
             return;
         }
 
-        const data = await postForm("/Idea/SubmitIdea", topicId, title, text);
-
+        const data = await postIdea("/api/ideas", topicId, title, text);
         if (!data.ok) {
             aiMessage.style.display = "block";
             aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(data.message || "Er ging iets mis.")}</div>`;
