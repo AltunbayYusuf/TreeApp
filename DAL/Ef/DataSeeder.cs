@@ -28,11 +28,12 @@ public class DataSeeder
                 "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
             Status = Status.Active,
             Type = ProjectType.VerticalScroll,
-            Prompt = "", // AI aan de kant gezet
-            Duration = 10, // minuten (demo)
+            Prompt = "",
+            Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform
         };
+
         var project2 = new Project
         {
             Id = 2,
@@ -40,12 +41,15 @@ public class DataSeeder
                 "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
             Status = Status.Active,
             Type = ProjectType.VerticalScroll,
-            Prompt = "", // AI aan de kant gezet
-            Duration = 30, // minuten (demo)
+            Prompt = "",
+            Duration = 30,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform
         };
 
+        /* =========================
+           PROJECT 1
+        ========================= */
 
         var questionList = new QuestionList
         {
@@ -97,43 +101,17 @@ public class DataSeeder
             Section = section
         });
 
-
         questionList.Sections = new List<Section> { section };
-
         project.QuestionList = questionList;
 
-
-        //dit is om tussen topics kiezen. voorlopig nogniet nodif
-        var topicStress = new Topic
-        {
-            Theme = "Stress & studies",
-            Project = project
-        };
-
-        var topicSupport = new Topic
-        {
-            Theme = "Ondersteuning hogeschool",
-            Project = project
-        };
-
-        var topicActions = new Topic
-        {
-            Theme = "IdeeÃ«n voor acties (ideation)",
-            Project = project2
-        };
-
-        var topicDrugs = new Topic
-        {
-            Theme = "Het gebruik van drugs op school",
-            Project = project2
-        };
+        var topicStress = new Topic { Theme = "Stress & studies", Project = project };
+        var topicSupport = new Topic { Theme = "Ondersteuning hogeschool", Project = project };
+        var topicActions = new Topic { Theme = "Ideeën voor acties (ideation)", Project = project };
+        var topicDrugs = new Topic { Theme = "Het gebruik van drugs op school", Project = project };
 
         project.Topics = new List<Topic>
         {
-            topicStress,
-            topicSupport,
-            topicActions,
-            topicDrugs
+            topicStress, topicSupport, topicActions, topicDrugs
         };
 
         var idea1 = new Idea
@@ -204,37 +182,157 @@ public class DataSeeder
             ModerationStatus = ModerationStatus.Accepted
         };
 
-
         idea1.Reactions = new List<Reaction> { reaction1, reaction2 };
         idea2.Reactions = new List<Reaction> { reaction3 };
         idea3.Reactions = new List<Reaction> { reaction4 };
         idea4.Reactions = new List<Reaction>();
         idea5.Reactions = new List<Reaction>();
 
+        var ideas = new List<Idea> { idea1, idea2, idea3, idea4, idea5 };
+        var reactions = new List<Reaction> { reaction1, reaction2, reaction3, reaction4 };
 
-        var ideas = new List<Idea>
+        /* =========================
+           PROJECT 2
+        ========================= */
+
+        var questionList2 = new QuestionList { Project = project2 };
+
+        var section2 = new Section
         {
-            idea1, idea2, idea3, idea4, idea5
+            Title = "Bevraging (campusleven)",
+            Order = 1,
+            QuestionList = questionList2,
+            Questions = new List<Question>()
         };
 
-        var reactions = new List<Reaction>
+        var questions2 = (List<Question>)section2.Questions;
+
+        questions2.Add(new Question
         {
-            reaction1, reaction2, reaction3, reaction4
+            Description = "Hoe ervaar jij het sociale leven op de hogeschool?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section2
+        });
+
+        questions2.Add(new Question
+        {
+            Description = "Welke activiteiten op campus vind jij het meest waardevol?",
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section2
+        });
+
+        questions2.Add(new Question
+        {
+            Description = "In welke mate voel jij je verbonden met andere studenten?",
+            QuestionType = QuestionType.Range,
+            Section = section2
+        });
+
+        questions2.Add(new Question
+        {
+            Description = "Heb je genoeg mogelijkheden om nieuwe mensen te leren kennen?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section2
+        });
+
+        questions2.Add(new Question
+        {
+            Description = "Welke initiatieven zouden het campusleven verbeteren?",
+            QuestionType = QuestionType.OpenQuestion,
+            Section = section2
+        });
+
+        questionList2.Sections = new List<Section> { section2 };
+        project2.QuestionList = questionList2;
+
+        var topicCampus = new Topic { Theme = "Campusleven & sfeer", Project = project2 };
+        var topicEvents = new Topic { Theme = "Studentenevents", Project = project2 };
+        var topicConnection = new Topic { Theme = "Verbondenheid tussen studenten", Project = project2 };
+        var topicFacilities = new Topic { Theme = "Ontspanningsruimtes", Project = project2 };
+
+        project2.Topics = new List<Topic>
+        {
+            topicCampus, topicEvents, topicConnection, topicFacilities
         };
+
+        var idea21 = new Idea
+        {
+            Title = "Lunchactiviteiten voor studenten",
+            Text = "Korte activiteiten tijdens de middagpauze om studenten met elkaar te laten connecteren.",
+            Topic = topicEvents,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea22 = new Idea
+        {
+            Title = "Chillruimte op campus",
+            Text = "Een rustige ruimte met zetels waar studenten even kunnen ontspannen.",
+            Topic = topicFacilities,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea23 = new Idea
+        {
+            Title = "Buddy systeem voor nieuwe studenten",
+            Text = "Nieuwe studenten koppelen aan oudere studenten om sneller hun weg te vinden.",
+            Topic = topicConnection,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var idea24 = new Idea
+        {
+            Title = "Meer culturele evenementen",
+            Text = "Avonden waar studenten hun cultuur kunnen delen met anderen.",
+            Topic = topicCampus,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var reaction21 = new Reaction
+        {
+            Text = "Dat zou helpen om sneller nieuwe mensen te leren kennen.",
+            Idea = idea21,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        var reaction22 = new Reaction
+        {
+            Text = "Een chillruimte zou echt welkom zijn tussen de lessen.",
+            Idea = idea22,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        idea21.Reactions = new List<Reaction> { reaction21 };
+        idea22.Reactions = new List<Reaction> { reaction22 };
+        idea23.Reactions = new List<Reaction>();
+        idea24.Reactions = new List<Reaction>();
+
+        var ideas2 = new List<Idea> { idea21, idea22, idea23, idea24 };
+        var reactions2 = new List<Reaction> { reaction21, reaction22 };
+
+        /* =========================
+           DATABASE INSERT
+        ========================= */
 
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.Projects.Add(project);
         dbContext.Projects.Add(project2);
 
-
         dbContext.QuestionList.Add(questionList);
         dbContext.Section.Add(section);
         dbContext.Questions.AddRange(questions);
 
+        dbContext.QuestionList.Add(questionList2);
+        dbContext.Section.Add(section2);
+        dbContext.Questions.AddRange(questions2);
+
         dbContext.Topics.AddRange(project.Topics);
         dbContext.Ideas.AddRange(ideas);
         dbContext.Reactions.AddRange(reactions);
+
+        dbContext.Topics.AddRange(project2.Topics);
+        dbContext.Ideas.AddRange(ideas2);
+        dbContext.Reactions.AddRange(reactions2);
 
         dbContext.SaveChanges();
     }

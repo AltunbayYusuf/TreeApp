@@ -16,6 +16,7 @@ public class SurveyController : Controller
     }
 
     [HttpGet]
+
     public IActionResult Index(int projectId = 1) //default om te teste dat het getoont wordt, later verwijderen
     {
         var project = _manager.GetProject(projectId);
