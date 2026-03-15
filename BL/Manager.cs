@@ -19,6 +19,27 @@ public class Manager : IManager
         _aiService = aiService;
         _repository = repository;
     }
+    
+    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new Exception("Idee niet gevonden");
+        }
+
+        var reaction = new Reaction
+        {
+            Idea = idea,
+            Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
+            Text = string.IsNullOrWhiteSpace(text) ? null : text,
+            ModerationStatus = ModerationStatus.InReview
+        };
+
+        _repository.AddReaction(reaction);
+        await Task.CompletedTask;
+    }
 
     public void SubmitIdeaFromChatAsync(int topicId, string text)
     {
@@ -156,6 +177,7 @@ public class Manager : IManager
             Explanation = "Reactie succesvol opgeslagen."
         };
     }
+    
 
 public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
 {

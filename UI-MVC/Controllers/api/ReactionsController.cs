@@ -80,4 +80,57 @@ public class ReactionsController : ControllerBase
             });
         }
     }
+    
+    [HttpPost("force")]
+    public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
+    {
+        if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)
+        {
+            return BadRequest(new ReactionResultDto
+            {
+                Ok = false,
+                Saved = false,
+                IsToxic = false,
+                Message = "Ongeldig idee."
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(newReactionDto.Emoji) && string.IsNullOrWhiteSpace(newReactionDto.Text))
+        {
+            return BadRequest(new ReactionResultDto
+            {
+                Ok = false,
+                Saved = false,
+                IsToxic = false,
+                Message = "Geef een emoji of tekst in."
+            });
+        }
+
+        try
+        {
+            await _manager.ForceAddReactionAsync(
+                newReactionDto.IdeaId.Value,
+                newReactionDto.Emoji,
+                newReactionDto.Text
+            );
+
+            return Ok(new ReactionResultDto
+            {
+                Ok = true,
+                Saved = true,
+                IsToxic = false,
+                Message = "Reactie doorgestuurd voor moderatie."
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new ReactionResultDto
+            {
+                Ok = false,
+                Saved = false,
+                IsToxic = false,
+                Message = ex.Message
+            });
+        }
+    }
 }

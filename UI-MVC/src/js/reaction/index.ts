@@ -7,6 +7,7 @@
         .replace(/'/g, "&#039;");
 }
 
+
 document.addEventListener("DOMContentLoaded", () => {
 
     const emojiButtons = document.querySelectorAll<HTMLButtonElement>(".reaction-emoji-btn");
@@ -151,6 +152,32 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </div>
                             </div>
                         `;
+                        const forceBtn = resultBox.querySelector("#force-submit-btn") as HTMLButtonElement | null;
+
+                        if (forceBtn) {
+                            forceBtn.addEventListener("click", async () => {
+
+                                const response = await fetch("/api/reactions/force", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        ideaId: parseInt(ideaId, 10),
+                                        emoji: emoji,
+                                        text: text,
+                                        forceSubmit: true
+                                    })
+                                });
+
+                                if (!response.ok) {
+                                    alert("Fout bij toch versturen.");
+                                    return;
+                                }
+
+                                location.reload();
+                            });
+                        }
 
                         const useAlternativeBtn = resultBox.querySelector(".use-alternative-btn") as HTMLButtonElement | null;
 
@@ -227,6 +254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
 
 interface ReactionApiResponse {
     message?: string;

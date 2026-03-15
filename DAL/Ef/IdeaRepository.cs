@@ -20,28 +20,7 @@ public class IdeaRepository : IIdeaRepository
         _context.Ideas.Add(idea);
         _context.SaveChanges();
     }
-
-    // public void AddReaction(int ideaId, string emoji, string text)
-    // {
-    //     var idea = _context.Ideas.FirstOrDefault(i => i.Id == ideaId);
-    //
-    //     if (idea == null)
-    //     {
-    //         throw new Exception("Idea niet gevonden");
-    //     }
-    //
-    //     var reaction = new Reaction
-    //     {
-    //         Idea = idea,
-    //         Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
-    //         Text = string.IsNullOrWhiteSpace(text) ? null : text,
-    //         ModerationStatus = ModerationStatus.InReview
-    //     };
-    //
-    //     _context.Reactions.Add(reaction);
-    //     _context.SaveChanges();
-    // }
-   
+    
     public void AddReaction(Reaction reaction)
     {
         _context.Reactions.Add(reaction);
@@ -55,7 +34,8 @@ public class IdeaRepository : IIdeaRepository
     public IEnumerable<Idea> ReadIdeasByProject(Project project)
     {
         return _context.Ideas.Include(i => i.Topic)
-            .Include(i => i.Reactions)
+           // .Include(i => i.Reactions)
+            .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
             .Where(i => i.Topic.Project == project)
             .ToList();
     }
@@ -63,7 +43,8 @@ public class IdeaRepository : IIdeaRepository
     public IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId)
     {
         return _context.Ideas.Include(i => i.Topic)
-            .Include(i => i.Reactions)
+          //  .Include(i => i.Reactions)
+            .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
             .Where(i => i.Topic.Project == project && i.Topic.Id == topicId)
             .ToList();
     }
