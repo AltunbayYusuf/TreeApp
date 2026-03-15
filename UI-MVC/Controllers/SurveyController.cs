@@ -1,7 +1,7 @@
 using IntergratieProject.BL;
 using IntergratieProject.Domain.Questions;
 using IntergratieProject.Domain.users;
-using IntergratieProject.Models.Dto;
+using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;

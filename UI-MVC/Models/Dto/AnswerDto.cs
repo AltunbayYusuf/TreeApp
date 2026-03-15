@@ -1,4 +1,4 @@
-namespace IntergratieProject.Models.Dto;
+namespace IntergratieProject.UI.MVC.Models.Dto;
 
 public class AnswerDto
 {

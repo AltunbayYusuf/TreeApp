@@ -1,5 +1,5 @@
 using IntergratieProject.BL;
-using IntergratieProject.Models;
+using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers.api;
@@ -16,7 +16,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> SubmitIdea(SubmitIdeaViewModel vm)
+    public async Task<IActionResult> SubmitIdea([FromBody]SubmitIdeaViewModel vm)
     {
         if (vm.TopicId <= 0)
         {

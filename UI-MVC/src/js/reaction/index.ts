@@ -1,14 +1,26 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿function escapeHtmll(str: string): string {
+    return (str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
     const emojiButtons = document.querySelectorAll<HTMLButtonElement>(".reaction-emoji-btn");
 
     emojiButtons.forEach((button) => {
         button.addEventListener("click", function () {
+
             const ideaId = this.dataset.ideaId;
-            const emoji = this.textContent?.trim() ?? "";
+            const emoji = this.dataset.emoji ?? "";
 
             if (!ideaId) return;
 
             const hiddenInput = document.getElementById(`emoji-${ideaId}`) as HTMLInputElement | null;
+
             const buttonsForIdea = document.querySelectorAll<HTMLButtonElement>(
                 `.reaction-emoji-btn[data-idea-id='${ideaId}']`
             );
@@ -16,11 +28,15 @@
             if (!hiddenInput) return;
 
             if (hiddenInput.value === emoji) {
+
                 this.classList.remove("selected");
                 this.classList.remove("btn-primary");
                 this.classList.add("btn-outline-secondary");
+
                 hiddenInput.value = "";
+
                 console.log("emoji verwijderd:", emoji);
+
                 return;
             }
 
@@ -33,16 +49,20 @@
             this.classList.add("selected");
             this.classList.remove("btn-outline-secondary");
             this.classList.add("btn-primary");
+
             hiddenInput.value = emoji;
 
             console.log("emoji gezet:", hiddenInput.value);
+
         });
     });
 
     const reactionForms = document.querySelectorAll<HTMLFormElement>(".reaction-form");
 
     reactionForms.forEach((form) => {
+
         form.addEventListener("submit", async (e: SubmitEvent) => {
+
             e.preventDefault();
 
             const ideaId = form.dataset.ideaId;
@@ -57,6 +77,9 @@
             const emoji = emojiInput.value.trim();
 
             const resultBox = document.getElementById(`reaction-result-${ideaId}`) as HTMLDivElement | null;
+            const reactionsList = document.getElementById(`reactions-list-${ideaId}`) as HTMLUListElement | null;
+            const noReactionsMessage = document.getElementById(`no-reactions-${ideaId}`) as HTMLElement | null;
+
             const emojiButtonsForIdea = document.querySelectorAll<HTMLButtonElement>(
                 `.reaction-emoji-btn[data-idea-id='${ideaId}']`
             );
@@ -153,6 +176,29 @@
                         `;
                     }
 
+                    if (reactionsList) {
+                        const li = document.createElement("li");
+
+                        let html = "";
+
+                        if (emoji) {
+                            html += `<span>${escapeHtmll(emoji)} </span>`;
+                        }
+
+                        if (text) {
+                            html += `<span>${escapeHtmll(text)}</span>`;
+                        }
+    
+                        li.innerHTML = html;
+                        reactionsList.prepend(li);
+                        reactionsList.style.display = "block";
+                    }
+
+                    if (noReactionsMessage) {
+                        noReactionsMessage.style.display = "none";
+                        noReactionsMessage.remove();
+                    }
+
                     textArea.value = "";
                     emojiInput.value = "";
 
@@ -161,11 +207,8 @@
                         btn.classList.remove("btn-primary");
                         btn.classList.add("btn-outline-secondary");
                     });
-
-                    setTimeout(() => {
-                        location.reload();
-                    }, 700);
                 }
+
             } catch (error) {
                 console.error("Fout bij verzenden van reactie:", error);
 
@@ -178,8 +221,11 @@
                     `;
                 }
             }
+
         });
+
     });
+
 });
 
 interface ReactionApiResponse {

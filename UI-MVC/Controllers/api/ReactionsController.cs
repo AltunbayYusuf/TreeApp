@@ -1,6 +1,5 @@
 ﻿using IntergratieProject.BL;
-using IntergratieProject.Models;
-using IntergratieProject.Models.Dto;
+using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers.api;
