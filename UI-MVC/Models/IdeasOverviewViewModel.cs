@@ -1,7 +1,7 @@
 ﻿using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 
-namespace IntergratieProject.Models;
+namespace IntergratieProject.UI.MVC.Models;
 
 public class IdeasOverviewViewModel
 {
