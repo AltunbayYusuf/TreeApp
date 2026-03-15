@@ -22,6 +22,15 @@ function escapeHtml(str: string): string {
         .replace(/'/g, "&#039;");
 }
 
+function getProjectRedirectUrl(): string {
+    const params = new URLSearchParams(window.location.search);
+    const projectId = params.get("projectId");
+
+    return projectId
+        ? `/Idea/Index?projectId=${projectId}`
+        : "/Idea/Index";
+}
+
 async function postIdea(url: string, topicId: string, title: string, text: string): Promise<IdeaResponse> {
     const response = await fetch(url, {
         method: "POST",
@@ -65,7 +74,7 @@ function showAiWarning(data: IdeaResponse, topicId: string, title: string, text:
 
     forceSubmitBtn?.addEventListener("click", async (): Promise<void> => {
         const forceResult = await postIdea("/api/ideas/force", topicId, title, text);
-        
+
         if (!forceResult.ok) {
             aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(forceResult.message || "Er ging iets mis.")}</div>`;
             return;
@@ -73,7 +82,7 @@ function showAiWarning(data: IdeaResponse, topicId: string, title: string, text:
 
         clearAiMessage();
         alert("Idee doorgestuurd voor moderatie.");
-        window.location.href = "/Idea";
+        window.location.href = getProjectRedirectUrl();
     });
 
     useAlternativeBtn?.addEventListener("click", (): void => {
@@ -104,6 +113,7 @@ if (submitIdeaBtn && ideaTitle && ideaTopic && ideaText && aiMessage) {
         }
 
         const data = await postIdea("/api/ideas", topicId, title, text);
+
         if (!data.ok) {
             aiMessage.style.display = "block";
             aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(data.message || "Er ging iets mis.")}</div>`;
@@ -117,6 +127,6 @@ if (submitIdeaBtn && ideaTitle && ideaTopic && ideaText && aiMessage) {
 
         clearAiMessage();
         alert("Idee succesvol verstuurd.");
-        window.location.href = "/Idea";
+        window.location.href = getProjectRedirectUrl();
     });
 }

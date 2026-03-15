@@ -1,4 +1,23 @@
-﻿<!DOCTYPE html>
+﻿@{
+    var currentProjectId = Context.Request.Query["projectId"].ToString();
+
+    if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
+    {
+        currentProjectId = ViewContext.RouteData.Values["projectId"]!.ToString();
+    }
+
+    if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
+    {
+        currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
+    }
+
+    if (string.IsNullOrWhiteSpace(currentProjectId))
+    {
+        currentProjectId = "1";
+    }
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -19,28 +38,39 @@
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                    </li>
                     @* <li class="nav-item"> *@
-                    @*     <a class="nav-link text-dark" asp-area="" asp-controller="Survey" asp-action="Index">Survey</a> *@
+                    @*     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a> *@
                     @* </li> *@
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Idea" asp-action="Index">Ideeën</a>
+                        <a class="nav-link text-dark"
+                           asp-area=""
+                           asp-controller="Project"
+                           asp-action="Index"
+                           asp-route-id="@currentProjectId">
+                            Project
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Project" asp-action="Index" asp-route-id="1">Project</a>
+                        <a class="nav-link text-dark"
+                           asp-area=""
+                           asp-controller="Idea"
+                           asp-action="Index"
+                           asp-route-projectId="@currentProjectId">
+                            Ideeën
+                        </a>
                     </li>
+
+                   
 
                     <li class="nav-item">
                         <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                     </li>
-                    
                 </ul>
             </div>
         </div>
     </nav>
 </header>
+
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
@@ -52,6 +82,7 @@
         &copy; 2026 - UI-MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
+
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

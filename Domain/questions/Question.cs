@@ -10,4 +10,6 @@ public class Question
     public QuestionType QuestionType { get; set; }
     public Media Image { get; set; }
     public List<Answer> Answers { get; set; }
+    
+
 }

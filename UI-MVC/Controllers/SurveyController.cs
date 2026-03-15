@@ -17,7 +17,7 @@ public class SurveyController : Controller
 
     [HttpGet]
 
-    public IActionResult Index(int projectId = 1) //default om te teste dat het getoont wordt, later verwijderen
+    public IActionResult Index(int projectId) 
     {
         var project = _manager.GetProject(projectId);
 
@@ -27,16 +27,19 @@ public class SurveyController : Controller
         }
         var user = GetOrCreateUser();
     
-        if (user.Answers != null && user.Answers.Any()) 
+        if (user.Answers != null && user.Answers.Any())
         {
+            ViewBag.ProjectId = projectId;
             return View("Results", user); 
         }
+        
+        ViewBag.ProjectId = projectId;
         var questions = _manager.GetQuestionListByProject(project);
         return View(questions);
     }
 
     [HttpPost]
-    public IActionResult Submit(List<AnswerDto> answers) 
+    public IActionResult Submit(List<AnswerDto> answers,int projectId) 
     {
         if (answers == null || !answers.Any()) return BadRequest("Geen antwoorden ontvangen");
         
@@ -54,8 +57,7 @@ public class SurveyController : Controller
         }
         _manager.SaveAnswers(user.Id, answersList);
 
-        return Ok(new { redirectUrl = Url.Action("Index") });
-
+        return Ok(new { redirectUrl = Url.Action("Index", new { projectId }) });
     }
 
     private User GetOrCreateUser()
