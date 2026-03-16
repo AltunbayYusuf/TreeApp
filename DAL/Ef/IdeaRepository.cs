@@ -94,7 +94,7 @@ public class IdeaRepository : IIdeaRepository
             .FirstOrDefault();
     }
 
-    public Project ReadProject(int projectId)
+    public Project? ReadProject(int projectId)
     {
         return _context.Projects
             .Include(p => p.SubPlatform)

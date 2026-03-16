@@ -327,7 +327,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
         return _repository.ReadQuestionListByProject(project);
     }
 
-    public Project GetProject(int projectId)
+    public Project? GetProject(int projectId)
     {
         return _repository.ReadProject(projectId);
     }

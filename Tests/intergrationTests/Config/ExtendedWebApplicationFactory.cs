@@ -13,6 +13,13 @@ public class ExtendedWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
     private const string TestConnectionString =
         "Host=localhost;Port=5432;Database=TreeApp;Username=postgres;Password=Student_1234";
 
+    public IDbContextScope<TContext> CreateDbContextScope<TContext>()
+        where TContext : DbContext
+    {
+        var scope = Services.CreateScope();
+        return new DbContextScope<TContext>(scope);
+    }
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Development");
@@ -37,5 +44,29 @@ public class ExtendedWebApplicationFactory<TProgram> : WebApplicationFactory<TPr
 
             DataSeeder.Seed(db);
         });
+    }
+}
+
+public interface IDbContextScope<out TContext> : IDisposable
+    where TContext : DbContext
+{
+    TContext DbContext { get; }
+}
+
+public class DbContextScope<TContext> : IDbContextScope<TContext>
+    where TContext : DbContext
+{
+    private readonly IServiceScope _scope;
+    public TContext DbContext { get; }
+
+    public DbContextScope(IServiceScope scope)
+    {
+        _scope = scope;
+        DbContext = _scope.ServiceProvider.GetRequiredService<TContext>();
+    }
+
+    public void Dispose()
+    {
+        _scope.Dispose();
     }
 }

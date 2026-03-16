@@ -21,7 +21,7 @@ public interface IIdeaRepository
     Idea? ReadIdeaById(int ideaId);
     QuestionList ReadQuestionListByProject(Project projectId);
     
-    Project ReadProject(int projectId);
+    Project? ReadProject(int projectId);
     User ReadUser(string cookieId);
     void CreateUser(User user);   
     void SaveAnswers(int userId, List<Answer> answers);
