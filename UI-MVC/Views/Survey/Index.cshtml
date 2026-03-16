@@ -6,134 +6,63 @@
     int questionNumber = 1;
 }
 
-<h2 class="text-center mt-4" >@Model.Project.Introduction</h2>
+<h2 class="text-center mt-4">@Model.Project.Introduction</h2>
 
-@foreach(var s  in Model.Sections){
+@foreach (var s in Model.Sections)
+{
     <div>
-        
         @foreach (Question question in s.Questions)
         {
-            <div class="survey-question mb-5 pb-4 border-bottom survey-container" data-question-id="@question.Id" data-type="@question.QuestionType">
+            <div class="survey-question mb-5 pb-4 border-bottom survey-container"
+                 data-question-id="@question.Id"
+                 data-type="@question.QuestionType">
+
                 <div class="d-flex align-items-start gap-3">
                     <div class="question-number-circle">
                         @questionNumber
                     </div>
 
-                    <div class="flex-grow-1 ">
+                    <div class="flex-grow-1">
                         <h4 class="survey-question-title">@question.Description</h4>
 
                         @switch (question.QuestionType)
                         {
                             case QuestionType.SingleChoice:
-                                <p class="survey-question-meta">[Single choice - Likert scale]</p>
+                                <p class="survey-question-meta">[Single choice]</p>
 
-                                @if (question.Id == 1)
+                                @foreach (var option in question.Options)
                                 {
-                                    var options = new List<string>
-                                    {
-                                        "Zeer goed",
-                                        "Goed",
-                                        "Neutraal",
-                                        "Eerder slecht",
-                                        "Zeer slecht"
-                                    };
-
-                                    foreach (var option in options)
-                                    {
-                                        <label class="survey-option-card d-flex align-items-center">
-                                            <input type="radio" name="q@(question.Id)" value="@option" class="me-3"/>
-                                            <span>@option</span>
-                                        </label>
-                                    }
+                                    <label class="survey-option-card d-flex align-items-center">
+                                        <input type="radio" name="q@(question.Id)" value="@option.Text" class="me-3" />
+                                        <span>@option.Text</span>
+                                    </label>
                                 }
-                                else if (question.Id == 4)
-                                {
-                                    var options = new List<string>
-                                    {
-                                        "Ja, meestal wel",
-                                        "Soms wel, soms niet",
-                                        "Eerder niet",
-                                        "Helemaal niet"
-                                    };
-
-                                    foreach (var option in options)
-                                    {
-                                        <label class="survey-option-card d-flex align-items-center">
-                                            <input type="radio" name="q@(question.Id)" value="@option" class="me-3"/>
-                                            <span>@option</span>
-                                        </label>
-                                    }
-                                }
-
                                 break;
 
                             case QuestionType.MultipleChoice:
                                 <p class="survey-question-extra">Meerdere antwoorden mogelijk</p>
-                                <p class="survey-question-meta">[Multiple choice - checkboxes]</p>
+                                <p class="survey-question-meta">[Multiple choice]</p>
 
-                                @if (question.Id == 2)
+                                @foreach (var option in question.Options)
                                 {
-                                    var options = new List<string>
-                                    {
-                                        "Studies / examens",
-                                        "Combinatie studie-werk",
-                                        "Financiële zorgen",
-                                        "Sociale druk / eenzaamheid / relaties",
-                                        "Fysieke of mentale gezondheid",
-                                        "Thuissituatie",
-                                        "Toekomstzorgen",
-                                        "Andere"
-                                    };
-
-                                    foreach (var option in options)
-                                    {
-                                        <label class="survey-option-card d-flex align-items-center">
-                                            <input type="checkbox" value="@option" class="me-3"/>
-                                            <span>@option</span>
-                                        </label>
-                                    }
+                                    <label class="survey-option-card d-flex align-items-center">
+                                        <input type="checkbox" name="q@(question.Id)" value="@option.Text" class="me-3" />
+                                        <span>@option.Text</span>
+                                    </label>
                                 }
-                                else if (question.Id == 5)
-                                {
-                                    var options = new List<string>
-                                    {
-                                        "Ik weet niet goed wat ik kan of moet doen",
-                                        "Erover praten met ouders/familie/partner",
-                                        "Erover praten met vrienden/medestudenten",
-                                        "Professionele hulp zoeken",
-                                        "Sporten/bewegen",
-                                        "Afleiding zoeken",
-                                        "Studietaken uitstellen/vermijden",
-                                        "Bewust rust inplannen",
-                                        "Medicatie/alcohol/andere middelen",
-                                        "Iets anders"
-                                    };
-
-                                    foreach (var option in options)
-                                    {
-                                        <label class="survey-option-card d-flex align-items-center">
-                                            <input type="checkbox" value="@option" class="me-3"/>
-                                            <span>@option</span>
-                                        </label>
-                                    }
-                                }
-
                                 break;
 
                             case QuestionType.Range:
-                                <p> Voor volgende milestone</p>
-                                <p class="survey-question-meta">[Range 1-5]</p>
-                                
+                                <p class="survey-question-meta">[Range]</p>
+
                                 <div class="d-flex justify-content-between range-labels mb-2">
-                                    <span>1 = geen stress</span>
-                                    <span>5 = extreem veel stress</span>
+                                    <span>@question.RangeMinLabel</span>
+                                    <span>@question.RangeMaxLabel</span>
                                 </div>
-                                
+
                                 <div class="d-flex">
-
                                     <div class="btn-group w-50" role="group">
-
-                                        @for (int i = 1; i <= 5; i++)
+                                        @for (int i = question.RangeMin ?? 1; i <= (question.RangeMax ?? 5); i++)
                                         {
                                             <input type="radio"
                                                    class="btn-check"
@@ -147,9 +76,7 @@
                                                 @i
                                             </label>
                                         }
-
                                     </div>
-
                                 </div>
                                 break;
 
@@ -165,12 +92,10 @@
             questionNumber++;
         }
     </div>
-    
-}   
+}
 
 <div class="text-center mt-4">
     <button type="button" class="btn btn-primary" id="verzendbtn">
         Bevraging afronden
     </button>
 </div>
-

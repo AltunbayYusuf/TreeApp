@@ -38,7 +38,7 @@ public class DataSeeder
         {
             Id = 2,
             Introduction =
-                "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
+                "Deze vragenlijst is anoniem en helpt ons inzicht te krijgen in het campusleven.",
             Status = Status.Active,
             Type = ProjectType.VerticalScroll,
             Prompt = "",
@@ -70,35 +70,78 @@ public class DataSeeder
         {
             Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
             QuestionType = QuestionType.SingleChoice,
-            Section = section
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Zeer goed" },
+                new() { Text = "Goed" },
+                new() { Text = "Neutraal" },
+                new() { Text = "Eerder slecht" },
+                new() { Text = "Zeer slecht" }
+            }
         });
 
         questions.Add(new Question
         {
             Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
             QuestionType = QuestionType.MultipleChoice,
-            Section = section
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Studies / examens" },
+                new() { Text = "Combinatie studie-werk" },
+                new() { Text = "Financiële zorgen" },
+                new() { Text = "Sociale druk / eenzaamheid / relaties" },
+                new() { Text = "Fysieke of mentale gezondheid" },
+                new() { Text = "Thuissituatie" },
+                new() { Text = "Toekomstzorgen" },
+                new() { Text = "Andere" }
+            }
         });
 
         questions.Add(new Question
         {
             Description = "In welke mate ervaar jij stress door je studies?",
             QuestionType = QuestionType.Range,
-            Section = section
+            Section = section,
+            RangeMin = 1,
+            RangeMax = 5,
+            RangeMinLabel = "1 = geen stress",
+            RangeMaxLabel = "5 = extreem veel stress"
         });
 
         questions.Add(new Question
         {
             Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
             QuestionType = QuestionType.SingleChoice,
-            Section = section
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ja, meestal wel" },
+                new() { Text = "Soms wel, soms niet" },
+                new() { Text = "Eerder niet" },
+                new() { Text = "Helemaal niet" }
+            }
         });
 
         questions.Add(new Question
         {
             Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
-            QuestionType = QuestionType.OpenQuestion,
-            Section = section
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
+                new() { Text = "Erover praten met ouders/familie/partner" },
+                new() { Text = "Erover praten met vrienden/medestudenten" },
+                new() { Text = "Professionele hulp zoeken" },
+                new() { Text = "Sporten/bewegen" },
+                new() { Text = "Afleiding zoeken" },
+                new() { Text = "Studietaken uitstellen/vermijden" },
+                new() { Text = "Bewust rust inplannen" },
+                new() { Text = "Medicatie/alcohol/andere middelen" },
+                new() { Text = "Iets anders" }
+            }
         });
 
         questionList.Sections = new List<Section> { section };
@@ -195,7 +238,10 @@ public class DataSeeder
            PROJECT 2
         ========================= */
 
-        var questionList2 = new QuestionList { Project = project2 };
+        var questionList2 = new QuestionList
+        {
+            Project = project2
+        };
 
         var section2 = new Section
         {
@@ -211,28 +257,59 @@ public class DataSeeder
         {
             Description = "Hoe ervaar jij het sociale leven op de hogeschool?",
             QuestionType = QuestionType.SingleChoice,
-            Section = section2
+            Section = section2,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Heel positief" },
+                new() { Text = "Positief" },
+                new() { Text = "Neutraal" },
+                new() { Text = "Eerder negatief" },
+                new() { Text = "Heel negatief" }
+            }
         });
 
         questions2.Add(new Question
         {
             Description = "Welke activiteiten op campus vind jij het meest waardevol?",
             QuestionType = QuestionType.MultipleChoice,
-            Section = section2
+            Section = section2,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Workshops" },
+                new() { Text = "Studentenevents" },
+                new() { Text = "Sportactiviteiten" },
+                new() { Text = "Cultuuractiviteiten" },
+                new() { Text = "Groepswerken / studie-initiatieven" },
+                new() { Text = "Ontspanningsruimtes" },
+                new() { Text = "Buddy- of mentorprogramma's" },
+                new() { Text = "Andere" }
+            }
         });
 
         questions2.Add(new Question
         {
             Description = "In welke mate voel jij je verbonden met andere studenten?",
             QuestionType = QuestionType.Range,
-            Section = section2
+            Section = section2,
+            RangeMin = 1,
+            RangeMax = 5,
+            RangeMinLabel = "1 = helemaal niet verbonden",
+            RangeMaxLabel = "5 = zeer sterk verbonden"
         });
 
         questions2.Add(new Question
         {
             Description = "Heb je genoeg mogelijkheden om nieuwe mensen te leren kennen?",
             QuestionType = QuestionType.SingleChoice,
-            Section = section2
+            Section = section2,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ja, zeker" },
+                new() { Text = "Eerder wel" },
+                new() { Text = "Neutraal" },
+                new() { Text = "Eerder niet" },
+                new() { Text = "Helemaal niet" }
+            }
         });
 
         questions2.Add(new Question
