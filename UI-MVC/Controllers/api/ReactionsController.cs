@@ -16,7 +16,7 @@ public class ReactionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ReactionResultDto>> AddReaction(NewReactionDto newReactionDto)
+    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromForm]NewReactionDto newReactionDto)
     {
         if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)
         {

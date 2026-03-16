@@ -25,7 +25,7 @@ public interface IManager
     IEnumerable<Question> GetAllQuestions();
     Question GetQuestion(int questionId);
     QuestionList GetQuestionListByProject(Project projectId);
-    Project GetProject(int projectId);
+    Project? GetProject(int projectId);
     User GetUser(string cookieId);
     void AddUser(User user);
     void SaveAnswers(int userId, List<Answer> answers);
