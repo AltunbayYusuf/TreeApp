@@ -300,12 +300,18 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
 
     public IEnumerable<Idea> GetIdeasByProject(Project project, int? topicId = null)
     {
+        IEnumerable<Idea> ideas;
+
         if (topicId.HasValue)
         {
-            return _repository.ReadIdeasByTopic(project, topicId.Value);
+            ideas = _repository.ReadIdeasByTopic(project, topicId.Value);
+        }
+        else
+        {
+            ideas = _repository.ReadIdeasByProject(project);
         }
 
-        return _repository.ReadIdeasByProject(project);
+        return ideas.Where(i => i.ModerationStatus == ModerationStatus.Accepted);
     }
 
     public IEnumerable<Question> GetAllQuestionsBySection(int sectionId)
