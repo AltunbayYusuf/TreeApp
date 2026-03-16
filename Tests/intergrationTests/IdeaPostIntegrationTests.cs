@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using IntergratieProject.UI.MVC.Tests.intergrationTests.Config;
 
 namespace IntergratieProject.UI.MVC.Tests.intergrationTests;
@@ -15,18 +16,22 @@ public class IdeaPostIntegrationTests : IClassFixture<ExtendedWebApplicationFact
     [Fact]
     public async Task Post_Idea_Create_WithValidInput_ReturnsRedirect()
     {
-        var formData = new FormUrlEncodedContent(new Dictionary<string, string>
+        var body = new
         {
-            { "Title", "Test idee" },
-            { "Description", "Dit is een test idee" },
-            { "TopicId", "1" }
-        });
+            Title = "Test idee",
+            Text = "Dit is een test idee",
+            TopicId = 1
+        };
 
-        var response = await _client.PostAsync("/Idea/Create", formData);
+        var response = await _client.PostAsJsonAsync("/api/Ideas", body);
 
-        Assert.True(
-            response.StatusCode == HttpStatusCode.Redirect ||
-            response.StatusCode == HttpStatusCode.OK
-        );
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
     }
+    
+    
+    
+    
+    
+    
 }

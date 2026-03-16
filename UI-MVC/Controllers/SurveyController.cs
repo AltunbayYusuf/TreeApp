@@ -16,7 +16,6 @@ public class SurveyController : Controller
     }
 
     [HttpGet]
-
     public IActionResult Index(int projectId) 
     {
         var project = _manager.GetProject(projectId);
@@ -25,6 +24,7 @@ public class SurveyController : Controller
         {
             return NotFound();
         }
+
         var user = GetOrCreateUser();
     
         if (user.Answers != null && user.Answers.Any())
@@ -39,22 +39,39 @@ public class SurveyController : Controller
     }
 
     [HttpPost]
-    public IActionResult Submit(List<AnswerDto> answers,int projectId) 
+    public IActionResult Submit(List<AnswerDto> answers, int projectId)
     {
-        if (answers == null || !answers.Any()) return BadRequest("Geen antwoorden ontvangen");
-        
+        var project = _manager.GetProject(projectId);
+        if (project == null)
+        {
+            return NotFound();
+        }
+
+        if (answers == null || !answers.Any())
+        {
+            return BadRequest("Geen antwoorden ontvangen");
+        }
+
         var user = GetOrCreateUser();
         var answersList = new List<Answer>();
+
         foreach (var dto in answers)
         {
+            var question = _manager.GetQuestion(dto.QuestionId);
+            if (question == null)
+            {
+                return BadRequest("Ongeldige vraag.");
+            }
+
             var newAnswer = new Answer
             {
-                Question = _manager.GetQuestion(dto.QuestionId) ,
-                Text = dto.Value ?? "",
-                User = user,
+                Question = question,
+                Text = dto.Value ?? string.Empty,
+                User = user
             };
             answersList.Add(newAnswer);
         }
+
         _manager.SaveAnswers(user.Id, answersList);
 
         return Ok(new { redirectUrl = Url.Action("Index", new { projectId }) });
@@ -65,7 +82,6 @@ public class SurveyController : Controller
         string userGuid = Request.Cookies["UserIdentifier"];
         User? user = null;
 
-        // Probeer de user op te halen als er een cookie is
         if (!string.IsNullOrEmpty(userGuid))
         {
             user = _manager.GetUser(userGuid);

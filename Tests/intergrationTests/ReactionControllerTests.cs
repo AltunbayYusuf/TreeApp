@@ -28,7 +28,7 @@ public class ReactionControllerTests : IClassFixture<ExtendedWebApplicationFacto
         var existingIdea = dbContextScope.DbContext.Ideas.First();
 
         // Act
-        var response = client.PostAsync("/api/Reactions/AddReaction",
+        var response = client.PostAsync("/api/Reactions",
             new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "IdeaId", existingIdea.Id.ToString() },
@@ -64,7 +64,7 @@ public class ReactionControllerTests : IClassFixture<ExtendedWebApplicationFacto
         var existingIdea = dbContextScope.DbContext.Ideas.First();
 
         // Act
-        var response = client.PostAsync("/Reaction/Create",
+        var response = client.PostAsync("/api/Reactions",
             new FormUrlEncodedContent(new Dictionary<string, string>
             {
                 { "IdeaId", existingIdea.Id.ToString() },
