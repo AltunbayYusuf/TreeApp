@@ -82,12 +82,13 @@ public class IdeaRepository : IIdeaRepository
             .Include(i => i.Reactions)
             .FirstOrDefault(i => i.Id == ideaId);
     }
-
     public QuestionList ReadQuestionListByProject(Project project)
     {
-        return _context.Projects.Include(p => p.QuestionList)
-            .ThenInclude(q => q.Sections)
+        return _context.Projects
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
             .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
             .Where(p => p.Id == project.Id)
             .Select(p => p.QuestionList)
             .FirstOrDefault();

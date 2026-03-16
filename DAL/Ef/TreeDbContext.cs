@@ -25,7 +25,7 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionList> QuestionList { get; set; }
     public DbSet<Section> Section { get; set; }
-    
+    public DbSet<QuestionOption> QuestionOptions { get; set; }
     public TreeDbContext(DbContextOptions options) :  base(options)
     {
         

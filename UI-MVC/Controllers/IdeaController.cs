@@ -15,10 +15,10 @@ public class IdeaController : Controller
     }
 
 
-    public IActionResult Index(int? topicId)
+    public IActionResult Index(int projectId,int? topicId)
     {
-        Project project = (GetCurrentProject());
-
+        Project project = GetCurrentProject(projectId);
+        if (project == null) return NotFound();
         var vm = new IdeasOverviewViewModel()
         {
             Project = project,
@@ -30,9 +30,10 @@ public class IdeaController : Controller
     }
     
     [HttpGet]
-    public IActionResult Create()
+    public IActionResult Create(int projectId)
     {
-        Project project = GetCurrentProject();
+        Project project = GetCurrentProject(projectId);
+        if (project == null) return NotFound();
 
         var vm = new IdeasOverviewViewModel
         {
@@ -46,11 +47,8 @@ public class IdeaController : Controller
 
     
 
-    private Project GetCurrentProject()
+    private Project? GetCurrentProject(int projectId)
     {
-        return new Project()
-        {
-            Id = 1
-        };
+        return _manager.GetProject(projectId);
     }
 }

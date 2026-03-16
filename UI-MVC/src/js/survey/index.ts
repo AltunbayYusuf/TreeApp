@@ -68,7 +68,14 @@ if (button) {
             return;
         }
 
-        fetch("/Survey/Submit", {
+        const params = new URLSearchParams(window.location.search);
+        const projectId = params.get("projectId");
+
+        const submitUrl = projectId
+            ? `/Survey/Submit?projectId=${projectId}`
+            : "/Survey/Submit";
+
+        fetch(submitUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -88,10 +95,8 @@ if (button) {
     });
 }
 
-
 document.querySelectorAll<HTMLButtonElement>(".range-box").forEach(btn => {
     btn.addEventListener("click", function () {
-
         const parent = this.closest(".d-flex");
 
         if (!parent) return;
