@@ -3,14 +3,13 @@ using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
 using IntergratieProject.Domain.users;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace IntergratieProject.DAL.Ef;
 
-public class TreeDbContext : IdentityDbContext<IdentityUser>
+public class TreeDbContext : IdentityDbContext<ApplicationUser>
 {
     public DbSet<GeneralAdmin>  GeneralAdmins { get; set; }
     public DbSet<SubAdmin>  SubAdmins { get; set; }
