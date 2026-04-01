@@ -13,9 +13,9 @@ public class SubPlatformController : Controller
     {
         _manager = manager;
     }
-    public IActionResult Index(int id)
+    public IActionResult Index(string slug)
     {
-        var subplatform = _manager.GetSubPlatform(id);
+        var subplatform = _manager.GetSubPlatformBySlug(slug);
 
         if (subplatform == null)
         {
