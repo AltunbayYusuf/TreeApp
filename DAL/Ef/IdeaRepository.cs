@@ -20,12 +20,13 @@ public class IdeaRepository : IIdeaRepository
         _context.Ideas.Add(idea);
         _context.SaveChanges();
     }
-    
+
     public void AddReaction(Reaction reaction)
     {
         _context.Reactions.Add(reaction);
         _context.SaveChanges();
     }
+
     public IEnumerable<Topic> ReadTopicsByProject(Project project)
     {
         return _context.Topics.Where(t => t.Project == project).ToList();
@@ -34,7 +35,7 @@ public class IdeaRepository : IIdeaRepository
     public IEnumerable<Idea> ReadIdeasByProject(Project project)
     {
         return _context.Ideas.Include(i => i.Topic)
-           // .Include(i => i.Reactions)
+            // .Include(i => i.Reactions)
             .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
             .Where(i => i.Topic.Project == project)
             .ToList();
@@ -43,7 +44,7 @@ public class IdeaRepository : IIdeaRepository
     public IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId)
     {
         return _context.Ideas.Include(i => i.Topic)
-          //  .Include(i => i.Reactions)
+            //  .Include(i => i.Reactions)
             .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
             .Where(i => i.Topic.Project == project && i.Topic.Id == topicId)
             .ToList();
@@ -82,17 +83,18 @@ public class IdeaRepository : IIdeaRepository
             .Include(i => i.Reactions)
             .FirstOrDefault(i => i.Id == ideaId);
     }
+
     public QuestionList ReadQuestionListByProject(Project project)
     {
         return _context.Projects
             .Include(p => p.QuestionList)
-                .ThenInclude(ql => ql.Sections)
-                    .ThenInclude(s => s.Questions)
-                        .ThenInclude(q => q.Options)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
             .Include(p => p.QuestionList)
-                .ThenInclude(ql => ql.Sections)
-                    .ThenInclude(s => s.Questions)
-                        .ThenInclude(q => q.Image)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Image)
             .Where(p => p.Id == project.Id)
             .Select(p => p.QuestionList)
             .FirstOrDefault();
@@ -111,8 +113,8 @@ public class IdeaRepository : IIdeaRepository
     {
         return _context.Users
             .Include(u => u.SurveyResponses)
-                .ThenInclude(sr => sr.Answers)
-                    .ThenInclude(a => a.Question)
+            .ThenInclude(sr => sr.Answers)
+            .ThenInclude(a => a.Question)
             .FirstOrDefault(u => u.CookieIdentifier == cookieId);
     }
 
@@ -126,9 +128,9 @@ public class IdeaRepository : IIdeaRepository
     {
         return _context.SurveyResponses
             .Include(sr => sr.Answers)
-                .ThenInclude(a => a.Question)
+            .ThenInclude(a => a.Question)
             .Include(sr => sr.Project)
-                .ThenInclude(p => p.SubPlatform)
+            .ThenInclude(p => p.SubPlatform)
             .FirstOrDefault(sr => sr.UserId == userId && sr.ProjectId == projectId);
     }
 
@@ -144,5 +146,12 @@ public class IdeaRepository : IIdeaRepository
 
         _context.SurveyResponses.Add(surveyResponse);
         _context.SaveChanges();
+    }
+
+    public SubPlatform ReadSubPlatform(int id)
+    {
+        return _context.SubPlatforms.Include(sp => sp.SubAdmins)
+            .Include(sp => sp.Projects)
+            .FirstOrDefault(sp => sp.Id == id);
     }
 }

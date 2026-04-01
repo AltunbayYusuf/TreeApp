@@ -31,4 +31,6 @@ public interface IManager
 
     SurveyResponse? GetSurveyResponse(int userId, int projectId);
     void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
+    
+    SubPlatform GetSubPlatform(int id);
 }

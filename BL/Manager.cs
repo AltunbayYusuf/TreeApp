@@ -294,4 +294,9 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         _repository.SaveSurveyResponse(userId, projectId, answers);
     }
+
+    public SubPlatform GetSubPlatform(int id)
+    {
+        return _repository.ReadSubPlatform(id);
+    }
 }

@@ -1,12 +1,10 @@
 using System.Diagnostics;
 using IntergratieProject.BL;
 using IntergratieProject.UI.MVC.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
-[Authorize(Roles = "GeneralAdmin")]
-[Authorize(Roles = "SubAdmin")]
+
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;

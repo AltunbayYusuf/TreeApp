@@ -1,4 +1,5 @@
-﻿@{
+﻿@using IntergratieProject.UI.MVC
+@{
     var currentProjectId = Context.Request.Query["projectId"].ToString();
 
     if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
@@ -23,16 +24,17 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Echo</title>
-    <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
+    <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true"/>
     <script type="module" vite-src="~/main.ts"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
 </head>
 <body>
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Echo</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -41,30 +43,46 @@
                     @* <li class="nav-item"> *@
                     @*     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a> *@
                     @* </li> *@
-                    <li class="nav-item">
-                        <a class="nav-link text-dark"
-                           asp-area=""
-                           asp-controller="Project"
-                           asp-action="Index"
-                           asp-route-id="@currentProjectId">
-                            Project
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-dark"
-                           asp-area=""
-                           asp-controller="Idea"
-                           asp-action="Index"
-                           asp-route-projectId="@currentProjectId">
-                            Ideeën
-                        </a>
-                    </li>
-
-                   
-
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                    </li>
+                    @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="SubPlatform" asp-action="Index">SubPlatform</a>
+                        </li>
+                    }
+                    @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
+                        </li>
+                    }
+                    @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName) || User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName)  )
+                    {
+        
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-area=""
+                               asp-controller="Project"
+                               asp-action="Index"
+                               asp-route-id="@currentProjectId">
+                                Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-area=""
+                               asp-controller="Idea"
+                               asp-action="Index"
+                               asp-route-projectId="@currentProjectId">
+                                Ideeën
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        </li>
+                    }
                 </ul>
                 <partial name="_LoginPartial"/>
             </div>
