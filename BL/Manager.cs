@@ -80,25 +80,25 @@ public class Manager : IManager
         INPUT:
         """ + input;
 
-    var aiText = await _aiService.GenerateAsync(prompt, FeatureType.Moderation);
-    
-    //debugging
-    Console.WriteLine("RAW AI TEXT:");
-    Console.WriteLine(aiText);
-    Console.WriteLine("------");
-
-    // strip ```json fences als die er zijn
-    var cleaned = aiText.Trim();
-    var firstBrace = cleaned.IndexOf('{');
-    var lastBrace = cleaned.LastIndexOf('}');
-
-    if (firstBrace >= 0 && lastBrace > firstBrace)
-    {
-        cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
-    }
-
     try
     {
+        var aiText = await _aiService.GenerateAsync(prompt, FeatureType.Moderation);
+
+        //debugging
+        Console.WriteLine("RAW AI TEXT:");
+        Console.WriteLine(aiText);
+        Console.WriteLine("------");
+
+        // strip ```json fences als die er zijn
+        var cleaned = aiText.Trim();
+        var firstBrace = cleaned.IndexOf('{');
+        var lastBrace = cleaned.LastIndexOf('}');
+
+        if (firstBrace >= 0 && lastBrace > firstBrace)
+        {
+            cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
+        }
+
         using var doc = JsonDocument.Parse(cleaned);
 
         bool isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
@@ -114,12 +114,12 @@ public class Manager : IManager
     }
     catch (Exception ex)
     {
-        // AI faalde / output niet parsebaar
+        // AI faalde / output niet parsebaar — idee toch toestaan
         return new ToxicityResult
         {
-            IsToxic = true,
+            IsToxic = false,
             SuggestedText = "",
-            Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
+            Explanation = $"Moderation check failed: {ex.Message}"
         };
     }
 }
