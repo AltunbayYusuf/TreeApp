@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using IntergratieProject.BL;
 using IntergratieProject.UI.MVC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;

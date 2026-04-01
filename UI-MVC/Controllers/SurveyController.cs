@@ -85,7 +85,10 @@ public class SurveyController : Controller
 
         _manager.SaveSurveyResponse(user.Id, projectId, answersList);
 
-        return Ok(new { redirectUrl = Url.Action("Index", new { projectId }) });
+        return Ok(new
+        {
+            redirectUrl = Url.Action("Index", "Survey", new { subplatform, projectId })
+        });
     }
 
     private User GetOrCreateUser()
