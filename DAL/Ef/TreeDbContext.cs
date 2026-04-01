@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.users;
 using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
+using IntergratieProject.Domain.users;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -22,6 +22,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<SubPlatform> SubPlatforms { get; set; }
     public DbSet<Project> Projects { get; set; }
     public DbSet<Answer> Answers { get; set; }
+    public DbSet<SurveyResponse> SurveyResponses { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionList> QuestionList { get; set; }
     public DbSet<Section> Section { get; set; }
@@ -52,8 +53,9 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
             .WithOne(r => r.User);
 
         modelBuilder.Entity<User>()
-            .HasMany(u => u.Answers)
-            .WithOne(a => a.User);
+            .HasMany(u => u.SurveyResponses)
+            .WithOne(sr => sr.User)
+            .HasForeignKey(sr => sr.UserId);
 
         modelBuilder.Entity<Reaction>()
             .HasOne(r => r.Idea)
@@ -67,7 +69,6 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
             .HasOne(p => p.GeneralAdmin)
             .WithOne(g => g.Platform)
             .HasForeignKey<GeneralAdmin>("PlatformId");
-        ;
 
         modelBuilder.Entity<SubPlatform>()
             .HasOne(sp => sp.Platform)
@@ -75,16 +76,22 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<SubPlatform>()
             .HasMany(sp => sp.Projects)
-            .WithOne(p => p.SubPlatform);
+            .WithOne(p => p.SubPlatform)
+            .HasForeignKey(p => p.SubPlatformId);
 
         modelBuilder.Entity<Project>()
             .HasOne(p => p.QuestionList)
             .WithOne(ql => ql.Project)
-            .HasForeignKey<QuestionList>("ProjectId");
+            .HasForeignKey<QuestionList>(ql => ql.ProjectId);
 
         modelBuilder.Entity<Project>()
             .HasMany(p => p.Topics)
             .WithOne(t => t.Project);
+
+        modelBuilder.Entity<Project>()
+            .HasMany(p => p.SurveyResponses)
+            .WithOne(sr => sr.Project)
+            .HasForeignKey(sr => sr.ProjectId);
 
         modelBuilder.Entity<QuestionList>()
             .HasMany(ql => ql.Sections)
@@ -99,7 +106,12 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
         modelBuilder.Entity<Question>()
             .HasMany(q => q.Answers)
             .WithOne(a => a.Question)
-            .HasForeignKey("QuestionId");
+            .HasForeignKey(a => a.QuestionId);
+
+        modelBuilder.Entity<SurveyResponse>()
+            .HasMany(sr => sr.Answers)
+            .WithOne(a => a.SurveyResponse)
+            .HasForeignKey(a => a.SurveyResponseId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -109,8 +121,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
             optionsBuilder.UseNpgsql("Data source=treeAppDb.db");
         }
 
-        optionsBuilder.LogTo(message => Debug.WriteLine(message),
-            LogLevel.Information);
+        optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
     }
 
     public bool CreateDatabase(bool dropDatabase)

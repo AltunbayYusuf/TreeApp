@@ -198,70 +198,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
     _repository.AddIdea(idea);
     await Task.CompletedTask;
 } 
-//     public async Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input)
-//     {
-//         var prompt =
-//             """
-//             Je bent een moderatie-assistent voor een jongerenplatform.
-//             Antwoord ALLEEN met een JSON object. Geen markdown, geen code fences, geen extra tekst.
-//
-//             JSON schema:
-//             {"isToxic":true/false,"explanation":"...","suggestedText":"..."}
-//
-//             Regels:
-//             - isToxic=true bij schelden, haatspraak, bedreiging, intimidatie, vernedering
-//             - suggestedText: respectvolle herformulering met dezelfde bedoeling (leeg als niet toxisch)
-//
-//             INPUT:
-//             """ + input;
-//
-//         var aiText = await _aiService.GenerateAsync(prompt, FeatureType.Moderation);
-//
-//         // strip ```json fences als die er zijn
-//         var cleaned = aiText.Trim();
-//         var firstBrace = cleaned.IndexOf('{');
-//         var lastBrace = cleaned.LastIndexOf('}');
-//
-//         if (firstBrace >= 0 && lastBrace > firstBrace)
-//         {
-//             cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
-//         }
-//
-//         try
-//         {
-//             using var doc = JsonDocument.Parse(cleaned);
-//
-//             bool isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
-//             string explanation = doc.RootElement.GetProperty("explanation").GetString() ?? "";
-//             string suggestedText = doc.RootElement.GetProperty("suggestedText").GetString() ?? "";
-//
-//             return (isToxic, suggestedText, explanation);
-//         }
-//         catch (Exception ex)
-//         {
-//             // AI faalde / output niet parsebaar => GEEN toxic claim
-//             return (true, "", $"Moderation check failed: {ex.Message}. Raw: {aiText}");        }
-//     }
-//     public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
-//     {
-//         var topic = _repository.ReadTopicById(topicId);
-//         if (topic == null)
-//         {
-//             throw new Exception("Topic niet gevonden");
-//         }
-//
-//         var idea = new Idea
-//         {
-//             Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
-//             Text = text,
-//             Topic = topic,
-//             ModerationStatus = ModerationStatus.InReview
-//         };
-//
-//         _repository.AddIdea(idea);
-//         await Task.CompletedTask;
-//     }
-    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text)
+public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -338,7 +275,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
         return _repository.ReadProject(projectId);
     }
 
-    public User GetUser(string cookieId)
+    public User? GetUser(string cookieId)
     {
         return _repository.ReadUser(cookieId);
     }
@@ -348,8 +285,13 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
         _repository.CreateUser(user);
     }
 
-    public void SaveAnswers(int userId, List<Answer> answers)
+    public SurveyResponse? GetSurveyResponse(int userId, int projectId)
     {
-        _repository.SaveAnswers(userId, answers);
+        return _repository.ReadSurveyResponse(userId, projectId);
+    }
+
+    public void SaveSurveyResponse(int userId, int projectId, List<Answer> answers)
+    {
+        _repository.SaveSurveyResponse(userId, projectId, answers);
     }
 }
