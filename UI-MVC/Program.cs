@@ -1,8 +1,9 @@
 using IntergratieProject.BL;
 using IntergratieProject.DAL;
 using IntergratieProject.DAL.Ef;
+using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.users;
+using IntergratieProject.UI.MVC;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
@@ -11,20 +12,28 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages(); 
 
 builder.Services.AddDbContext<TreeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<TreeDbContext>();
+
+builder.Services.ConfigureApplicationCookie(options => { options.LoginPath = "/Identity/Account/Login"; });
+
 builder.Services.AddHttpClient<IAiService, GeminiService>();
 builder.Services.AddScoped<IManager, Manager>();
 builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 builder.Services.AddViteServices();
+//150722
 
 
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<TreeDbContext>();
+// builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+//     .AddEntityFrameworkStores<TreeDbContext>()
+//     .AddDefaultTokenProviders();
+
 
 var app = builder.Build();
 
@@ -39,7 +48,7 @@ using (var scope = app.Services.CreateScope())
 
     if (context.CreateDatabase(dropDatabase: true))
     {
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         SeedIdentity(userManager, roleManager);
         DataSeeder.Seed(context);
@@ -56,7 +65,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
+// app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -65,29 +74,40 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Project}/{action=Index}/{id=1}");
 
+app.MapRazorPages();
 
 app.Run();
 
-void SeedIdentity(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
+void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
 {
     var adminuser = new ApplicationUser
     {
-        UserName = "admin@test.com",
-        Email = "admin@test.com"
+        UserName = "admin@gmail.com",
+        Email = "admin@gmail.com"
     };
-    userManager.CreateAsync(adminuser, "Test123!");
-    
-    var test = new ApplicationUser
+    userManager.CreateAsync(adminuser, "Test123!").Wait();
+
+    var kdg = new ApplicationUser
     {
-        UserName = "test@test.com",
-        Email = "test@test.com"
+        UserName = "kdg@gmail.com",
+        Email = "kdg@gmail.com"
     };
-    userManager.CreateAsync(adminuser, "Test123!");
+    userManager.CreateAsync(kdg, "Test123!").Wait();
+
+    var subAdminRole = new IdentityRole
+    {
+        Name = CustomIdentityConstants.SubAdminRoleName
+    };
+    roleManager.CreateAsync(subAdminRole).Wait();
+    var generalAdminRole = new IdentityRole
+    {
+        Name = CustomIdentityConstants.GeneralAdminRoleName
+    };
+    roleManager.CreateAsync(generalAdminRole).Wait();
 
 
-    
-    userManager.AddToRoleAsync(adminuser, "GeneralAdmin").Wait();
-    userManager.AddToRoleAsync(adminuser, "SubAdmin").Wait();
+    userManager.AddToRoleAsync(adminuser, CustomIdentityConstants.GeneralAdminRoleName).Wait();
+    userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
 }
 
 public partial class Program

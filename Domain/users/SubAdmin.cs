@@ -2,6 +2,7 @@ using IntergratieProject.Domain.project;
 using Microsoft.AspNetCore.Authorization;
 
 namespace IntergratieProject.Domain.users;
+
 [Authorize(Roles = "SubAdmin")]
 public class SubAdmin : Admin
 {
@@ -12,7 +13,6 @@ public class SubAdmin : Admin
     public string Name { get; set; }
 
     public string IdentityUserId { get; set; }
-    public ApplicationUser IdentityUser { get; set; }
     public GeneralAdmin GeneralAdmin { get; set; }
     public SubPlatform SubPlatform { get; set; }
 }
