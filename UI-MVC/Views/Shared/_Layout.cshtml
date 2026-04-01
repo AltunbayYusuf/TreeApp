@@ -1,4 +1,6 @@
 ﻿@{
+    var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+
     var currentProjectId = Context.Request.Query["projectId"].ToString();
 
     if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
@@ -46,6 +48,7 @@
                            asp-area=""
                            asp-controller="Project"
                            asp-action="Index"
+                           asp-route-subplatform="@currentSubplatform"
                            asp-route-id="@currentProjectId">
                             Project
                         </a>
@@ -55,6 +58,7 @@
                            asp-area=""
                            asp-controller="Idea"
                            asp-action="Index"
+                           asp-route-subplatform="@currentSubplatform"
                            asp-route-projectId="@currentProjectId">
                             Ideeën
                         </a>
