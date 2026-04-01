@@ -145,4 +145,19 @@ public class IdeaRepository : IIdeaRepository
         _context.SurveyResponses.Add(surveyResponse);
         _context.SaveChanges();
     }
+    
+    public SubPlatform? ReadSubPlatformBySlug(string slug)
+    {
+        return _context.SubPlatforms
+            .FirstOrDefault(sp => sp.Slug == slug);
+    }
+
+    public Project? ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
+    {
+        return _context.Projects
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .FirstOrDefault(p => p.Id == projectId && p.SubPlatform.Slug == subplatformSlug);
+    }
 }

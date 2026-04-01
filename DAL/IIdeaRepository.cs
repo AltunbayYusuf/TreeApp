@@ -26,4 +26,7 @@ public interface IIdeaRepository
 
     SurveyResponse? ReadSurveyResponse(int userId, int projectId);
     void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
+    
+    SubPlatform? ReadSubPlatformBySlug(string slug);
+    Project? ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId);
 }

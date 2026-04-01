@@ -65,14 +65,28 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseRouting();
-// app.UseAuthentication();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
+app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
+
+
+app.MapControllerRoute(
+    name: "subplatform_short",
+    pattern: "{subplatform}/{controller=Project}/{id:int}",
+    defaults: new { action = "Index" });
+
+app.MapControllerRoute(
+    name: "subplatform_default",
+    pattern: "{subplatform}/{controller=Project}",
+    defaults: new { action = "Index", id = 1 });
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Project}/{action=Index}/{id=1}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 app.MapRazorPages();
 
