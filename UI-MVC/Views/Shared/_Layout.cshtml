@@ -13,6 +13,47 @@
         currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
     }
 
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+
+    if (!string.IsNullOrWhiteSpace(returnUrl))
+    {
+        var decodedReturnUrl = Uri.UnescapeDataString(returnUrl);
+
+        var pathPart = decodedReturnUrl;
+        var queryPart = "";
+
+        var questionMarkIndex = decodedReturnUrl.IndexOf('?');
+        if (questionMarkIndex >= 0)
+        {
+            pathPart = decodedReturnUrl.Substring(0, questionMarkIndex);
+            queryPart = decodedReturnUrl.Substring(questionMarkIndex);
+        }
+
+        var segments = pathPart.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (string.IsNullOrWhiteSpace(currentSubplatform) && segments.Length > 0)
+        {
+            currentSubplatform = segments[0];
+        }
+
+        if (string.IsNullOrWhiteSpace(currentProjectId) && !string.IsNullOrWhiteSpace(queryPart))
+        {
+            var parsedQuery = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(queryPart);
+
+            if (parsedQuery.TryGetValue("projectId", out var projectIdFromReturnUrl))
+            {
+                currentProjectId = projectIdFromReturnUrl.ToString();
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(currentProjectId)
+            && segments.Length >= 3
+            && string.Equals(segments[1], "Project", StringComparison.OrdinalIgnoreCase))
+        {
+            currentProjectId = segments[2];
+        }
+    }
+
     if (string.IsNullOrWhiteSpace(currentProjectId))
     {
         currentProjectId = "1";
