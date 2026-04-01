@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y curl && \
 WORKDIR /src
 
 # Copy alle project files eerst (voor caching)
+COPY IntergratieProject.sln ./
 COPY UI-MVC/UI-MVC.csproj UI-MVC/
 COPY BL/BL.csproj BL/
 COPY DAL/DAL.csproj DAL/
@@ -22,7 +23,7 @@ COPY . .
 
 # Installeer npm packages en build frontend
 WORKDIR /src/UI-MVC
-RUN npm install
+RUN npm ci
 RUN npm run build
 
 # Publish .NET app
