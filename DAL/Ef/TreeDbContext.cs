@@ -12,23 +12,24 @@ namespace IntergratieProject.DAL.Ef;
 
 public class TreeDbContext : IdentityDbContext<IdentityUser>
 {
-    public DbSet<GeneralAdmin>  GeneralAdmins { get; set; }
-    public DbSet<SubAdmin>  SubAdmins { get; set; }
+    public DbSet<GeneralAdmin> GeneralAdmins { get; set; }
+    public DbSet<SubAdmin> SubAdmins { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<Idea> Ideas { get; set; }
-    public DbSet<Reaction>  Reactions { get; set; }
-    public DbSet<Topic>  Topics { get; set; }
-    public DbSet<Platform>  Platforms { get; set; }
-    public DbSet<SubPlatform>  SubPlatforms { get; set; }
-    public DbSet<Project>  Projects { get; set; }
-    public DbSet<Answer>  Answers { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
+    public DbSet<Topic> Topics { get; set; }
+    public DbSet<Platform> Platforms { get; set; }
+    public DbSet<SubPlatform> SubPlatforms { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    public DbSet<Answer> Answers { get; set; }
+    public DbSet<SurveyResponse> SurveyResponses { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionList> QuestionList { get; set; }
     public DbSet<Section> Section { get; set; }
     public DbSet<QuestionOption> QuestionOptions { get; set; }
-    public TreeDbContext(DbContextOptions options) :  base(options)
+
+    public TreeDbContext(DbContextOptions options) : base(options)
     {
-        
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -52,8 +53,9 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
             .WithOne(r => r.User);
 
         modelBuilder.Entity<User>()
-            .HasMany(u => u.Answers)
-            .WithOne(a => a.User);
+            .HasMany(u => u.SurveyResponses)
+            .WithOne(sr => sr.User)
+            .HasForeignKey(sr => sr.UserId);
 
         modelBuilder.Entity<Reaction>()
             .HasOne(r => r.Idea)
@@ -66,24 +68,30 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.Entity<Platform>()
             .HasOne(p => p.GeneralAdmin)
             .WithOne(g => g.Platform)
-            .HasForeignKey<GeneralAdmin>("PlatformId");;
-        
+            .HasForeignKey<GeneralAdmin>("PlatformId");
+
         modelBuilder.Entity<SubPlatform>()
             .HasOne(sp => sp.Platform)
             .WithMany(p => p.SubPlatforms);
 
         modelBuilder.Entity<SubPlatform>()
             .HasMany(sp => sp.Projects)
-            .WithOne(p => p.SubPlatform);
+            .WithOne(p => p.SubPlatform)
+            .HasForeignKey(p => p.SubPlatformId);
 
         modelBuilder.Entity<Project>()
             .HasOne(p => p.QuestionList)
             .WithOne(ql => ql.Project)
-            .HasForeignKey<QuestionList>("ProjectId");
+            .HasForeignKey<QuestionList>(ql => ql.ProjectId);
 
         modelBuilder.Entity<Project>()
             .HasMany(p => p.Topics)
             .WithOne(t => t.Project);
+
+        modelBuilder.Entity<Project>()
+            .HasMany(p => p.SurveyResponses)
+            .WithOne(sr => sr.Project)
+            .HasForeignKey(sr => sr.ProjectId);
 
         modelBuilder.Entity<QuestionList>()
             .HasMany(ql => ql.Sections)
@@ -98,7 +106,12 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.Entity<Question>()
             .HasMany(q => q.Answers)
             .WithOne(a => a.Question)
-            .HasForeignKey("QuestionId");
+            .HasForeignKey(a => a.QuestionId);
+
+        modelBuilder.Entity<SurveyResponse>()
+            .HasMany(sr => sr.Answers)
+            .WithOne(a => a.SurveyResponse)
+            .HasForeignKey(a => a.SurveyResponseId);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -107,9 +120,10 @@ public class TreeDbContext : IdentityDbContext<IdentityUser>
         {
             optionsBuilder.UseNpgsql("Data source=treeAppDb.db");
         }
-        optionsBuilder.LogTo(message => Debug.WriteLine(message),
-            LogLevel.Information);
+
+        optionsBuilder.LogTo(message => Debug.WriteLine(message), LogLevel.Information);
     }
+
     public bool CreateDatabase(bool dropDatabase)
     {
         if (dropDatabase)

@@ -17,12 +17,14 @@ public class Project
     public ProjectType Type { get; set; }
     public Media Photo { get; set; }
     public Media Logo { get; set; }
-    public SubPlatform SubPlatform { get; set; }
-    
-    public IEnumerable<Topic> Topics { get; set; }
-    
 
+    public int SubPlatformId { get; set; }
+    public SubPlatform SubPlatform { get; set; }
+
+    public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }
-    public QuestionList  QuestionList { get; set; }
+    public QuestionList QuestionList { get; set; }
+
+    public ICollection<SurveyResponse> SurveyResponses { get; set; } = new List<SurveyResponse>();
 }

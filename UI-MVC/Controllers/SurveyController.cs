@@ -16,7 +16,7 @@ public class SurveyController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index(int projectId) 
+    public IActionResult Index(int projectId)
     {
         var project = _manager.GetProject(projectId);
 
@@ -26,13 +26,14 @@ public class SurveyController : Controller
         }
 
         var user = GetOrCreateUser();
-    
-        if (user.Answers != null && user.Answers.Any())
+
+        var existingResponse = _manager.GetSurveyResponse(user.Id, projectId);
+        if (existingResponse != null)
         {
             ViewBag.ProjectId = projectId;
-            return View("Results", user); 
+            return View("Results", existingResponse);
         }
-        
+
         ViewBag.ProjectId = projectId;
         var questions = _manager.GetQuestionListByProject(project);
         return View(questions);
@@ -53,6 +54,13 @@ public class SurveyController : Controller
         }
 
         var user = GetOrCreateUser();
+
+        var existingResponse = _manager.GetSurveyResponse(user.Id, projectId);
+        if (existingResponse != null)
+        {
+            return BadRequest("Deze survey is al ingevuld voor dit project.");
+        }
+
         var answersList = new List<Answer>();
 
         foreach (var dto in answers)
@@ -65,14 +73,14 @@ public class SurveyController : Controller
 
             var newAnswer = new Answer
             {
-                Question = question,
-                Text = dto.Value ?? string.Empty,
-                User = user
+                QuestionId = question.Id,
+                Text = dto.Value ?? string.Empty
             };
+
             answersList.Add(newAnswer);
         }
 
-        _manager.SaveAnswers(user.Id, answersList);
+        _manager.SaveSurveyResponse(user.Id, projectId, answersList);
 
         return Ok(new { redirectUrl = Url.Action("Index", new { projectId }) });
     }
@@ -86,15 +94,15 @@ public class SurveyController : Controller
         {
             user = _manager.GetUser(userGuid);
         }
-        
+
         if (user == null)
         {
             userGuid = Guid.NewGuid().ToString();
-        
+
             Response.Cookies.Append("UserIdentifier", userGuid, new CookieOptions
             {
                 Expires = DateTimeOffset.Now.AddYears(30),
-                HttpOnly = true 
+                HttpOnly = true
             });
 
             user = new User { CookieIdentifier = userGuid };
