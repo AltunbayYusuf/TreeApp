@@ -78,6 +78,10 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
             .HasMany(sp => sp.Projects)
             .WithOne(p => p.SubPlatform)
             .HasForeignKey(p => p.SubPlatformId);
+        
+        modelBuilder.Entity<SubPlatform>()
+            .HasIndex(sp => sp.Slug)
+            .IsUnique();
 
         modelBuilder.Entity<Project>()
             .HasOne(p => p.QuestionList)

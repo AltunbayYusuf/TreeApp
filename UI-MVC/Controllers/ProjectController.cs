@@ -13,15 +13,16 @@ public class ProjectController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index(int id)
+    public IActionResult Index(string subplatform, int id)
     {
-        var project = _manager.GetProject(id);
+        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, id);
 
         if (project == null)
         {
             return NotFound();
         }
 
+        ViewBag.SubPlatformSlug = subplatform;
         return View(project);
     }
     

@@ -45,7 +45,11 @@
                 </div>
 
                 <div class="mt-3">
-                    <a asp-controller="Idea" asp-action="Index" asp-route-projectId="@Model.Project.Id" class="btn btn-link ps-0">
+                    <a asp-controller="Idea"
+                       asp-action="Index"
+                       asp-route-subplatform="@Model.Project.SubPlatform.Slug"
+                       asp-route-projectId="@Model.Project.Id"
+                       class="btn btn-link ps-0">
                         ← Terug naar ideeën
                     </a>
                 </div>
@@ -53,4 +57,3 @@
         </div>
     </div>
 </div>
-

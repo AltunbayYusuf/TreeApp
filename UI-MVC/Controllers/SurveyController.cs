@@ -16,9 +16,9 @@ public class SurveyController : Controller
     }
 
     [HttpGet]
-    public IActionResult Index(int projectId)
+    public IActionResult Index(string subplatform, int projectId)
     {
-        var project = _manager.GetProject(projectId);
+        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
 
         if (project == null)
         {
@@ -31,18 +31,21 @@ public class SurveyController : Controller
         if (existingResponse != null)
         {
             ViewBag.ProjectId = projectId;
+            ViewBag.SubPlatformSlug = subplatform;
             return View("Results", existingResponse);
         }
 
         ViewBag.ProjectId = projectId;
+        ViewBag.SubPlatformSlug = subplatform;
+
         var questions = _manager.GetQuestionListByProject(project);
         return View(questions);
     }
 
     [HttpPost]
-    public IActionResult Submit(List<AnswerDto> answers, int projectId)
+    public IActionResult Submit(string subplatform,List<AnswerDto> answers, int projectId)
     {
-        var project = _manager.GetProject(projectId);
+        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
         if (project == null)
         {
             return NotFound();

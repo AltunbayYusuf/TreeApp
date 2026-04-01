@@ -16,6 +16,7 @@ public class DataSeeder
         var subPlatform = new SubPlatform
         {
             CompanyName = "KdG Hogeschool (Demo)",
+            Slug = "kdg-hogeschool",
             Language = Language.Nl,
             Platform = platform
         };

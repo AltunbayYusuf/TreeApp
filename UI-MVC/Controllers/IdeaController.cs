@@ -14,11 +14,13 @@ public class IdeaController : Controller
         _manager = manager;
     }
 
-
-    public IActionResult Index(int projectId,int? topicId)
+    public IActionResult Index(string subplatform, int projectId, int? topicId)
     {
-        Project project = GetCurrentProject(projectId);
+        Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
+
+        ViewBag.SubPlatformSlug = subplatform;
+
         var vm = new IdeasOverviewViewModel()
         {
             Project = project,
@@ -28,12 +30,14 @@ public class IdeaController : Controller
         };
         return View(vm);
     }
-    
+
     [HttpGet]
-    public IActionResult Create(int projectId)
+    public IActionResult Create(string subplatform, int projectId)
     {
-        Project project = GetCurrentProject(projectId);
+        Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
+
+        ViewBag.SubPlatformSlug = subplatform;
 
         var vm = new IdeasOverviewViewModel
         {
@@ -45,10 +49,8 @@ public class IdeaController : Controller
         return View(vm);
     }
 
-    
-
-    private Project? GetCurrentProject(int projectId)
+    private Project? GetCurrentProject(string subplatform, int projectId)
     {
-        return _manager.GetProject(projectId);
+        return _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
     }
 }
