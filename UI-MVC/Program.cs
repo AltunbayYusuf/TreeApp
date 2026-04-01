@@ -26,6 +26,8 @@ if (app.Environment.IsDevelopment())
 
      app.UseViteDevelopmentServer();
  }
+
+app.UseViteManifest();
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
