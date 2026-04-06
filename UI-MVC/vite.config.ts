@@ -3,7 +3,6 @@
 export default defineConfig(async () => {
     const config: UserConfig = {
         appType: 'custom',
-        base: '/dist/',
         root: 'src',
         publicDir: 'public',
         build: {
