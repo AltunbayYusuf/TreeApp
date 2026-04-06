@@ -7,6 +7,8 @@ COPY UI-MVC/src ./src
 COPY UI-MVC/vite.config.ts ./
 COPY UI-MVC/tsconfig.json ./
 COPY UI-MVC/tsconfig.node.json ./
+COPY UI-MVC/postcss.config.js ./
+COPY UI-MVC/tailwind.config.js ./
 RUN npm run build
 
 # Stage 2: .NET build
