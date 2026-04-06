@@ -11,7 +11,7 @@ export default defineConfig(async () => {
             outDir: '../wwwroot/dist',
             assetsDir: '',
             rollupOptions: {
-                input: 'main.ts',
+                input: './src/main.ts',
                 output: {
                     entryFileNames: 'main.js',
                     assetFileNames: 'main.css',
