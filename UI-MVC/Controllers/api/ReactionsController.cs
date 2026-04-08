@@ -1,4 +1,5 @@
 ﻿using IntergratieProject.BL;
+using IntergratieProject.Domain.users;
 using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -42,12 +43,15 @@ public class ReactionsController : ControllerBase
 
         try
         {
+            var user = GetOrCreateUser();
             var result = await _manager.AddReaction(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
                 newReactionDto.Text,
-                newReactionDto.UserId
-            );
+                user.Id
+                
+              
+                );
 
             if (result.IsToxic)
             {
@@ -109,10 +113,12 @@ public class ReactionsController : ControllerBase
 
         try
         {
+            var user = GetOrCreateUser();
             await _manager.ForceAddReactionAsync(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
-                newReactionDto.Text
+                newReactionDto.Text,
+                user.Id
             );
 
             return Ok(new ReactionResultDto
@@ -133,5 +139,35 @@ public class ReactionsController : ControllerBase
                 Message = ex.Message
             });
         }
+    }
+    private User GetOrCreateUser()
+    {
+        string? userGuid = Request.Cookies["UserIdentifier"];
+        User? user = null;
+
+        if (!string.IsNullOrEmpty(userGuid))
+        {
+            user = _manager.GetUser(userGuid);
+        }
+
+        if (user == null)
+        {
+            userGuid = Guid.NewGuid().ToString();
+
+            Response.Cookies.Append("UserIdentifier", userGuid, new CookieOptions
+            {
+                Expires = DateTimeOffset.Now.AddYears(30),
+                HttpOnly = true
+            });
+
+            user = new User
+            {
+                CookieIdentifier = userGuid
+            };
+
+            _manager.AddUser(user);
+        }
+
+        return user;
     }
 }

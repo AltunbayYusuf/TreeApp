@@ -20,7 +20,14 @@ public class DataSeeder
             Language = Language.Nl,
             Platform = platform
         };
-
+        var kdgLogo = new Media
+        {
+            Uri = "/images/logos/kdg-logo.png"
+        };
+        var apLogo = new Media
+        {
+            Uri = "/images/logos/AP-logo.png"
+        };
         var project = new Project
         {
             Introduction =
@@ -31,7 +38,12 @@ public class DataSeeder
             Prompt = "",
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
-            SubPlatform = subPlatform
+            SubPlatform = subPlatform,
+            Logo =kdgLogo,
+            Photo = new Media
+            {
+                Uri = "/images/photos/kdg-Photo.jpg"
+            }
         };
 
         var project2 = new Project
@@ -43,7 +55,12 @@ public class DataSeeder
             Prompt = "",
             Duration = 30,
             ReleaseDate = DateTime.UtcNow,
-            SubPlatform = subPlatform
+            SubPlatform = subPlatform,
+            Logo = kdgLogo,
+            Photo = new Media
+            {
+                Uri = "/images/photos/kdg-Photo.jpg"
+            }
         };
 
         /* =========================
@@ -409,7 +426,12 @@ public class DataSeeder
             Prompt = "",
             Duration = 12,
             ReleaseDate = DateTime.UtcNow,
-            SubPlatform = apSubPlatform
+            SubPlatform = apSubPlatform,
+            Logo = apLogo,
+            Photo = new Media
+            {
+                Uri = "/images/photos/ap-photo.jpg"
+            }
         };
 
         var apProject2 = new Project
@@ -422,7 +444,12 @@ public class DataSeeder
             Prompt = "",
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
-            SubPlatform = apSubPlatform
+            SubPlatform = apSubPlatform,
+            Logo = apLogo,
+            Photo = new Media
+            {
+                Uri = "/images/photos/ap-photo.jpg"
+            }
         };
 
         /* =========================

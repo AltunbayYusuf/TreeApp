@@ -9,7 +9,7 @@ namespace IntergratieProject.BL;
 public interface IManager
 {
    Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId);
-   Task ForceAddReactionAsync(int ideaId, string? emoji, string? text);
+   Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId);
    
     public Task<string> AskAiForIdea(string idea);
     //Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input);

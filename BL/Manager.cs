@@ -20,7 +20,7 @@ public class Manager : IManager
         _repository = repository;
     }
     
-    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text)
+    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId)
     {
         var idea = _repository.ReadIdeaById(ideaId);
 
@@ -31,6 +31,7 @@ public class Manager : IManager
 
         var reaction = new Reaction
         {
+            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = string.IsNullOrWhiteSpace(text) ? null : text,
@@ -45,16 +46,6 @@ public class Manager : IManager
     {
         
     }
-    
-    // public void AddReaction(int ideaId, string emoji, string text)
-    // {
-    //     if (string.IsNullOrWhiteSpace(emoji) && string.IsNullOrWhiteSpace(text))
-    //     {
-    //         return;
-    //     }
-    //
-    //     _repository.AddReaction(ideaId, emoji, text);
-    // }
 
     public async Task<string> AskAiForIdea(string idea)
     {
@@ -136,6 +127,7 @@ public class Manager : IManager
         {
             var reaction = new Reaction
             {
+                UserId = userId,
                 Idea = idea,
                 Emoji = emoji,
                 Text = null,
@@ -162,6 +154,7 @@ public class Manager : IManager
 
         var textReaction = new Reaction
         {
+            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = text,
