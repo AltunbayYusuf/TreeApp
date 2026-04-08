@@ -16,7 +16,7 @@ public class ReactionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromForm]NewReactionDto newReactionDto)
+    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromBody]NewReactionDto newReactionDto)
     {
         if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)
         {
@@ -45,7 +45,8 @@ public class ReactionsController : ControllerBase
             var result = await _manager.AddReaction(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
-                newReactionDto.Text
+                newReactionDto.Text,
+                newReactionDto.UserId
             );
 
             if (result.IsToxic)

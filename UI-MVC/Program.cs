@@ -87,6 +87,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+app.MapControllerRoute(
+    name: "subplatform_action",
+    pattern: "{subplatform}/{controller=Project}/{action=Index}/{id?}");
+
 
 app.MapRazorPages();
 

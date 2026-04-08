@@ -123,7 +123,7 @@ public class Manager : IManager
         };
     }
 }
-    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text)
+    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
     {
         var idea = _repository.ReadIdeaById(ideaId);
 
@@ -165,7 +165,8 @@ public class Manager : IManager
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = text,
-            ModerationStatus = ModerationStatus.Accepted
+            ModerationStatus = ModerationStatus.Accepted,
+            
         };
 
         _repository.AddReaction(textReaction);
