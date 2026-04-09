@@ -2,6 +2,7 @@ using IntergratieProject.BL;
 using IntergratieProject.Domain.Questions;
 using IntergratieProject.Domain.users;
 using IntergratieProject.UI.MVC.Models.Dto;
+using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
@@ -18,7 +19,8 @@ public class SurveyController : Controller
     [HttpGet]
     public IActionResult Index(string subplatform, int projectId)
     {
-        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
+        var project = _manager.GetProjectBySubPlatformAndProjectId(normalizedSubplatform, projectId);
 
         if (project == null)
         {
@@ -31,21 +33,22 @@ public class SurveyController : Controller
         if (existingResponse != null)
         {
             ViewBag.ProjectId = projectId;
-            ViewBag.SubPlatformSlug = subplatform;
+            ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
             return View("Results", existingResponse);
         }
 
         ViewBag.ProjectId = projectId;
-        ViewBag.SubPlatformSlug = subplatform;
+        ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
 
         var questions = _manager.GetQuestionListByProject(project);
         return View(questions);
     }
 
     [HttpPost]
-    public IActionResult Submit(string subplatform,List<AnswerDto> answers, int projectId)
+    public IActionResult Submit(string subplatform, List<AnswerDto> answers, int projectId)
     {
-        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
+        var project = _manager.GetProjectBySubPlatformAndProjectId(normalizedSubplatform, projectId);
         if (project == null)
         {
             return NotFound();
@@ -87,7 +90,11 @@ public class SurveyController : Controller
 
         return Ok(new
         {
-            redirectUrl = Url.Action("Index", "Survey", new { subplatform, projectId })
+            redirectUrl = Url.Action("Index", "Survey", new
+            {
+                subplatform = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform),
+                projectId
+            })
         });
     }
 

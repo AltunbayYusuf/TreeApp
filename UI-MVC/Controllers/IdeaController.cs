@@ -1,6 +1,7 @@
-﻿using IntergratieProject.BL;
+using IntergratieProject.BL;
 using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models;
+using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
@@ -16,10 +17,11 @@ public class IdeaController : Controller
 
     public IActionResult Index(string subplatform, int projectId, int? topicId)
     {
-        Project project = GetCurrentProject(subplatform, projectId);
+        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
+        Project project = GetCurrentProject(normalizedSubplatform, projectId);
         if (project == null) return NotFound();
 
-        ViewBag.SubPlatformSlug = subplatform;
+        ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
 
         var vm = new IdeasOverviewViewModel()
         {
@@ -34,10 +36,11 @@ public class IdeaController : Controller
     [HttpGet]
     public IActionResult Create(string subplatform, int projectId)
     {
-        Project project = GetCurrentProject(subplatform, projectId);
+        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
+        Project project = GetCurrentProject(normalizedSubplatform, projectId);
         if (project == null) return NotFound();
 
-        ViewBag.SubPlatformSlug = subplatform;
+        ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
 
         var vm = new IdeasOverviewViewModel
         {

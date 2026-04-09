@@ -1,5 +1,6 @@
 using IntergratieProject.BL;
 using IntergratieProject.DAL.Identity;
+using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
@@ -18,23 +19,30 @@ public class SubPlatformController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index(string slug)
+    public async Task<IActionResult> Index(string subplatform)
     {
-        var subplatform = _manager.GetSubPlatformBySlug(slug);
+        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
+        if (string.IsNullOrWhiteSpace(normalizedSubplatform)) return Content("subplatform is NULL");
 
-        if (subplatform == null)
+        var currentSubPlatform = _manager.GetSubPlatformBySlug(normalizedSubplatform);
+        if (currentSubPlatform == null)
         {
             return NotFound();
         }
 
         var user = await _userManager.GetUserAsync(User);
 
-        if (user.SubPlatformSlug != slug)
+        if (user == null)
         {
-            return Forbid(); // gebruiker probeert ander platform te openen
+            return Redirect("/Identity/Account/Login");
         }
 
-        return View(subplatform);
+        if (!string.Equals(user.SubPlatformSlug, normalizedSubplatform, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
+        }
+
+        ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
+        return View(currentSubPlatform);
     }
 }
-

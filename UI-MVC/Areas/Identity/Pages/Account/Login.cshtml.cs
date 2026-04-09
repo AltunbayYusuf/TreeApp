@@ -8,6 +8,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using IntergratieProject.DAL.Identity;
+using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -124,7 +125,8 @@ namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
 
                     if (user.SubPlatformSlug != null)
                     {
-                        return LocalRedirect($"/{user.SubPlatformSlug}");
+                        var publicSlug = SubPlatformRouteHelper.ToPublicSlug(user.SubPlatformSlug);
+                        return LocalRedirect($"/{publicSlug}/home");
                     }
 
                     return LocalRedirect("~/");

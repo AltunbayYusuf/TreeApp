@@ -21,6 +21,14 @@ public class DataSeeder
             Platform = platform
         };
 
+        var apSubPlatform = new SubPlatform
+        {
+            CompanyName = "AP Hogeschool",
+            Slug = "ap-hogeschool",
+            Language = Language.Nl,
+            Platform = platform
+        };
+
         var project = new Project
         {
             Id = 1,
@@ -393,6 +401,7 @@ public class DataSeeder
 
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
+        dbContext.SubPlatforms.Add(apSubPlatform);
         dbContext.Projects.Add(project);
         dbContext.Projects.Add(project2);
 

@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Project";
+    var routeSubplatform = ViewBag.SubPlatformSlug as string ?? SubPlatformRouteHelper.ToPublicSlug(Model.SubPlatform.Slug);
 }
 
 <div class="container mt-4 home-container">
@@ -55,7 +56,7 @@
 
     <a asp-controller="Survey"
        asp-action="Index"
-       asp-route-subplatform="@Model.SubPlatform.Slug"
+       asp-route-subplatform="@routeSubplatform"
        asp-route-projectId="@Model.Id"
        class="btn btn-dark home-start-btn">
         Start bevraging

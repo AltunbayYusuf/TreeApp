@@ -30,6 +30,7 @@ node_modules/
 AspNetVite/node_modules/
 .vite/
 dist/
+.codex-build/
 
 # build output
 dist/
