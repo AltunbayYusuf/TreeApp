@@ -72,12 +72,8 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/", () => Results.Redirect("/kdg/home"));
+app.MapGet("/", () => Results.Redirect("/kdg/Home/Index"));
 
-app.MapControllerRoute(
-    name: "subplatform_home",
-    pattern: "{subplatform}/home",
-    defaults: new { controller = "SubPlatform", action = "Index" });
 
 app.MapControllerRoute(
     name: "subplatform_root",
@@ -111,10 +107,6 @@ app.MapControllerRoute(
 
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
     name: "subplatform_short",
     pattern: "{subplatform}/{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
@@ -127,6 +119,11 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "subplatform_with_action",
     pattern: "{subplatform}/{controller}/{action}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
+
 
 app.MapRazorPages();
 

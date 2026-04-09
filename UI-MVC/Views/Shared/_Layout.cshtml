@@ -83,8 +83,9 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-area="" asp-controller="SubPlatform" asp-action="Index"
-               asp-route-subplatform="@currentSubplatform"> Echo</a>
+            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index"
+               asp-route-subplatform="@currentSubplatform"
+               asp-route-projectId="@currentProjectId"> Echo</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
                     aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
@@ -139,7 +140,8 @@
 
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy"
-                               asp-route-subplatform="@currentSubplatform">Privacy</a>
+                               asp-route-subplatform="@currentSubplatform"
+                               asp-route-projectId="@currentProjectId">Privacy</a>
                         </li>
                     }
                 </ul>
@@ -153,12 +155,13 @@
         @RenderBody()
     </main>
 </div>
+
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy" asp-route-subplatform="@currentSubplatform">Privacy</a>
+        &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy"
+                                asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
     </div>
 </footer>
-
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
