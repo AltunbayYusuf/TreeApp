@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Deel jouw idee";
+    var routeSubplatform = ViewBag.SubPlatformSlug as string ?? SubPlatformRouteHelper.ToPublicSlug(Model.Project.SubPlatform.Slug);
 }
 
 <h1 class="text-center">Deel jouw idee</h1>
@@ -47,7 +48,7 @@
                 <div class="mt-3">
                     <a asp-controller="Idea"
                        asp-action="Index"
-                       asp-route-subplatform="@Model.Project.SubPlatform.Slug"
+                       asp-route-subplatform="@routeSubplatform"
                        asp-route-projectId="@Model.Project.Id"
                        class="btn btn-link ps-0">
                         ← Terug naar ideeën
