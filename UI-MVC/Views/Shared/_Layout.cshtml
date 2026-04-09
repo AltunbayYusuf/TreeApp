@@ -1,4 +1,7 @@
 ﻿@using IntergratieProject.UI.MVC
+@using IntergratieProject.DAL.Identity
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 @{
     var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
 
@@ -94,9 +97,11 @@
                     @* </li> *@
                     @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
                     {
+                        var userObj = await UserManager.GetUserAsync(User);
+                        var userSubplatformSlug = userObj?.SubPlatformSlug ?? currentSubplatform;
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SubPlatform"
-                               asp-action="Index">SubPlatform</a>
+                               asp-action="Index" asp-route-subplatform="@userSubplatformSlug">SubPlatform</a>
                         </li>
                     }
                     @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))

@@ -4,5 +4,5 @@ namespace IntergratieProject.DAL.Identity;
 
 public class ApplicationUser : IdentityUser
 {
-    
+    public string SubPlatformSlug { get; set; }
 }
