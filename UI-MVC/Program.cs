@@ -73,6 +73,12 @@ app.MapStaticAssets();
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
 
+
+app.MapControllerRoute(
+    name: "subplatform_root",
+    pattern: "{subplatform}",
+    defaults: new { controller = "Project", action = "RedirectToFirstProject" });
+
 app.MapControllerRoute(
     name: "subplatform_short",
     pattern: "{subplatform}/{controller=Project}/{id:int}",
