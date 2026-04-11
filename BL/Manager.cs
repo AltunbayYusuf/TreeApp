@@ -298,4 +298,23 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         return _repository.ReadProjectBySubPlatformAndProjectId(subplatformSlug, projectId);
     }
+
+    public IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadProjectsBySubPlatform(subPlatformId);
+    }
+    
+    public Project? GetFirstProjectBySubPlatform(string slug)
+    {
+        var subPlatform = _repository.ReadSubPlatformBySlug(slug);
+
+        if (subPlatform == null)
+        {
+            return null;
+        }
+
+        return _repository.ReadProjectsBySubPlatform(subPlatform.Id)
+            .OrderBy(p => p.Id).FirstOrDefault();
+    }
+
 }

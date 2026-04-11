@@ -22,10 +22,12 @@ namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -116,6 +118,33 @@ namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+
+                    if (user != null && await _userManager.IsInRoleAsync(user, "SubAdmin"))
+                    {
+                        var subplatform = "";
+
+                        if (!string.IsNullOrWhiteSpace(returnUrl))
+                        {
+                            var cleanReturnUrl = returnUrl.Split('?')[0];
+                            var segments = cleanReturnUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+                            if (segments.Length > 0)
+                            {
+                                subplatform = segments[0];
+                            }
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(subplatform))
+                        {
+                            return RedirectToAction("Index", "SubAdmin", new
+                            {
+                                subplatform = subplatform
+                            });
+                        }
+
+                        return RedirectToAction("Index", "SubAdmin");
+                    }
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
