@@ -4,7 +4,6 @@ using IntergratieProject.DAL.Ef;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.UI.MVC;
-using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
@@ -72,13 +71,19 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/", () => Results.Redirect("/kdg/Home/Index"));
+app.MapGet("/", () => Results.Redirect("/kdg-hogeschool/home"));
 
+app.MapControllerRoute(
+    name: "subplatform_home",
+    pattern: "{subplatform}/home",
+    defaults: new { controller = "Home", action = "Index" });
 
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
-    defaults: new { controller = "SubPlatform", action = "Index" });
+    defaults: new { controller = "SubPlatform", action = "Index" },
+    constraints: new { subplatform = "^(?!Platform|Home|Identity).*$" }
+);
 
 app.MapControllerRoute(
     name: "subplatform_project_ideas_create",
@@ -105,20 +110,6 @@ app.MapControllerRoute(
     pattern: "{subplatform}/privacy",
     defaults: new { controller = "Home", action = "Privacy" });
 
-
-app.MapControllerRoute(
-    name: "subplatform_short",
-    pattern: "{subplatform}/{controller=Project}/{id:int}",
-    defaults: new { action = "Index" });
-
-app.MapControllerRoute(
-    name: "subplatform_default",
-    pattern: "{subplatform}/{controller=Project}",
-    defaults: new { action = "Index", id = 1 });
-
-app.MapControllerRoute(
-    name: "subplatform_with_action",
-    pattern: "{subplatform}/{controller}/{action}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

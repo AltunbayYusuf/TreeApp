@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace IntergratieProject.UI.MVC.Controllers.api;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "SubAdmin")]
+[Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubAdminsController : ControllerBase
 {
     private readonly IManager _manager;

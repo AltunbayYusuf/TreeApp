@@ -19,7 +19,7 @@
 
     if (string.IsNullOrWhiteSpace(currentSubplatform))
     {
-        currentSubplatform = "kdg";
+        currentSubplatform = "kdg-hogeschool";
     }
 
     var returnUrl = Context.Request.Query["returnUrl"].ToString();
@@ -99,7 +99,7 @@
                     @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
                     {
                         var userObj = await UserManager.GetUserAsync(User);
-                        var userSubplatformSlug = SubPlatformRouteHelper.ToPublicSlug(userObj?.SubPlatformSlug) ?? currentSubplatform;
+                        var userSubplatformSlug = userObj?.SubPlatformSlug ?? currentSubplatform;
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="SubPlatform"
                                asp-action="Index" asp-route-subplatform="@userSubplatformSlug">SubPlatform</a>

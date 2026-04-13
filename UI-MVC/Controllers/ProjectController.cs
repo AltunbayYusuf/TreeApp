@@ -1,5 +1,4 @@
 using IntergratieProject.BL;
-using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
@@ -13,20 +12,18 @@ public class ProjectController : Controller
         _manager = manager;
     }
 
+
     [HttpGet]
     public IActionResult Index(string subplatform, int id)
     {
-        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
-        var project = _manager.GetProjectBySubPlatformAndProjectId(normalizedSubplatform, id);
+        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, id);
 
         if (project == null)
         {
             return NotFound();
         }
 
-        ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
+        ViewBag.SubPlatformSlug = subplatform;
         return View(project);
     }
-    
-    
 }

@@ -1,13 +1,12 @@
 using IntergratieProject.BL;
 using IntergratieProject.DAL.Identity;
-using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 
 namespace IntergratieProject.UI.MVC.Controllers;
 
-[Authorize(Roles = "SubAdmin")]
+[Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubPlatformController : Controller
 {
     private readonly IManager _manager;
@@ -21,10 +20,9 @@ public class SubPlatformController : Controller
 
     public async Task<IActionResult> Index(string subplatform)
     {
-        var normalizedSubplatform = SubPlatformRouteHelper.Normalize(subplatform);
-        if (string.IsNullOrWhiteSpace(normalizedSubplatform)) return Content("subplatform is NULL");
+        if (string.IsNullOrWhiteSpace(subplatform)) return Content("subplatform is NULL");
 
-        var currentSubPlatform = _manager.GetSubPlatformBySlug(normalizedSubplatform);
+        var currentSubPlatform = _manager.GetSubPlatformBySlug(subplatform);
         if (currentSubPlatform == null)
         {
             return NotFound();
@@ -37,12 +35,12 @@ public class SubPlatformController : Controller
             return Redirect("/Identity/Account/Login");
         }
 
-        if (!string.Equals(user.SubPlatformSlug, normalizedSubplatform, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
         {
             return Forbid();
         }
 
-        ViewBag.SubPlatformSlug = SubPlatformRouteHelper.ToPublicSlug(normalizedSubplatform);
+        ViewBag.SubPlatformSlug = subplatform;
         return View(currentSubPlatform);
     }
 }

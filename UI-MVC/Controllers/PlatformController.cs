@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
 
-[Authorize(Roles = "GeneralAdmin")]
+[Authorize(Roles = CustomIdentityConstants.GeneralAdminRoleName)]
 public class PlatformController : Controller
 {
     public IActionResult Index()

@@ -8,7 +8,7 @@ namespace IntergratieProject.UI.MVC.Controllers.api;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "SubAdmin")]
+[Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubPlatformsController : ControllerBase
 {
     private readonly IManager _manager;

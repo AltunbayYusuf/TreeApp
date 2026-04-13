@@ -2,8 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
-[Authorize(Roles = "GeneralAdmin")]
-[Authorize(Roles = "SubAdmin")]
+[Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubAdminController: Controller
 {
  

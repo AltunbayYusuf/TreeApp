@@ -1,5 +1,6 @@
 // Licensed to the .NET Foundation under one or more agreements.
 // The .NET Foundation licenses this file to you under the MIT license.
+
 #nullable disable
 
 using System;
@@ -8,7 +9,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using IntergratieProject.DAL.Identity;
-using IntergratieProject.UI.MVC.Routing;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -23,10 +23,13 @@ namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -113,28 +116,44 @@ namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                // if (result.Succeeded)
-                // {
-                //     _logger.LogInformation("User logged in.");
-                //     return LocalRedirect(returnUrl);
-                // }
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe,
+                    lockoutOnFailure: false);
                 if (result.Succeeded)
                 {
-                    var user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+                    _logger.LogInformation("User logged in.");
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
 
-                    if (user.SubPlatformSlug != null)
+                    if (user != null)
                     {
-                        var publicSlug = SubPlatformRouteHelper.ToPublicSlug(user.SubPlatformSlug);
-                        return LocalRedirect($"/{publicSlug}/home");
+                        // ✅ SubAdmin → naar eigen subplatform
+                        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+                        {
+                            if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
+                            {
+                                return Redirect($"/{user.SubPlatformSlug}");
+                            }
+
+                            return Redirect("/kdg-hogeschool/home");
+                        }
+
+                        // ✅ GeneralAdmin → naar platform
+                        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
+                        {
+                            return Redirect("/Platform");
+                        }
                     }
 
-                    return LocalRedirect("~/");
+                    return Redirect("/kdg-hogeschool/home");
+
+
                 }
+
                 if (result.RequiresTwoFactor)
                 {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                    return RedirectToPage("./LoginWith2fa",
+                        new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
+
                 if (result.IsLockedOut)
                 {
                     _logger.LogWarning("User account locked out.");

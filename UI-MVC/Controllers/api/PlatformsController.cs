@@ -8,7 +8,7 @@ namespace IntergratieProject.UI.MVC.Controllers.api;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "GeneralAdmin")]
+[Authorize(Roles = CustomIdentityConstants.GeneralAdminRoleName)]
 public class PlatformsController : ControllerBase
 {
     private readonly IManager _manager;
