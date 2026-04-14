@@ -1,23 +1,26 @@
 using IntergratieProject.BL;
+using IntergratieProject.DAL.Identity;
 using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
 
 [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
-
 public class SubAdminController : Controller
 {
     private readonly IManager _manager;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubAdminController(IManager manager)
+    public SubAdminController(IManager manager, UserManager<ApplicationUser> userManager)
     {
         _manager = manager;
+        _userManager = userManager;
     }
 
     [HttpGet]
-    public IActionResult Index(string subplatform)
+    public async Task<IActionResult> Index(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform))
         {
@@ -29,6 +32,18 @@ public class SubAdminController : Controller
         if (subPlatformEntity == null)
         {
             return NotFound();
+        }
+
+        var user = await _userManager.GetUserAsync(User);
+
+        if (user == null)
+        {
+            return Redirect("/Identity/Account/Login");
+        }
+
+        if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
+        {
+            return Forbid();
         }
 
         var projects = _manager.GetProjectsBySubPlatform(subPlatformEntity.Id);
@@ -48,5 +63,4 @@ public class SubAdminController : Controller
 
         return View(vm);
     }
-    
 }
