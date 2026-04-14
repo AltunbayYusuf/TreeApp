@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
 
 [Authorize(Roles = "GeneralAdmin")]
 public class GeneralAdminController : Controller
