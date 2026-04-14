@@ -145,6 +145,7 @@ public class ReactionsController : ControllerBase
         {
             return BadRequest(new ReactionResultDto
             {
+                
                 Ok = false,
                 Saved = false,
                 IsToxic = false,
