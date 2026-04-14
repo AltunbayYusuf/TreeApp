@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
+namespace IntergratieProject.UI.MVC.Controllers;
 
-[Authorize(Roles = "GeneralAdmin")]
+[Authorize(Roles = CustomIdentityConstants.GeneralAdminRoleName)]
 public class GeneralAdminController : Controller
 {
     private readonly AdminService _adminService;

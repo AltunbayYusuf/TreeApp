@@ -79,23 +79,24 @@ app.MapControllerRoute(
     pattern: "{subplatform}",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
 
+// gaat naar bv : kdg-hogeschool/Project/1 -> zodat je nog zelf /1 /2 kan mee spelen in url
 app.MapControllerRoute(
     name: "subplatform_short",
     pattern: "{subplatform}/{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
-
+//  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
 app.MapControllerRoute(
     name: "subplatform_default",
     pattern: "{subplatform}/{controller=Project}",
     defaults: new { action = "Index", id = 1 });
 
 app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapControllerRoute(
     name: "subplatform_action",
     pattern: "{subplatform}/{controller=Project}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
 app.MapRazorPages();

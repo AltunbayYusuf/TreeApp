@@ -17,7 +17,7 @@ public class ReactionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromBody]NewReactionDto newReactionDto)
+    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromBody] NewReactionDto newReactionDto)
     {
         if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)
         {
@@ -44,14 +44,13 @@ public class ReactionsController : ControllerBase
         try
         {
             var user = GetOrCreateUser();
+
             var result = await _manager.AddReaction(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
                 newReactionDto.Text,
                 user.Id
-                
-              
-                );
+            );
 
             if (result.IsToxic)
             {
@@ -71,21 +70,32 @@ public class ReactionsController : ControllerBase
                 Ok = true,
                 Saved = true,
                 IsToxic = false,
+                AiUnavailable = false,
                 Message = result.Explanation
             });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(new ReactionResultDto
+            var user = GetOrCreateUser();
+
+            await _manager.ForceAddReactionAsync(
+                newReactionDto.IdeaId.Value,
+                newReactionDto.Emoji,
+                newReactionDto.Text,
+                user.Id
+            );
+
+            return Ok(new ReactionResultDto
             {
-                Ok = false,
-                Saved = false,
+                Ok = true,
+                Saved = true,
                 IsToxic = false,
-                Message = ex.Message
+                AiUnavailable = true,
+                Message = "Reactie opgeslagen en doorgestuurd voor moderatie omdat AI tijdelijk niet beschikbaar was."
             });
         }
     }
-    
+
     [HttpPost("force")]
     public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
     {
@@ -114,6 +124,7 @@ public class ReactionsController : ControllerBase
         try
         {
             var user = GetOrCreateUser();
+
             await _manager.ForceAddReactionAsync(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
@@ -126,6 +137,7 @@ public class ReactionsController : ControllerBase
                 Ok = true,
                 Saved = true,
                 IsToxic = false,
+                AiUnavailable = false,
                 Message = "Reactie doorgestuurd voor moderatie."
             });
         }
@@ -140,6 +152,7 @@ public class ReactionsController : ControllerBase
             });
         }
     }
+
     private User GetOrCreateUser()
     {
         string? userGuid = Request.Cookies["UserIdentifier"];

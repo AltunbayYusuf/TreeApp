@@ -99,6 +99,7 @@ public class Manager : IManager
         return new ToxicityResult
         {
             IsToxic = isToxic,
+            AiUnavailable = false,
             SuggestedText = suggestedText,
             Explanation = explanation
         };
@@ -106,12 +107,15 @@ public class Manager : IManager
     catch (Exception ex)
     {
         // AI faalde / output niet parsebaar
-        return new ToxicityResult
-        {
-            IsToxic = true,
-            SuggestedText = "",
-            Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
-        };
+        // return new ToxicityResult
+        // {
+        //     IsToxic = true,
+        //     AiUnavailable = true,
+        //     SuggestedText = "",
+        //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
+        // };
+            throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
+
     }
 }
     public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
@@ -140,13 +144,14 @@ public class Manager : IManager
             {
                 IsToxic = false,
                 SuggestedText = "",
+                AiUnavailable = false,
                 Explanation = "Emoji reactie opgeslagen."
             };
         }
 
         // ALS ER TEKST IS → AI MODERATIE
         var moderation = await ModerateTextAsync(text);
-
+        
         if (moderation.IsToxic)
         {
             return moderation;
@@ -168,6 +173,7 @@ public class Manager : IManager
         {
             IsToxic = false,
             SuggestedText = "",
+            AiUnavailable = false,
             Explanation = "Reactie succesvol opgeslagen."
         };
     }
@@ -202,6 +208,8 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
 
         var moderation = await ModerateTextAsync(text);
 
+     
+        
         if (moderation.IsToxic)
         {
             return moderation;

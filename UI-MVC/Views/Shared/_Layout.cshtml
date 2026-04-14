@@ -1,6 +1,10 @@
 ﻿@using Microsoft.AspNetCore.WebUtilities
 @{
     var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+    if (string.IsNullOrWhiteSpace(currentSubplatform))
+    {
+        currentSubplatform = Context.Request.Query["subplatform"].ToString();
+    }
 
     var currentProjectId = Context.Request.Query["projectId"].ToString();
 
