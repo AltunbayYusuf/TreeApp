@@ -14,7 +14,6 @@ public class GeneralAdminController : Controller
 
     {
         var identityId = _userManager.GetUserId(User);
-        var admin = _adminService.GetByIdentityId(identityId);
         
         return View();
     }

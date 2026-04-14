@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 namespace IntergratieProject.Domain.users;
 
 [Authorize(Roles = "SubAdmin")]
+
 public class SubAdmin : IAdmin
 {
     public int Id { get; set; }

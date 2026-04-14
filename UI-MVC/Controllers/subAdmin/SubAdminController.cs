@@ -3,9 +3,10 @@ using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
 
-[Authorize(Roles = "SubAdmin")]
+[Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
+
 public class SubAdminController : Controller
 {
     private readonly IManager _manager;

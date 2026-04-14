@@ -1,4 +1,9 @@
-﻿@using Microsoft.AspNetCore.WebUtilities
+﻿@using IntergratieProject.DAL.Identity
+@using IntergratieProject.UI.MVC
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@inject UserManager<ApplicationUser> UserManager
+
 @{
     var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
     if (string.IsNullOrWhiteSpace(currentSubplatform))
@@ -83,26 +88,25 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            @if (!User.IsInRole("SubAdmin")){
-            <a class="navbar-brand"
-               asp-area=""
-               asp-controller="Project"
-               asp-action="Index"
-               asp-route-subplatform="@currentSubplatform"
-               asp-route-id="@currentProjectId">
-                Echo
-            </a>
+            @if (User.Identity?.IsAuthenticated == false)
+            {
+                <a class="navbar-brand"
+                   asp-area=""
+                   asp-controller="Project"
+                   asp-action="Index"
+                   asp-route-subplatform="@currentSubplatform"
+                   asp-route-id="@currentProjectId">
+                    Echo
+                </a>
             }
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav">
-                    @* <li class="nav-item"> *@
-                    @*     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a> *@
-                    @* </li> *@
-                    @if (User.IsInRole("SubAdmin"))
+                    @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
                     {
                         <li class="nav-item">
                             <a class="nav-link text-dark"
@@ -113,9 +117,14 @@
                             </a>
                         </li>
                     }
+                    else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
+                        </li>
+                    }
                     else
                     {
-
                         <li class="nav-item">
                             <a class="nav-link text-dark"
                                asp-area=""
@@ -138,9 +147,9 @@
                         </li>
 
 
-
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home"
+                               asp-action="Privacy">Privacy</a>
                         </li>
                     }
                 </ul>
