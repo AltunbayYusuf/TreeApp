@@ -105,68 +105,112 @@ namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+       public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+{
+    returnUrl ??= Url.Content("~/");
+
+    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+    if (!ModelState.IsValid)
+    {
+        return Page();
+    }
+
+    var user = await _userManager.FindByEmailAsync(Input.Email);
+
+    if (user == null)
+    {
+        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+        return Page();
+    }
+
+    var requestedSubplatform = GetSubplatformFromReturnUrl(returnUrl);
+
+    if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+    {
+        if (!string.IsNullOrWhiteSpace(requestedSubplatform) &&
+            !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
         {
-            returnUrl ??= Url.Content("~/");
-
-            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-            if (ModelState.IsValid)
-            {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe,
-                    lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    var user = await _userManager.FindByEmailAsync(Input.Email);
-
-                    if (user != null)
-                    {
-                        // ✅ SubAdmin → naar eigen subplatform
-                        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
-                        {
-                            if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
-                            {
-                                return Redirect($"/{user.SubPlatformSlug}");
-                            }
-
-                            return Redirect("/kdg-hogeschool/home");
-                        }
-
-                        // ✅ GeneralAdmin → naar platform
-                        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
-                        {
-                            return Redirect("/Platform");
-                        }
-                    }
-
-                    return Redirect("/kdg-hogeschool/home");
-
-
-                }
-
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa",
-                        new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
-                }
-            }
-
-            // If we got this far, something failed, redisplay form
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return Page();
         }
+    }
+
+    var result = await _signInManager.PasswordSignInAsync(
+        Input.Email,
+        Input.Password,
+        Input.RememberMe,
+        lockoutOnFailure: false);
+
+    if (result.Succeeded)
+    {
+        _logger.LogInformation("User logged in.");
+
+        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+        {
+            if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
+            {
+                return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
+            }
+
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            await _signInManager.SignOutAsync();
+            return Page();
+        }
+
+        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
+        {
+            return Redirect("/Platform");
+        }
+
+        return LocalRedirect(returnUrl);
+    }
+
+    if (result.RequiresTwoFactor)
+    {
+        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+    }
+
+    if (result.IsLockedOut)
+    {
+        _logger.LogWarning("User account locked out.");
+        return RedirectToPage("./Lockout");
+    }
+
+    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+    return Page();
+}
+
+private string? GetSubplatformFromReturnUrl(string? returnUrl)
+{
+    if (string.IsNullOrWhiteSpace(returnUrl))
+    {
+        return null;
+    }
+
+    var cleanUrl = returnUrl.Split('?', '#')[0].Trim('/');
+
+    if (string.IsNullOrWhiteSpace(cleanUrl))
+    {
+        return null;
+    }
+
+    var segments = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+    if (segments.Length == 0)
+    {
+        return null;
+    }
+
+    var firstSegment = segments[0];
+
+    if (string.Equals(firstSegment, "Identity", StringComparison.OrdinalIgnoreCase) ||
+        string.Equals(firstSegment, "Platform", StringComparison.OrdinalIgnoreCase))
+    {
+        return null;
+    }
+
+    return firstSegment;
+}
     }
 }
