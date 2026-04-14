@@ -20,7 +20,7 @@ public class Manager : IManager
         _repository = repository;
     }
     
-    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text)
+    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId)
     {
         var idea = _repository.ReadIdeaById(ideaId);
 
@@ -31,6 +31,7 @@ public class Manager : IManager
 
         var reaction = new Reaction
         {
+            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = string.IsNullOrWhiteSpace(text) ? null : text,
@@ -45,16 +46,6 @@ public class Manager : IManager
     {
         
     }
-    
-    // public void AddReaction(int ideaId, string emoji, string text)
-    // {
-    //     if (string.IsNullOrWhiteSpace(emoji) && string.IsNullOrWhiteSpace(text))
-    //     {
-    //         return;
-    //     }
-    //
-    //     _repository.AddReaction(ideaId, emoji, text);
-    // }
 
     public async Task<string> AskAiForIdea(string idea)
     {
@@ -108,6 +99,7 @@ public class Manager : IManager
         return new ToxicityResult
         {
             IsToxic = isToxic,
+            AiUnavailable = false,
             SuggestedText = suggestedText,
             Explanation = explanation
         };
@@ -115,15 +107,18 @@ public class Manager : IManager
     catch (Exception ex)
     {
         // AI faalde / output niet parsebaar
-        return new ToxicityResult
-        {
-            IsToxic = true,
-            SuggestedText = "",
-            Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
-        };
+        // return new ToxicityResult
+        // {
+        //     IsToxic = true,
+        //     AiUnavailable = true,
+        //     SuggestedText = "",
+        //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
+        // };
+            throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
+
     }
 }
-    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text)
+    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
     {
         var idea = _repository.ReadIdeaById(ideaId);
 
@@ -136,6 +131,7 @@ public class Manager : IManager
         {
             var reaction = new Reaction
             {
+                UserId = userId,
                 Idea = idea,
                 Emoji = emoji,
                 Text = null,
@@ -148,13 +144,14 @@ public class Manager : IManager
             {
                 IsToxic = false,
                 SuggestedText = "",
+                AiUnavailable = false,
                 Explanation = "Emoji reactie opgeslagen."
             };
         }
 
         // ALS ER TEKST IS → AI MODERATIE
         var moderation = await ModerateTextAsync(text);
-
+        
         if (moderation.IsToxic)
         {
             return moderation;
@@ -162,10 +159,12 @@ public class Manager : IManager
 
         var textReaction = new Reaction
         {
+            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = text,
-            ModerationStatus = ModerationStatus.Accepted
+            ModerationStatus = ModerationStatus.Accepted,
+            
         };
 
         _repository.AddReaction(textReaction);
@@ -174,6 +173,7 @@ public class Manager : IManager
         {
             IsToxic = false,
             SuggestedText = "",
+            AiUnavailable = false,
             Explanation = "Reactie succesvol opgeslagen."
         };
     }
@@ -208,6 +208,8 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
 
         var moderation = await ModerateTextAsync(text);
 
+     
+        
         if (moderation.IsToxic)
         {
             return moderation;
@@ -304,4 +306,23 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         return _repository.ReadProjectBySubPlatformAndProjectId(subplatformSlug, projectId);
     }
+
+    public IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadProjectsBySubPlatform(subPlatformId);
+    }
+    
+    public Project? GetFirstProjectBySubPlatform(string slug)
+    {
+        var subPlatform = _repository.ReadSubPlatformBySlug(slug);
+
+        if (subPlatform == null)
+        {
+            return null;
+        }
+
+        return _repository.ReadProjectsBySubPlatform(subPlatform.Id)
+            .OrderBy(p => p.Id).FirstOrDefault();
+    }
+
 }

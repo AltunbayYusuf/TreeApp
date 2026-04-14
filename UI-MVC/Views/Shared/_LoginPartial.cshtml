@@ -1,9 +1,11 @@
+@using IntergratieProject.BL
 @using IntergratieProject.DAL.Identity
 @using IntergratieProject.UI.MVC
 @using Microsoft.AspNetCore.Identity
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@inject IManager Manager
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
@@ -21,9 +23,27 @@
         }
 
         <li class="nav-item">
-            <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
-                  asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-                <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
+            @{
+                var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+                var logoutProjectId = "";
+
+                if (!string.IsNullOrWhiteSpace(currentSubplatform))
+                {
+                    var firstProject = Manager.GetFirstProjectBySubPlatform(currentSubplatform);
+
+                    if (firstProject != null)
+                    {
+                        logoutProjectId = firstProject.Id.ToString();
+                    }
+                }
+            }
+
+            <form class="form-inline"
+                  asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
+                  method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
             </form>
         </li>
         

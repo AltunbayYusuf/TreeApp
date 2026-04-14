@@ -29,4 +29,5 @@ public interface IIdeaRepository
     
     SubPlatform? ReadSubPlatformBySlug(string slug);
     Project? ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId);
+    IEnumerable<Project> ReadProjectsBySubPlatform(int subPlatformId);
 }

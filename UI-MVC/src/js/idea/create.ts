@@ -7,6 +7,7 @@ const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement |
 type IdeaResponse = {
     ok?: boolean;
     isToxic?: boolean;
+    aiUnavailable?: boolean;
     warning?: string;
     explanation?: string;
     suggestedText?: string;
@@ -25,10 +26,13 @@ function escapeHtml(str: string): string {
 function getProjectRedirectUrl(): string {
     const params = new URLSearchParams(window.location.search);
     const projectId = params.get("projectId");
+    const pathSegments = window.location.pathname.split("/").filter(Boolean);
+    const subplatform = pathSegments[0];
 
     return projectId
-        ? `/Idea/Index?projectId=${projectId}`
-        : "/Idea/Index";
+        ? `/${subplatform}/Idea?projectId=${projectId}`
+        : `/${subplatform}/Idea`;
+
 }
 
 async function postIdea(url: string, topicId: string, title: string, text: string): Promise<IdeaResponse> {
@@ -44,7 +48,17 @@ async function postIdea(url: string, topicId: string, title: string, text: strin
         })
     });
 
-    return await response.json() as IdeaResponse;
+    const data = await response.json() as IdeaResponse;
+
+    if (!response.ok) {
+        return {
+            ok: false,
+            aiUnavailable: data.aiUnavailable,
+            message: data.message || "Er ging iets mis."
+        };
+    }
+
+    return data; 
 }
 
 function clearAiMessage(): void {
@@ -114,14 +128,19 @@ if (submitIdeaBtn && ideaTitle && ideaTopic && ideaText && aiMessage) {
 
         const data = await postIdea("/api/ideas", topicId, title, text);
 
-        if (!data.ok) {
+        if (!data.ok ) {
             aiMessage.style.display = "block";
             aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${escapeHtml(data.message || "Er ging iets mis.")}</div>`;
             return;
         }
-
         if (data.isToxic) {
             showAiWarning(data, topicId, title, text);
+            return;
+        }
+        
+        if (data.aiUnavailable) {
+            alert(data.message || "Je idee werd doorgestuurd voor moderatie.");
+            window.location.href = getProjectRedirectUrl();
             return;
         }
 

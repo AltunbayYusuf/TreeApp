@@ -26,4 +26,25 @@ public class ProjectController : Controller
         ViewBag.SubPlatformSlug = subplatform;
         return View(project);
     }
+    
+    public IActionResult RedirectToFirstProject(string subplatform)
+    {
+        if (string.IsNullOrWhiteSpace(subplatform))
+        {
+            return NotFound();
+        }
+
+        var firstProject = _manager.GetFirstProjectBySubPlatform(subplatform);
+
+        if (firstProject == null)
+        {
+            return NotFound();
+        }
+
+        return RedirectToAction("Index", new
+        {
+            subplatform = subplatform,
+            id = firstProject.Id
+        });
+    }
 }

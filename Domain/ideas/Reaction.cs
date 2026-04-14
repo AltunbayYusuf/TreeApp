@@ -8,6 +8,8 @@ public class Reaction
     public ModerationStatus ModerationStatus  { get; set; }
     public string Text { get; set; }
     public string Emoji { get; set; }
-    public User User { get; set; }
+    
+    public int? UserId { get; set; }
+    public User? User { get; set; }
     public Idea Idea  { get; set; }
 }

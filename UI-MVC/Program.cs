@@ -73,11 +73,18 @@ app.MapStaticAssets();
 
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool/home"));
 
-app.MapControllerRoute(
-    name: "subplatform_home",
-    pattern: "{subplatform}/home",
-    defaults: new { controller = "Home", action = "Index" });
 
+app.MapControllerRoute(
+    name: "subplatform_root",
+    pattern: "{subplatform}",
+    defaults: new { controller = "Project", action = "RedirectToFirstProject" });
+
+// gaat naar bv : kdg-hogeschool/Project/1 -> zodat je nog zelf /1 /2 kan mee spelen in url
+app.MapControllerRoute(
+    name: "subplatform_short",
+    pattern: "{subplatform}/{controller=Project}/{id:int}",
+    defaults: new { action = "Index" });
+//  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
@@ -110,6 +117,10 @@ app.MapControllerRoute(
     pattern: "{subplatform}/privacy",
     defaults: new { controller = "Home", action = "Privacy" });
 
+
+app.MapControllerRoute(
+    name: "subplatform_action",
+    pattern: "{subplatform}/{controller=Project}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

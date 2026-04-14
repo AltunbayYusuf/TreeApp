@@ -160,4 +160,14 @@ public class IdeaRepository : IIdeaRepository
             .Include(p => p.Logo)
             .FirstOrDefault(p => p.Id == projectId && p.SubPlatform.Slug == subplatformSlug);
     }
+    
+    public IEnumerable<Project> ReadProjectsBySubPlatform(int subPlatformId)
+    {
+        return _context.Projects
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .Where(p => p.SubPlatformId == subPlatformId)
+            .ToList();
+    }
 }

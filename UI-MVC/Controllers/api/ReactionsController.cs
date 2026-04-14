@@ -1,4 +1,5 @@
 ﻿using IntergratieProject.BL;
+using IntergratieProject.Domain.users;
 using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +17,7 @@ public class ReactionsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromForm]NewReactionDto newReactionDto)
+    public async Task<ActionResult<ReactionResultDto>> AddReaction([FromBody] NewReactionDto newReactionDto)
     {
         if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)
         {
@@ -42,10 +43,13 @@ public class ReactionsController : ControllerBase
 
         try
         {
+            var user = GetOrCreateUser();
+
             var result = await _manager.AddReaction(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
-                newReactionDto.Text
+                newReactionDto.Text,
+                user.Id
             );
 
             if (result.IsToxic)
@@ -66,21 +70,32 @@ public class ReactionsController : ControllerBase
                 Ok = true,
                 Saved = true,
                 IsToxic = false,
+                AiUnavailable = false,
                 Message = result.Explanation
             });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return BadRequest(new ReactionResultDto
+            var user = GetOrCreateUser();
+
+            await _manager.ForceAddReactionAsync(
+                newReactionDto.IdeaId.Value,
+                newReactionDto.Emoji,
+                newReactionDto.Text,
+                user.Id
+            );
+
+            return Ok(new ReactionResultDto
             {
-                Ok = false,
-                Saved = false,
+                Ok = true,
+                Saved = true,
                 IsToxic = false,
-                Message = ex.Message
+                AiUnavailable = true,
+                Message = "Reactie opgeslagen en doorgestuurd voor moderatie omdat AI tijdelijk niet beschikbaar was."
             });
         }
     }
-    
+
     [HttpPost("force")]
     public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
     {
@@ -108,10 +123,13 @@ public class ReactionsController : ControllerBase
 
         try
         {
+            var user = GetOrCreateUser();
+
             await _manager.ForceAddReactionAsync(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
-                newReactionDto.Text
+                newReactionDto.Text,
+                user.Id
             );
 
             return Ok(new ReactionResultDto
@@ -119,6 +137,7 @@ public class ReactionsController : ControllerBase
                 Ok = true,
                 Saved = true,
                 IsToxic = false,
+                AiUnavailable = false,
                 Message = "Reactie doorgestuurd voor moderatie."
             });
         }
@@ -126,11 +145,43 @@ public class ReactionsController : ControllerBase
         {
             return BadRequest(new ReactionResultDto
             {
+                
                 Ok = false,
                 Saved = false,
                 IsToxic = false,
                 Message = ex.Message
             });
         }
+    }
+
+    private User GetOrCreateUser()
+    {
+        string? userGuid = Request.Cookies["UserIdentifier"];
+        User? user = null;
+
+        if (!string.IsNullOrEmpty(userGuid))
+        {
+            user = _manager.GetUser(userGuid);
+        }
+
+        if (user == null)
+        {
+            userGuid = Guid.NewGuid().ToString();
+
+            Response.Cookies.Append("UserIdentifier", userGuid, new CookieOptions
+            {
+                Expires = DateTimeOffset.Now.AddYears(30),
+                HttpOnly = true
+            });
+
+            user = new User
+            {
+                CookieIdentifier = userGuid
+            };
+
+            _manager.AddUser(user);
+        }
+
+        return user;
     }
 }
