@@ -163,8 +163,7 @@ public class Manager : IManager
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = text,
-            ModerationStatus = ModerationStatus.Accepted,
-            
+            ModerationStatus = ModerationStatus.Accepted
         };
 
         _repository.AddReaction(textReaction);
@@ -207,8 +206,6 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
         }
 
         var moderation = await ModerateTextAsync(text);
-
-     
         
         if (moderation.IsToxic)
         {

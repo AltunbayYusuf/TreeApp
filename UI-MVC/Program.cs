@@ -38,14 +38,14 @@ builder.Services.AddViteServices();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
-{
-    app.UseViteDevelopmentServer();
-}
+ {
+     app.UseViteDevelopmentServer();
+ }
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<TreeDbContext>();
-
+    var context = scope.ServiceProvider
+        .GetRequiredService<TreeDbContext>();
     if (context.CreateDatabase(dropDatabase: true))
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -96,7 +96,7 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Project}/{action=Index}/{id=1}");
 
 
 app.MapRazorPages();

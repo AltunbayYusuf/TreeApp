@@ -11,7 +11,7 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=TreeApp;Username=postgres;Password=Student_1234
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD}
       Gemini__ApiKey: ${GEMINI_API_KEY}
 
   db:
@@ -19,7 +19,7 @@ services:
     environment:
       POSTGRES_DB: TreeApp
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Student_1234
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:

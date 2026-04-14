@@ -80,9 +80,17 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Echo</title>
-    <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true"/>
-    <script type="module" vite-src="~/main.ts"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+   @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+    {
+        <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
+        <script type="module" vite-src="~/main.ts"></script>
+    }
+    else
+    {
+        <link rel="stylesheet" asp-href-include="~/dist/main*.css" />
+        <script type="module" src="~/dist/main.js"></script>
+    }
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 </head>
 <body>
 <header>
@@ -146,6 +154,7 @@
                             </a>
                         </li>
 
+                   
 
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home"
@@ -158,6 +167,7 @@
         </div>
     </nav>
 </header>
+
 <div class="container">
     <main role="main" class="pb-3">
         @RenderBody()
@@ -170,6 +180,7 @@
                                 asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
     </div>
 </footer>
+
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

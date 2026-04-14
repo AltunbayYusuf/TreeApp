@@ -21,7 +21,7 @@ public class GeminiService : IAiService
         if (string.IsNullOrWhiteSpace(apiKey))
             throw new InvalidOperationException("Gemini:ApiKey ontbreekt in appsettings/user-secrets.");
 
-        var model = "gemini-3.1-flash-lite-preview";
+        var model = "gemini-2.0-flash-lite";
         var url = $"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={apiKey}";
        
         // body van de json
