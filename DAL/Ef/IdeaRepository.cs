@@ -86,9 +86,13 @@ public class IdeaRepository : IIdeaRepository
     {
         return _context.Projects
             .Include(p => p.QuestionList)
-            .ThenInclude(ql => ql.Sections)
-            .ThenInclude(s => s.Questions)
-            .ThenInclude(q => q.Options)
+                .ThenInclude(ql => ql.Sections)
+                    .ThenInclude(s => s.Questions)
+                        .ThenInclude(q => q.Options)
+            .Include(p => p.QuestionList)
+                .ThenInclude(ql => ql.Sections)
+                    .ThenInclude(s => s.Questions)
+                        .ThenInclude(q => q.Image)
             .Where(p => p.Id == project.Id)
             .Select(p => p.QuestionList)
             .FirstOrDefault();
@@ -103,11 +107,12 @@ public class IdeaRepository : IIdeaRepository
             .FirstOrDefault(p => p.Id == projectId);
     }
 
-    public User ReadUser(string cookieId)
+    public User? ReadUser(string cookieId)
     {
         return _context.Users
-            .Include(u => u.Answers) // Zorg dat antwoorden worden geladen
-            .ThenInclude(a => a.Question) // Zorg dat de vraagtekst ook wordt geladen voor je Results view
+            .Include(u => u.SurveyResponses)
+                .ThenInclude(sr => sr.Answers)
+                    .ThenInclude(a => a.Question)
             .FirstOrDefault(u => u.CookieIdentifier == cookieId);
     }
 
@@ -117,16 +122,52 @@ public class IdeaRepository : IIdeaRepository
         _context.SaveChanges();
     }
 
-    public void SaveAnswers(int userId, List<Answer> answers)
+    public SurveyResponse? ReadSurveyResponse(int userId, int projectId)
     {
-        var user = _context.Users.FirstOrDefault(u => u.Id == userId);
+        return _context.SurveyResponses
+            .Include(sr => sr.Answers)
+                .ThenInclude(a => a.Question)
+            .Include(sr => sr.Project)
+                .ThenInclude(p => p.SubPlatform)
+            .FirstOrDefault(sr => sr.UserId == userId && sr.ProjectId == projectId);
+    }
 
-        foreach (var an in answers)
+    public void SaveSurveyResponse(int userId, int projectId, List<Answer> answers)
+    {
+        var surveyResponse = new SurveyResponse
         {
-            an.User = user;
-            _context.Answers.Add(an);
-        }
+            UserId = userId,
+            ProjectId = projectId,
+            SubmittedAt = DateTime.UtcNow,
+            Answers = answers
+        };
 
+        _context.SurveyResponses.Add(surveyResponse);
         _context.SaveChanges();
+    }
+    
+    public SubPlatform? ReadSubPlatformBySlug(string slug)
+    {
+        return _context.SubPlatforms
+            .FirstOrDefault(sp => sp.Slug == slug);
+    }
+
+    public Project? ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
+    {
+        return _context.Projects
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .FirstOrDefault(p => p.Id == projectId && p.SubPlatform.Slug == subplatformSlug);
+    }
+    
+    public IEnumerable<Project> ReadProjectsBySubPlatform(int subPlatformId)
+    {
+        return _context.Projects
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .Where(p => p.SubPlatformId == subPlatformId)
+            .ToList();
     }
 }

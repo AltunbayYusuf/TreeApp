@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace IntergratieProject.UI.MVC.Controllers.Api;
 
 [ApiController]
-[Route("/api/projects")]
+[Route("api/[controller]")]
 public class ProjectsController : ControllerBase
 {
     private readonly IManager _manager;

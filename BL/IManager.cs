@@ -8,8 +8,8 @@ namespace IntergratieProject.BL;
 
 public interface IManager
 {
-   Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text);
-   Task ForceAddReactionAsync(int ideaId, string? emoji, string? text);
+   Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId);
+   Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId);
    
     public Task<string> AskAiForIdea(string idea);
     //Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input);
@@ -26,9 +26,15 @@ public interface IManager
     Question GetQuestion(int questionId);
     QuestionList GetQuestionListByProject(Project projectId);
     Project? GetProject(int projectId);
-    User GetUser(string cookieId);
+    User? GetUser(string cookieId);
     void AddUser(User user);
-    void SaveAnswers(int userId, List<Answer> answers);
-}
 
-   
+    SurveyResponse? GetSurveyResponse(int userId, int projectId);
+    void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
+    
+    SubPlatform? GetSubPlatformBySlug(string slug);
+    Project? GetProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId);
+    IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId);
+    
+    Project? GetFirstProjectBySubPlatform(string slug);
+}

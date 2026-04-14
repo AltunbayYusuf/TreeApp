@@ -15,11 +15,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.12" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.12" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.14" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.14" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.12">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.5" />
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.12" />
       <PackageReference Include="Vite.AspNetCore" Version="2.4.1" />
     </ItemGroup>
 
@@ -29,6 +33,13 @@
       <_ContentIncludedByDefault Remove="wwwroot\js\ideas\ideas.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\survey\index.js" />
       <_ContentIncludedByDefault Remove="wwwroot\js\survey\results.js" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Login.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Logout.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Register.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ValidationScriptsPartial.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
     </ItemGroup>
 
     <ItemGroup>

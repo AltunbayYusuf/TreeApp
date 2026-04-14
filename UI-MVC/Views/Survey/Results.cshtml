@@ -1,20 +1,22 @@
-@model IntergratieProject.Domain.users.User
+@model IntergratieProject.Domain.Questions.SurveyResponse
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
 }
 
+<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
+
 <h2>Je hebt deze vragenlijst beantwoord!</h2>
 <h3>Jouw antwoorden:</h3>
+
 @foreach (var answer in Model.Answers)
 {
     <div class="answer-row">
-        <strong>Vraag:</strong> @answer.Question.Description <br/>
+        <strong>Vraag:</strong> @answer.Question.Description <br />
         <strong>Jouw antwoord:</strong> <span>@answer.Text</span>
     </div>
 }
 
 <button type="button" class="btn btn-primary" id="ideeGeven">Geef een idee</button>
 <button type="button" class="btn btn-primary" id="ideeenBekijken">Bekijk andere ideeen</button>
-

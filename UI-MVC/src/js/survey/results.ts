@@ -4,18 +4,21 @@ const btnBekijken = document.getElementById("ideeenBekijken") as HTMLButtonEleme
 const params = new URLSearchParams(window.location.search);
 const projectId = params.get("projectId");
 
+const subplatformInput = document.getElementById("subplatformSlug") as HTMLInputElement | null;
+const subplatform = subplatformInput?.value;
+
 if (btnGeven) {
     btnGeven.addEventListener("click", (): void => {
-        window.location.href = projectId
-            ? `/Idea/Create?projectId=${projectId}`
+        window.location.href = projectId && subplatform
+            ? `/${subplatform}/Idea/Create?projectId=${projectId}`
             : "/Idea/Create";
     });
 }
 
 if (btnBekijken) {
     btnBekijken.addEventListener("click", (): void => {
-        window.location.href = projectId
-            ? `/Idea/Index?projectId=${projectId}`
+        window.location.href = projectId && subplatform
+            ? `/${subplatform}/Idea/Index?projectId=${projectId}`
             : "/Idea/Index";
     });
 }
