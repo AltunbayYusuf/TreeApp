@@ -184,4 +184,10 @@ public class IdeaRepository : IIdeaRepository
         _context.Projects.Add(project);
         _context.SaveChanges();
     }
+
+    public void SaveQuestionList(QuestionList questionList)
+    {
+        _context.QuestionList.Add(questionList);
+        _context.SaveChanges();
+    }
 }

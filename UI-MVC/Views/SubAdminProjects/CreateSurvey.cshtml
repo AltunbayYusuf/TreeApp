@@ -1,0 +1,51 @@
+@model IntergratieProject.UI.MVC.Models.CreateProjecSurveyViewModel
+
+@{
+    ViewData["Title"] = "Bevraging maken";
+}
+
+<script src="~/js/createSurvey.js" defer></script>
+
+<div class="min-h-screen bg-slate-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+
+        <!-- AI BOX -->
+        <div class="border-2 border-purple-300 bg-purple-50 rounded-xl p-6 mb-6 shadow-sm">
+            <h3 class="text-lg font-semibold text-slate-900 mb-2">AI Vragenlijst Assistent</h3>
+            <p class="text-sm text-slate-600 mb-3">
+                Beschrijf wat je wil weten van jongeren
+            </p>
+
+            <textarea id="aiPrompt"
+                      class="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
+                      placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren..."></textarea>
+
+            <button class="mt-3 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition">
+                Genereer vragenlijst
+            </button>
+        </div>
+
+        <!-- TOOLBAR -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex gap-2">
+                <button onclick="addSection()"
+                        class="bg-white border border-slate-300 px-4 py-2 rounded-lg text-sm hover:bg-slate-100 transition">
+                    + Sectie toevoegen
+                </button>
+
+                <button onclick="addQuestion()"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 transition">
+                    + Vraag toevoegen
+                </button>
+            </div>
+
+            <span id="questionCounter" class="text-sm text-slate-600 font-medium">
+                0 / 20 vragen
+            </span>
+        </div>
+
+        <!-- SECTIONS -->
+        <div id="sections" class="space-y-4"></div>
+
+    </div>
+</div>

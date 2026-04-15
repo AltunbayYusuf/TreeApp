@@ -16,7 +16,8 @@ public class SubAdminProjectsController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager,
+        IWebHostEnvironment webHostEnvironment)
     {
         _manager = manager;
         _userManager = userManager;
@@ -56,8 +57,31 @@ public class SubAdminProjectsController : Controller
 
         return View(vm);
     }
-    
-    // [HttpPost]
+
+    [HttpGet]
+    public async Task<IActionResult> CreateSurvey(string subplatform)
+    {
+        if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
+
+        var subPlatformEntity = _manager.GetSubPlatformBySlug(subplatform);
+        if (subPlatformEntity == null) return NotFound();
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null) return Redirect("/Identity/Account/Login");
+
+        if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
+            return Forbid();
+
+        var vm = new CreateProjecSurveyViewModel
+        {
+            SubplatformSlug = subplatform
+        };
+
+        return View(vm);
+    }
+
+
+// [HttpPost]
     // [ValidateAntiForgeryToken]
     // public async Task<IActionResult> Create(string subplatform, CreateProjectInfoViewModel vm)
     // {
@@ -127,4 +151,43 @@ public class SubAdminProjectsController : Controller
     //
     //     return RedirectToAction("Index", "SubAdmin", new { subplatform });
     // }
+
+
+    /*
+     [HttpPost]
+[ValidateAntiForgeryToken]
+public IActionResult CreateSurvey(CreateProjectSurveyViewModel vm)
+{
+    if (!ModelState.IsValid)
+    {
+        return View(vm);
+    }
+
+    var questionList = new QuestionList
+    {
+        ProjectId = vm.ProjectId,
+        Sections = vm.Sections.Select((s, index) => new Section
+        {
+            Title = s.Title,
+            Order = index,
+            Questions = s.Questions.Select(q => new Question
+            {
+                Description = q.Description,
+                QuestionType = q.QuestionType,
+                RangeMin = q.RangeMin,
+                RangeMax = q.RangeMax,
+                Options = q.Options.Select(o => new QuestionOption
+                {
+                    Text = o
+                }).ToList()
+            }).ToList()
+        }).ToList()
+    };
+
+    _manager.SaveQuestionList(questionList); 
+
+    return RedirectToAction("ProjectInfo", new { subplatform = vm.SubplatformSlug });
+}
+
+     */
 }

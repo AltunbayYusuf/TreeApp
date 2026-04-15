@@ -41,4 +41,5 @@ public interface IManager
     void UpdateProject(Project project);
     
     void CreateProject(Project project);
+    void SaveQuestionList(QuestionList questionList);
 }

@@ -33,4 +33,5 @@ public interface IIdeaRepository
     void ChangeProject(Project project);
     
     void CreateProject(Project project);
+    void SaveQuestionList(QuestionList questionList);
 }
