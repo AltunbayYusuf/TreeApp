@@ -184,4 +184,22 @@ public class IdeaRepository : IIdeaRepository
         _context.Projects.Add(project);
         _context.SaveChanges();
     }
+
+    public IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId)
+    {
+        return _context.Ideas.Include(i => i.Topic)
+            .ThenInclude(t => t.Project)
+            .Where(i => i.Topic.Project.SubPlatformId == subPlatformId && i.ModerationStatus == ModerationStatus.InReview)
+            .ToList();
+        
+    }
+
+    public IEnumerable<Reaction> ReadReactionsInReviewBySubPlatform(int subPlatformId)
+    {
+        return _context.Reactions.Include( r => r.Idea)
+            .ThenInclude( i =>  i.Topic)
+            .ThenInclude(t => t.Project)
+            .Where(r => r.Idea.Topic.Project.SubPlatformId == subPlatformId && r.ModerationStatus == ModerationStatus.InReview)
+            .ToList();
+    }
 }

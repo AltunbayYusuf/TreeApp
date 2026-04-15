@@ -33,4 +33,7 @@ public interface IIdeaRepository
     void ChangeProject(Project project);
     
     void CreateProject(Project project);
+    
+    IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> ReadReactionsInReviewBySubPlatform(int subPlatformId);
 }

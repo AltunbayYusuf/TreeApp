@@ -41,4 +41,7 @@ public interface IManager
     void UpdateProject(Project project);
     
     void CreateProject(Project project);
+    
+    IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId);
 }
