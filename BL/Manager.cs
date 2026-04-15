@@ -330,6 +330,11 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
         ValidateEntety(project);
         _repository.ChangeProject(project);
     }
+    public void CreateProject(Project project)
+    {
+        ValidateEntety(project);
+        _repository.CreateProject(project);
+    }
     
     private void ValidateEntety(Object model)
     {
@@ -348,4 +353,6 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             throw new ValidationException(message);
         } 
     }
+    
+    
 }

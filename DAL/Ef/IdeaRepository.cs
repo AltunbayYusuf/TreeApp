@@ -179,4 +179,9 @@ public class IdeaRepository : IIdeaRepository
         _context.Projects.Update(project);
         _context.SaveChanges();
     }
+    public void CreateProject(Project project)
+    {
+        _context.Projects.Add(project);
+        _context.SaveChanges();
+    }
 }

@@ -39,4 +39,6 @@ public interface IManager
     Project? GetFirstProjectBySubPlatform(string slug);
     
     void UpdateProject(Project project);
+    
+    void CreateProject(Project project);
 }

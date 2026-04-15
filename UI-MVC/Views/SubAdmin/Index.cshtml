@@ -7,8 +7,11 @@
             <h1 class="text-3xl font-bold">Projecten</h1>
             <p class="text-gray-500">Beheer je participatieprojecten</p>
         </div>
-
-        <a class="bg-black text-white px-4 py-2 rounded">
+        
+        <a asp-controller="SubAdminProjects"
+           asp-action="ProjectInfo"
+           asp-route-subplatform="@Model.Slug"
+           class="bg-black text-white px-4 py-2 rounded">
             + Nieuw project
         </a>
     </div>
