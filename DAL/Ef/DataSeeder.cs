@@ -30,6 +30,7 @@ public class DataSeeder
         };
         var project = new Project
         {
+            Name = "Actieplan Mentaal Welzijn 2026",
             Introduction =
                 "Jouw welzijn telt. Denk met ons mee.\n\n" +
                 "Deze vragenlijst is anoniem en helpt ons een actieplan mentaal welzijn te maken.",
@@ -48,6 +49,7 @@ public class DataSeeder
 
         var project2 = new Project
         {
+            Name = "Campusbeleving & Studentenervaring",
             Introduction =
                 "Deze vragenlijst is anoniem en helpt ons inzicht te krijgen in het campusleven.",
             Status = Status.Active,
@@ -417,6 +419,7 @@ public class DataSeeder
 
         var apProject1 = new Project
         {
+            Name = "AP Actieplan Mentaal Welzijn 2026",
             Introduction =
                 "Jouw stem telt bij AP Hogeschool.\n\n" +
                 "Met deze bevraging willen we beter begrijpen hoe studenten hun mentaal welzijn ervaren " +
@@ -436,6 +439,7 @@ public class DataSeeder
 
         var apProject2 = new Project
         {
+            Name= "AP Campusbeleving & Verbondenheid",
             Introduction =
                 "Hoe maken we van AP een campus waar studenten zich welkom, veilig en verbonden voelen?\n\n" +
                 "Via deze bevraging en ideeënronde verzamelen we concrete input van studenten.",

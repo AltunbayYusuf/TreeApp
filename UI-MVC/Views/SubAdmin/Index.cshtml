@@ -1,62 +1,126 @@
 @model IntergratieProject.UI.MVC.Models.SubAdminDashboardViewModel
 
-@{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
-}
-
 <div class="p-6">
-    
-    <h1 class="text-2xl font-semibold mb-6">
-        Dashboard - @Model.SubPlatformName
-    </h1>
 
-    @if (!Model.Projects.Any())
-    {
-        <div class="bg-gray-100 border border-gray-200 rounded-xl p-6 text-center text-gray-600">
-            Er zijn geen projecten voor dit deelplatform.
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold">Projecten</h1>
+            <p class="text-gray-500">Beheer je participatieprojecten</p>
         </div>
-    }
-    else
-    {
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
 
-            @foreach (var project in Model.Projects)
+        <a class="bg-black text-white px-4 py-2 rounded">
+            + Nieuw project
+        </a>
+    </div>
+
+    <div class="grid grid-cols-4 gap-4 mb-6">
+
+        <div class="border p-4">
+            <p class="text-sm text-gray-500">Totaal projecten</p>
+            <p class="text-3xl font-bold">@Model.TotalProjects</p>
+        </div>
+
+        <div class="border p-4 bg-green-50">
+            <p class="text-sm text-green-700">Actief</p>
+            <p class="text-3xl font-bold text-green-700">@Model.ActiveProjects</p>
+        </div>
+
+        <div class="border p-4 bg-blue-50">
+            <p class="text-sm text-blue-700">Totaal deelnemers</p>
+            <p class="text-3xl font-bold text-blue-700">@Model.TotalParticipants</p>
+        </div>
+
+        <div class="border p-4 bg-purple-50">
+            <p class="text-sm text-purple-700">Totaal ideeën</p>
+            <p class="text-3xl font-bold text-purple-700">@Model.TotalIdeas</p>
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="border">
+        <table class="w-full">
+
+            <thead class="bg-gray-100 text-left">
+            <tr>
+                <th class="p-3">Project</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Vorm</th>
+                <th class="p-3">Deelnemers</th>
+                <th class="p-3">Ideeën</th>
+                <th class="p-3">Aangemaakt</th>
+                <th class="p-3">Acties</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            @foreach (var p in Model.Projects)
             {
-                var badgeClass = project.Status switch
+                var statusClass = p.Status switch
                 {
-                    "Active" => "bg-green-100 text-green-700",
-                    "Archived" => "bg-red-100 text-red-700",
-                    "Draft" => "bg-gray-200 text-gray-700",
-                    _ => "bg-gray-100 text-gray-600"
+                    "Active" => "text-green-700 border-green-500",
+                    "Draft" => "text-gray-700 border-gray-400",
+                    "Archived" => "text-orange-700 border-orange-500",
+                    _ => ""
                 };
 
-                <div class="bg-white rounded-2xl shadow-sm hover:shadow-md transition p-5 flex flex-col justify-between">
+                <tr class="border-t">
+                    <td class="p-3 font-semibold">@p.Name</td>
 
-                    <div>
-                        <h2 class="text-lg font-semibold text-gray-900 mb-2">
-                            @project.Name
-                        </h2>
-
-                        <span class="inline-block px-3 py-1 text-sm rounded-full @badgeClass">
-                            @project.Status
+                    <td class="p-3">
+                        <span class="px-2 py-1 border @statusClass">
+                            @p.Status
                         </span>
-                    </div>
+                    </td>
 
-                    <div class="mt-4">
-                        <a asp-controller="Project"
-                           asp-action="Details"
-                           asp-route-subplatform="@Model.Slug"
-                           asp-route-id="@project.Id"
-                           class="inline-block text-sm font-medium text-white bg-black hover:bg-gray-800 px-4 py-2 rounded-lg transition">
-                            Open project
-                        </a>
-                    </div>
+                    <td class="p-3">@p.Form</td>
 
-                </div>
+                    <td class="p-3">@p.ParticipantsCount</td>
+
+                    <td class="p-3">@p.IdeasCount</td>
+
+                    <td class="p-3">
+                        @p.ReleaseDate.ToString("d MMM yyyy")
+                    </td>
+
+                    <td class="p-3 flex gap-2">
+
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="projectId" value="@p.Id" />
+                            <input type="hidden" name="status" value="Active" />
+                            <input type="hidden" name="subplatform" value="@Model.Slug" />
+
+                            <button class="px-2 py-1 border bg-green-100 text-green-700">
+                                Actief
+                            </button>
+                        </form>
+
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="projectId" value="@p.Id" />
+                            <input type="hidden" name="status" value="Draft" />
+                            <input type="hidden" name="subplatform" value="@Model.Slug" />
+
+                            <button class="px-2 py-1 border bg-gray-100 text-gray-700">
+                                Draft
+                            </button>
+                        </form>
+
+                        <form asp-action="UpdateStatus" method="post">
+                            <input type="hidden" name="projectId" value="@p.Id" />
+                            <input type="hidden" name="status" value="Archived" />
+                            <input type="hidden" name="subplatform" value="@Model.Slug" />
+
+                            <button class="px-2 py-1 border bg-orange-100 text-orange-700">
+                                Archief
+                            </button>
+                        </form>
+
+                    </td>
+                </tr>
             }
+            </tbody>
 
-        </div>
-    }
+        </table>
+    </div>
 
 </div>

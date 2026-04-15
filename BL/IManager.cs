@@ -37,4 +37,6 @@ public interface IManager
     IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId);
     
     Project? GetFirstProjectBySubPlatform(string slug);
+    
+    void UpdateProject(Project project);
 }

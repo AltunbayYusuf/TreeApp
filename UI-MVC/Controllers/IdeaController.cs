@@ -18,6 +18,11 @@ public class IdeaController : Controller
     {
         Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
+        
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
+        }
 
         ViewBag.SubPlatformSlug = subplatform;
 
@@ -36,6 +41,11 @@ public class IdeaController : Controller
     {
         Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
+
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
+        }
 
         ViewBag.SubPlatformSlug = subplatform;
 

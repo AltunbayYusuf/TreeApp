@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using IntergratieProject.DAL;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;
@@ -219,6 +220,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted
         };
+        ValidateEntety(idea);
 
         _repository.AddIdea(idea);
 
@@ -281,6 +283,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
 
     public void AddUser(User user)
     {
+        ValidateEntety(user);
         _repository.CreateUser(user);
     }
 
@@ -322,4 +325,27 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             .OrderBy(p => p.Id).FirstOrDefault();
     }
 
+    public void UpdateProject(Project project)
+    {
+        ValidateEntety(project);
+        _repository.ChangeProject(project);
+    }
+    
+    private void ValidateEntety(Object model)
+    {
+        var validationResults = new List<ValidationResult>();
+        bool success = Validator.TryValidateObject(model,
+            new ValidationContext(model), validationResults, true);
+
+        if (!success)
+        {
+            var message = "";
+            foreach (var validationResult in validationResults)
+            {
+                message += validationResult.ErrorMessage + " ";
+            }
+
+            throw new ValidationException(message);
+        } 
+    }
 }

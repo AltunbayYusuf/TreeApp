@@ -167,7 +167,16 @@ public class IdeaRepository : IIdeaRepository
             .Include(p => p.SubPlatform)
             .Include(p => p.Photo)
             .Include(p => p.Logo)
+            .Include(p => p.SurveyResponses)
+            .Include(p => p.Topics)
+            .ThenInclude(t => t.Ideas)
             .Where(p => p.SubPlatformId == subPlatformId)
             .ToList();
+    }
+    
+    public void ChangeProject(Project project)
+    {
+        _context.Projects.Update(project);
+        _context.SaveChanges();
     }
 }

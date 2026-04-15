@@ -1,5 +1,6 @@
 using IntergratieProject.BL;
 using IntergratieProject.DAL.Identity;
+using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -56,11 +57,35 @@ public class SubAdminController : Controller
             Projects = projects.Select(p => new ProjectSummaryViewModel
             {
                 Id = p.Id,
-                Name = p.Introduction,
-                Status = p.Status.ToString()
+                Name = p.Name,
+                Status = p.Status.ToString(),
+                Form = p.Type == 0 ? "Scroll" : "Chat",
+                ParticipantsCount = p.SurveyResponses != null
+                    ? p.SurveyResponses.Count
+                    : 0,
+                IdeasCount = p.Topics != null
+                    ? p.Topics.SelectMany(t => t.Ideas).Count()
+                    : 0,
+
+                ReleaseDate = p.ReleaseDate
             }).ToList()
         };
 
         return View(vm);
+    }
+    
+    [HttpPost]
+    public IActionResult UpdateStatus(int projectId, string status, string subplatform)
+    {
+        var project = _manager.GetProject(projectId);
+
+        if (project == null)
+            return NotFound();
+
+        project.Status = Enum.Parse<Status>(status);
+
+        _manager.UpdateProject(project);
+
+        return RedirectToAction("Index", new { subplatform });
     }
 }

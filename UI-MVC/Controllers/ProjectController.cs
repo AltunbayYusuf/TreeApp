@@ -1,4 +1,5 @@
 using IntergratieProject.BL;
+using IntergratieProject.Domain.project;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers;
@@ -22,6 +23,10 @@ public class ProjectController : Controller
         {
             return NotFound();
         }
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
+        }
 
         ViewBag.SubPlatformSlug = subplatform;
         return View(project);
@@ -39,6 +44,11 @@ public class ProjectController : Controller
         if (firstProject == null)
         {
             return NotFound();
+        }
+        
+        if (firstProject.Status != Status.Active)
+        {
+            return NotFound(); 
         }
 
         return RedirectToAction("Index", new
