@@ -325,4 +325,16 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             .OrderBy(p => p.Id).FirstOrDefault();
     }
 
+    public IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadIdeasInReviewBySubPlatform(subPlatformId);
+    }
+
+    public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadReactionsInReviewBySubPlatform(subPlatformId);
+    }
+
+   
+
 }

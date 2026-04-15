@@ -1,3 +1,4 @@
+using IntergratieProject.BL;
 using IntergratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +10,7 @@ namespace IntergratieProject.UI.MVC.Controllers;
 public class GeneralAdminController : Controller
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly AdminService _adminService;
 
     public IActionResult Index()
 

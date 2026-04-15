@@ -58,7 +58,7 @@ async function postIdea(url: string, topicId: string, title: string, text: strin
         };
     }
 
-    return data; 
+    return data;
 }
 
 function clearAiMessage(): void {
@@ -137,7 +137,7 @@ if (submitIdeaBtn && ideaTitle && ideaTopic && ideaText && aiMessage) {
             showAiWarning(data, topicId, title, text);
             return;
         }
-        
+
         if (data.aiUnavailable) {
             alert(data.message || "Je idee werd doorgestuurd voor moderatie.");
             window.location.href = getProjectRedirectUrl();

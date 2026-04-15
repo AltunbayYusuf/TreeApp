@@ -37,4 +37,7 @@ public interface IManager
     IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId);
     
     Project? GetFirstProjectBySubPlatform(string slug);
+    
+    IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId);
 }

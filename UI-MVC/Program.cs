@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(); 
 
 builder.Services.AddDbContext<TreeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -63,15 +63,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+app.UseHttpsRedirection();
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 
-
 app.MapStaticAssets();
 
-app.MapGet("/", () => Results.Redirect("/kdg-hogeschool/home"));
+app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
+
 
 
 app.MapControllerRoute(
@@ -86,37 +86,9 @@ app.MapControllerRoute(
     defaults: new { action = "Index" });
 //  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
 app.MapControllerRoute(
-    name: "subplatform_root",
-    pattern: "{subplatform}",
-    defaults: new { controller = "SubPlatform", action = "Index" },
-    constraints: new { subplatform = "^(?!Platform|Home|Identity).*$" }
-);
-
-app.MapControllerRoute(
-    name: "subplatform_project_ideas_create",
-    pattern: "{subplatform}/project/{projectId:int}/ideas/create",
-    defaults: new { controller = "Idea", action = "Create" });
-
-app.MapControllerRoute(
-    name: "subplatform_project_ideas",
-    pattern: "{subplatform}/project/{projectId:int}/ideas",
-    defaults: new { controller = "Idea", action = "Index" });
-
-app.MapControllerRoute(
-    name: "subplatform_project_survey",
-    pattern: "{subplatform}/project/{projectId:int}/survey",
-    defaults: new { controller = "Survey", action = "Index" });
-
-app.MapControllerRoute(
-    name: "subplatform_project",
-    pattern: "{subplatform}/project/{id:int}",
-    defaults: new { controller = "Project", action = "Index" });
-
-app.MapControllerRoute(
-    name: "subplatform_privacy",
-    pattern: "{subplatform}/privacy",
-    defaults: new { controller = "Home", action = "Privacy" });
-
+    name: "subplatform_default",
+    pattern: "{subplatform}/{controller=Project}",
+    defaults: new { action = "Index", id = 1 });
 
 app.MapControllerRoute(
     name: "subplatform_action",
@@ -143,17 +115,10 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     var kdg = new ApplicationUser
     {
         UserName = "kdg@gmail.com",
-        Email = "kdg@gmail.com",
-        SubPlatformSlug = "kdg-hogeschool"
+        Email = "kdg@gmail.com"
     };
     userManager.CreateAsync(kdg, "Test123!").Wait();
-    var ap = new ApplicationUser
-    {
-        UserName = "ap@gmail.com",
-        Email = "ap@gmail.com",
-        SubPlatformSlug = "ap-hogeschool"
-    };
-    userManager.CreateAsync(ap, "Test123!").Wait();
+
     var subAdminRole = new IdentityRole
     {
         Name = CustomIdentityConstants.SubAdminRoleName
@@ -168,7 +133,6 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
 
     userManager.AddToRoleAsync(adminuser, CustomIdentityConstants.GeneralAdminRoleName).Wait();
     userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
-    userManager.AddToRoleAsync(ap, CustomIdentityConstants.SubAdminRoleName).Wait();
 }
 
 public partial class Program
