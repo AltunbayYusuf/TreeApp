@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using IntergratieProject.DAL;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;

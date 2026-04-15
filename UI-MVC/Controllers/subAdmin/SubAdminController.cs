@@ -70,8 +70,6 @@ public class SubAdminController : Controller
                     : 0,
 
                 ReleaseDate = p.ReleaseDate
-                Name = p.Introduction,
-                Status = p.Status.ToString()
             }).ToList(),
 
             IdeasReviews = ideasInReview.Select(i => new IdeaReviewSummaryViewModel
