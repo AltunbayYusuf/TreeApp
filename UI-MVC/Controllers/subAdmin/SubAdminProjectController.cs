@@ -53,28 +53,12 @@ public class SubAdminProjectsController : Controller
     [HttpGet]
     public async Task<IActionResult> ProjectInfo(string subplatform)
     {
-        if (string.IsNullOrWhiteSpace(subplatform))
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
         {
-            return NotFound();
+            return errorResult;
         }
-
-        var subPlatformEntity = _manager.GetSubPlatformBySlug(subplatform);
-        if (subPlatformEntity == null)
-        {
-            return NotFound();
-        }
-
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return Redirect("/Identity/Account/Login");
-        }
-
-        if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
-        {
-            return Forbid();
-        }
-
+       
         var vm = new CreateProjectInfoViewModel
         {
             SubplatformSlug = subplatform,
