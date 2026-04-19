@@ -1,6 +1,7 @@
 let questionCount = 0;
 const maxQuestions = 20;
 let sectionCount = 0;
+let isLoading = false;
 
 document.addEventListener("DOMContentLoaded", () => {
     updateCounter();
@@ -12,6 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     (window as any).changeType = changeType;
     (window as any).addConditional = addConditional;
     (window as any).toggleAI = toggleAI;
+
+    loadFromLocalStorage();
+});
+let saveTimeout: any;
+
+document.addEventListener("input", () => {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        saveToLocalStorage();
+    }, 300);
 });
 
 //  COUNTER 
@@ -53,6 +64,7 @@ function addSection() {
     `;
 
     container.appendChild(section);
+    saveToLocalStorage()
 }
 
 function removeSection(btn: HTMLElement) {
@@ -64,6 +76,7 @@ function removeSection(btn: HTMLElement) {
 
     section.remove();
     updateCounter();
+    saveToLocalStorage()
 }
 
 //  QUESTION 
@@ -120,6 +133,7 @@ function addQuestion(btn: HTMLElement) {
     `;
 
     container.appendChild(questionDiv);
+    saveToLocalStorage()
 }
 
 function removeQuestion(btn: HTMLElement) {
@@ -129,6 +143,7 @@ function removeQuestion(btn: HTMLElement) {
     question.remove();
     questionCount--;
     updateCounter();
+    saveToLocalStorage()
 }
 
 //  TYPE 
@@ -165,6 +180,7 @@ function changeType(select: HTMLSelectElement) {
             </div>
         `;
     }
+    saveToLocalStorage()
 }
 
 function addAnswer(container: Element) {
@@ -190,6 +206,7 @@ function addAnswer(container: Element) {
     wrapper.appendChild(removeBtn);
 
     container.appendChild(wrapper);
+    saveToLocalStorage()
 }
 
 //  CONDITIONAL 
@@ -231,3 +248,91 @@ function toggleAI(checkbox: HTMLInputElement) {
 }
 
 
+function getSurveyData() {
+    const sections: any[] = [];
+
+    document.querySelectorAll(".section").forEach(section => {
+        const title = (section.querySelector(".section-title") as HTMLInputElement)?.value;
+
+        const questions: any[] = [];
+
+        section.querySelectorAll(".question").forEach(q => {
+            const qTitle = (q.querySelector(".question-title") as HTMLInputElement)?.value;
+            const type = (q.querySelector("select") as HTMLSelectElement)?.value;
+
+            // answers
+            const answers: string[] = [];
+            q.querySelectorAll(".answers input").forEach(a => {
+                answers.push((a as HTMLInputElement).value);
+            });
+
+            // range
+            const min = (q.querySelector('input[placeholder="Min"]') as HTMLInputElement)?.value;
+            const max = (q.querySelector('input[placeholder="Max"]') as HTMLInputElement)?.value;
+
+            // conditionals
+            const conditionals: any[] = [];
+            q.querySelectorAll(".conditional-container > div").forEach(c => {
+                const trigger = (c.querySelector("input") as HTMLInputElement)?.value;
+                const ai = (c.querySelector("input[type='checkbox']") as HTMLInputElement)?.checked;
+                const question = (c.querySelector(".conditional-input") as HTMLInputElement)?.value;
+
+                conditionals.push({trigger, ai, question});
+            });
+
+            questions.push({
+                title: qTitle,
+                type,
+                answers,
+                min,
+                max,
+                conditionals
+            });
+        });
+
+        sections.push({title, questions});
+    });
+
+    return sections;
+}
+
+function saveToLocalStorage() {
+    if (isLoading) return;
+
+    const data = getSurveyData();
+    sessionStorage.setItem("surveyDraft", JSON.stringify(data));
+}
+
+function loadFromLocalStorage() {
+    const data = sessionStorage.getItem("surveyDraft");
+    if (!data) return;
+
+    isLoading = true;
+
+    const parsed = JSON.parse(data);
+
+    parsed.forEach((sectionData: any) => {
+        addSection();
+
+        const sections = document.querySelectorAll(".section");
+        const lastSection = sections[sections.length - 1];
+
+        (lastSection.querySelector(".section-title") as HTMLInputElement).value = sectionData.title;
+
+        sectionData.questions.forEach((q: any) => {
+            const btn = lastSection.querySelector(".mt-4") as HTMLElement;
+            addQuestion(btn as HTMLElement);
+
+            const questions = lastSection.querySelectorAll(".question");
+            const lastQ = questions[questions.length - 1];
+
+            (lastQ.querySelector(".question-title") as HTMLInputElement).value = q.title;
+            (lastQ.querySelector("select") as HTMLSelectElement).value = q.type;
+
+            changeType(lastQ.querySelector("select") as HTMLSelectElement); // 🔥 belangrijk
+        });
+    });
+
+    isLoading = false;
+
+}
