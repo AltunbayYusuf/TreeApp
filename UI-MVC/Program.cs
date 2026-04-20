@@ -4,6 +4,8 @@ using IntergratieProject.DAL.Ef;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.UI.MVC;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
@@ -12,7 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); 
+builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<TreeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -21,26 +23,38 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<TreeDbContext>();
 
-builder.Services.ConfigureApplicationCookie(options => { options.LoginPath = "/Identity/Account/Login"; });
+// Cookie policy: werkt ook over HTTP (GCP deploy zonder HTTPS)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// Antiforgery cookie policy: zelfde reden
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// DataProtection keys persistent opslaan zodat cookies/antiforgery
+// tokens blijven werken tussen container rebuilds
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+    .SetApplicationName("IntergratieProject");
 
 builder.Services.AddHttpClient<IAiService, GeminiService>();
 builder.Services.AddScoped<IManager, Manager>();
 builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 builder.Services.AddViteServices();
-//150722
-
-
-// builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-//     .AddEntityFrameworkStores<TreeDbContext>()
-//     .AddDefaultTokenProviders();
-
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
- {
-     app.UseViteDevelopmentServer();
- }
+{
+    app.UseViteDevelopmentServer();
+}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -59,11 +73,14 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// HTTPS redirect alleen lokaal. Op GCP draaien we HTTP op poort 8080.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -72,19 +89,16 @@ app.MapStaticAssets();
 
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
-
-
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
 
-// gaat naar bv : kdg-hogeschool/Project/1 -> zodat je nog zelf /1 /2 kan mee spelen in url
 app.MapControllerRoute(
     name: "subplatform_short",
     pattern: "{subplatform}/{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
-//  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
+
 app.MapControllerRoute(
     name: "subplatform_default",
     pattern: "{subplatform}/{controller=Project}",
@@ -98,10 +112,10 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Project}/{action=Index}/{id=1}");
 
-
 app.MapRazorPages();
 
 app.Run();
+
 void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
 {
     var adminuser = new ApplicationUser
@@ -118,6 +132,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
         SubPlatformSlug = "kdg-hogeschool"
     };
     userManager.CreateAsync(kdg, "Test123!").Wait();
+
     var ap = new ApplicationUser
     {
         UserName = "ap@gmail.com",
@@ -125,17 +140,18 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
         SubPlatformSlug = "ap-hogeschool"
     };
     userManager.CreateAsync(ap, "Test123!").Wait();
+
     var subAdminRole = new IdentityRole
     {
         Name = CustomIdentityConstants.SubAdminRoleName
     };
     roleManager.CreateAsync(subAdminRole).Wait();
+
     var generalAdminRole = new IdentityRole
     {
         Name = CustomIdentityConstants.GeneralAdminRoleName
     };
     roleManager.CreateAsync(generalAdminRole).Wait();
-
 
     userManager.AddToRoleAsync(adminuser, CustomIdentityConstants.GeneralAdminRoleName).Wait();
     userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
