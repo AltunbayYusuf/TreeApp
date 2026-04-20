@@ -1,10 +1,12 @@
-﻿using IntergratieProject.Domain.ideas;
+﻿using System.ComponentModel.DataAnnotations;
+using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 
 namespace IntergratieProject.UI.MVC.Models;
 
 public class IdeasOverviewViewModel
 {
+    [Required(ErrorMessage = "IdeasOverview must belong to a project")]
     public Project Project { get; set; }
     public int? SelectedTopicId { get; set; }
     public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
