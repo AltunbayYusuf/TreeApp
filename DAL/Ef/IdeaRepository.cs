@@ -101,6 +101,7 @@ public class IdeaRepository : IIdeaRepository
     public Project? ReadProject(int projectId)
     {
         return _context.Projects
+            .Include(p => p.QuestionList)
             .Include(p => p.SubPlatform)
             .Include(p => p.Photo)
             .Include(p => p.Logo)
