@@ -176,6 +176,7 @@ public class IdeaRepository : IIdeaRepository
     
     public void ChangeProject(Project project)
     {
+        
         _context.Projects.Update(project);
         _context.SaveChanges();
     }

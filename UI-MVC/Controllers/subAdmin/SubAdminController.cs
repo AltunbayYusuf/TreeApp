@@ -88,8 +88,22 @@ public class SubAdminController : Controller
         if (project == null)
             return NotFound();
 
-        project.Status = Enum.Parse<Status>(status);
+        if (!Enum.TryParse<Status>(status, true, out var newStatus))
+            return BadRequest();
 
+        var currentStatus = project.Status;
+
+        var isValidTransition =
+            (currentStatus == Status.Draft && newStatus == Status.Active) ||
+            (currentStatus == Status.Active && newStatus == Status.Archived);
+
+        if (!isValidTransition)
+        {
+            TempData["Error"] = "Deze statuswijziging is niet toegestaan.";
+            return RedirectToAction("Index", new { subplatform });
+        }
+
+        project.Status = newStatus;
         _manager.UpdateProject(project);
 
         return RedirectToAction("Index", new { subplatform });

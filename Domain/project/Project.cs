@@ -22,7 +22,8 @@ public class Project
 
     public int SubPlatformId { get; set; }
     public SubPlatform SubPlatform { get; set; }
-
+    
+    public bool HasBeenActive { get; set; }
     public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }

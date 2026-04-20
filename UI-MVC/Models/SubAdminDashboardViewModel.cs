@@ -9,6 +9,8 @@ public class SubAdminDashboardViewModel
     public int ActiveProjects { get; set; }
     public int ParticipantsCount { get; set; }
     public int TotalIdeas { get; set; }
+    
+    public Boolean isAlActiefGeweest { get; set; }
     public List<ProjectSummaryViewModel> Projects { get; set; } = new();
     
    
