@@ -42,4 +42,12 @@ public interface IManager
     
     void CreateProject(Project project);
     void SaveQuestionList(QuestionList questionList);
+    
+    IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId);
+    
+    void ApproveIdea(int ideaId);
+    void RejectIdea(int ideaId);
+    void ApproveReaction(int reactionId);
+    void RejectReaction(int reactionId);
 }

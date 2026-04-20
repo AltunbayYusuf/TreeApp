@@ -64,17 +64,29 @@ public class IdeasController : ControllerBase
         });
             
         }
-        catch (Exception)
+        // catch (Exception)
+        // {
+        //     await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+        //
+        //     return Ok(new
+        //     {
+        //         ok = true,
+        //         saved = true,
+        //         isToxic = false,
+        //         aiUnavailable = true,
+        //         message = "Je idee werd opgeslagen en doorgestuurd voor moderatie omdat de AI-controle tijdelijk niet beschikbaar was."
+        //     });
+        // }
+        catch (Exception ex)
         {
-            await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
-
-            return Ok(new
+            return StatusCode(500, new
             {
-                ok = true,
-                saved = true,
+                ok = false,
+                saved = false,
                 isToxic = false,
                 aiUnavailable = true,
-                message = "Je idee werd opgeslagen en doorgestuurd voor moderatie omdat de AI-controle tijdelijk niet beschikbaar was."
+                message = ex.Message,
+                details = ex.InnerException?.Message
             });
         }
     }

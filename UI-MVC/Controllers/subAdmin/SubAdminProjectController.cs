@@ -16,16 +16,14 @@ public class SubAdminProjectsController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager,
-        IWebHostEnvironment webHostEnvironment)
+    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
     {
         _manager = manager;
         _userManager = userManager;
         _webHostEnvironment = webHostEnvironment;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> ProjectInfo(string subplatform)
+    private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform))
         {
@@ -49,6 +47,18 @@ public class SubAdminProjectsController : Controller
             return Forbid();
         }
 
+        return null;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ProjectInfo(string subplatform)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+       
         var vm = new CreateProjectInfoViewModel
         {
             SubplatformSlug = subplatform,
@@ -59,18 +69,51 @@ public class SubAdminProjectsController : Controller
     }
 
     [HttpGet]
+    public async Task<IActionResult> CreateIdeation(string subplatform)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+
+        var vm = new CreateProjectIdeationViewModel
+        {
+            SubplatformSlug = subplatform
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveIdeation(string subplatform, CreateProjectIdeationViewModel vm)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+
+        if (!ModelState.IsValid)
+        {
+            vm.SubplatformSlug = subplatform;
+            return View("CreateIdeation", vm);
+        }
+
+        vm.SubplatformSlug = subplatform;
+        TempData["IdeationSavedMessage"] = "Ideation-instellingen zijn opgeslagen in de sessie. Opslag is nog niet gekoppeld aan het projectdomein.";
+        return RedirectToAction(nameof(CreateIdeation), new { subplatform });
+    }
+
+    [HttpGet]
     public async Task<IActionResult> CreateSurvey(string subplatform)
     {
-        if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
-
-        var subPlatformEntity = _manager.GetSubPlatformBySlug(subplatform);
-        if (subPlatformEntity == null) return NotFound();
-
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null) return Redirect("/Identity/Account/Login");
-
-        if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
-            return Forbid();
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
 
         var vm = new CreateProjecSurveyViewModel
         {
@@ -78,5 +121,25 @@ public class SubAdminProjectsController : Controller
         };
 
         return View(vm);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveSurvey(string subplatform, CreateProjecSurveyViewModel vm)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+
+        if (!ModelState.IsValid)
+        {
+            vm.SubplatformSlug = subplatform;
+            return View("CreateSurvey", vm);
+        }
+
+        vm.SubplatformSlug = subplatform;
+        return RedirectToAction(nameof(CreateSurvey), new { subplatform });
     }
 }

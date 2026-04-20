@@ -11,4 +11,4 @@ import './js/reaction/index';
 import './js/idea/create';
 import './js/idea/ideas';
 import './js/createSurvey/createSurvey.ts';
-
+import './js/ideation/create-project-ideation'

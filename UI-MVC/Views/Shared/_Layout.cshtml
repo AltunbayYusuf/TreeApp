@@ -124,6 +124,15 @@
                                 Dashboard
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-controller="SubAdminModeration"
+                               asp-action="Index"
+                               asp-route-subplatform="@currentSubplatform">
+                                Moderatie
+                            </a>
+                        </li>
                     }
                     else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
                     {

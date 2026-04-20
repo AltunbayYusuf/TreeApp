@@ -34,4 +34,15 @@ public interface IIdeaRepository
     
     void CreateProject(Project project);
     void SaveQuestionList(QuestionList questionList);
+    
+    IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> ReadReactionsInReviewBySubPlatform(int subPlatformId);
+    
+    Reaction? ReadReactionById(int reactionId);
+
+    void UpdateIdea(Idea idea);
+    void UpdateReaction(Reaction reaction);
+
+    void DeleteIdea(int ideaId);
+    void DeleteReaction(int reactionId);
 }
