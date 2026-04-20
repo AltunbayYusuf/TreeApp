@@ -10,4 +10,4 @@ import './js/survey/results';
 import './js/reaction/index';
 import './js/idea/create';
 import './js/idea/ideas';
-
+import './js/ideation/create-project-ideation'
