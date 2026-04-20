@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using IntergratieProject.DAL;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;
@@ -20,7 +21,7 @@ public class Manager : IManager
         _repository = repository;
     }
     
-    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text)
+    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId)
     {
         var idea = _repository.ReadIdeaById(ideaId);
 
@@ -31,6 +32,7 @@ public class Manager : IManager
 
         var reaction = new Reaction
         {
+            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = string.IsNullOrWhiteSpace(text) ? null : text,
@@ -45,16 +47,6 @@ public class Manager : IManager
     {
         
     }
-    
-    // public void AddReaction(int ideaId, string emoji, string text)
-    // {
-    //     if (string.IsNullOrWhiteSpace(emoji) && string.IsNullOrWhiteSpace(text))
-    //     {
-    //         return;
-    //     }
-    //
-    //     _repository.AddReaction(ideaId, emoji, text);
-    // }
 
     public async Task<string> AskAiForIdea(string idea)
     {
@@ -80,25 +72,25 @@ public class Manager : IManager
         INPUT:
         """ + input;
 
+    var aiText = await _aiService.GenerateAsync(prompt, FeatureType.Moderation);
+    
+    //debugging
+    Console.WriteLine("RAW AI TEXT:");
+    Console.WriteLine(aiText);
+    Console.WriteLine("------");
+
+    // strip ```json fences als die er zijn
+    var cleaned = aiText.Trim();
+    var firstBrace = cleaned.IndexOf('{');
+    var lastBrace = cleaned.LastIndexOf('}');
+
+    if (firstBrace >= 0 && lastBrace > firstBrace)
+    {
+        cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
+    }
+
     try
     {
-        var aiText = await _aiService.GenerateAsync(prompt, FeatureType.Moderation);
-
-        //debugging
-        Console.WriteLine("RAW AI TEXT:");
-        Console.WriteLine(aiText);
-        Console.WriteLine("------");
-
-        // strip ```json fences als die er zijn
-        var cleaned = aiText.Trim();
-        var firstBrace = cleaned.IndexOf('{');
-        var lastBrace = cleaned.LastIndexOf('}');
-
-        if (firstBrace >= 0 && lastBrace > firstBrace)
-        {
-            cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
-        }
-
         using var doc = JsonDocument.Parse(cleaned);
 
         bool isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
@@ -108,22 +100,30 @@ public class Manager : IManager
         return new ToxicityResult
         {
             IsToxic = isToxic,
+            AiUnavailable = false,
             SuggestedText = suggestedText,
             Explanation = explanation
         };
     }
+    // catch (Exception ex)
+    // {
+    //     // AI faalde / output niet parsebaar
+    //     // return new ToxicityResult
+    //     // {
+    //     //     IsToxic = true,
+    //     //     AiUnavailable = true,
+    //     //     SuggestedText = "",
+    //     //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
+    //     // };
+    //         throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
+    //
+    // }
     catch (Exception ex)
     {
-        // AI faalde / output niet parsebaar — idee toch toestaan
-        return new ToxicityResult
-        {
-            IsToxic = false,
-            SuggestedText = "",
-            Explanation = $"Moderation check failed: {ex.Message}"
-        };
+        throw new Exception($"AI moderation tijdelijk niet beschikbaar. Raw AI response: {aiText}", ex);
     }
 }
-    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text)
+    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
     {
         var idea = _repository.ReadIdeaById(ideaId);
 
@@ -136,6 +136,7 @@ public class Manager : IManager
         {
             var reaction = new Reaction
             {
+                UserId = userId,
                 Idea = idea,
                 Emoji = emoji,
                 Text = null,
@@ -148,13 +149,14 @@ public class Manager : IManager
             {
                 IsToxic = false,
                 SuggestedText = "",
+                AiUnavailable = false,
                 Explanation = "Emoji reactie opgeslagen."
             };
         }
 
         // ALS ER TEKST IS → AI MODERATIE
         var moderation = await ModerateTextAsync(text);
-
+        
         if (moderation.IsToxic)
         {
             return moderation;
@@ -162,6 +164,7 @@ public class Manager : IManager
 
         var textReaction = new Reaction
         {
+            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = text,
@@ -174,6 +177,7 @@ public class Manager : IManager
         {
             IsToxic = false,
             SuggestedText = "",
+            AiUnavailable = false,
             Explanation = "Reactie succesvol opgeslagen."
         };
     }
@@ -198,70 +202,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
     _repository.AddIdea(idea);
     await Task.CompletedTask;
 } 
-//     public async Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input)
-//     {
-//         var prompt =
-//             """
-//             Je bent een moderatie-assistent voor een jongerenplatform.
-//             Antwoord ALLEEN met een JSON object. Geen markdown, geen code fences, geen extra tekst.
-//
-//             JSON schema:
-//             {"isToxic":true/false,"explanation":"...","suggestedText":"..."}
-//
-//             Regels:
-//             - isToxic=true bij schelden, haatspraak, bedreiging, intimidatie, vernedering
-//             - suggestedText: respectvolle herformulering met dezelfde bedoeling (leeg als niet toxisch)
-//
-//             INPUT:
-//             """ + input;
-//
-//         var aiText = await _aiService.GenerateAsync(prompt, FeatureType.Moderation);
-//
-//         // strip ```json fences als die er zijn
-//         var cleaned = aiText.Trim();
-//         var firstBrace = cleaned.IndexOf('{');
-//         var lastBrace = cleaned.LastIndexOf('}');
-//
-//         if (firstBrace >= 0 && lastBrace > firstBrace)
-//         {
-//             cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
-//         }
-//
-//         try
-//         {
-//             using var doc = JsonDocument.Parse(cleaned);
-//
-//             bool isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
-//             string explanation = doc.RootElement.GetProperty("explanation").GetString() ?? "";
-//             string suggestedText = doc.RootElement.GetProperty("suggestedText").GetString() ?? "";
-//
-//             return (isToxic, suggestedText, explanation);
-//         }
-//         catch (Exception ex)
-//         {
-//             // AI faalde / output niet parsebaar => GEEN toxic claim
-//             return (true, "", $"Moderation check failed: {ex.Message}. Raw: {aiText}");        }
-//     }
-//     public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
-//     {
-//         var topic = _repository.ReadTopicById(topicId);
-//         if (topic == null)
-//         {
-//             throw new Exception("Topic niet gevonden");
-//         }
-//
-//         var idea = new Idea
-//         {
-//             Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
-//             Text = text,
-//             Topic = topic,
-//             ModerationStatus = ModerationStatus.InReview
-//         };
-//
-//         _repository.AddIdea(idea);
-//         await Task.CompletedTask;
-//     }
-    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text)
+public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -270,7 +211,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
         }
 
         var moderation = await ModerateTextAsync(text);
-
+        
         if (moderation.IsToxic)
         {
             return moderation;
@@ -283,6 +224,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted
         };
+        ValidateEntety(idea);
 
         _repository.AddIdea(idea);
 
@@ -293,6 +235,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
             Explanation = "Idee succesvol opgeslagen."
         };
     }
+
     public IEnumerable<Topic> GetTopicsByProject(Project project)
     {
         return _repository.ReadTopicsByProject(project);
@@ -318,6 +261,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
     {
         return _repository.ReadAllQuestionsBySection(sectionId);
     }
+
     public IEnumerable<Question> GetAllQuestions()
     {
         return _repository.ReadAllQuestions();
@@ -338,18 +282,148 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
         return _repository.ReadProject(projectId);
     }
 
-    public User GetUser(string cookieId)
+    public User? GetUser(string cookieId)
     {
         return _repository.ReadUser(cookieId);
     }
 
     public void AddUser(User user)
     {
+        ValidateEntety(user);
         _repository.CreateUser(user);
     }
 
-    public void SaveAnswers(int userId, List<Answer> answers)
+    public SurveyResponse? GetSurveyResponse(int userId, int projectId)
     {
-        _repository.SaveAnswers(userId, answers);
+        return _repository.ReadSurveyResponse(userId, projectId);
+    }
+
+    public void SaveSurveyResponse(int userId, int projectId, List<Answer> answers)
+    {
+        _repository.SaveSurveyResponse(userId, projectId, answers);
+    }
+
+    public SubPlatform? GetSubPlatformBySlug(string slug)
+    {
+        return _repository.ReadSubPlatformBySlug(slug);
+    }
+
+    public Project? GetProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
+    {
+        return _repository.ReadProjectBySubPlatformAndProjectId(subplatformSlug, projectId);
+    }
+
+    public IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadProjectsBySubPlatform(subPlatformId);
+    }
+
+    public Project? GetFirstProjectBySubPlatform(string slug)
+    {
+        var subPlatform = _repository.ReadSubPlatformBySlug(slug);
+
+        if (subPlatform == null)
+        {
+            return null;
+        }
+
+        return _repository.ReadProjectsBySubPlatform(subPlatform.Id)
+            .OrderBy(p => p.Id).FirstOrDefault();
+    }
+
+    public void UpdateProject(Project project)
+    {
+        ValidateEntety(project);
+        _repository.ChangeProject(project);
+    }
+
+    public void CreateProject(Project project)
+    {
+        ValidateEntety(project);
+        _repository.CreateProject(project);
+    }
+
+    public void SaveQuestionList(QuestionList questionList)
+    {
+        _repository.SaveQuestionList(questionList);
+    }
+
+    private void ValidateEntety(Object model)
+    {
+        var validationResults = new List<ValidationResult>();
+        bool success = Validator.TryValidateObject(model,
+            new ValidationContext(model), validationResults, true);
+
+        if (!success)
+        {
+            var message = "";
+            foreach (var validationResult in validationResults)
+            {
+                message += validationResult.ErrorMessage + " ";
+            }
+
+            throw new ValidationException(message);
+        }
+    }
+    
+    
+    public IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadIdeasInReviewBySubPlatform(subPlatformId);
+    }
+
+    public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadReactionsInReviewBySubPlatform(subPlatformId);
+    }
+
+    public void ApproveIdea(int ideaId)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+        
+        idea.ModerationStatus = ModerationStatus.Accepted;
+        _repository.UpdateIdea(idea);
+    }
+
+    public void RejectIdea(int ideaId)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+
+        _repository.DeleteIdea(ideaId);
+    }
+
+    public void ApproveReaction(int reactionId)
+    {
+        var reaction = _repository.ReadReactionById(reactionId);
+
+        if (reaction == null)
+        {
+            throw new ArgumentException("Reaction not found");
+        }
+        
+        reaction.ModerationStatus = ModerationStatus.Accepted;
+        _repository.UpdateReaction(reaction);
+    }
+
+    public void RejectReaction(int reactionId)
+    {
+        var reaction = _repository.ReadReactionById(reactionId);
+
+        if (reaction == null)
+        {
+            throw new ArgumentException("Reaction not found");
+        }
+        
+        _repository.DeleteReaction(reactionId);
     }
 }

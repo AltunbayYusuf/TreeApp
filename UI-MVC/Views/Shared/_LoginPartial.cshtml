@@ -1,0 +1,62 @@
+@using IntergratieProject.BL
+@using IntergratieProject.DAL.Identity
+@using IntergratieProject.UI.MVC
+@using Microsoft.AspNetCore.Identity
+
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+@inject IManager Manager
+
+<ul class="navbar-nav">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index"
+               title="Manage">Hello @UserManager.GetUserName(User)!</a>
+        </li>
+        @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+        {
+            <li class="nav-item">
+                <a class="nav-link text-dark" id="register" asp-area="Identity"
+                   asp-page="/Account/Register">Register</a>
+            </li>
+        }
+
+        <li class="nav-item">
+            @{
+                var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+                var logoutProjectId = "";
+
+                if (!string.IsNullOrWhiteSpace(currentSubplatform))
+                {
+                    var firstProject = Manager.GetFirstProjectBySubPlatform(currentSubplatform);
+
+                    if (firstProject != null)
+                    {
+                        logoutProjectId = firstProject.Id.ToString();
+                    }
+                }
+            }
+
+            <form class="form-inline"
+                  asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
+                  method="post">
+                <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
+            </form>
+        </li>
+        
+    }
+    else
+    {
+        <a class="nav-link text-dark"
+           id="login"
+           asp-area="Identity"
+           asp-page="/Account/Login"
+           asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)">
+            Login
+        </a>
+    }
+ 
+</ul>

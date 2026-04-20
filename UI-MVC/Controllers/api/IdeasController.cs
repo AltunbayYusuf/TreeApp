@@ -36,7 +36,9 @@ public class IdeasController : ControllerBase
             });
         }
 
-        var result = await _manager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+        try
+        {
+            var result = await _manager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
 
         if (result.IsToxic)
         {
@@ -45,6 +47,7 @@ public class IdeasController : ControllerBase
                 ok = true,
                 saved = false,
                 isToxic = true,
+                aiUnavailable = false,
                 warning = "Deze tekst bevat toxische inhoud en werd niet verzonden.",
                 explanation = result.Explanation,
                 suggestedText = result.SuggestedText
@@ -56,8 +59,36 @@ public class IdeasController : ControllerBase
             ok = true,
             saved = true,
             isToxic = false,
+            aiUnavailable = false,
             message = "Idee succesvol verstuurd."
         });
+            
+        }
+        // catch (Exception)
+        // {
+        //     await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+        //
+        //     return Ok(new
+        //     {
+        //         ok = true,
+        //         saved = true,
+        //         isToxic = false,
+        //         aiUnavailable = true,
+        //         message = "Je idee werd opgeslagen en doorgestuurd voor moderatie omdat de AI-controle tijdelijk niet beschikbaar was."
+        //     });
+        // }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new
+            {
+                ok = false,
+                saved = false,
+                isToxic = false,
+                aiUnavailable = true,
+                message = ex.Message,
+                details = ex.InnerException?.Message
+            });
+        }
     }
 
     [HttpPost("force")]
@@ -81,14 +112,29 @@ public class IdeasController : ControllerBase
             });
         }
 
+        try
+        {
+            
         await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
 
-        return Ok(new
-        {
+            return Ok(new
+            {
             ok = true,
             saved = true,
             isToxic = false,
+            aiUnavailable = false,
             message = "Idee doorgestuurd voor moderatie."
-        });
+            });
+        }
+        catch (Exception)
+        {
+            return StatusCode(503, new
+            {
+                ok = false,
+                isToxic = false,
+                aiUnavailable = true,
+                message = "De dienst is tijdelijk niet beschikbaar. Probeer het straks opnieuw."
+            });
+        }
     }
 }

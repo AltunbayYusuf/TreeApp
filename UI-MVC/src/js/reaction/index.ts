@@ -7,14 +7,22 @@
         .replace(/'/g, "&#039;");
 }
 
+interface ReactionApiResponse {
+    ok?: boolean;
+    message?: string;
+    warning?: string;
+    explanation?: string;
+    suggestedText?: string;
+    isToxic?: boolean;
+    saved?: boolean;
+    aiUnavailable?: boolean;
+}
 
 document.addEventListener("DOMContentLoaded", () => {
-
     const emojiButtons = document.querySelectorAll<HTMLButtonElement>(".reaction-emoji-btn");
 
     emojiButtons.forEach((button) => {
         button.addEventListener("click", function () {
-
             const ideaId = this.dataset.ideaId;
             const emoji = this.dataset.emoji ?? "";
 
@@ -29,15 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!hiddenInput) return;
 
             if (hiddenInput.value === emoji) {
-
                 this.classList.remove("selected");
                 this.classList.remove("btn-primary");
                 this.classList.add("btn-outline-secondary");
 
                 hiddenInput.value = "";
-
-                console.log("emoji verwijderd:", emoji);
-
                 return;
             }
 
@@ -52,18 +56,13 @@ document.addEventListener("DOMContentLoaded", () => {
             this.classList.add("btn-primary");
 
             hiddenInput.value = emoji;
-
-            console.log("emoji gezet:", hiddenInput.value);
-
         });
     });
 
     const reactionForms = document.querySelectorAll<HTMLFormElement>(".reaction-form");
 
     reactionForms.forEach((form) => {
-
         form.addEventListener("submit", async (e: SubmitEvent) => {
-
             e.preventDefault();
 
             const ideaId = form.dataset.ideaId;
@@ -127,7 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         resultBox.style.display = "block";
                         resultBox.innerHTML = `
                             <div class="alert alert-danger mb-0">
-                                ${data.message ?? "Er ging iets mis."}
+                                ${escapeHtmll(data.message ?? "Er ging iets mis.")}
                             </div>
                         `;
                     }
@@ -139,57 +138,98 @@ document.addEventListener("DOMContentLoaded", () => {
                         resultBox.style.display = "block";
                         resultBox.innerHTML = `
                             <div class="alert alert-warning mb-0">
-                                <strong>${data.warning ?? "AI: je reactie bevat mogelijk toxische inhoud."}</strong>
-                                ${data.explanation ? `<div class="mt-2"><em>${data.explanation}</em></div>` : ""}
-                                ${data.suggestedText ? `<div class="mt-2"><strong>Alternatief:</strong><br>${data.suggestedText}</div>` : ""}
+                                <strong>${escapeHtmll(data.warning ?? "AI: je reactie bevat mogelijk toxische inhoud.")}</strong>
+                                ${data.explanation ? `<div class="mt-2"><em>${escapeHtmll(data.explanation)}</em></div>` : ""}
+                                ${data.suggestedText ? `<div class="mt-2"><strong>Alternatief:</strong><br>${escapeHtmll(data.suggestedText)}</div>` : ""}
                                 <div class="mt-3 d-flex gap-2 flex-wrap">
                                     <button type="button" class="btn btn-outline-primary btn-sm use-alternative-btn">
                                         Alternatief gebruiken
                                     </button>
-                                    <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">
+                                    <button type="button" class="btn btn-outline-danger btn-sm force-submit-btn">
                                         Toch versturen
                                     </button>
                                 </div>
                             </div>
                         `;
-                        const forceBtn = resultBox.querySelector("#force-submit-btn") as HTMLButtonElement | null;
 
-                        if (forceBtn) {
-                            forceBtn.addEventListener("click", async () => {
-
-                                const response = await fetch("/api/reactions/force", {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json"
-                                    },
-                                    body: JSON.stringify({
-                                        ideaId: parseInt(ideaId, 10),
-                                        emoji: emoji,
-                                        text: text,
-                                        forceSubmit: true
-                                    })
-                                });
-
-                                if (!response.ok) {
-                                    alert("Fout bij toch versturen.");
-                                    return;
-                                }
-
-                                location.reload();
-                            });
-                        }
-
+                        const forceBtn = resultBox.querySelector(".force-submit-btn") as HTMLButtonElement | null;
                         const useAlternativeBtn = resultBox.querySelector(".use-alternative-btn") as HTMLButtonElement | null;
 
-                        if (useAlternativeBtn) {
-                            useAlternativeBtn.addEventListener("click", () => {
-                                textArea.value = data.suggestedText || "";
-                                resultBox.style.display = "none";
-                                resultBox.innerHTML = "";
-                                textArea.focus();
+                        forceBtn?.addEventListener("click", async () => {
+                            const forceResponse = await fetch("/api/reactions/force", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    ideaId: parseInt(ideaId, 10),
+                                    emoji: emoji,
+                                    text: text
+                                })
                             });
-                        }
+
+                            const forceData: ReactionApiResponse = await forceResponse.json();
+
+                            if (!forceResponse.ok) {
+                                if (resultBox) {
+                                    resultBox.style.display = "block";
+                                    resultBox.innerHTML = `
+                                        <div class="alert alert-danger mb-0">
+                                            ${escapeHtmll(forceData.message ?? "Fout bij toch versturen.")}
+                                        </div>
+                                    `;
+                                }
+                                return;
+                            }
+
+                            if (resultBox) {
+                                resultBox.style.display = "block";
+                                resultBox.innerHTML = `
+                                    <div class="alert alert-info mb-0">
+                                        ${escapeHtmll(forceData.message ?? "Reactie doorgestuurd voor moderatie.")}
+                                    </div>
+                                `;
+                            }
+
+                            textArea.value = "";
+                            emojiInput.value = "";
+
+                            emojiButtonsForIdea.forEach((btn) => {
+                                btn.classList.remove("selected");
+                                btn.classList.remove("btn-primary");
+                                btn.classList.add("btn-outline-secondary");
+                            });
+                        });
+
+                        useAlternativeBtn?.addEventListener("click", () => {
+                            textArea.value = data.suggestedText || "";
+                            resultBox.style.display = "none";
+                            resultBox.innerHTML = "";
+                            textArea.focus();
+                        });
                     }
+                    return;
+                }
+
+                if (data.aiUnavailable) {
+                    if (resultBox) {
+                        resultBox.style.display = "block";
+                        resultBox.innerHTML = `
+                            <div class="alert alert-info mb-0">
+                                ${escapeHtmll(data.message ?? "Reactie opgeslagen en doorgestuurd voor moderatie omdat AI tijdelijk niet beschikbaar was.")}
+                            </div>
+                        `;
+                    }
+
+                    textArea.value = "";
+                    emojiInput.value = "";
+
+                    emojiButtonsForIdea.forEach((btn) => {
+                        btn.classList.remove("selected");
+                        btn.classList.remove("btn-primary");
+                        btn.classList.add("btn-outline-secondary");
+                    });
+
                     return;
                 }
 
@@ -198,7 +238,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         resultBox.style.display = "block";
                         resultBox.innerHTML = `
                             <div class="alert alert-success mb-0">
-                                ${data.message ?? "Reactie succesvol toegevoegd."}
+                                ${escapeHtmll(data.message ?? "Reactie succesvol toegevoegd.")}
                             </div>
                         `;
                     }
@@ -215,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (text) {
                             html += `<span>${escapeHtmll(text)}</span>`;
                         }
-    
+
                         li.innerHTML = html;
                         reactionsList.prepend(li);
                         reactionsList.style.display = "block";
@@ -235,7 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         btn.classList.add("btn-outline-secondary");
                     });
                 }
-
             } catch (error) {
                 console.error("Fout bij verzenden van reactie:", error);
 
@@ -248,19 +287,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     `;
                 }
             }
-
         });
-
     });
-
 });
-
-
-interface ReactionApiResponse {
-    message?: string;
-    warning?: string;
-    explanation?: string;
-    suggestedText?: string;
-    isToxic?: boolean;
-    saved?: boolean;
-}

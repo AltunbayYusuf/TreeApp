@@ -1,11 +1,12 @@
 using IntergratieProject.BL;
+using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntergratieProject.UI.MVC.Controllers.Api;
 
 [ApiController]
-[Route("/api/projects")]
+[Route("api/[controller]")]
 public class ProjectsController : ControllerBase
 {
     private readonly IManager _manager;
@@ -24,7 +25,10 @@ public class ProjectsController : ControllerBase
         {
             return NotFound();
         }
-
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
+        }
         var dto = new ProjectDto
         {
             Id = project.Id,

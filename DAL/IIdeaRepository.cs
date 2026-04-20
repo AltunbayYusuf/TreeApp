@@ -7,10 +7,9 @@ namespace IntergratieProject.DAL;
 
 public interface IIdeaRepository
 {
-     void AddIdea(Idea idea);
-   // void AddReaction(int ideaId, string? emoji, string? text);
-   void AddReaction(Reaction reaction);
-    
+    void AddIdea(Idea idea);
+    void AddReaction(Reaction reaction);
+
     IEnumerable<Topic> ReadTopicsByProject(Project project);
     IEnumerable<Idea> ReadIdeasByProject(Project project);
     IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId);
@@ -19,10 +18,31 @@ public interface IIdeaRepository
     Question ReadQuestion(int questionId);
     Topic? ReadTopicById(int topicId);
     Idea? ReadIdeaById(int ideaId);
-    QuestionList ReadQuestionListByProject(Project projectId);
-    
+    QuestionList ReadQuestionListByProject(Project project);
+
     Project? ReadProject(int projectId);
-    User ReadUser(string cookieId);
-    void CreateUser(User user);   
-    void SaveAnswers(int userId, List<Answer> answers);
+    User? ReadUser(string cookieId);
+    void CreateUser(User user);
+
+    SurveyResponse? ReadSurveyResponse(int userId, int projectId);
+    void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
+    
+    SubPlatform? ReadSubPlatformBySlug(string slug);
+    Project? ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId);
+    IEnumerable<Project> ReadProjectsBySubPlatform(int subPlatformId);
+    void ChangeProject(Project project);
+    
+    void CreateProject(Project project);
+    void SaveQuestionList(QuestionList questionList);
+    
+    IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> ReadReactionsInReviewBySubPlatform(int subPlatformId);
+    
+    Reaction? ReadReactionById(int reactionId);
+
+    void UpdateIdea(Idea idea);
+    void UpdateReaction(Reaction reaction);
+
+    void DeleteIdea(int ideaId);
+    void DeleteReaction(int reactionId);
 }

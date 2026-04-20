@@ -71,8 +71,11 @@ if (button) {
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get("projectId");
 
-        const submitUrl = projectId
-            ? `/Survey/Submit?projectId=${projectId}`
+        const subplatformInput = document.getElementById("subplatformSlug") as HTMLInputElement | null;
+        const subplatform = subplatformInput?.value;
+
+        const submitUrl = projectId && subplatform
+            ? `/${subplatform}/Survey/Submit?projectId=${projectId}`
             : "/Survey/Submit";
 
         fetch(submitUrl, {
