@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using IntergratieProject.DAL;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.Domain.ideas;
@@ -104,18 +105,22 @@ public class Manager : IManager
             Explanation = explanation
         };
     }
+    // catch (Exception ex)
+    // {
+    //     // AI faalde / output niet parsebaar
+    //     // return new ToxicityResult
+    //     // {
+    //     //     IsToxic = true,
+    //     //     AiUnavailable = true,
+    //     //     SuggestedText = "",
+    //     //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
+    //     // };
+    //         throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
+    //
+    // }
     catch (Exception ex)
     {
-        // AI faalde / output niet parsebaar
-        // return new ToxicityResult
-        // {
-        //     IsToxic = true,
-        //     AiUnavailable = true,
-        //     SuggestedText = "",
-        //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
-        // };
-            throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
-
+        throw new Exception($"AI moderation tijdelijk niet beschikbaar. Raw AI response: {aiText}", ex);
     }
 }
     public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
@@ -219,6 +224,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted
         };
+        ValidateEntety(idea);
 
         _repository.AddIdea(idea);
 
@@ -229,6 +235,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             Explanation = "Idee succesvol opgeslagen."
         };
     }
+
     public IEnumerable<Topic> GetTopicsByProject(Project project)
     {
         return _repository.ReadTopicsByProject(project);
@@ -254,6 +261,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         return _repository.ReadAllQuestionsBySection(sectionId);
     }
+
     public IEnumerable<Question> GetAllQuestions()
     {
         return _repository.ReadAllQuestions();
@@ -281,6 +289,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
 
     public void AddUser(User user)
     {
+        ValidateEntety(user);
         _repository.CreateUser(user);
     }
 
@@ -293,7 +302,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         _repository.SaveSurveyResponse(userId, projectId, answers);
     }
-    
+
     public SubPlatform? GetSubPlatformBySlug(string slug)
     {
         return _repository.ReadSubPlatformBySlug(slug);
@@ -308,7 +317,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         return _repository.ReadProjectsBySubPlatform(subPlatformId);
     }
-    
+
     public Project? GetFirstProjectBySubPlatform(string slug)
     {
         var subPlatform = _repository.ReadSubPlatformBySlug(slug);
@@ -322,4 +331,99 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             .OrderBy(p => p.Id).FirstOrDefault();
     }
 
+    public void UpdateProject(Project project)
+    {
+        ValidateEntety(project);
+        _repository.ChangeProject(project);
+    }
+
+    public void CreateProject(Project project)
+    {
+        ValidateEntety(project);
+        _repository.CreateProject(project);
+    }
+
+    public void SaveQuestionList(QuestionList questionList)
+    {
+        _repository.SaveQuestionList(questionList);
+    }
+
+    private void ValidateEntety(Object model)
+    {
+        var validationResults = new List<ValidationResult>();
+        bool success = Validator.TryValidateObject(model,
+            new ValidationContext(model), validationResults, true);
+
+        if (!success)
+        {
+            var message = "";
+            foreach (var validationResult in validationResults)
+            {
+                message += validationResult.ErrorMessage + " ";
+            }
+
+            throw new ValidationException(message);
+        }
+    }
+    
+    
+    public IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadIdeasInReviewBySubPlatform(subPlatformId);
+    }
+
+    public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
+    {
+        return _repository.ReadReactionsInReviewBySubPlatform(subPlatformId);
+    }
+
+    public void ApproveIdea(int ideaId)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+        
+        idea.ModerationStatus = ModerationStatus.Accepted;
+        _repository.UpdateIdea(idea);
+    }
+
+    public void RejectIdea(int ideaId)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+
+        _repository.DeleteIdea(ideaId);
+    }
+
+    public void ApproveReaction(int reactionId)
+    {
+        var reaction = _repository.ReadReactionById(reactionId);
+
+        if (reaction == null)
+        {
+            throw new ArgumentException("Reaction not found");
+        }
+        
+        reaction.ModerationStatus = ModerationStatus.Accepted;
+        _repository.UpdateReaction(reaction);
+    }
+
+    public void RejectReaction(int reactionId)
+    {
+        var reaction = _repository.ReadReactionById(reactionId);
+
+        if (reaction == null)
+        {
+            throw new ArgumentException("Reaction not found");
+        }
+        
+        _repository.DeleteReaction(reactionId);
+    }
 }

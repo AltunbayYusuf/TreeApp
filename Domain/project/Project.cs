@@ -8,6 +8,8 @@ namespace IntergratieProject.Domain.project;
 public class Project
 {
     public int Id { get; set; }
+    
+    public string Name { get; set; } = "";
     public string Introduction { get; set; }
     public Status Status { get; set; }
     public string Prompt { get; set; }

@@ -37,4 +37,17 @@ public interface IManager
     IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId);
     
     Project? GetFirstProjectBySubPlatform(string slug);
+    
+    void UpdateProject(Project project);
+    
+    void CreateProject(Project project);
+    void SaveQuestionList(QuestionList questionList);
+    
+    IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId);
+    
+    void ApproveIdea(int ideaId);
+    void RejectIdea(int ideaId);
+    void ApproveReaction(int reactionId);
+    void RejectReaction(int reactionId);
 }

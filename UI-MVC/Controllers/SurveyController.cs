@@ -1,4 +1,5 @@
 using IntergratieProject.BL;
+using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
 using IntergratieProject.Domain.users;
 using IntergratieProject.UI.MVC.Models.Dto;
@@ -23,7 +24,13 @@ public class SurveyController : Controller
         if (project == null)
         {
             return NotFound();
+        } 
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
         }
+
+        
 
         var user = GetOrCreateUser();
 
@@ -50,7 +57,10 @@ public class SurveyController : Controller
         {
             return NotFound();
         }
-
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
+        }
         if (answers == null || !answers.Any())
         {
             return BadRequest("Geen antwoorden ontvangen");

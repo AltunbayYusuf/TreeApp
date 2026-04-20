@@ -1,4 +1,5 @@
 using IntergratieProject.BL;
+using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,7 +25,10 @@ public class ProjectsController : ControllerBase
         {
             return NotFound();
         }
-
+        if (project.Status != Status.Active)
+        {
+            return NotFound(); 
+        }
         var dto = new ProjectDto
         {
             Id = project.Id,
