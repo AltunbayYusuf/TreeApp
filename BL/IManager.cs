@@ -28,6 +28,7 @@ public interface IManager
     Project? GetProject(int projectId);
     User? GetUser(string cookieId);
     void AddUser(User user);
+    void UpdateUser(User user);
 
     SurveyResponse? GetSurveyResponse(int userId, int projectId);
     void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);

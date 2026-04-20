@@ -293,6 +293,12 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
         _repository.CreateUser(user);
     }
 
+    public void UpdateUser(User user)
+    {
+        ValidateEntety(user);
+        _repository.UpdateUser(user);
+    }
+
     public SurveyResponse? GetSurveyResponse(int userId, int projectId)
     {
         return _repository.ReadSurveyResponse(userId, projectId);
