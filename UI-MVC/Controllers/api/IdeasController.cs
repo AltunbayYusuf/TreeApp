@@ -39,8 +39,8 @@ public class IdeasController : ControllerBase
 
         try
         {
-            SaveContactPreference(vm);
-            var result = await _manager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+            var user = SaveContactPreference(vm);
+            var result = await _manager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
 
         if (result.IsToxic)
         {
@@ -116,8 +116,8 @@ public class IdeasController : ControllerBase
 
         try
         {
-            SaveContactPreference(vm);
-            await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+            var user = SaveContactPreference(vm);
+            await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
 
             return Ok(new
             {
@@ -140,11 +140,12 @@ public class IdeasController : ControllerBase
         }
     }
 
-    private void SaveContactPreference(SubmitIdeaViewModel vm)
+    private User SaveContactPreference(SubmitIdeaViewModel vm)
     {
         var user = GetOrCreateUser();
         user.Email = vm.ContactOptIn && !string.IsNullOrWhiteSpace(vm.Email) ? vm.Email.Trim() : string.Empty;
         _manager.UpdateUser(user);
+        return user;
     }
 
     private User GetOrCreateUser()

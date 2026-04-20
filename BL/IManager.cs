@@ -14,9 +14,9 @@ public interface IManager
     public Task<string> AskAiForIdea(string idea);
     //Task<(bool IsToxic, string SuggestedText, string Explanation)> ModerateTextAsync(string input);
     Task<ToxicityResult> ModerateTextAsync(string input);
-    Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text);
+    Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId);
 
-    Task ForceSubmitIdeaAsync(int topicId, string title, string text);
+    Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId);
    // Task<ToxicityResult> SubmitReactionAsync(int ideaId, string emoji, string text);
 
     public IEnumerable<Topic> GetTopicsByProject(Project project);

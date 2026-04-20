@@ -46,7 +46,8 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Ideas)
-            .WithOne(i => i.User);
+            .WithOne(i => i.User)
+            .HasForeignKey(i => i.UserId);
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Reactions)
