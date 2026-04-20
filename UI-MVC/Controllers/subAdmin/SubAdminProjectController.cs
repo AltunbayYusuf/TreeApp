@@ -14,13 +14,11 @@ public class SubAdminProjectsController : Controller
 {
     private readonly IManager _manager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IWebHostEnvironment _webHostEnvironment;
 
     public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
     {
         _manager = manager;
         _userManager = userManager;
-        _webHostEnvironment = webHostEnvironment;
     }
 
     private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
@@ -102,7 +100,7 @@ public class SubAdminProjectsController : Controller
         }
 
         vm.SubplatformSlug = subplatform;
-        TempData["IdeationSavedMessage"] = "Ideation-instellingen zijn opgeslagen in de sessie. Persistente opslag is nog niet gekoppeld aan het projectdomein.";
+        TempData["IdeationSavedMessage"] = "Ideation-instellingen zijn opgeslagen in de sessie. Opslag is nog niet gekoppeld aan het projectdomein.";
         return RedirectToAction(nameof(CreateIdeation), new { subplatform });
     }
     
