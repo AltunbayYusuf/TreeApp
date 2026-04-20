@@ -235,6 +235,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             Explanation = "Idee succesvol opgeslagen."
         };
     }
+
     public IEnumerable<Topic> GetTopicsByProject(Project project)
     {
         return _repository.ReadTopicsByProject(project);
@@ -260,6 +261,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         return _repository.ReadAllQuestionsBySection(sectionId);
     }
+
     public IEnumerable<Question> GetAllQuestions()
     {
         return _repository.ReadAllQuestions();
@@ -300,7 +302,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         _repository.SaveSurveyResponse(userId, projectId, answers);
     }
-    
+
     public SubPlatform? GetSubPlatformBySlug(string slug)
     {
         return _repository.ReadSubPlatformBySlug(slug);
@@ -315,7 +317,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         return _repository.ReadProjectsBySubPlatform(subPlatformId);
     }
-    
+
     public Project? GetFirstProjectBySubPlatform(string slug)
     {
         var subPlatform = _repository.ReadSubPlatformBySlug(slug);
@@ -334,12 +336,18 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
         ValidateEntety(project);
         _repository.ChangeProject(project);
     }
+
     public void CreateProject(Project project)
     {
         ValidateEntety(project);
         _repository.CreateProject(project);
     }
-    
+
+    public void SaveQuestionList(QuestionList questionList)
+    {
+        _repository.SaveQuestionList(questionList);
+    }
+
     private void ValidateEntety(Object model)
     {
         var validationResults = new List<ValidationResult>();
@@ -355,7 +363,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
             }
 
             throw new ValidationException(message);
-        } 
+        }
     }
     
     

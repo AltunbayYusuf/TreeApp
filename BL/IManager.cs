@@ -41,6 +41,7 @@ public interface IManager
     void UpdateProject(Project project);
     
     void CreateProject(Project project);
+    void SaveQuestionList(QuestionList questionList);
     
     IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
     IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId);

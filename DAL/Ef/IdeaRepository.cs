@@ -185,6 +185,12 @@ public class IdeaRepository : IIdeaRepository
         _context.SaveChanges();
     }
 
+    public void SaveQuestionList(QuestionList questionList)
+    {
+        _context.QuestionList.Add(questionList);
+        _context.SaveChanges();
+    }
+
     public IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId)
     {
         return _context.Ideas.Include(i => i.Topic)

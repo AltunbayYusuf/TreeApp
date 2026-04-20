@@ -14,11 +14,13 @@ public class SubAdminProjectsController : Controller
 {
     private readonly IManager _manager;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
     public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
     {
         _manager = manager;
         _userManager = userManager;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
@@ -102,5 +104,42 @@ public class SubAdminProjectsController : Controller
         vm.SubplatformSlug = subplatform;
         TempData["IdeationSavedMessage"] = "Ideation-instellingen zijn opgeslagen in de sessie. Opslag is nog niet gekoppeld aan het projectdomein.";
         return RedirectToAction(nameof(CreateIdeation), new { subplatform });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CreateSurvey(string subplatform)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+
+        var vm = new CreateProjecSurveyViewModel
+        {
+            SubplatformSlug = subplatform
+        };
+
+        return View(vm);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> SaveSurvey(string subplatform, CreateProjecSurveyViewModel vm)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null)
+        {
+            return errorResult;
+        }
+
+        if (!ModelState.IsValid)
+        {
+            vm.SubplatformSlug = subplatform;
+            return View("CreateSurvey", vm);
+        }
+
+        vm.SubplatformSlug = subplatform;
+        return RedirectToAction(nameof(CreateSurvey), new { subplatform });
     }
 }
