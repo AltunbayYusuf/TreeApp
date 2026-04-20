@@ -183,7 +183,7 @@ public class Manager : IManager
     }
     
 
-public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
+public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId)
 {
     var topic = _repository.ReadTopicById(topicId);
     if (topic == null)
@@ -195,6 +195,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
     {
         Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
         Text = text,
+        UserId = userId,
         Topic = topic,
         ModerationStatus = ModerationStatus.InReview
     };
@@ -202,7 +203,7 @@ public async Task ForceSubmitIdeaAsync(int topicId, string title, string text)
     _repository.AddIdea(idea);
     await Task.CompletedTask;
 } 
-public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text)
+public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -221,6 +222,7 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
         {
             Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
             Text = text,
+            UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -291,6 +293,12 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
     {
         ValidateEntety(user);
         _repository.CreateUser(user);
+    }
+
+    public void UpdateUser(User user)
+    {
+        ValidateEntety(user);
+        _repository.UpdateUser(user);
     }
 
     public SurveyResponse? GetSurveyResponse(int userId, int projectId)

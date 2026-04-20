@@ -23,6 +23,7 @@ public interface IIdeaRepository
     Project? ReadProject(int projectId);
     User? ReadUser(string cookieId);
     void CreateUser(User user);
+    void UpdateUser(User user);
 
     SurveyResponse? ReadSurveyResponse(int userId, int projectId);
     void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);

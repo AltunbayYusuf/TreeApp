@@ -1,4 +1,5 @@
 using IntergratieProject.BL;
+using IntergratieProject.Domain.users;
 using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -38,7 +39,8 @@ public class IdeasController : ControllerBase
 
         try
         {
-            var result = await _manager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+            var user = SaveContactPreference(vm);
+            var result = await _manager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
 
         if (result.IsToxic)
         {
@@ -114,8 +116,8 @@ public class IdeasController : ControllerBase
 
         try
         {
-            
-        await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
+            var user = SaveContactPreference(vm);
+            await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
 
             return Ok(new
             {
@@ -136,5 +138,46 @@ public class IdeasController : ControllerBase
                 message = "De dienst is tijdelijk niet beschikbaar. Probeer het straks opnieuw."
             });
         }
+    }
+
+    private User SaveContactPreference(SubmitIdeaViewModel vm)
+    {
+        var user = GetOrCreateUser();
+        user.Email = vm.ContactOptIn && !string.IsNullOrWhiteSpace(vm.Email) ? vm.Email.Trim() : string.Empty;
+        _manager.UpdateUser(user);
+        return user;
+    }
+
+    private User GetOrCreateUser()
+    {
+        var userGuid = Request.Cookies["UserIdentifier"];
+        User? user = null;
+
+        if (!string.IsNullOrEmpty(userGuid))
+        {
+            user = _manager.GetUser(userGuid);
+        }
+
+        if (user != null)
+        {
+            return user;
+        }
+
+        userGuid = Guid.NewGuid().ToString();
+
+        Response.Cookies.Append("UserIdentifier", userGuid, new CookieOptions
+        {
+            Expires = DateTimeOffset.Now.AddYears(30),
+            HttpOnly = true
+        });
+
+        user = new User
+        {
+            CookieIdentifier = userGuid,
+            Email = string.Empty
+        };
+
+        _manager.AddUser(user);
+        return user;
     }
 }
