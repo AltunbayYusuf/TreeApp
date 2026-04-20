@@ -44,4 +44,9 @@ public interface IManager
     
     IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
     IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId);
+    
+    void ApproveIdea(int ideaId);
+    void RejectIdea(int ideaId);
+    void ApproveReaction(int reactionId);
+    void RejectReaction(int reactionId);
 }

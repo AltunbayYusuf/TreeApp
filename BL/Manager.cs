@@ -105,18 +105,22 @@ public class Manager : IManager
             Explanation = explanation
         };
     }
+    // catch (Exception ex)
+    // {
+    //     // AI faalde / output niet parsebaar
+    //     // return new ToxicityResult
+    //     // {
+    //     //     IsToxic = true,
+    //     //     AiUnavailable = true,
+    //     //     SuggestedText = "",
+    //     //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
+    //     // };
+    //         throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
+    //
+    // }
     catch (Exception ex)
     {
-        // AI faalde / output niet parsebaar
-        // return new ToxicityResult
-        // {
-        //     IsToxic = true,
-        //     AiUnavailable = true,
-        //     SuggestedText = "",
-        //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
-        // };
-            throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
-
+        throw new Exception($"AI moderation tijdelijk niet beschikbaar. Raw AI response: {aiText}", ex);
     }
 }
     public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
@@ -365,6 +369,53 @@ public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, str
         return _repository.ReadReactionsInReviewBySubPlatform(subPlatformId);
     }
 
-   
+    public void ApproveIdea(int ideaId)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
 
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+        
+        idea.ModerationStatus = ModerationStatus.Accepted;
+        _repository.UpdateIdea(idea);
+    }
+
+    public void RejectIdea(int ideaId)
+    {
+        var idea = _repository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+
+        _repository.DeleteIdea(ideaId);
+    }
+
+    public void ApproveReaction(int reactionId)
+    {
+        var reaction = _repository.ReadReactionById(reactionId);
+
+        if (reaction == null)
+        {
+            throw new ArgumentException("Reaction not found");
+        }
+        
+        reaction.ModerationStatus = ModerationStatus.Accepted;
+        _repository.UpdateReaction(reaction);
+    }
+
+    public void RejectReaction(int reactionId)
+    {
+        var reaction = _repository.ReadReactionById(reactionId);
+
+        if (reaction == null)
+        {
+            throw new ArgumentException("Reaction not found");
+        }
+        
+        _repository.DeleteReaction(reactionId);
+    }
 }

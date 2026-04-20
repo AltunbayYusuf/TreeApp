@@ -114,7 +114,8 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     var kdg = new ApplicationUser
     {
         UserName = "kdg@gmail.com",
-        Email = "kdg@gmail.com"
+        Email = "kdg@gmail.com",
+        SubPlatformSlug = "kdg-hogeschool"
     };
     userManager.CreateAsync(kdg, "Test123!").Wait();
 
@@ -131,7 +132,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
 
 
     userManager.AddToRoleAsync(adminuser, CustomIdentityConstants.GeneralAdminRoleName).Wait();
-    userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
+   userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
 }
 
 public partial class Program

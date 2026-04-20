@@ -51,46 +51,30 @@ public class SubAdminController : Controller
         var ideasInReview = _manager.GetIdeasInReviewBySubPlatform(subPlatformEntity.Id);
         var reactionsInReview = _manager.GetReactionsInReviewBySubPlatform(subPlatformEntity.Id);
 
+        
+        var projectSummaries = projects.Select(p => new ProjectSummaryViewModel
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Status = p.Status.ToString(),
+            Form = p.Type == 0 ? "Scroll" : "Chat",
+            ParticipantsCount = p.SurveyResponses != null ? p.SurveyResponses.Count : 0,
+            IdeasCount = p.Topics != null ? p.Topics.SelectMany(t => t.Ideas).Count() : 0,
+            ReleaseDate = p.ReleaseDate
+        }).ToList();
+
         var vm = new SubAdminDashboardViewModel
         {
             SubPlatformId = subPlatformEntity.Id,
             SubPlatformName = subPlatformEntity.CompanyName,
             Slug = subPlatformEntity.Slug,
-            Projects = projects.Select(p => new ProjectSummaryViewModel
-            {
-                Id = p.Id,
-                Name = p.Name,
-                Status = p.Status.ToString(),
-                Form = p.Type == 0 ? "Scroll" : "Chat",
-                ParticipantsCount = p.SurveyResponses != null
-                    ? p.SurveyResponses.Count
-                    : 0,
-                IdeasCount = p.Topics != null
-                    ? p.Topics.SelectMany(t => t.Ideas).Count()
-                    : 0,
 
-                ReleaseDate = p.ReleaseDate
-            }).ToList(),
+            TotalProjects = projectSummaries.Count,
+            ActiveProjects = projectSummaries.Count(p => p.Status == "Active"),
+            ParticipantsCount = projectSummaries.Sum(p => p.ParticipantsCount),
+            TotalIdeas = projectSummaries.Sum(p => p.IdeasCount),
 
-            IdeasReviews = ideasInReview.Select(i => new IdeaReviewSummaryViewModel
-            {
-                Id = i.Id,
-                Title = i.Title ?? "",
-                Text = i.Text ?? "",
-                TopicTheme = i.Topic?.Theme ?? "",
-                ProjectName = i.Topic?.Project?.Introduction ?? "",
-                ModerationStatus = i.ModerationStatus.ToString()
-            }).ToList(),
-
-            ReactionsReviews = reactionsInReview.Select(r => new ReactionReviewSummaryViewModel
-            {
-                Id = r.Id,
-                Text = r.Text ?? "",
-                Emoji = r.Emoji ?? "",
-                IdeaTitle = r.Idea?.Title ?? "",
-                ProjectName = r.Idea?.Topic?.Project?.Introduction ?? "",
-                ModerationStatus = r.ModerationStatus.ToString()
-            }).ToList()
+            Projects = projectSummaries
         };
 
         return View(vm);
