@@ -14,7 +14,22 @@ document.addEventListener("DOMContentLoaded", () => {
     (window as any).addConditional = addConditional;
     (window as any).toggleAI = toggleAI;
 
-    loadFromLocalStorage();
+    const data = sessionStorage.getItem("surveyDraft");
+
+    if (data) {
+        const parsed = JSON.parse(data);
+
+        const hasQuestions = parsed.some((s: any) => s.questions?.length > 0);
+
+        if (hasQuestions) {
+            loadFromLocalStorage();
+        } else {
+            sessionStorage.removeItem("surveyDraft");
+            createInitialSurvey();
+        }
+    } else {
+        createInitialSurvey();
+    }
 });
 let saveTimeout: any;
 
@@ -47,11 +62,11 @@ function addSection() {
     section.innerHTML = `
         <div class="flex justify-between items-center mb-3">
             <input type="text"
-                   class="section-title text-lg font-semibold text-slate-800 w-full"
+                   class="sectie-title w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
                    placeholder="Sectie ${sectionCount} titel..." />
 
-           <button onclick="removeSection(this)" class="text-red-500 ml-3 font-bold">
-    x
+           <button onclick="removeSection(this)" class="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition">
+            🗑
 </button>
         </div>
 
@@ -68,6 +83,13 @@ function addSection() {
 }
 
 function removeSection(btn: HTMLElement) {
+    const allSections = document.querySelectorAll(".section");
+
+    if (allSections.length <= 1) {
+        alert("Er moet minstens 1 sectie zijn");
+        return;
+    }
+
     const section = btn.closest(".section");
     if (!section) return;
 
@@ -76,7 +98,7 @@ function removeSection(btn: HTMLElement) {
 
     section.remove();
     updateCounter();
-    saveToLocalStorage()
+    saveToLocalStorage();
 }
 
 //  QUESTION 
@@ -88,7 +110,6 @@ function addQuestion(btn: HTMLElement) {
         return;
     }
 
-    // 🔥 BELANGRIJK: juiste sectie zoeken
     const section = btn.closest(".section");
     const container = section?.querySelector(".questions");
 
@@ -103,8 +124,8 @@ function addQuestion(btn: HTMLElement) {
     questionDiv.innerHTML = `
         <div class="flex justify-between items-center mb-2">
             <span class="text-sm text-slate-500">Vraag</span>
-        <button type="button" onclick="removeQuestion(this)" class="text-red-500 font-bold">
-    x
+        <button type="button" onclick="removeQuestion(this)" class="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition"   >
+     🗑
 </button>
         </div>
 
@@ -137,14 +158,20 @@ function addQuestion(btn: HTMLElement) {
 }
 
 function removeQuestion(btn: HTMLElement) {
+    if (questionCount <= 1) {
+        alert("Er moet minstens 1 vraag zijn");
+        return;
+    }
+
     const question = btn.closest(".question");
     if (!question) return;
 
     question.remove();
     questionCount--;
     updateCounter();
-    saveToLocalStorage()
+    saveToLocalStorage();
 }
+
 
 //  TYPE 
 
@@ -183,6 +210,22 @@ function changeType(select: HTMLSelectElement) {
     saveToLocalStorage()
 }
 
+function createInitialSurvey() {
+    isLoading = true;
+
+    addSection();
+
+    const sections = document.querySelectorAll(".section");
+    const firstSection = sections[0];
+
+    const btn = firstSection.querySelector(".mt-4") as HTMLElement;
+    addQuestion(btn);
+
+    isLoading = false;
+
+    saveToLocalStorage();
+}
+
 function addAnswer(container: Element) {
     const wrapper = document.createElement("div");
     wrapper.className = "flex items-center gap-2";
@@ -193,8 +236,8 @@ function addAnswer(container: Element) {
 
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
-    removeBtn.innerText = "X";
-    removeBtn.className = "text-red-500 font-bold";
+    removeBtn.innerText = "🗑";
+    removeBtn.className ="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition";
     removeBtn.onclick = () => {
         if (container.children.length <= 2) {
             alert("Minstens 2 antwoord vereist");
@@ -329,7 +372,7 @@ function loadFromLocalStorage() {
             (lastQ.querySelector(".question-title") as HTMLInputElement).value = q.title;
             (lastQ.querySelector("select") as HTMLSelectElement).value = q.type;
 
-            changeType(lastQ.querySelector("select") as HTMLSelectElement); // 🔥 belangrijk
+            changeType(lastQ.querySelector("select") as HTMLSelectElement); 
         });
     });
 
