@@ -29,7 +29,7 @@ GIT_TOKEN=$(curl -s "https://secretmanager.googleapis.com/v1/projects/$PROJECT_I
 
 echo "=== Repo klonen ==="
 rm -rf /opt/intergratieproject
-git clone "https://$GIT_USER:$GIT_TOKEN@gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/intergratieproject.git" /opt/intergratieproject
+git clone --branch feature/infra-scripts "https://$GIT_USER:$GIT_TOKEN@gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/intergratieproject.git" /opt/intergratieproject
 
 echo "=== Deploy script uitvoeren ==="
 cd /opt/intergratieproject
