@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using IntergratieProject.Domain.users;
 
 namespace IntergratieProject.Domain.project;
@@ -5,8 +6,14 @@ namespace IntergratieProject.Domain.project;
 public class SubPlatform
 {
     public int Id { get; set; }
+
+    [Required(ErrorMessage = "Subplatform must have a company name")]
+    [MaxLength(50)]
     public string CompanyName { get; set; }
-    public string Slug { get; set; } 
+
+    [Required(ErrorMessage = "Subplatform must have a slug")]
+    [MaxLength(50)]
+    public string Slug { get; set; }
 
     public Platform Platform { get; set; }
     public Language Language { get; set; }

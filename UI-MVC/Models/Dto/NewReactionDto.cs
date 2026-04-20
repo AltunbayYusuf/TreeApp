@@ -1,7 +1,10 @@
-﻿namespace IntergratieProject.UI.MVC.Models.Dto;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace IntergratieProject.UI.MVC.Models.Dto;
 
 public class NewReactionDto
 {
+    [Required(ErrorMessage = "Reaction must belong to an idea")]
     public int? IdeaId { get; set; }
     public string Emoji { get; set; }
     public string Text { get; set; }

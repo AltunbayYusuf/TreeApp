@@ -2,6 +2,9 @@
 const ideaTitle = document.getElementById("idea-title") as HTMLInputElement | null;
 const ideaTopic = document.getElementById("idea-topic") as HTMLSelectElement | null;
 const ideaText = document.getElementById("idea-text") as HTMLTextAreaElement | null;
+const contactOptIn = document.getElementById("idea-contact-opt-in") as HTMLInputElement | null;
+const contactEmailWrapper = document.getElementById("idea-contact-email-wrapper") as HTMLDivElement | null;
+const contactEmail = document.getElementById("idea-contact-email") as HTMLInputElement | null;
 const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement | null;
 
 type IdeaResponse = {
@@ -44,7 +47,9 @@ async function postIdea(url: string, topicId: string, title: string, text: strin
         body: JSON.stringify({
             topicId: Number(topicId),
             title: title,
-            text: text
+            text: text,
+            contactOptIn: contactOptIn?.checked ?? false,
+            email: contactEmail?.value.trim() ?? ""
         })
     });
 
@@ -104,6 +109,22 @@ function showAiWarning(data: IdeaResponse, topicId: string, title: string, text:
         clearAiMessage();
         ideaText.focus();
     });
+}
+
+function toggleContactEmail(): void {
+    if (!contactOptIn || !contactEmailWrapper || !contactEmail) return;
+
+    const isChecked = contactOptIn.checked;
+    contactEmailWrapper.style.display = isChecked ? "block" : "none";
+
+    if (!isChecked) {
+        contactEmail.value = "";
+    }
+}
+
+if (contactOptIn) {
+    toggleContactEmail();
+    contactOptIn.addEventListener("change", toggleContactEmail);
 }
 
 if (submitIdeaBtn && ideaTitle && ideaTopic && ideaText && aiMessage) {
