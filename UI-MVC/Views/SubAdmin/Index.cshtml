@@ -1,4 +1,5 @@
 @model IntergratieProject.UI.MVC.Models.SubAdminDashboardViewModel
+@using IntergratieProject.Domain.project
 
 <div class="p-6">
 
@@ -7,7 +8,7 @@
             <h1 class="text-3xl font-bold">Projecten</h1>
             <p class="text-gray-500">Beheer je participatieprojecten</p>
         </div>
-        
+
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
            asp-route-subplatform="@Model.Slug"
@@ -17,7 +18,6 @@
     </div>
 
     <div class="grid grid-cols-4 gap-4 mb-6">
-
         <div class="border p-4">
             <p class="text-sm text-gray-500">Totaal projecten</p>
             <p class="text-3xl font-bold">@Model.TotalProjects</p>
@@ -37,12 +37,10 @@
             <p class="text-sm text-purple-700">Totaal ideeën</p>
             <p class="text-3xl font-bold text-purple-700">@Model.TotalIdeas</p>
         </div>
-
     </div>
 
     <div class="border">
         <table class="w-full">
-
             <thead class="bg-gray-100 text-left">
             <tr>
                 <th class="p-3">Project</th>
@@ -60,14 +58,21 @@
             {
                 var statusClass = p.Status switch
                 {
-                    "Active" => "text-green-700 border-green-500",
-                    "Draft" => "text-gray-700 border-gray-400",
-                    "Archived" => "text-orange-700 border-orange-500",
+                    nameof(Status.Active) => "text-green-700 border-green-500",
+                    nameof(Status.Draft) => "text-gray-700 border-gray-400",
+                    nameof(Status.Archived) => "text-orange-700 border-orange-500",
                     _ => ""
                 };
 
                 <tr class="border-t">
-                    <td class="p-3 font-semibold">@p.Name</td>
+                    <td class="p-3 font-semibold">
+                        <a asp-controller="Project"
+                           asp-action="Index"
+                           asp-route-subplatform="@Model.Slug"
+                           asp-route-id="@p.Id">
+                            @p.Name
+                        </a>
+                    </td>
 
                     <td class="p-3">
                         <span class="px-2 py-1 border @statusClass">
@@ -76,52 +81,40 @@
                     </td>
 
                     <td class="p-3">@p.Form</td>
-
                     <td class="p-3">@p.ParticipantsCount</td>
-
                     <td class="p-3">@p.IdeasCount</td>
-
-                    <td class="p-3">
-                        @p.ReleaseDate.ToString("d MMM yyyy")
-                    </td>
+                    <td class="p-3">@p.ReleaseDate.ToString("d MMM yyyy")</td>
 
                     <td class="p-3 flex gap-2">
+                        @if (p.Status == nameof(Status.Draft))
+                        {
+                            <form asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="projectId" value="@p.Id" />
+                                <input type="hidden" name="status" value="Active" />
+                                <input type="hidden" name="subplatform" value="@Model.Slug" />
 
-                        <form asp-action="UpdateStatus" method="post">
-                            <input type="hidden" name="projectId" value="@p.Id" />
-                            <input type="hidden" name="status" value="Active" />
-                            <input type="hidden" name="subplatform" value="@Model.Slug" />
+                                <button class="px-2 py-1 border bg-green-100 text-green-700">
+                                    Actief
+                                </button>
+                            </form>
+                        }
 
-                            <button class="px-2 py-1 border bg-green-100 text-green-700">
-                                Actief
-                            </button>
-                        </form>
+                        @if (p.Status == nameof(Status.Active))
+                        {
+                            <form asp-action="UpdateStatus" method="post">
+                                <input type="hidden" name="projectId" value="@p.Id" />
+                                <input type="hidden" name="status" value="Archived" />
+                                <input type="hidden" name="subplatform" value="@Model.Slug" />
 
-                        <form asp-action="UpdateStatus" method="post">
-                            <input type="hidden" name="projectId" value="@p.Id" />
-                            <input type="hidden" name="status" value="Draft" />
-                            <input type="hidden" name="subplatform" value="@Model.Slug" />
-
-                            <button class="px-2 py-1 border bg-gray-100 text-gray-700">
-                                Draft
-                            </button>
-                        </form>
-
-                        <form asp-action="UpdateStatus" method="post">
-                            <input type="hidden" name="projectId" value="@p.Id" />
-                            <input type="hidden" name="status" value="Archived" />
-                            <input type="hidden" name="subplatform" value="@Model.Slug" />
-
-                            <button class="px-2 py-1 border bg-orange-100 text-orange-700">
-                                Archief
-                            </button>
-                        </form>
-
+                                <button class="px-2 py-1 border bg-orange-100 text-orange-700">
+                                    Archief
+                                </button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }
             </tbody>
-
         </table>
     </div>
 

@@ -31,10 +31,11 @@ public class Project
 
     public int SubPlatformId { get; set; }
     public SubPlatform SubPlatform { get; set; }
+    public bool HasBeenActive { get; set; }
 
     [Required(ErrorMessage = "Project must have topics")]
     public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
-
+    
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }
 
