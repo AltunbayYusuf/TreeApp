@@ -10,9 +10,10 @@ public class UserManager : IUserManager
     private readonly IUserRepository _userRepository;
     private readonly IManager _manager;
 
-    public UserManager(IUserRepository userRepository)
+    public UserManager(IUserRepository userRepository, IManager manager)
     {
         _userRepository = userRepository;
+        _manager = manager;
     }
 
     public User? GetUser(string cookieId)

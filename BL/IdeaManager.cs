@@ -16,12 +16,13 @@ public class IdeaManager : IIdeaManager
 
 
     public IdeaManager(IAiService aiService, IIdeaRepository ideaRepository, IRepository repository,
-        IReactionRepository reactionRepository)
+        IReactionRepository reactionRepository,IManager manager)
     {
         _aiService = aiService;
         _repository = repository;
         _reactionRepository = reactionRepository;
         _ideaRepository = ideaRepository;
+        _manager = manager;
     }
 
     public void SubmitIdeaFromChatAsync(int topicId, string text)

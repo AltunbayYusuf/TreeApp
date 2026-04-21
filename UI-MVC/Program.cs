@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages(); 
+builder.Services.AddRazorPages();
 
 builder.Services.AddDbContext<TreeDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -25,8 +25,21 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 builder.Services.ConfigureApplicationCookie(options => { options.LoginPath = "/Identity/Account/Login"; });
 
 builder.Services.AddHttpClient<IAiService, GeminiService>();
-builder.Services.AddScoped<IManager, Manager>();
+builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
+builder.Services.AddScoped<ISurveyRepository, SurveyRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IManager, Manager>();
+builder.Services.AddScoped<IIdeaManager, IdeaManager>();
+builder.Services.AddScoped<IProjectManager, ProjectManager>();
+builder.Services.AddScoped<IQuestionManager, QuestionManager>();
+builder.Services.AddScoped<IReactionManager, ReactionManager>();
+builder.Services.AddScoped<ISurveyManager, SurveyManager>();
+builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddViteServices();
 //150722
 
@@ -39,9 +52,9 @@ builder.Services.AddViteServices();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
- {
-     app.UseViteDevelopmentServer();
- }
+{
+    app.UseViteDevelopmentServer();
+}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -74,7 +87,6 @@ app.MapStaticAssets();
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
 
-
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
@@ -103,6 +115,7 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
 void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
 {
     var adminuser = new ApplicationUser

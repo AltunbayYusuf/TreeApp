@@ -8,20 +8,21 @@ namespace IntergratieProject.BL;
 public class ReactionManager : IReactionManager
 {
     private readonly IReactionRepository _repository;
-    private readonly IIdeaRepository _Idearepository;
+    private readonly IIdeaRepository _ideaRepository;
     private readonly IManager _manager;
 
 
-    public ReactionManager(IReactionRepository repository, IIdeaRepository Idearepository)
+    public ReactionManager(IReactionRepository repository, IIdeaRepository ideaRepository,IManager manager)
     {
         _repository = repository;
-        _Idearepository = Idearepository;
+        _ideaRepository = ideaRepository;
+        _manager = manager;
     }
 
 
     public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId)
     {
-        var idea = _Idearepository.ReadIdeaById(ideaId);
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
         {
@@ -43,7 +44,7 @@ public class ReactionManager : IReactionManager
 
     public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
     {
-        var idea = _Idearepository.ReadIdeaById(ideaId);
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
         {

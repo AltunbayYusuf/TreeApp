@@ -12,10 +12,11 @@ public class ProjectManager : IProjectManager
     private readonly IManager _manager;
 
 
-    public ProjectManager(IRepository repository, IProjectRepository projectRepository)
+    public ProjectManager(IRepository repository, IProjectRepository projectRepository,IManager manager)
     {
         _repository = repository;
         _projectRepository = projectRepository;
+        _manager = manager;
     }
 
     public Project? GetProject(int projectId)
