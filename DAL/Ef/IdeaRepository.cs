@@ -8,7 +8,6 @@ namespace IntergratieProject.DAL.Ef;
 public class IdeaRepository : IIdeaRepository
 {
     private readonly TreeDbContext _context;
-    private IIdeaRepository _ideaRepositoryImplementation;
 
     public IdeaRepository(TreeDbContext context)
     {
@@ -17,6 +16,7 @@ public class IdeaRepository : IIdeaRepository
 
     public void AddIdea(Idea idea)
     {
+        
         _context.Ideas.Add(idea);
         _context.SaveChanges();
     }
