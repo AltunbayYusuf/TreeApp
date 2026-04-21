@@ -1,4 +1,4 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models;
@@ -12,12 +12,19 @@ namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
 public class SubAdminController : Controller
 {
     private readonly IManager _manager;
+    private readonly IReactionManager _reactionManager;
+    private readonly IIdeaManager _ideaManager;
+    private readonly IProjectManager _projectManager;
+
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubAdminController(IManager manager, UserManager<ApplicationUser> userManager)
+    public SubAdminController(IManager manager, UserManager<ApplicationUser> userManager,IReactionManager reactionManager,IIdeaManager ideaManager,IProjectManager projectManager)
     {
         _manager = manager;
         _userManager = userManager;
+        _reactionManager = reactionManager;
+        _ideaManager = ideaManager;
+        _projectManager = projectManager;
     }
 
     [HttpGet]
@@ -47,9 +54,9 @@ public class SubAdminController : Controller
             return Forbid();
         }
 
-        var projects = _manager.GetProjectsBySubPlatform(subPlatformEntity.Id);
-        var ideasInReview = _manager.GetIdeasInReviewBySubPlatform(subPlatformEntity.Id);
-        var reactionsInReview = _manager.GetReactionsInReviewBySubPlatform(subPlatformEntity.Id);
+        var projects = _projectManager.GetProjectsBySubPlatform(subPlatformEntity.Id);
+        var ideasInReview = _ideaManager.GetIdeasInReviewBySubPlatform(subPlatformEntity.Id);
+        var reactionsInReview = _reactionManager.GetReactionsInReviewBySubPlatform(subPlatformEntity.Id);
 
         
         var projectSummaries = projects.Select(p => new ProjectSummaryViewModel
@@ -83,7 +90,7 @@ public class SubAdminController : Controller
     [HttpPost]
     public IActionResult UpdateStatus(int projectId, string status, string subplatform)
     {
-        var project = _manager.GetProject(projectId);
+        var project = _projectManager.GetProject(projectId);
 
         if (project == null)
             return NotFound();
@@ -104,7 +111,7 @@ public class SubAdminController : Controller
         }
 
         project.Status = newStatus;
-        _manager.UpdateProject(project);
+        _projectManager.UpdateProject(project);
 
         return RedirectToAction("Index", new { subplatform });
     }

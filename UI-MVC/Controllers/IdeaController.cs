@@ -1,4 +1,4 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +8,16 @@ namespace IntergratieProject.UI.MVC.Controllers;
 public class IdeaController : Controller
 {
     private readonly IManager _manager;
+    private readonly IIdeaManager _ideaManager;
+    private readonly IProjectManager _projectManager;
 
-    public IdeaController(IManager manager)
+
+
+    public IdeaController(IManager manager,IIdeaManager ideaManager,IProjectManager projectManager)
     {
         _manager = manager;
+        _ideaManager = ideaManager;
+        _projectManager = projectManager;
     }
     
     public IActionResult Index(string subplatform, int projectId, int? topicId)
@@ -31,7 +37,7 @@ public class IdeaController : Controller
             Project = project,
             SelectedTopicId = topicId,
             Topics = _manager.GetTopicsByProject(project),
-            Ideas = _manager.GetIdeasByProject(project, topicId)
+            Ideas = _ideaManager.GetIdeasByProject(project, topicId)
         };
         return View(vm);
     }
@@ -53,7 +59,7 @@ public class IdeaController : Controller
         {
             Project = project,
             Topics = _manager.GetTopicsByProject(project),
-            Ideas = _manager.GetIdeasByProject(project)
+            Ideas = _ideaManager.GetIdeasByProject(project)
         };
 
         return View(vm);
@@ -61,6 +67,6 @@ public class IdeaController : Controller
 
     private Project? GetCurrentProject(string subplatform, int projectId)
     {
-        return _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        return _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
     }
 }
