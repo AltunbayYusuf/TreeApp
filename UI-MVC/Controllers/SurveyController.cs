@@ -1,4 +1,4 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.Domain.project;
 using IntergratieProject.Domain.Questions;
 using IntergratieProject.Domain.users;
@@ -9,17 +9,25 @@ namespace IntergratieProject.UI.MVC.Controllers;
 
 public class SurveyController : Controller
 {
-    private readonly IManager _manager;
+    private readonly IProjectManager _projectManager;
+    private readonly IQuestionManager _questionManager;
+    private readonly IUserManager _userManager;
+    private readonly ISurveyManager _surveyManager;
 
-    public SurveyController(IManager manager)
+
+    public SurveyController(IProjectManager projectManager,IQuestionManager questionManager,IUserManager userManager,ISurveyManager surveyManager)
     {
-        _manager = manager;
+        _projectManager = projectManager;
+        _questionManager = questionManager;
+        _userManager = userManager;
+        _surveyManager = surveyManager;
     }
+    
 
     [HttpGet]
     public IActionResult Index(string subplatform, int projectId)
     {
-        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
 
         if (project == null)
         {
@@ -34,7 +42,7 @@ public class SurveyController : Controller
 
         var user = GetOrCreateUser();
 
-        var existingResponse = _manager.GetSurveyResponse(user.Id, projectId);
+        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, projectId);
         if (existingResponse != null)
         {
             ViewBag.ProjectId = projectId;
@@ -45,14 +53,14 @@ public class SurveyController : Controller
         ViewBag.ProjectId = projectId;
         ViewBag.SubPlatformSlug = subplatform;
 
-        var questions = _manager.GetQuestionListByProject(project);
+        var questions = _questionManager.GetQuestionListByProject(project);
         return View(questions);
     }
 
     [HttpPost]
     public IActionResult Submit(string subplatform,List<AnswerDto> answers, int projectId)
     {
-        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
         if (project == null)
         {
             return NotFound();
@@ -68,7 +76,7 @@ public class SurveyController : Controller
 
         var user = GetOrCreateUser();
 
-        var existingResponse = _manager.GetSurveyResponse(user.Id, projectId);
+        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, projectId);
         if (existingResponse != null)
         {
             return BadRequest("Deze survey is al ingevuld voor dit project.");
@@ -78,7 +86,7 @@ public class SurveyController : Controller
 
         foreach (var dto in answers)
         {
-            var question = _manager.GetQuestion(dto.QuestionId);
+            var question = _questionManager.GetQuestion(dto.QuestionId);
             if (question == null)
             {
                 return BadRequest("Ongeldige vraag.");
@@ -93,7 +101,7 @@ public class SurveyController : Controller
             answersList.Add(newAnswer);
         }
 
-        _manager.SaveSurveyResponse(user.Id, projectId, answersList);
+        _surveyManager.SaveSurveyResponse(user.Id, projectId, answersList);
 
         return Ok(new
         {
@@ -108,7 +116,7 @@ public class SurveyController : Controller
 
         if (!string.IsNullOrEmpty(userGuid))
         {
-            user = _manager.GetUser(userGuid);
+            user = _userManager.GetUser(userGuid);
         }
 
         if (user == null)
@@ -122,7 +130,7 @@ public class SurveyController : Controller
             });
 
             user = new User { CookieIdentifier = userGuid };
-            _manager.AddUser(user);
+            _userManager.AddUser(user);
         }
 
         return user;

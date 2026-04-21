@@ -1,6 +1,5 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.ideas;
 using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -14,13 +13,11 @@ public class SubAdminProjectsController : Controller
 {
     private readonly IManager _manager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager, IWebHostEnvironment webHostEnvironment)
+    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager)
     {
         _manager = manager;
         _userManager = userManager;
-        _webHostEnvironment = webHostEnvironment;
     }
 
     private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)

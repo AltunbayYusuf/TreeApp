@@ -1,5 +1,6 @@
 using IntergratieProject.BL;
-using IntergratieProject.DAL;
+using IntergratieProject.BL.interfaces;
+using IntergratieProject.DAL.interfaces;
 using IntergratieProject.DAL.Ef;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.Ai;

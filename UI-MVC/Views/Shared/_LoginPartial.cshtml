@@ -1,11 +1,11 @@
-@using IntergratieProject.BL
+@using IntergratieProject.BL.interfaces
 @using IntergratieProject.DAL.Identity
 @using IntergratieProject.UI.MVC
 @using Microsoft.AspNetCore.Identity
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-@inject IManager Manager
+@inject IProjectManager PojectManager
 
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
@@ -29,7 +29,7 @@
 
                 if (!string.IsNullOrWhiteSpace(currentSubplatform))
                 {
-                    var firstProject = Manager.GetFirstProjectBySubPlatform(currentSubplatform);
+                    var firstProject = PojectManager.GetFirstProjectBySubPlatform(currentSubplatform);
 
                     if (firstProject != null)
                     {
@@ -46,7 +46,6 @@
                 <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
             </form>
         </li>
-        
     }
     else
     {
@@ -58,5 +57,5 @@
             Login
         </a>
     }
- 
+
 </ul>

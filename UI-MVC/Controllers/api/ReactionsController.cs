@@ -1,4 +1,4 @@
-﻿using IntergratieProject.BL;
+﻿using IntergratieProject.BL.interfaces;
 using IntergratieProject.Domain.users;
 using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
@@ -9,11 +9,13 @@ namespace IntergratieProject.UI.MVC.Controllers.api;
 [Route("api/[controller]")]
 public class ReactionsController : ControllerBase
 {
-    private readonly IManager _manager;
+    private readonly IReactionManager _reactionManager;
+    private readonly IUserManager _userManager;
 
-    public ReactionsController(IManager manager)
+    public ReactionsController(IReactionManager reactionManager, IUserManager userManager)
     {
-        _manager = manager;
+        _reactionManager = reactionManager;
+        _userManager = userManager;
     }
 
     [HttpPost]
@@ -45,7 +47,7 @@ public class ReactionsController : ControllerBase
         {
             var user = GetOrCreateUser();
 
-            var result = await _manager.AddReaction(
+            var result = await _reactionManager.AddReaction(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
                 newReactionDto.Text,
@@ -78,7 +80,7 @@ public class ReactionsController : ControllerBase
         {
             var user = GetOrCreateUser();
 
-            await _manager.ForceAddReactionAsync(
+            await _reactionManager.ForceAddReactionAsync(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
                 newReactionDto.Text,
@@ -125,7 +127,7 @@ public class ReactionsController : ControllerBase
         {
             var user = GetOrCreateUser();
 
-            await _manager.ForceAddReactionAsync(
+            await _reactionManager.ForceAddReactionAsync(
                 newReactionDto.IdeaId.Value,
                 newReactionDto.Emoji,
                 newReactionDto.Text,
@@ -145,7 +147,6 @@ public class ReactionsController : ControllerBase
         {
             return BadRequest(new ReactionResultDto
             {
-                
                 Ok = false,
                 Saved = false,
                 IsToxic = false,
@@ -161,7 +162,7 @@ public class ReactionsController : ControllerBase
 
         if (!string.IsNullOrEmpty(userGuid))
         {
-            user = _manager.GetUser(userGuid);
+            user = _userManager.GetUser(userGuid);
         }
 
         if (user == null)
@@ -179,7 +180,7 @@ public class ReactionsController : ControllerBase
                 CookieIdentifier = userGuid
             };
 
-            _manager.AddUser(user);
+            _userManager.AddUser(user);
         }
 
         return user;
