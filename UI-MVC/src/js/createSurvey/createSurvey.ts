@@ -26,7 +26,7 @@ type SectionData = {
 
 document.addEventListener("DOMContentLoaded", () => {
     updateCounter();
-
+  
     (window as any).addSection = addSection;
     (window as any).addQuestion = addQuestion;
     (window as any).removeQuestion = removeQuestion;
