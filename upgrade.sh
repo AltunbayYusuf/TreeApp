@@ -19,8 +19,8 @@ GEMINI_API_KEY=$(curl -s "https://secretmanager.googleapis.com/v1/projects/$PROJ
   -H "Authorization: Bearer $TOKEN" | python3 -c "import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)['payload']['data']).decode())")
 
 echo "📥 Laatste code ophalen..."
-cd ~/intergratieproject
-sudo git pull origin main
+cd /opt/intergratieproject
+sudo git pull origin feature/infra-scripts
 
 echo "🔨 Nieuwe image bouwen..."
 DB_PASSWORD="$DB_PASSWORD" \
