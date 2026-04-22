@@ -1,9 +1,9 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.Domain.users;
-using IntergratieProject.UI.MVC.Models;
+using IntegratieProject.BL.Domain.users;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers.api;
+namespace IntegratieProject.UI.MVC.Controllers.api;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -153,7 +153,7 @@ public class IdeasController : ControllerBase
     private User GetOrCreateUser()
     {
         var userGuid = Request.Cookies["UserIdentifier"];
-        User? user = null;
+        User user = null;
 
         if (!string.IsNullOrEmpty(userGuid))
         {

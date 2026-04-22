@@ -1,26 +1,26 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.project;
-using IntergratieProject.UI.MVC.Models;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.Identity;
+using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
+namespace IntegratieProject.UI.MVC.Controllers.subAdmin;
 
 [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubAdminController : Controller
 {
-    private readonly IManager _manager;
+    private readonly ISubplatformManager _subplatformManager;
     private readonly IReactionManager _reactionManager;
     private readonly IIdeaManager _ideaManager;
     private readonly IProjectManager _projectManager;
 
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubAdminController(IManager manager, UserManager<ApplicationUser> userManager,IReactionManager reactionManager,IIdeaManager ideaManager,IProjectManager projectManager)
+    public SubAdminController(ISubplatformManager subplatformManager, UserManager<ApplicationUser> userManager,IReactionManager reactionManager,IIdeaManager ideaManager,IProjectManager projectManager)
     {
-        _manager = manager;
+        _subplatformManager = subplatformManager;
         _userManager = userManager;
         _reactionManager = reactionManager;
         _ideaManager = ideaManager;
@@ -35,7 +35,7 @@ public class SubAdminController : Controller
             return NotFound();
         }
 
-        var subPlatformEntity = _manager.GetSubPlatformBySlug(subplatform);
+        var subPlatformEntity = _subplatformManager.GetSubPlatformBySlug(subplatform);
 
         if (subPlatformEntity == null)
         {

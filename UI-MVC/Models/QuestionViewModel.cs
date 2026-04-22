@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.questions;
 
-namespace IntergratieProject.UI.MVC.Models;
+namespace IntegratieProject.UI.MVC.Models;
 
 public class QuestionViewModel
 {

@@ -1,21 +1,21 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.Domain.project;
-using IntergratieProject.UI.MVC.Models;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers;
 
 public class IdeaController : Controller
 {
-    private readonly IManager _manager;
+    private readonly ITopicManager _topicManager;
     private readonly IIdeaManager _ideaManager;
     private readonly IProjectManager _projectManager;
 
 
 
-    public IdeaController(IManager manager,IIdeaManager ideaManager,IProjectManager projectManager)
+    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager)
     {
-        _manager = manager;
+        _topicManager = topicManager;
         _ideaManager = ideaManager;
         _projectManager = projectManager;
     }
@@ -36,7 +36,7 @@ public class IdeaController : Controller
         {
             Project = project,
             SelectedTopicId = topicId,
-            Topics = _manager.GetTopicsByProject(project),
+            Topics = _topicManager.GetTopicsByProject(project),
             Ideas = _ideaManager.GetIdeasByProject(project, topicId)
         };
         return View(vm);
@@ -58,7 +58,7 @@ public class IdeaController : Controller
         var vm = new IdeasOverviewViewModel
         {
             Project = project,
-            Topics = _manager.GetTopicsByProject(project),
+            Topics = _topicManager.GetTopicsByProject(project),
             Ideas = _ideaManager.GetIdeasByProject(project)
         };
 

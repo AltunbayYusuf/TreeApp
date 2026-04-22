@@ -1,9 +1,9 @@
-﻿using IntergratieProject.BL.interfaces;
-using IntergratieProject.Domain.users;
-using IntergratieProject.UI.MVC.Models.Dto;
+﻿using IntegratieProject.BL.Domain.users;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers.api;
+namespace IntegratieProject.UI.MVC.Controllers.api;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -157,8 +157,8 @@ public class ReactionsController : ControllerBase
 
     private User GetOrCreateUser()
     {
-        string? userGuid = Request.Cookies["UserIdentifier"];
-        User? user = null;
+        string userGuid = Request.Cookies["UserIdentifier"];
+        User user = null;
 
         if (!string.IsNullOrEmpty(userGuid))
         {

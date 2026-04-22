@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.UI.MVC.Models;
+namespace IntegratieProject.UI.MVC.Models;
 
 public class IdeasOverviewViewModel
 {

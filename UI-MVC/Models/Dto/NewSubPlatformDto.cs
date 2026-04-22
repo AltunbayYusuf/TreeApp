@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.UI.MVC.Models.Dto;
+namespace IntegratieProject.UI.MVC.Models.Dto;
 
 public class NewSubPlatformDto
 {

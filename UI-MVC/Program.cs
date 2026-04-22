@@ -1,10 +1,10 @@
-using IntergratieProject.BL;
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.DAL.Ef;
-using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.UI.MVC;
+using IntegratieProject.BL;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
+using IntegratieProject.DAL.Ef;
+using IntegratieProject.DAL.Identity;
+using IntegratieProject.UI.MVC;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;

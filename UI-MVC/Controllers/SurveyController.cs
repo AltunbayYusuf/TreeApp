@@ -1,11 +1,11 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
-using IntergratieProject.Domain.users;
-using IntergratieProject.UI.MVC.Models.Dto;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Domain.users;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers;
 
 public class SurveyController : Controller
 {
@@ -112,7 +112,7 @@ public class SurveyController : Controller
     private User GetOrCreateUser()
     {
         string userGuid = Request.Cookies["UserIdentifier"];
-        User? user = null;
+        User user = null;
 
         if (!string.IsNullOrEmpty(userGuid))
         {

@@ -1,22 +1,22 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.project;
-using IntergratieProject.UI.MVC.Models;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.Identity;
+using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
+namespace IntegratieProject.UI.MVC.Controllers.subAdmin;
 
 [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubAdminProjectsController : Controller
 {
-    private readonly IManager _manager;
+    private readonly ISubplatformManager _subplatformManager;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubAdminProjectsController(IManager manager, UserManager<ApplicationUser> userManager)
+    public SubAdminProjectsController(ISubplatformManager subplatformManage, UserManager<ApplicationUser> userManager)
     {
-        _manager = manager;
+        _subplatformManager = subplatformManage;
         _userManager = userManager;
     }
 
@@ -27,7 +27,7 @@ public class SubAdminProjectsController : Controller
             return NotFound();
         }
 
-        var subPlatformEntity = _manager.GetSubPlatformBySlug(subplatform);
+        var subPlatformEntity = _subplatformManager.GetSubPlatformBySlug(subplatform);
         if (subPlatformEntity == null)
         {
             return NotFound();

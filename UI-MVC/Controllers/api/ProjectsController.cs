@@ -1,9 +1,9 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.Domain.project;
-using IntergratieProject.UI.MVC.Models.Dto;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers.Api;
+namespace IntegratieProject.UI.MVC.Controllers.Api;
 
 [ApiController]
 [Route("api/[controller]")]

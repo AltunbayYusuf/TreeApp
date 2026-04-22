@@ -14,7 +14,7 @@ RUN npm run build
 # Stage 2: .NET build
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 WORKDIR /src
-COPY IntergratieProject.sln .
+COPY IntegratieProject.sln .
 COPY UI-MVC/UI-MVC.csproj UI-MVC/
 COPY BL/BL.csproj BL/
 COPY DAL/DAL.csproj DAL/

@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
 
-namespace IntergratieProject.UI.MVC.Models.Dto;
+namespace IntegratieProject.UI.MVC.Models.Dto;
 
 public class NewProjectDto
 {

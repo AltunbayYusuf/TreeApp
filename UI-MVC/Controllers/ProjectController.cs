@@ -1,8 +1,8 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers;
 
 public class ProjectController : Controller
 {

@@ -1,8 +1,8 @@
-namespace IntergratieProject.UI.MVC.Models;
+namespace IntegratieProject.UI.MVC.Models;
 
 public class ErrorViewModel
 {
-    public string? RequestId { get; set; }
+    public string RequestId { get; set; }
 
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 }
