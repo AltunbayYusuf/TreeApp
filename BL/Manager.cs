@@ -51,39 +51,20 @@ public class Manager : IManager
             cleaned = cleaned.Substring(firstBrace, lastBrace - firstBrace + 1);
         }
 
-        try
-        {
-            using var doc = JsonDocument.Parse(cleaned);
 
-            bool isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
-            string explanation = doc.RootElement.GetProperty("explanation").GetString() ?? "";
-            string suggestedText = doc.RootElement.GetProperty("suggestedText").GetString() ?? "";
+        using var doc = JsonDocument.Parse(cleaned);
 
-            return new ToxicityResult
-            {
-                IsToxic = isToxic,
-                AiUnavailable = false,
-                SuggestedText = suggestedText,
-                Explanation = explanation
-            };
-        }
-        // catch (Exception ex)
-        // {
-        //     // AI faalde / output niet parsebaar
-        //     // return new ToxicityResult
-        //     // {
-        //     //     IsToxic = true,
-        //     //     AiUnavailable = true,
-        //     //     SuggestedText = "",
-        //     //     Explanation = $"Moderation check failed: {ex.Message}. Raw: {aiText}"
-        //     // };
-        //         throw new Exception("AI moderation tijdelijk niet beschikbaar.", ex);
-        //
-        // }
-        catch (Exception ex)
+        bool isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
+        string explanation = doc.RootElement.GetProperty("explanation").GetString() ?? "";
+        string suggestedText = doc.RootElement.GetProperty("suggestedText").GetString() ?? "";
+
+        return new ToxicityResult
         {
-            throw new Exception($"AI moderation tijdelijk niet beschikbaar. Raw AI response: {aiText}", ex);
-        }
+            IsToxic = isToxic,
+            AiUnavailable = false,
+            SuggestedText = suggestedText,
+            Explanation = explanation
+        };
     }
 
     public void ValidateEntity(Object model)

@@ -65,7 +65,7 @@ public class IdeaController : Controller
         return View(vm);
     }
 
-    private Project? GetCurrentProject(string subplatform, int projectId)
+    private Project GetCurrentProject(string subplatform, int projectId)
     {
         return _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
     }

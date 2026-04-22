@@ -13,6 +13,7 @@ public class PlatformController : Controller
     public PlatformController(ILogger<HomeController> logger, IManager manager)
     {
         _logger = logger;
+        _manager = manager;
     }
     
     public IActionResult Index()

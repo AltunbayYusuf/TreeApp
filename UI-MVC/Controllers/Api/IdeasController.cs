@@ -12,14 +12,14 @@ public class IdeasController : ControllerBase
     private readonly IIdeaManager _ideaManager;
     private readonly IUserManager _userManager;
 
-    public IdeasController(IIdeaManager ideaManager,IUserManager userManager)
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
     }
 
     [HttpPost]
-    public async Task<IActionResult> SubmitIdea([FromBody]SubmitIdeaViewModel vm)
+    public async Task<IActionResult> SubmitIdea([FromBody] SubmitIdeaViewModel vm)
     {
         if (vm.TopicId <= 0)
         {
@@ -39,10 +39,8 @@ public class IdeasController : ControllerBase
             });
         }
 
-        try
-        {
-            var user = SaveContactPreference(vm);
-            var result = await _ideaManager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
+        var user = SaveContactPreference(vm);
+        var result = await _ideaManager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
 
         if (result.IsToxic)
         {
@@ -66,33 +64,6 @@ public class IdeasController : ControllerBase
             aiUnavailable = false,
             message = "Idee succesvol verstuurd."
         });
-            
-        }
-        // catch (Exception)
-        // {
-        //     await _manager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text);
-        //
-        //     return Ok(new
-        //     {
-        //         ok = true,
-        //         saved = true,
-        //         isToxic = false,
-        //         aiUnavailable = true,
-        //         message = "Je idee werd opgeslagen en doorgestuurd voor moderatie omdat de AI-controle tijdelijk niet beschikbaar was."
-        //     });
-        // }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new
-            {
-                ok = false,
-                saved = false,
-                isToxic = false,
-                aiUnavailable = true,
-                message = ex.Message,
-                details = ex.InnerException?.Message
-            });
-        }
     }
 
     [HttpPost("force")]
@@ -116,31 +87,20 @@ public class IdeasController : ControllerBase
             });
         }
 
-        try
-        {
-            var user = SaveContactPreference(vm);
-            await _ideaManager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
 
-            return Ok(new
-            {
+        var user = SaveContactPreference(vm);
+        await _ideaManager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
+
+        return Ok(new
+        {
             ok = true,
             saved = true,
             isToxic = false,
             aiUnavailable = false,
             message = "Idee doorgestuurd voor moderatie."
-            });
-        }
-        catch (Exception)
-        {
-            return StatusCode(503, new
-            {
-                ok = false,
-                isToxic = false,
-                aiUnavailable = true,
-                message = "De dienst is tijdelijk niet beschikbaar. Probeer het straks opnieuw."
-            });
-        }
+        });
     }
+
 
     private User SaveContactPreference(SubmitIdeaViewModel vm)
     {

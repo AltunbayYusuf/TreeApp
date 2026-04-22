@@ -123,36 +123,24 @@ public class ReactionsController : ControllerBase
             });
         }
 
-        try
-        {
-            var user = GetOrCreateUser();
 
-            await _reactionManager.ForceAddReactionAsync(
-                newReactionDto.IdeaId.Value,
-                newReactionDto.Emoji,
-                newReactionDto.Text,
-                user.Id
-            );
+        var user = GetOrCreateUser();
 
-            return Ok(new ReactionResultDto
-            {
-                Ok = true,
-                Saved = true,
-                IsToxic = false,
-                AiUnavailable = false,
-                Message = "Reactie doorgestuurd voor moderatie."
-            });
-        }
-        catch (Exception ex)
+        await _reactionManager.ForceAddReactionAsync(
+            newReactionDto.IdeaId.Value,
+            newReactionDto.Emoji,
+            newReactionDto.Text,
+            user.Id
+        );
+
+        return Ok(new ReactionResultDto
         {
-            return BadRequest(new ReactionResultDto
-            {
-                Ok = false,
-                Saved = false,
-                IsToxic = false,
-                Message = ex.Message
-            });
-        }
+            Ok = true,
+            Saved = true,
+            IsToxic = false,
+            AiUnavailable = false,
+            Message = "Reactie doorgestuurd voor moderatie."
+        });
     }
 
     private User GetOrCreateUser()

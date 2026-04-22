@@ -13,6 +13,7 @@ public class HomeController : Controller
     public HomeController(ILogger<HomeController> logger, IManager manager)
     {
         _logger = logger;
+        _manager = manager;
     }
 
     public IActionResult Index()
