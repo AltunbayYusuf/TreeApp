@@ -1,8 +1,8 @@
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class QuestionRepository : IQuestionRepository
 { 

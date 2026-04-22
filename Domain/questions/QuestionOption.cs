@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
 public class QuestionOption
 {

@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Domain.users;
 
-namespace IntergratieProject.Domain.ideas;
+namespace IntegratieProject.BL.Domain.ideas;
 
 public class Idea
 {
@@ -17,7 +17,7 @@ public class Idea
 
     public string Text { get; set; }
     public int? UserId { get; set; }
-    public User? User { get; set; }
+    public User User { get; set; }
     [Required] public Topic Topic { get; set; }
     public ModerationStatus ModerationStatus { get; set; }
     public IEnumerable<Reaction> Reactions { get; set; }

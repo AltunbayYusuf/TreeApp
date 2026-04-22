@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.users;
 
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
 public class SurveyResponse
 {

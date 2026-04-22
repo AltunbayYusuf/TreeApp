@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class Manager : IManager
 {
@@ -88,17 +86,7 @@ public class Manager : IManager
         }
     }
 
-    public IEnumerable<Topic> GetTopicsByProject(Project project)
-    {
-        return _repository.ReadTopicsByProject(project);
-    }
-
-    public SubPlatform? GetSubPlatformBySlug(string slug)
-    {
-        return _repository.ReadSubPlatformBySlug(slug);
-    }
-
-    public void ValidateEntety(Object model)
+    public void ValidateEntity(Object model)
     {
         var validationResults = new List<ValidationResult>();
         bool success = Validator.TryValidateObject(model,

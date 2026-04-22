@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.Questions;
-using IntergratieProject.Domain.socialeMedia;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Domain.socialeMedia;
 
-namespace IntergratieProject.Domain.project;
+namespace IntegratieProject.BL.Domain.project;
 
 public class Project
 {

@@ -1,14 +1,13 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
 public class QuestionList
 {
     public int Id { get; set; }
 
     [Required(ErrorMessage = "QuestionList must belong to a projectID")]
-
     public int ProjectId { get; set; }
 
     public Project Project { get; set; }

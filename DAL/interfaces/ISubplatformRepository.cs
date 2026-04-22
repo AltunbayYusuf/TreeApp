@@ -1,6 +1,8 @@
-﻿namespace IntergratieProject.DAL.interfaces;
+﻿using IntegratieProject.BL.Domain.project;
+
+namespace IntegratieProject.DAL.interfaces;
 
 public interface ISubplatformRepository
 {
-    
+    SubPlatform ReadSubPlatformBySlug(string slug);
 }

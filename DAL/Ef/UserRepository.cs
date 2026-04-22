@@ -1,8 +1,8 @@
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.users;
+using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class UserRepository : IUserRepository
 {
@@ -13,7 +13,7 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public User? ReadUser(string cookieId)
+    public User ReadUser(string cookieId)
     {
         return _context.Users
             .Include(u => u.SurveyResponses)

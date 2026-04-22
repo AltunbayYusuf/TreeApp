@@ -2,7 +2,7 @@
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 
-namespace IntergratieProject.Domain.Ai;
+namespace IntegratieProject.BL.Domain.Ai;
 
 public class GeminiService : IAiService
 {

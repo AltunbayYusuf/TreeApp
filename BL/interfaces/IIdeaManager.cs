@@ -1,8 +1,8 @@
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.BL.interfaces;
+namespace IntegratieProject.BL.interfaces;
 
 public interface IIdeaManager
 {

@@ -1,9 +1,9 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.ideas;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class ReactionManager : IReactionManager
 {
@@ -20,7 +20,7 @@ public class ReactionManager : IReactionManager
     }
 
 
-    public async Task ForceAddReactionAsync(int ideaId, string? emoji, string? text, int? userId)
+    public async Task ForceAddReactionAsync(int ideaId, string emoji, string text, int? userId)
     {
         var idea = _ideaRepository.ReadIdeaById(ideaId);
 

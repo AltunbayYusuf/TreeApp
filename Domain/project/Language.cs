@@ -1,4 +1,4 @@
-namespace IntergratieProject.Domain.project;
+namespace IntegratieProject.BL.Domain.project;
 
 public enum Language
 {

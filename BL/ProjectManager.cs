@@ -1,25 +1,25 @@
-using IntergratieProject.Domain.project;
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class ProjectManager : IProjectManager
 {
-    private readonly IRepository _repository;
+    private readonly ISubplatformRepository _subplatformRepository;
     private readonly IProjectRepository _projectRepository;
     private readonly IManager _manager;
 
 
-    public ProjectManager(IRepository repository, IProjectRepository projectRepository,IManager manager)
+    public ProjectManager(ISubplatformRepository subplatformRepository, IProjectRepository projectRepository,IManager manager)
     {
-        _repository = repository;
+        _subplatformRepository = subplatformRepository;
         _projectRepository = projectRepository;
         _manager = manager;
     }
 
-    public Project? GetProject(int projectId)
+    public Project GetProject(int projectId)
     {
         return _projectRepository.ReadProject(projectId);
     }
@@ -29,9 +29,9 @@ public class ProjectManager : IProjectManager
         return _projectRepository.ReadProjectsBySubPlatform(subPlatformId);
     }
 
-    public Project? GetFirstProjectBySubPlatform(string slug)
+    public Project GetFirstProjectBySubPlatform(string slug)
     {
-        var subPlatform = _repository.ReadSubPlatformBySlug(slug);
+        var subPlatform = _subplatformRepository.ReadSubPlatformBySlug(slug);
 
         if (subPlatform == null)
         {
@@ -44,17 +44,17 @@ public class ProjectManager : IProjectManager
 
     public void UpdateProject(Project project)
     {
-        _manager.ValidateEntety(project);
+        _manager.ValidateEntity(project);
         _projectRepository.ChangeProject(project);
     }
 
     public void CreateProject(Project project)
     {
-        _manager.ValidateEntety(project);
+        _manager.ValidateEntity(project);
         _projectRepository.CreateProject(project);
     }
 
-    public Project? GetProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
+    public Project GetProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
     {
         return _projectRepository.ReadProjectBySubPlatformAndProjectId(subplatformSlug, projectId);
     }

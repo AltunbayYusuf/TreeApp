@@ -1,8 +1,8 @@
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class ProjectRepository : IProjectRepository
 {
@@ -13,7 +13,7 @@ public class ProjectRepository : IProjectRepository
         _context = context;
     }
 
-    public Project? ReadProject(int projectId)
+    public Project ReadProject(int projectId)
     {
         return _context.Projects
             .Include(p => p.QuestionList)
@@ -23,7 +23,7 @@ public class ProjectRepository : IProjectRepository
             .FirstOrDefault(p => p.Id == projectId);
     }
 
-    public Project? ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
+    public Project ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
     {
         return _context.Projects
             .Include(p => p.SubPlatform)

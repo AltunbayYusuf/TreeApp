@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.questions;
 
-namespace IntergratieProject.Domain.users;
+namespace IntegratieProject.BL.Domain.users;
 
 public class User
 {
@@ -13,6 +13,7 @@ public class User
     public string Email { get; set; }
 
     [Required(ErrorMessage = "User must have a cookieIdentifier")]
+    [MaxLength(1000)]
     public string CookieIdentifier { get; set; } = string.Empty;
 
     public ICollection<SurveyResponse> SurveyResponses { get; set; } = new List<SurveyResponse>();

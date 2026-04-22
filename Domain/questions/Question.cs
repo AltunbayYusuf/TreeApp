@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.ideas;
+using IntegratieProject.BL.Domain.ideas;
 
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
 public class Question
 {
@@ -25,6 +25,6 @@ public class Question
     // optioneel voor Range-vragen
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }
-    [MaxLength(200)] public string? RangeMinLabel { get; set; }
-    [MaxLength(200)] public string? RangeMaxLabel { get; set; }
+    [MaxLength(200)] public string RangeMinLabel { get; set; }
+    [MaxLength(200)] public string RangeMaxLabel { get; set; }
 }

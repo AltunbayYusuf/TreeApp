@@ -1,6 +1,6 @@
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
 public class AiSuggestion
 {

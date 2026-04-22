@@ -1,4 +1,4 @@
-namespace IntergratieProject.Domain.socialeMedia;
+namespace IntegratieProject.BL.Domain.socialeMedia;
 
 public enum PostStatus
 {

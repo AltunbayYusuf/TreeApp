@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
 using Microsoft.AspNetCore.Authorization;
 
-namespace IntergratieProject.Domain.users;
+namespace IntegratieProject.BL.Domain.users;
 
 [Authorize(Roles = "GeneralAdmin")]
 public class GeneralAdmin : IAdmin

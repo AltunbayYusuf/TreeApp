@@ -1,4 +1,4 @@
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
 public enum SuggestionStatus
 {

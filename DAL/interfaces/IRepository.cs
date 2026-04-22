@@ -1,11 +1,9 @@
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.DAL.interfaces;
+namespace IntegratieProject.DAL.interfaces;
 
 public interface IRepository
 {
-    IEnumerable<Topic> ReadTopicsByProject(Project project);
-    Topic? ReadTopicById(int topicId);
-    SubPlatform? ReadSubPlatformBySlug(string slug);
+    
 }

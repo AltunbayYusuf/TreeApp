@@ -1,7 +1,7 @@
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
 
-namespace IntergratieProject.DAL.interfaces;
+namespace IntegratieProject.DAL.interfaces;
 
 public interface IQuestionRepository
 {

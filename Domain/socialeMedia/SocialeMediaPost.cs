@@ -1,6 +1,6 @@
-using IntergratieProject.Domain.Ai;
+using IntegratieProject.BL.Domain.Ai;
 
-namespace IntergratieProject.Domain.socialeMedia;
+namespace IntegratieProject.BL.Domain.socialeMedia;
 
 public class SocialMediaPost
 {

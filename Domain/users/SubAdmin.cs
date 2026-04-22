@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
 using Microsoft.AspNetCore.Authorization;
 
-namespace IntergratieProject.Domain.users;
+namespace IntegratieProject.BL.Domain.users;
 
 [Authorize(Roles = "SubAdmin")]
 
@@ -12,8 +12,10 @@ public class SubAdmin : IAdmin
 
     public IEnumerable<Project> Projects { get; set; }
     [Required]
+    [MaxLength(50)]
     public string Name { get; set; }
     
+    [MaxLength(300)]
     public string IdentityUserId { get; set; }
     [Required]
     public GeneralAdmin GeneralAdmin { get; set; }

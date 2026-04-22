@@ -1,8 +1,8 @@
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class SurveyRepository : ISurveyRepository
 {
@@ -13,7 +13,7 @@ public class SurveyRepository : ISurveyRepository
         _context = context;
     }
 
-    public SurveyResponse? ReadSurveyResponse(int userId, int projectId)
+    public SurveyResponse ReadSurveyResponse(int userId, int projectId)
     {
         return _context.SurveyResponses
             .Include(sr => sr.Answers)

@@ -1,4 +1,4 @@
-namespace IntergratieProject.Domain.ideas;
+namespace IntegratieProject.BL.Domain.ideas;
 
 public enum ModerationStatus
 {

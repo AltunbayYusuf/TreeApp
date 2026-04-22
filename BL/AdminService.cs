@@ -1,12 +1,16 @@
-﻿
-using IntergratieProject.DAL.Ef;
-using IntergratieProject.Domain.users;
+﻿using IntegratieProject.BL.Domain.users;
+using IntegratieProject.DAL.Ef;
 
-namespace IntergratieProject.BL
+namespace IntegratieProject.BL
 {
     public class AdminService
     {
         private readonly TreeDbContext _context;
+        
+        public AdminService(TreeDbContext context)
+        {
+            _context = context;
+        }
 
         public GeneralAdmin GetByIdentityId(string id)
         {

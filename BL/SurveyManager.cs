@@ -1,8 +1,8 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class SurveyManager : ISurveyManager
 {
@@ -13,7 +13,7 @@ public class SurveyManager : ISurveyManager
         _surveyRepository = surveyRepository;
     }
 
-    public SurveyResponse? GetSurveyResponse(int userId, int projectId)
+    public SurveyResponse GetSurveyResponse(int userId, int projectId)
     {
         return _surveyRepository.ReadSurveyResponse(userId, projectId);
     }

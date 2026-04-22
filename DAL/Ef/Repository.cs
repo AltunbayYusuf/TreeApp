@@ -1,9 +1,6 @@
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
-using Microsoft.EntityFrameworkCore;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class Repository : IRepository
 {
@@ -13,20 +10,4 @@ public class Repository : IRepository
     {
         _context = context;
     }
-    public IEnumerable<Topic> ReadTopicsByProject(Project project)
-    {
-        return _context.Topics.Where(t => t.Project == project).ToList();
-    }
-    public Topic? ReadTopicById(int topicId)
-    {
-        return _context.Topics.Include(t => t.Ideas)
-            .FirstOrDefault(t => t.Id == topicId);
-    }
-    public SubPlatform? ReadSubPlatformBySlug(string slug)
-    {
-        return _context.SubPlatforms
-            .FirstOrDefault(sp => sp.Slug == slug);
-    }
-    
-
 }

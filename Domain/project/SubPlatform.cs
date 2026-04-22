@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.users;
 
-namespace IntergratieProject.Domain.project;
+namespace IntegratieProject.BL.Domain.project;
 
 public class SubPlatform
 {

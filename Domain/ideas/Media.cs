@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IntergratieProject.Domain.ideas;
+namespace IntegratieProject.BL.Domain.ideas;
 
 public class Media
 {

@@ -1,10 +1,10 @@
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.users;
 
-namespace IntergratieProject.DAL.interfaces;
+namespace IntegratieProject.DAL.interfaces;
 
 public interface IUserRepository
 {
-    User? ReadUser(string cookieId);
+    User ReadUser(string cookieId);
     void CreateUser(User user);
     void UpdateUser(User user);
 

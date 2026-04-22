@@ -1,6 +1,6 @@
-namespace IntergratieProject.Domain.Questions;
+namespace IntegratieProject.BL.Domain.questions;
 
-public enum QuestionType:byte
+public enum QuestionType : byte
 {
     SingleChoice,
     MultipleChoice,
