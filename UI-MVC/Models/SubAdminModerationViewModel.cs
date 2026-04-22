@@ -1,11 +1,11 @@
-﻿namespace IntergratieProject.UI.MVC.Models;
+﻿namespace IntegratieProject.UI.MVC.Models;
 
 public class SubAdminModerationViewModel
 {
 
     public string ActiveFilter { get; set; } = "algemeen";
     public List<ModerationQueueItemViewModel> Items { get; set; } = new();
-    public ModerationQueueItemViewModel? SelectedItem { get; set; }
+    public ModerationQueueItemViewModel SelectedItem { get; set; }
 }
 
 public class ModerationQueueItemViewModel

@@ -1,9 +1,9 @@
 using System.Diagnostics;
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.UI.MVC.Models;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers;
 
 public class HomeController : Controller
 {
@@ -13,6 +13,7 @@ public class HomeController : Controller
     public HomeController(ILogger<HomeController> logger, IManager manager)
     {
         _logger = logger;
+        _manager = manager;
     }
 
     public IActionResult Index()

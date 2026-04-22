@@ -5,7 +5,7 @@
         <Nullable>disable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <AssemblyName>UI-MVC</AssemblyName>
-        <RootNamespace>IntergratieProject.UI.MVC</RootNamespace>
+        <RootNamespace>IntegratieProject.UI.MVC</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

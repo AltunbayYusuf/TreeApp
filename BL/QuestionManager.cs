@@ -1,9 +1,9 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class QuestionManager : IQuestionManager
 {

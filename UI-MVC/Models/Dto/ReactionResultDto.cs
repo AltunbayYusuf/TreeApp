@@ -1,4 +1,4 @@
-﻿namespace IntergratieProject.UI.MVC.Models.Dto;
+﻿namespace IntegratieProject.UI.MVC.Models.Dto;
 
 public class ReactionResultDto
 {

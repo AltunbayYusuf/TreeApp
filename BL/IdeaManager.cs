@@ -1,26 +1,27 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class IdeaManager : IIdeaManager
 {
     private readonly IAiService _aiService;
     private readonly IIdeaRepository _ideaRepository;
-    private readonly IRepository _repository;
+    private readonly ITopicRepository _topicRepository;
     private readonly IReactionRepository _reactionRepository;
     private readonly IManager _manager;
 
 
-    public IdeaManager(IAiService aiService, IIdeaRepository ideaRepository, IRepository repository,
+    public IdeaManager(IAiService aiService, IIdeaRepository ideaRepository, ITopicRepository topicRepository,
         IReactionRepository reactionRepository,IManager manager)
     {
         _aiService = aiService;
-        _repository = repository;
         _reactionRepository = reactionRepository;
+        _topicRepository = topicRepository;
         _ideaRepository = ideaRepository;
         _manager = manager;
     }
@@ -38,7 +39,7 @@ public class IdeaManager : IIdeaManager
 
     public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId)
     {
-        var topic = _repository.ReadTopicById(topicId);
+        var topic = _topicRepository.ReadTopicById(topicId);
         if (topic == null)
         {
             throw new Exception("Topic niet gevonden");
@@ -59,7 +60,7 @@ public class IdeaManager : IIdeaManager
 
     public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId)
     {
-        var topic = _repository.ReadTopicById(topicId);
+        var topic = _topicRepository.ReadTopicById(topicId);
         if (topic == null)
         {
             throw new Exception("Topic niet gevonden");
@@ -80,7 +81,7 @@ public class IdeaManager : IIdeaManager
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted
         };
-        _manager.ValidateEntety(idea);
+        _manager.ValidateEntity(idea);
 
         _ideaRepository.AddIdea(idea);
 

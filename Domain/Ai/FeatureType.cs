@@ -1,4 +1,4 @@
-namespace IntergratieProject.Domain.Ai;
+namespace IntegratieProject.BL.Domain.Ai;
 
 public enum FeatureType
 {

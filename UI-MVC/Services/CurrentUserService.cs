@@ -1,12 +1,18 @@
-using IntergratieProject.DAL.Ef;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.users;
+using IntegratieProject.DAL.Ef;
 
-namespace IntergratieProject.UI.MVC.Services;
+namespace IntegratieProject.UI.MVC.Services;
 
 public class CurrentUserService
 {
     private readonly TreeDbContext _context;
     private readonly IHttpContextAccessor _http;
+    
+    public CurrentUserService(TreeDbContext context, IHttpContextAccessor http)
+    {
+        _context = context;
+        _http = http;
+    }
 
     public User GetOrCreateUser()
     {

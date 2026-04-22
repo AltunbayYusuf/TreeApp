@@ -1,4 +1,4 @@
-namespace IntergratieProject.UI.MVC;
+namespace IntegratieProject.UI.MVC;
 
 public class CustomIdentityConstants
 {

@@ -1,9 +1,8 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.users;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
 
-namespace IntergratieProject.BL;
+namespace IntegratieProject.BL;
 
 public class UserManager : IUserManager
 {
@@ -16,20 +15,20 @@ public class UserManager : IUserManager
         _manager = manager;
     }
 
-    public User? GetUser(string cookieId)
+    public User GetUser(string cookieId)
     {
         return _userRepository.ReadUser(cookieId);
     }
 
     public void AddUser(User user)
     {
-        _manager.ValidateEntety(user);
+        _manager.ValidateEntity(user);
         _userRepository.CreateUser(user);
     }
 
     public void UpdateUser(User user)
     {
-        _manager.ValidateEntety(user);
+        _manager.ValidateEntity(user);
         _userRepository.UpdateUser(user);
     }
 }

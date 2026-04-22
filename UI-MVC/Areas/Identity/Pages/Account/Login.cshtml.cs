@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
-using IntergratieProject.DAL.Identity;
+using IntegratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace IntergratieProject.UI.MVC.Areas.Identity.Pages.Account
+namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {

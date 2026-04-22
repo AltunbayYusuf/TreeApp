@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-using IntergratieProject.Domain.project;
+using IntegratieProject.BL.Domain.project;
 
-namespace IntergratieProject.UI.MVC.Models;
+namespace IntegratieProject.UI.MVC.Models;
 
 public class CreateProjectInfoViewModel
 {
@@ -13,6 +13,6 @@ public class CreateProjectInfoViewModel
     [Required(ErrorMessage = "Introductietekst is verplicht.")]
     public string Introduction { get; set; } = "";
 
-    public IFormFile? PhotoUpload { get; set; }
+    public IFormFile PhotoUpload { get; set; }
 
     public ProjectType Type { get; set; } = ProjectType.VerticalScroll;}

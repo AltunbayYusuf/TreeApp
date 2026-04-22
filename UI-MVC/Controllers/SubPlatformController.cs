@@ -1,20 +1,20 @@
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.Identity;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Identity;
 
-namespace IntergratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers;
 
 [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
 public class SubPlatformController : Controller
 {
-    private readonly IManager _manager;
+    private readonly ISubplatformManager _subplatformManager;
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubPlatformController(IManager manager, UserManager<ApplicationUser> userManager)
+    public SubPlatformController(ISubplatformManager subplatformManager, UserManager<ApplicationUser> userManager)
     {
-        _manager = manager;
+        _subplatformManager = subplatformManager;
         _userManager = userManager;
     }
 
@@ -22,7 +22,7 @@ public class SubPlatformController : Controller
     {
         if (string.IsNullOrWhiteSpace(subplatform)) return Content("subplatform is NULL");
 
-        var currentSubPlatform = _manager.GetSubPlatformBySlug(subplatform);
+        var currentSubPlatform = _subplatformManager.GetSubPlatformBySlug(subplatform);
         if (currentSubPlatform == null)
         {
             return NotFound();

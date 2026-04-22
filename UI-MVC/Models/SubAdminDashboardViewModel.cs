@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IntergratieProject.UI.MVC.Models;
+namespace IntegratieProject.UI.MVC.Models;
 
 public class SubAdminDashboardViewModel
 {
@@ -13,7 +13,7 @@ public class SubAdminDashboardViewModel
     public int ParticipantsCount { get; set; }
     public int TotalIdeas { get; set; }
     
-    public Boolean isAlActiefGeweest { get; set; }
+    public Boolean IsAlActiefGeweest { get; set; }
     public List<ProjectSummaryViewModel> Projects { get; set; } = new();
     
    

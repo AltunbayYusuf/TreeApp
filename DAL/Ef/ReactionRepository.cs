@@ -1,8 +1,8 @@
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.ideas;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class ReactionRepository : IReactionRepository
 {
@@ -29,7 +29,7 @@ public class ReactionRepository : IReactionRepository
             .ToList();
     }
 
-    public Reaction? ReadReactionById(int reactionId)
+    public Reaction ReadReactionById(int reactionId)
     {
         return _context.Reactions
             .Include(r => r.Idea)

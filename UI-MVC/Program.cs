@@ -1,12 +1,10 @@
-using IntergratieProject.BL;
-using IntergratieProject.BL.interfaces;
-using IntergratieProject.DAL.interfaces;
-using IntergratieProject.DAL.Ef;
-using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.Ai;
-using IntergratieProject.UI.MVC;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpOverrides;
+using IntegratieProject.BL;
+using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.interfaces;
+using IntegratieProject.DAL.Ef;
+using IntegratieProject.DAL.Identity;
+using IntegratieProject.UI.MVC;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
@@ -55,6 +53,8 @@ builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
 builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
 builder.Services.AddScoped<ISurveyRepository, SurveyRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ISubplatformRepository, SubplatformRepository>();
+builder.Services.AddScoped<ITopicRepository, TopicRepository>();
 
 builder.Services.AddScoped<IManager, Manager>();
 builder.Services.AddScoped<IIdeaManager, IdeaManager>();
@@ -63,6 +63,8 @@ builder.Services.AddScoped<IQuestionManager, QuestionManager>();
 builder.Services.AddScoped<IReactionManager, ReactionManager>();
 builder.Services.AddScoped<ISurveyManager, SurveyManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
+builder.Services.AddScoped<ISubplatformManager, SubplatformManager>();
+builder.Services.AddScoped<ITopicManager, TopicManager>();
 builder.Services.AddViteServices();
 //150722
 

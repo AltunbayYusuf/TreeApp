@@ -1,9 +1,9 @@
-﻿using IntergratieProject.DAL.interfaces;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
+﻿using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class IdeaRepository : IIdeaRepository
 {
@@ -41,7 +41,7 @@ public class IdeaRepository : IIdeaRepository
     }
 
 
-    public Idea? ReadIdeaById(int ideaId)
+    public Idea ReadIdeaById(int ideaId)
     {
         return _context.Ideas.Include(i => i.Topic)
             .Include(i => i.Reactions)

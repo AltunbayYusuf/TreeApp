@@ -1,4 +1,4 @@
- namespace IntergratieProject.UI.MVC.Models;
+ namespace IntegratieProject.UI.MVC.Models;
 
 public class ProjectSummaryViewModel
 {

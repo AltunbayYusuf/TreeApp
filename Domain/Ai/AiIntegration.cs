@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace IntergratieProject.Domain.Ai;
+namespace IntegratieProject.BL.Domain.Ai;
 
 public class AiIntegration
 {

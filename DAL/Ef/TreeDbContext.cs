@@ -1,14 +1,14 @@
 ﻿using System.Diagnostics;
-using IntergratieProject.DAL.Identity;
-using IntergratieProject.Domain.ideas;
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
-using IntergratieProject.Domain.users;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Domain.users;
+using IntegratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class TreeDbContext : IdentityDbContext<ApplicationUser>
 {

@@ -1,8 +1,8 @@
-using IntergratieProject.Domain.project;
-using IntergratieProject.Domain.Questions;
-using IntergratieProject.Domain.ideas;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
 
-namespace IntergratieProject.DAL.Ef;
+namespace IntegratieProject.DAL.Ef;
 
 public class DataSeeder
 {
