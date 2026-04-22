@@ -1,24 +1,16 @@
-﻿const btnGeven = document.getElementById("ideeGeven") as HTMLButtonElement | null;
-const btnBekijken = document.getElementById("ideeenBekijken") as HTMLButtonElement | null;
+﻿// survey/results.ts
+import {DomUtils} from '../helpers/utils';
 
-const params = new URLSearchParams(window.location.search);
-const projectId = params.get("projectId");
+export class SurveyResultsHandler {
+    init(): void {
+        document.getElementById("ideeGeven")?.addEventListener("click", () => {
+            window.location.href = DomUtils.getProjectRedirectUrl("Idea/Create");
+        });
 
-const subplatformInput = document.getElementById("subplatformSlug") as HTMLInputElement | null;
-const subplatform = subplatformInput?.value;
-
-if (btnGeven) {
-    btnGeven.addEventListener("click", (): void => {
-        window.location.href = projectId && subplatform
-            ? `/${subplatform}/Idea/Create?projectId=${projectId}`
-            : "/Idea/Create";
-    });
+        document.getElementById("ideeenBekijken")?.addEventListener("click", () => {
+            window.location.href = DomUtils.getProjectRedirectUrl("Idea/Index");
+        });
+    }
 }
 
-if (btnBekijken) {
-    btnBekijken.addEventListener("click", (): void => {
-        window.location.href = projectId && subplatform
-            ? `/${subplatform}/Idea/Index?projectId=${projectId}`
-            : "/Idea/Index";
-    });
-}
+document.addEventListener("DOMContentLoaded", () => new SurveyResultsHandler().init());
