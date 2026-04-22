@@ -53,21 +53,26 @@
         🔒 Anoniem & Vertrouwelijk
     </div>
 
-    <a asp-controller="Survey"
-       asp-action="Index"
-       asp-route-subplatform="@Model.SubPlatform.Slug"
-       asp-route-projectId="@Model.Id"
-       class="btn btn-dark home-start-btn">
-        Start bevraging
-    </a>
-
-    <a asp-controller="Survey"
-       asp-action="Chat"
-       asp-route-subplatform="@Model.SubPlatform.Slug"
-       asp-route-projectId="@Model.Id"
-       class="btn btn-outline-dark home-start-btn mt-2">
-        💬 Start als chatbot
-    </a>
+    @if (Model.Type == IntegratieProject.BL.Domain.project.ProjectType.Chat)
+    {
+        <a asp-controller="Survey"
+           asp-action="Chat"
+           asp-route-subplatform="@Model.SubPlatform.Slug"
+           asp-route-projectId="@Model.Id"
+           class="btn btn-dark home-start-btn">
+            Start bevraging
+        </a>
+    }
+    else
+    {
+        <a asp-controller="Survey"
+           asp-action="Index"
+           asp-route-subplatform="@Model.SubPlatform.Slug"
+           asp-route-projectId="@Model.Id"
+           class="btn btn-dark home-start-btn">
+            Start bevraging
+        </a>
+    }
 
     <div class="mt-4">
         <div class="border rounded p-3 mb-2 text-muted">→ Over dit project</div>
