@@ -1,99 +1,245 @@
-﻿.survey-container {
+// ── Survey page – professionele restyling ──────────────────────────────────
+// Kleurenpalet (Bootstrap CSS-variabelen worden lokaal overschreven)
+:root {
+  --survey-primary:    #2c3e50;
+  --survey-accent:     #3498db;
+  --survey-accent-rgb: 52, 152, 219;
+  --survey-teal:       #1abc9c;
+  --survey-bg:         #f4f6f8;
+  --survey-card-bg:    #ffffff;
+  --survey-border:     #dde2e8;
+  --survey-text:       #2c3e50;
+  --survey-muted:      #6b7c93;
+  --survey-radius:     10px;
+}
+
+// Pagina-achtergrond voor de survey
+body:has(.survey-container) {
+  background-color: var(--survey-bg);
+}
+
+// ── Vraag-wrapper (één kaart per vraag) ────────────────────────────────────
+.survey-container {
   max-width: 720px;
-  margin: 0 auto;
-  padding: 20px;
+  margin: 0 auto 1.25rem;
+  padding: 1.75rem 2rem;
+  background: var(--survey-card-bg);
+  border-radius: var(--survey-radius);
+  border: 1px solid var(--survey-border);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  // Verwijder de standaard Bootstrap border-bottom die nu in de kaart zit
+  &.border-bottom {
+    border-bottom: 1px solid var(--survey-border) !important;
+  }
 }
 
-.survey-question-title {
-  font-size: 2rem;
-  font-weight: 700;
-  max-width: 520px;
-  line-height: 1.35;
-  margin-bottom: 0.4rem;
-}
-
+// ── Vraagnummer-cirkel ─────────────────────────────────────────────────────
 .question-number-circle {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
   border-radius: 50%;
-  background-color: #1f2940;
-  color: white;
+  background: linear-gradient(135deg, var(--survey-accent), #2980b9);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  margin-top: 4px;
+  font-size: 0.9rem;
+  margin-top: 3px;
+  box-shadow: 0 3px 8px rgba(var(--survey-accent-rgb), 0.35);
+  flex-shrink: 0;
 }
 
+// ── Vraagtitel ─────────────────────────────────────────────────────────────
+.survey-question-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  max-width: 560px;
+  line-height: 1.45;
+  margin-bottom: 0.35rem;
+  color: var(--survey-text);
+}
+
+// ── Meta-label (type-tag) ──────────────────────────────────────────────────
 .survey-question-meta {
-  color: #4b5563;
-  font-family: monospace;
+  display: inline-block;
+  background: #eef2f7;
+  color: var(--survey-muted);
+  font-family: 'SFMono-Regular', Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.55rem;
+  border-radius: 4px;
   margin-bottom: 1rem;
 }
 
+// ── Extra hint-tekst ───────────────────────────────────────────────────────
 .survey-question-extra {
   font-style: italic;
-  color: #444;
-  margin-bottom: 0.2rem;
+  color: var(--survey-muted);
+  font-size: 0.88rem;
+  margin-bottom: 0.25rem;
 }
 
+// ── Antwoord-kaartjes (radio / checkbox) ───────────────────────────────────
 .survey-option-card {
-  border: 2px solid #d1d5db;
-  padding: 1.1rem 1.2rem;
-  margin-bottom: 0.9rem;
-  max-width: 520px;
-  background: white;
+  display: flex;
+  align-items: center;
+  border: 2px solid var(--survey-border);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 0.55rem;
+  max-width: 560px;
+  background: #fafbfc;
   text-decoration: none;
-  color: black;
+  color: var(--survey-text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  font-weight: 500;
+
+  &:hover {
+    border-color: var(--survey-accent);
+    background: #eef6fd;
+    box-shadow: 0 2px 8px rgba(var(--survey-accent-rgb), 0.12);
+  }
+
+  // Geselecteerde staat via CSS (werkt in moderne browsers)
+  &:has(input:checked) {
+    border-color: var(--survey-accent);
+    background: #ddeefa;
+    box-shadow: 0 2px 10px rgba(var(--survey-accent-rgb), 0.18);
+  }
 }
 
 .survey-option-card input[type="radio"],
 .survey-option-card input[type="checkbox"] {
-  width: 22px;
-  height: 22px;
-}
-
-.range-box {
-  width: 62px;
-  height: 62px;
-  border: 2px solid #d1d5db;
-  background: white;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-
-.range-labels,
-.range-labels-small {
-  max-width: 520px;
-  color: #374151;
-}
-
-.survey-textarea {
-  width: 100%;
-  max-width: 520px;
-  min-height: 190px;
-  border: 2px solid #d1d5db;
-  padding: 1rem;
-  font-size: 1.1rem;
-  resize: vertical;
-}
-
-.range-box {
-  border: 1px solid #ccc;
-  padding: 8px 14px;
-  margin: 4px;
-  border-radius: 6px;
-  background: white;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  accent-color: var(--survey-accent);
   cursor: pointer;
 }
 
-.range-box:hover {
-  background-color: #2563eb;
-  color: white;
+// ── Range-labels ───────────────────────────────────────────────────────────
+.range-labels,
+.range-labels-small {
+  max-width: 560px;
+  color: var(--survey-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
 }
 
-.range-box.selected {
-  background-color: #1d4ed8;
-  color: white;
+// ── Range-knoppen (Bootstrap btn-outline-primary) ──────────────────────────
+// Override Bootstrap primary kleur enkel binnen de survey
+.survey-container {
+  --bs-btn-color:               var(--survey-accent);
+  --bs-btn-border-color:        var(--survey-accent);
+  --bs-btn-hover-bg:            var(--survey-accent);
+  --bs-btn-hover-border-color:  var(--survey-accent);
+  --bs-btn-active-bg:           #2980b9;
+  --bs-btn-active-border-color: #2980b9;
+  --bs-btn-checked-bg:          var(--survey-accent);
+  --bs-btn-checked-border-color: var(--survey-accent);
+
+  .btn-outline-primary {
+    color: var(--survey-accent);
+    border-color: var(--survey-border);
+    background: #fafbfc;
+    font-weight: 600;
+    font-size: 1.05rem;
+    transition: all 0.15s;
+
+    &:hover {
+      background: var(--survey-accent);
+      border-color: var(--survey-accent);
+      color: #fff;
+    }
+  }
+
+  // Bootstrap btn-check geselecteerde staat
+  .btn-check:checked + .btn-outline-primary {
+    background: var(--survey-accent);
+    border-color: var(--survey-accent);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(var(--survey-accent-rgb), 0.35);
+  }
+}
+
+// ── Open tekstgebied ───────────────────────────────────────────────────────
+.survey-textarea {
+  width: 100%;
+  max-width: 560px;
+  min-height: 170px;
+  border: 2px solid var(--survey-border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  font-size: 1rem;
+  color: var(--survey-text);
+  background: #fafbfc;
+  resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder {
+    color: #b0bac4;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--survey-accent);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(var(--survey-accent-rgb), 0.15);
+  }
+}
+
+// ── Verzendenknop ──────────────────────────────────────────────────────────
+#verzendbtn.btn.btn-primary,
+.text-center > .btn-primary {
+  background: linear-gradient(135deg, var(--survey-accent), #2980b9);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 14px rgba(var(--survey-accent-rgb), 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(var(--survey-accent-rgb), 0.45);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// ── Legacy range-box (wordt niet gebruikt maar behouden) ───────────────────
+.range-box {
+  border: 1px solid var(--survey-border);
+  padding: 8px 14px;
+  margin: 4px;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s, color 0.15s;
+
+  &:hover {
+    background-color: var(--survey-accent);
+    color: #fff;
+  }
+
+  &.selected {
+    background-color: #2980b9;
+    color: #fff;
+  }
 }
