@@ -61,6 +61,14 @@
         Start bevraging
     </a>
 
+    <a asp-controller="Survey"
+       asp-action="Chat"
+       asp-route-subplatform="@Model.SubPlatform.Slug"
+       asp-route-projectId="@Model.Id"
+       class="btn btn-outline-dark home-start-btn mt-2">
+        💬 Start als chatbot
+    </a>
+
     <div class="mt-4">
         <div class="border rounded p-3 mb-2 text-muted">→ Over dit project</div>
         <div class="border rounded p-3 mb-2 text-muted">→ Over de hogeschool</div>
