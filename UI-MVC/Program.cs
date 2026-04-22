@@ -4,8 +4,8 @@ using IntergratieProject.DAL.Ef;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.Ai;
 using IntergratieProject.UI.MVC;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
@@ -38,14 +38,12 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
-// DataProtection keys persistent opslaan zodat cookies/antiforgery
-// tokens blijven werken tussen container rebuilds
-var keysPath = OperatingSystem.IsWindows()
-    ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IntergratieProject", "DataProtection-Keys")
-    : "/root/.aspnet/DataProtection-Keys";
-builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
-    .SetApplicationName("IntergratieProject");
+// Ai Toegevoegd: tijdelijke fix -> custom DataProtection verwijderd.
+// Reden: keys op /root/.aspnet/... zijn in cloud/container vaak niet echt persistent
+// en kunnen 400 errors geven bij login/antiforgery validatie.
+// builder.Services.AddDataProtection()
+//     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+//     .SetApplicationName("IntergratieProject");
 
 builder.Services.AddHttpClient<IAiService, GeminiService>();
 builder.Services.AddScoped<IManager, Manager>();
@@ -53,6 +51,13 @@ builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 builder.Services.AddViteServices();
 
 var app = builder.Build();
+
+// Ai Toegevoegd: Forwarded headers zo vroeg mogelijk zetten.
+// Dit helpt wanneer je app achter een proxy/load balancer draait.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
 
 if (app.Environment.IsDevelopment())
 {
