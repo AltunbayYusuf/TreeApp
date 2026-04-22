@@ -4,6 +4,8 @@ WORKDIR /app
 COPY UI-MVC/package.json UI-MVC/package-lock.json ./
 RUN npm ci
 COPY UI-MVC/src ./src
+COPY UI-MVC/Views ./Views
+COPY UI-MVC/Areas ./Areas
 COPY UI-MVC/vite.config.ts ./
 COPY UI-MVC/tsconfig.json ./
 COPY UI-MVC/tsconfig.node.json ./

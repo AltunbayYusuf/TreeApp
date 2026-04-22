@@ -8,5 +8,10 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Host=34.14.80.108;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD}
+      ConnectionStrings__DefaultConnection: Host=34.53.194.118;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD}
       Gemini__ApiKey: ${GEMINI_API_KEY}
+    volumes:
+      - dataprotection-keys:/root/.aspnet/DataProtection-Keys
+
+volumes:
+  dataprotection-keys:

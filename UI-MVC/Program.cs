@@ -22,7 +22,28 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<TreeDbContext>();
 
-builder.Services.ConfigureApplicationCookie(options => { options.LoginPath = "/Identity/Account/Login"; });
+// Cookie policy: werkt ook over HTTP (GCP deploy zonder HTTPS)
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Identity/Account/Login";
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// Antiforgery cookie policy: zelfde reden
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+});
+
+// Ai Toegevoegd: tijdelijke fix -> custom DataProtection verwijderd.
+// Reden: keys op /root/.aspnet/... zijn in cloud/container vaak niet echt persistent
+// en kunnen 400 errors geven bij login/antiforgery validatie.
+// builder.Services.AddDataProtection()
+//     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+//     .SetApplicationName("IntergratieProject");
+
 
 builder.Services.AddHttpClient<IAiService, GeminiService>();
 builder.Services.AddScoped<IRepository, Repository>();
@@ -55,6 +76,13 @@ builder.Services.AddViteServices();
 
 var app = builder.Build();
 
+// Ai Toegevoegd: Forwarded headers zo vroeg mogelijk zetten.
+// Dit helpt wanneer je app achter een proxy/load balancer draait.
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseViteDevelopmentServer();
@@ -81,7 +109,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+// HTTPS redirect alleen lokaal. Op GCP draaien we HTTP op poort 8080.
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
@@ -91,12 +124,12 @@ app.MapStaticAssets();
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
 
+
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
 
-// gaat naar bv : kdg-hogeschool/Project/1 -> zodat je nog zelf /1 /2 kan mee spelen in url
 app.MapControllerRoute(
     name: "subplatform_short",
     pattern: "{subplatform}/{controller=Project}/{id:int}",
@@ -136,6 +169,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
         SubPlatformSlug = "kdg-hogeschool"
     };
     userManager.CreateAsync(kdg, "Test123!").Wait();
+
     var ap = new ApplicationUser
     {
         UserName = "ap@gmail.com",
@@ -143,11 +177,13 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
         SubPlatformSlug = "ap-hogeschool"
     };
     userManager.CreateAsync(ap, "Test123!").Wait();
+
     var subAdminRole = new IdentityRole
     {
         Name = CustomIdentityConstants.SubAdminRoleName
     };
     roleManager.CreateAsync(subAdminRole).Wait();
+
     var generalAdminRole = new IdentityRole
     {
         Name = CustomIdentityConstants.GeneralAdminRoleName
