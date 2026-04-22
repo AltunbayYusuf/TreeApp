@@ -15,14 +15,16 @@ interface ReactionApiResponse {
     suggestedText?: string;
     isToxic?: boolean;
     saved?: boolean;
+    added?: boolean;
     aiUnavailable?: boolean;
+    count?: number;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
     const emojiButtons = document.querySelectorAll<HTMLButtonElement>(".reaction-emoji-btn");
 
     emojiButtons.forEach((button) => {
-        button.addEventListener("click", function () {
+        button.addEventListener("click", async function () {
             const ideaId = this.dataset.ideaId;
             const emoji = this.dataset.emoji ?? "";
 
@@ -30,32 +32,38 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const hiddenInput = document.getElementById(`emoji-${ideaId}`) as HTMLInputElement | null;
 
-            const buttonsForIdea = document.querySelectorAll<HTMLButtonElement>(
-                `.reaction-emoji-btn[data-idea-id='${ideaId}']`
-            );
-
             if (!hiddenInput) return;
 
-            if (hiddenInput.value === emoji) {
-                this.classList.remove("selected");
-                this.classList.remove("btn-primary");
-                this.classList.add("btn-outline-secondary");
+            const countElement = this.querySelector<HTMLElement>(`.reaction-count[data-count-for="${ideaId}-${emoji}"]`);
 
-                hiddenInput.value = "";
-                return;
+            try {
+                const response = await fetch("/api/reactions/toggle-emoji", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({
+                        ideaId: parseInt(ideaId, 10),
+                        emoji
+                    })
+                });
+
+                const data: ReactionApiResponse = await response.json();
+                if (!response.ok || !data.ok) return;
+
+                const isSelected = !!data.added;
+                this.classList.toggle("selected", isSelected);
+                this.classList.toggle("btn-primary", isSelected);
+                this.classList.toggle("btn-outline-secondary", !isSelected);
+                hiddenInput.value = isSelected ? emoji : "";
+
+                if (countElement && typeof data.count === "number") {
+                    countElement.textContent = data.count.toString();
+                }
+            } catch (error) {
+                console.error("Fout bij togglen van emoji:", error);
             }
-
-            buttonsForIdea.forEach((btn) => {
-                btn.classList.remove("selected");
-                btn.classList.remove("btn-primary");
-                btn.classList.add("btn-outline-secondary");
-            });
-
-            this.classList.add("selected");
-            this.classList.remove("btn-outline-secondary");
-            this.classList.add("btn-primary");
-
-            hiddenInput.value = emoji;
         });
     });
 

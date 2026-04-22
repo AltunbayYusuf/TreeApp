@@ -1,4 +1,4 @@
-﻿.reaction-emoji-btn {
+.reaction-emoji-btn {
   border: 1px solid #ccc;
   background: white;
   border-radius: 999px;
@@ -6,10 +6,20 @@
   font-size: 20px;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .reaction-emoji-btn.selected {
-  background: #e8f0fe;
-  border-color: #7aa7ff;
+  background: rgba(13, 110, 253, 0.75);
+  border-color: rgba(10, 88, 202, 0.85);
+  color: white;
   transform: scale(1.05);
+}
+
+.reaction-count {
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.85;
 }

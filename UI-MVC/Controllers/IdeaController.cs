@@ -10,14 +10,16 @@ public class IdeaController : Controller
     private readonly ITopicManager _topicManager;
     private readonly IIdeaManager _ideaManager;
     private readonly IProjectManager _projectManager;
+    private readonly IUserManager _userManager;
 
 
 
-    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager)
+    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager, IUserManager userManager)
     {
         _topicManager = topicManager;
         _ideaManager = ideaManager;
         _projectManager = projectManager;
+        _userManager = userManager;
     }
     
     public IActionResult Index(string subplatform, int projectId, int? topicId)
@@ -35,6 +37,7 @@ public class IdeaController : Controller
         var vm = new IdeasOverviewViewModel()
         {
             Project = project,
+            CurrentUserId = GetCurrentUserId(),
             SelectedTopicId = topicId,
             Topics = _topicManager.GetTopicsByProject(project),
             Ideas = _ideaManager.GetIdeasByProject(project, topicId)
@@ -58,6 +61,7 @@ public class IdeaController : Controller
         var vm = new IdeasOverviewViewModel
         {
             Project = project,
+            CurrentUserId = GetCurrentUserId(),
             Topics = _topicManager.GetTopicsByProject(project),
             Ideas = _ideaManager.GetIdeasByProject(project)
         };
@@ -68,5 +72,16 @@ public class IdeaController : Controller
     private Project GetCurrentProject(string subplatform, int projectId)
     {
         return _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+    }
+
+    private int? GetCurrentUserId()
+    {
+        var userGuid = Request.Cookies["UserIdentifier"];
+        if (string.IsNullOrWhiteSpace(userGuid))
+        {
+            return null;
+        }
+
+        return _userManager.GetUser(userGuid)?.Id;
     }
 }
