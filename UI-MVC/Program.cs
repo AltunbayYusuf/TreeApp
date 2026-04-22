@@ -40,8 +40,11 @@ builder.Services.AddAntiforgery(options =>
 
 // DataProtection keys persistent opslaan zodat cookies/antiforgery
 // tokens blijven werken tussen container rebuilds
+var keysPath = OperatingSystem.IsWindows()
+    ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "IntergratieProject", "DataProtection-Keys")
+    : "/root/.aspnet/DataProtection-Keys";
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
     .SetApplicationName("IntergratieProject");
 
 builder.Services.AddHttpClient<IAiService, GeminiService>();
