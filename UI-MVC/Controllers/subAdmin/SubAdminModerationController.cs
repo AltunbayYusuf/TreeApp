@@ -1,4 +1,4 @@
-﻿using IntergratieProject.BL;
+﻿using IntergratieProject.BL.interfaces;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -11,12 +11,17 @@ namespace IntergratieProject.UI.MVC.Controllers.subAdmin;
 public class SubAdminModerationController : Controller
 {
     private readonly IManager _manager;
+    private readonly IReactionManager _reactionManager;
+    private readonly IIdeaManager _ideaManager;
+
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubAdminModerationController(IManager manager, UserManager<ApplicationUser> userManager)
+    public SubAdminModerationController(IManager manager, UserManager<ApplicationUser> userManager,IReactionManager reactionManager,IIdeaManager ideaManager)
     {
         _manager = manager;
         _userManager = userManager;
+        _reactionManager = reactionManager;
+        _ideaManager = ideaManager;
     }
 
     [HttpGet]
@@ -47,8 +52,8 @@ public class SubAdminModerationController : Controller
         }
 
         var activeFilter = (filter ?? "algemeen").ToLower();
-        var ideasInReview = _manager.GetIdeasInReviewBySubPlatform(subPlatformEntity.Id);
-        var reactionsInReview = _manager.GetReactionsInReviewBySubPlatform(subPlatformEntity.Id);
+        var ideasInReview = _ideaManager.GetIdeasInReviewBySubPlatform(subPlatformEntity.Id);
+        var reactionsInReview = _reactionManager.GetReactionsInReviewBySubPlatform(subPlatformEntity.Id);
 
         var ideaItems = ideasInReview.Select(i => new ModerationQueueItemViewModel()
         {
@@ -126,28 +131,28 @@ public class SubAdminModerationController : Controller
     [HttpPost]
     public IActionResult ApproveIdea(int ideaId, string subplatform)
     {
-        _manager.ApproveIdea(ideaId);
+        _ideaManager.ApproveIdea(ideaId);
         return RedirectToAction(nameof(Index), new { subplatform });
     }
 
     [HttpPost]
     public IActionResult RejectIdea(int ideaId, string subplatform)
     {
-        _manager.RejectIdea(ideaId);
+        _ideaManager.RejectIdea(ideaId);
         return RedirectToAction(nameof(Index), new { subplatform });
     }
 
     [HttpPost]
     public IActionResult ApproveReaction(int reactionId, string subplatform)
     {
-        _manager.ApproveReaction(reactionId);
+        _reactionManager.ApproveReaction(reactionId);
         return RedirectToAction(nameof(Index), new { subplatform });
     }
 
     [HttpPost]
     public IActionResult RejectReaction(int reactionId, string subplatform)
     {
-        _manager.RejectReaction(reactionId);
+        _reactionManager.RejectReaction(reactionId);
         return RedirectToAction(nameof(Index), new { subplatform });
     }
 }

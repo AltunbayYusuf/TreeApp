@@ -1,4 +1,4 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.Domain.project;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,18 +6,19 @@ namespace IntergratieProject.UI.MVC.Controllers;
 
 public class ProjectController : Controller
 {
-    private readonly IManager _manager;
+    private readonly IProjectManager _projectManager;
 
-    public ProjectController(IManager manager)
+
+    public ProjectController(IProjectManager projectManager)
     {
-        _manager = manager;
+        _projectManager = projectManager;
     }
 
 
     [HttpGet]
     public IActionResult Index(string subplatform, int id)
     {
-        var project = _manager.GetProjectBySubPlatformAndProjectId(subplatform, id);
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, id);
 
         if (project == null)
         {
@@ -39,7 +40,7 @@ public class ProjectController : Controller
             return NotFound();
         }
 
-        var firstProject = _manager.GetFirstProjectBySubPlatform(subplatform);
+        var firstProject = _projectManager.GetFirstProjectBySubPlatform(subplatform);
 
         if (firstProject == null)
         {

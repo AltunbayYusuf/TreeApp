@@ -1,0 +1,53 @@
+using IntergratieProject.DAL.interfaces;
+using IntergratieProject.Domain.project;
+using IntergratieProject.Domain.Questions;
+using Microsoft.EntityFrameworkCore;
+namespace IntergratieProject.DAL.Ef;
+
+public class QuestionRepository : IQuestionRepository
+{ 
+    private readonly TreeDbContext _context;
+
+    public QuestionRepository(TreeDbContext context)
+    {
+        _context = context;
+    }
+    
+    public IEnumerable<Question> ReadAllQuestionsBySection(int sectionId)
+    {
+        return _context.Questions
+            .Include(q => q.Answers)
+            .Include(q => q.Image)
+            .Where(q => q.Section.Id == sectionId)
+            .ToList();
+    }
+
+    public IEnumerable<Question> ReadAllQuestions()
+    {
+        return _context.Questions
+            .Include(q => q.Answers)
+            .Include(q => q.Image).ToList();
+    }
+    public Question ReadQuestion(int questionId)
+    {
+        return _context.Questions.FirstOrDefault(q => q.Id == questionId);
+    }    public QuestionList ReadQuestionListByProject(Project project)
+    {
+        return _context.Projects
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Image)
+            .Where(p => p.Id == project.Id)
+            .Select(p => p.QuestionList)
+            .FirstOrDefault();
+    }    public void SaveQuestionList(QuestionList questionList)
+    {
+        _context.QuestionList.Add(questionList);
+        _context.SaveChanges();
+    }
+}

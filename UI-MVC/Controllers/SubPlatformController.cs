@@ -1,4 +1,4 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

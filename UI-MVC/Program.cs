@@ -1,5 +1,6 @@
 using IntergratieProject.BL;
-using IntergratieProject.DAL;
+using IntergratieProject.BL.interfaces;
+using IntergratieProject.DAL.interfaces;
 using IntergratieProject.DAL.Ef;
 using IntergratieProject.DAL.Identity;
 using IntergratieProject.Domain.Ai;
@@ -45,10 +46,31 @@ builder.Services.AddAntiforgery(options =>
 //     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
 //     .SetApplicationName("IntergratieProject");
 
+
 builder.Services.AddHttpClient<IAiService, GeminiService>();
-builder.Services.AddScoped<IManager, Manager>();
+builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+builder.Services.AddScoped<IQuestionRepository, QuestionRepository>();
+builder.Services.AddScoped<IReactionRepository, ReactionRepository>();
+builder.Services.AddScoped<ISurveyRepository, SurveyRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+builder.Services.AddScoped<IManager, Manager>();
+builder.Services.AddScoped<IIdeaManager, IdeaManager>();
+builder.Services.AddScoped<IProjectManager, ProjectManager>();
+builder.Services.AddScoped<IQuestionManager, QuestionManager>();
+builder.Services.AddScoped<IReactionManager, ReactionManager>();
+builder.Services.AddScoped<ISurveyManager, SurveyManager>();
+builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddViteServices();
+//150722
+
+
+// builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+//     .AddEntityFrameworkStores<TreeDbContext>()
+//     .AddDefaultTokenProviders();
+
 
 var app = builder.Build();
 
@@ -81,6 +103,8 @@ using (var scope = app.Services.CreateScope())
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseHsts();
 }
 
 // HTTPS redirect alleen lokaal. Op GCP draaien we HTTP op poort 8080.
@@ -97,6 +121,8 @@ app.MapStaticAssets();
 
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
+
+
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
@@ -106,7 +132,7 @@ app.MapControllerRoute(
     name: "subplatform_short",
     pattern: "{subplatform}/{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
-
+//  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
 app.MapControllerRoute(
     name: "subplatform_default",
     pattern: "{subplatform}/{controller=Project}",
@@ -119,6 +145,7 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Project}/{action=Index}/{id=1}");
+
 
 app.MapRazorPages();
 
@@ -160,6 +187,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
         Name = CustomIdentityConstants.GeneralAdminRoleName
     };
     roleManager.CreateAsync(generalAdminRole).Wait();
+
 
     userManager.AddToRoleAsync(adminuser, CustomIdentityConstants.GeneralAdminRoleName).Wait();
     userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();

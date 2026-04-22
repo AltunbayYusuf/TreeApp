@@ -1,10 +1,15 @@
-﻿namespace IntergratieProject.Domain.Ai;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace IntergratieProject.Domain.Ai;
 
 public class ToxicityResult
 {
+    [Required]
     public bool IsToxic { get; set; }
     
     public bool AiUnavailable { get; set; }
+    [Required]
+
     public string SuggestedText { get; set; } = string.Empty;
     public string Explanation { get; set; } = string.Empty;
 }

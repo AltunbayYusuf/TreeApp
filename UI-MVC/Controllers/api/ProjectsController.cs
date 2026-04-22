@@ -1,4 +1,4 @@
-using IntergratieProject.BL;
+using IntergratieProject.BL.interfaces;
 using IntergratieProject.Domain.project;
 using IntergratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
@@ -9,17 +9,17 @@ namespace IntergratieProject.UI.MVC.Controllers.Api;
 [Route("api/[controller]")]
 public class ProjectsController : ControllerBase
 {
-    private readonly IManager _manager;
+    private readonly IProjectManager _projectManager;
 
-    public ProjectsController(IManager manager)
+    public ProjectsController(IProjectManager projectManager)
     {
-        _manager = manager;
+        _projectManager = projectManager;
     }
 
     [HttpGet("{id}")]
     public ActionResult<ProjectDto> GetProject(int id)
     {
-        var project = _manager.GetProject(id);
+        var project = _projectManager.GetProject(id);
 
         if (project == null)
         {
