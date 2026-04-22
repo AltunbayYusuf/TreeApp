@@ -5,6 +5,7 @@ using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Ef;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
