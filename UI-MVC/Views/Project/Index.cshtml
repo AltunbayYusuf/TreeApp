@@ -1,3 +1,4 @@
+@using IntegratieProject.BL.Domain.project
 @model IntegratieProject.BL.Domain.project.Project
 
 @{
@@ -53,7 +54,7 @@
         🔒 Anoniem & Vertrouwelijk
     </div>
 
-    @if (Model.Type == IntegratieProject.BL.Domain.project.ProjectType.Chat)
+    @if (Model.Type == ProjectType.Chat)
     {
         <a asp-controller="Survey"
            asp-action="Chat"
