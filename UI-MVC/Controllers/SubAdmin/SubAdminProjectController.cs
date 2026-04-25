@@ -100,54 +100,7 @@ public class SubAdminProjectsController : Controller
 
         return View(vm);
     }
-
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveSurvey(string subplatform, CreateProjecSurveyViewModel vm)
-    {
-        var errorResult = await ValidateSubplatformAccess(subplatform);
-        if (errorResult != null) return errorResult;
-
-        vm.SubplatformSlug = subplatform;
-
-        if (!string.IsNullOrWhiteSpace(vm.SurveyJson))
-        {
-            var sections = JsonSerializer.Deserialize<List<SurveySectionJson>>(vm.SurveyJson) ?? new();
-
-            vm.Sections = sections.Select((s, index) => new SectionViewModel
-            {
-                Title = string.IsNullOrWhiteSpace(s.title) ? $"Sectie {index + 1}" : s.title,
-                Order = index + 1,
-                Questions = s.questions.Select(q => new QuestionViewModel
-                {
-                    Description = q.title,
-                    QuestionType = q.type switch
-                    {
-                        "single" => QuestionType.SingleChoice,
-                        "multiple" => QuestionType.MultipleChoice,
-                        "range" => QuestionType.Range,
-                        _ => QuestionType.OpenQuestion
-                    },
-                    Options = q.answers ?? new List<string>(),
-                    RangeMin = int.TryParse(q.min, out var min) ? min : null,
-                    RangeMax = int.TryParse(q.max, out var max) ? max : null
-                }).ToList()
-            }).ToList();
-        }
-        ModelState.Clear();
-
-        if (vm.Sections == null || !vm.Sections.Any() || vm.Sections.All(s => !s.Questions.Any()))
-        {
-            ModelState.AddModelError("", "Je moet minstens 1 sectie met minstens 1 vraag invullen.");
-        }
-
-        if (!ModelState.IsValid)
-            return View("CreateSurvey", vm);
-
-        SaveSession(SurveyKey, vm);
-        
-        return RedirectToAction(nameof(CreateIdeation), new { subplatform });    }
-
+    
     [HttpGet]
     public async Task<IActionResult> CreateIdeation(string subplatform)
     {
@@ -210,8 +163,8 @@ public class SubAdminProjectsController : Controller
             return RedirectToAction(nameof(CreateIdeation), new { subplatform });
         }
 
-        var subPlatformEntity = _subplatformManager.GetSubPlatformBySlug(subplatform);
-        if (subPlatformEntity == null) return NotFound();
+        var subPlatform = _subplatformManager.GetSubPlatformBySlug(subplatform);
+        if (subPlatform == null) return NotFound();
 
         var project = new Project
         {
@@ -219,7 +172,7 @@ public class SubAdminProjectsController : Controller
             Introduction = info.Introduction,
             Type = info.Type,
             Status = Status.Draft,
-            SubPlatformId = subPlatformEntity.Id,
+            SubPlatformId = subPlatform.Id,
             ReleaseDate = DateTime.UtcNow,
             Duration = 10,
 
@@ -251,7 +204,6 @@ public class SubAdminProjectsController : Controller
         };
 
         _projectManager.CreateProject(project);
-
         HttpContext.Session.Remove(InfoKey);
         HttpContext.Session.Remove(SurveyKey);
         HttpContext.Session.Remove(IdeationKey);
@@ -259,18 +211,5 @@ public class SubAdminProjectsController : Controller
         return RedirectToAction("Index", "SubAdmin", new { subplatform });
     }
     
-    private class SurveySectionJson
-    {
-        public string title { get; set; } = "";
-        public List<SurveyQuestionJson> questions { get; set; } = new();
-    }
-
-    private class SurveyQuestionJson
-    {
-        public string title { get; set; } = "";
-        public string type { get; set; } = "";
-        public List<string> answers { get; set; } = new();
-        public string min { get; set; } = "";
-        public string max { get; set; } = "";
-    }
+  
 }

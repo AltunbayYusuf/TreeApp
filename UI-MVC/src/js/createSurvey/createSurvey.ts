@@ -30,19 +30,55 @@ export class SurveyBuilder {
     init(): void {
         this.updateCounter();
         this.bindWindowMethods();
-        
+
         const form = document.getElementById("surveyForm") as HTMLFormElement | null;
 
-        form?.addEventListener("submit", () => {
-            const hidden = document.getElementById("SurveyJson") as HTMLInputElement | null;
+        form?.addEventListener("submit", async (event) => {
+            event.preventDefault();
 
-            if (hidden) {
-                hidden.value = JSON.stringify(this.getSurveyData());
+            //die haal je op bij form (data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey")
+            const url = form.dataset.saveUrl;
+            const token = form.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement | null;
+            const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
+
+            if (!url) return;
+
+            if (errorBox) {
+                errorBox.textContent = "";
+                errorBox.classList.add("hidden");
             }
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": token?.value ?? ""
+                },
+                body: JSON.stringify({
+                    sections: this.getSurveyData()
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.ok) {
+                if (errorBox) {
+                    errorBox.textContent = result.message ?? "Er is iets fout gegaan.";
+                    errorBox.classList.remove("hidden");
+                } else {
+                    alert(result.message ?? "Er is iets fout gegaan.");
+                }
+
+                return;
+            }
+
+            window.location.href = result.redirectUrl;
         });
+
         document.addEventListener("input", this.handleInputDebounce.bind(this));
 
         const data = sessionStorage.getItem("surveyDraft");
+
         if (!data) {
             this.createInitialSurvey();
             return;
@@ -57,12 +93,7 @@ export class SurveyBuilder {
             sessionStorage.removeItem("surveyDraft");
             this.createInitialSurvey();
         }
-        document.getElementById("surveyForm")?.addEventListener("submit", () => {
-            const hidden = document.getElementById("SurveyJson") as HTMLInputElement | null;
-            if (hidden) hidden.value = JSON.stringify(this.getSurveyData());
-        });
     }
-
     private bindWindowMethods(): void {
         // Zorg dat de inline HTML onclick/onchange attributes blijven werken
         (window as any).addSection = this.addSection.bind(this);
