@@ -30,7 +30,16 @@ export class SurveyBuilder {
     init(): void {
         this.updateCounter();
         this.bindWindowMethods();
+        
+        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
 
+        form?.addEventListener("submit", () => {
+            const hidden = document.getElementById("SurveyJson") as HTMLInputElement | null;
+
+            if (hidden) {
+                hidden.value = JSON.stringify(this.getSurveyData());
+            }
+        });
         document.addEventListener("input", this.handleInputDebounce.bind(this));
 
         const data = sessionStorage.getItem("surveyDraft");
@@ -48,6 +57,10 @@ export class SurveyBuilder {
             sessionStorage.removeItem("surveyDraft");
             this.createInitialSurvey();
         }
+        document.getElementById("surveyForm")?.addEventListener("submit", () => {
+            const hidden = document.getElementById("SurveyJson") as HTMLInputElement | null;
+            if (hidden) hidden.value = JSON.stringify(this.getSurveyData());
+        });
     }
 
     private bindWindowMethods(): void {

@@ -20,6 +20,7 @@ public class ProjectRepository : IProjectRepository
             .Include(p => p.SubPlatform)
             .Include(p => p.Photo)
             .Include(p => p.Logo)
+            .Include(p => p.Topics)
             .FirstOrDefault(p => p.Id == projectId);
     }
 

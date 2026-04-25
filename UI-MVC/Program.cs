@@ -24,6 +24,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<TreeDbContext>();
 
+builder.Services.AddSession();
+
 // Cookie policy: werkt ook over HTTP (GCP deploy zonder HTTPS)
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -102,6 +104,8 @@ using (var scope = app.Services.CreateScope())
         DataSeeder.Seed(context);
     }
 }
+
+app.UseSession();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

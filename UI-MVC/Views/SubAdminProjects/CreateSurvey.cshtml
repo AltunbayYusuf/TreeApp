@@ -58,7 +58,6 @@
                 </a>
             </div>
         </div>
-
         <form id="surveyForm"
               asp-controller="SubAdminProjects"
               asp-action="SaveSurvey"
@@ -66,7 +65,7 @@
               method="post"
               class="space-y-6">
             @Html.AntiForgeryToken()
-
+            <input type="hidden" id="SurveyJson" name="SurveyJson" />
             <div asp-validation-summary="ModelOnly"
                  class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
 
