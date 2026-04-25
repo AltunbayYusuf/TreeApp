@@ -31,9 +31,54 @@ export class SurveyBuilder {
         this.updateCounter();
         this.bindWindowMethods();
 
+        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
+
+        form?.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            //die haal je op bij form (data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey")
+            const url = form.dataset.saveUrl;
+            const token = form.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement | null;
+            const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
+
+            if (!url) return;
+
+            if (errorBox) {
+                errorBox.textContent = "";
+                errorBox.classList.add("hidden");
+            }
+
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": token?.value ?? ""
+                },
+                body: JSON.stringify({
+                    sections: this.getSurveyData()
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok || !result.ok) {
+                if (errorBox) {
+                    errorBox.textContent = result.message ?? "Er is iets fout gegaan.";
+                    errorBox.classList.remove("hidden");
+                } else {
+                    alert(result.message ?? "Er is iets fout gegaan.");
+                }
+
+                return;
+            }
+
+            window.location.href = result.redirectUrl;
+        });
+
         document.addEventListener("input", this.handleInputDebounce.bind(this));
 
         const data = sessionStorage.getItem("surveyDraft");
+
         if (!data) {
             this.createInitialSurvey();
             return;
@@ -49,7 +94,6 @@ export class SurveyBuilder {
             this.createInitialSurvey();
         }
     }
-
     private bindWindowMethods(): void {
         // Zorg dat de inline HTML onclick/onchange attributes blijven werken
         (window as any).addSection = this.addSection.bind(this);
@@ -318,7 +362,6 @@ export class SurveyBuilder {
         this.saveToLocalStorage();
     }
 
-    // NIEUW: Verwijdert het specifieke conditionele blokje
     removeConditional(btn: HTMLElement): void {
         const conditionalBlock = btn.closest(".conditional-block");
         if (!conditionalBlock) return;

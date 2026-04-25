@@ -13,6 +13,7 @@ public class CreateProjectInfoViewModel
     [Required(ErrorMessage = "Introductietekst is verplicht.")]
     public string Introduction { get; set; } = "";
 
-    public IFormFile PhotoUpload { get; set; }
+    public IFormFile? PhotoUpload { get; set; }
 
+    public string? PhotoUri { get; set; }
     public ProjectType Type { get; set; } = ProjectType.VerticalScroll;}
