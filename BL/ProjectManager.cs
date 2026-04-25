@@ -58,4 +58,14 @@ public class ProjectManager : IProjectManager
     {
         return _projectRepository.ReadProjectBySubPlatformAndProjectId(subplatformSlug, projectId);
     }
+    
+    public void DeleteProject(int projectId)
+    {
+        var project = _projectRepository.ReadProject(projectId);
+
+        if (project == null)
+            return;
+
+        _projectRepository.DeleteProject(project);
+    }
 }

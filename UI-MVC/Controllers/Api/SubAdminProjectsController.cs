@@ -63,4 +63,5 @@ public class SubAdminProjectsController : ControllerBase
             redirectUrl = $"/{subplatform}/SubAdminProjects/CreateIdeation"
         });
     }
+    
 }

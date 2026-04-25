@@ -57,4 +57,23 @@ public class ProjectRepository : IProjectRepository
         _context.Projects.Add(project);
         _context.SaveChanges();
     }
+    
+    public void DeleteProject(Project project)
+    {
+        var deletedProject = _context.Projects
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
+            .Include(p => p.Topics)
+            .ThenInclude(t => t.Ideas)
+            .Include(p => p.SurveyResponses)
+            .FirstOrDefault(p => p.Id == project.Id);
+
+        if (project == null)
+            return;
+        
+        _context.Projects.Remove(deletedProject);
+        _context.SaveChanges();
+    }
 }
