@@ -83,6 +83,30 @@ public class SubAdminProjectsController : Controller
 
         if (!ModelState.IsValid)
             return View("ProjectInfo", vm);
+        if (vm.PhotoUpload != null && vm.PhotoUpload.Length > 0)
+        {
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var extension = Path.GetExtension(vm.PhotoUpload.FileName).ToLowerInvariant();
+
+            if (!allowedExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(nameof(vm.PhotoUpload), "Alleen jpg, jpeg, png of webp is toegestaan.");
+                return View("ProjectInfo", vm);
+            }
+
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "photos");
+            Directory.CreateDirectory(uploadsFolder);
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            await using var stream = new FileStream(filePath, FileMode.Create);
+            await vm.PhotoUpload.CopyToAsync(stream);
+
+            vm.PhotoUri = $"/images/photos/{fileName}";
+            
+        }
+        vm.PhotoUpload = null;
 
         SaveSession(InfoKey, vm);
 
@@ -175,6 +199,9 @@ public class SubAdminProjectsController : Controller
             SubPlatformId = subPlatform.Id,
             ReleaseDate = DateTime.UtcNow,
             Duration = 10,
+            Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
+                ? new Media { Uri = info.PhotoUri }
+                : null,
 
             Topics = ideation.Topics.Select(t => new Topic
             {
