@@ -9,7 +9,9 @@ interface ReactionApiResponse {
     suggestedText?: string;
     isToxic?: boolean;
     saved?: boolean;
+    added?: boolean;
     aiUnavailable?: boolean;
+    count?: number;
 }
 
 export class ReactionHandler {

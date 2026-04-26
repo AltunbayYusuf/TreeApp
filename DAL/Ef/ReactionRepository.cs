@@ -36,6 +36,25 @@ public class ReactionRepository : IReactionRepository
             .FirstOrDefault(r => r.Id == reactionId);
     }
 
+    public Reaction ReadAcceptedEmojiReaction(int ideaId, int userId, string emoji)
+    {
+        return _context.Reactions
+            .Include(r => r.Idea)
+            .FirstOrDefault(r => r.Idea.Id == ideaId &&
+                                 r.UserId == userId &&
+                                 r.Emoji == emoji &&
+                                 r.Text == null &&
+                                 r.ModerationStatus == ModerationStatus.Accepted);
+    }
+
+    public int CountAcceptedEmojiReactions(int ideaId, string emoji)
+    {
+        return _context.Reactions.Count(r => r.Idea.Id == ideaId &&
+                                            r.Emoji == emoji &&
+                                            r.Text == null &&
+                                            r.ModerationStatus == ModerationStatus.Accepted);
+    }
+
     public void UpdateReaction(Reaction reaction)
     {
         _context.Reactions.Update(reaction);
