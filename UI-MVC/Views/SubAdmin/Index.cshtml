@@ -106,6 +106,13 @@
                                         Actief
                                     </button>
                                 </form>
+                                <a asp-controller="SubAdminProjects"
+                                   asp-action="EditDraft"
+                                   asp-route-subplatform="@Model.Slug"
+                                   asp-route-projectId="@p.Id"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Bewerken
+                                </a>
                             }
 
                             @if (p.Status == nameof(Status.Active))
