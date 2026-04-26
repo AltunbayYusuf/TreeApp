@@ -25,7 +25,7 @@ export class ReactionHandler {
         });
     }
 
-    private handleEmojiSelection(e: MouseEvent): void {
+    private async handleEmojiSelection(e: MouseEvent): Promise<void> {
         const btn = e.currentTarget as HTMLButtonElement;
         const ideaId = btn.dataset.ideaId;
         const emoji = btn.dataset.emoji ?? "";
@@ -34,20 +34,41 @@ export class ReactionHandler {
 
         const hiddenInput = document.getElementById(`emoji-${ideaId}`) as HTMLInputElement | null;
         const buttonsForIdea = document.querySelectorAll<HTMLButtonElement>(`.reaction-emoji-btn[data-idea-id='${ideaId}']`);
+        const previouslySelectedButtons = Array.from(buttonsForIdea).filter((button) =>
+            button.classList.contains("selected") && button !== btn
+        );
 
         if (!hiddenInput) return;
 
-        if (hiddenInput.value === emoji) {
+        try {
+            const response = await fetch("/api/reactions/toggle-emoji", {
+                method: "POST",
+                headers: {"Content-Type": "application/json", "Accept": "application/json"},
+                body: JSON.stringify({ideaId: parseInt(ideaId, 10), emoji})
+            });
+
+            const data: ReactionApiResponse = await response.json();
+
+            if (!response.ok) return;
+
             this.resetButtons(buttonsForIdea);
-            hiddenInput.value = "";
-            return;
+
+            if (data.added) {
+                previouslySelectedButtons.forEach((button) => {
+                    const previousEmoji = button.dataset.emoji ?? "";
+                    this.adjustEmojiCount(ideaId, previousEmoji, -1);
+                });
+                btn.classList.add("selected", "btn-primary");
+                btn.classList.remove("btn-outline-secondary");
+                hiddenInput.value = emoji;
+            } else {
+                hiddenInput.value = "";
+            }
+
+            this.updateEmojiCount(ideaId, emoji, data.count);
+        } catch (error) {
+            console.error("Fout bij togglen van emoji reactie:", error);
         }
-
-        this.resetButtons(buttonsForIdea);
-        btn.classList.add("selected", "btn-primary");
-        btn.classList.remove("btn-outline-secondary");
-
-        hiddenInput.value = emoji;
     }
 
     private resetButtons(buttons: NodeListOf<HTMLButtonElement>): void {
@@ -55,6 +76,21 @@ export class ReactionHandler {
             b.classList.remove("selected", "btn-primary");
             b.classList.add("btn-outline-secondary");
         });
+    }
+
+    private updateEmojiCount(ideaId: string, emoji: string, count?: number): void {
+        if (typeof count !== "number") return;
+        const countElement = document.querySelector<HTMLElement>(`.reaction-count[data-count-for='${ideaId}-${emoji}']`);
+        if (countElement) {
+            countElement.textContent = count.toString();
+        }
+    }
+
+    private adjustEmojiCount(ideaId: string, emoji: string, delta: number): void {
+        const countElement = document.querySelector<HTMLElement>(`.reaction-count[data-count-for='${ideaId}-${emoji}']`);
+        if (!countElement) return;
+        const currentCount = parseInt(countElement.textContent ?? "0", 10);
+        countElement.textContent = Math.max(0, currentCount + delta).toString();
     }
 
     private async handleFormSubmit(e: SubmitEvent): Promise<void> {

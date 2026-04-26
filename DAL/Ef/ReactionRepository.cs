@@ -47,6 +47,18 @@ public class ReactionRepository : IReactionRepository
                                  r.ModerationStatus == ModerationStatus.Accepted);
     }
 
+    public IEnumerable<Reaction> ReadAcceptedEmojiReactionsForUser(int ideaId, int userId)
+    {
+        return _context.Reactions
+            .Include(r => r.Idea)
+            .Where(r => r.Idea.Id == ideaId &&
+                        r.UserId == userId &&
+                        r.Text == null &&
+                        r.Emoji != null &&
+                        r.ModerationStatus == ModerationStatus.Accepted)
+            .ToList();
+    }
+
     public int CountAcceptedEmojiReactions(int ideaId, string emoji)
     {
         return _context.Reactions.Count(r => r.Idea.Id == ideaId &&

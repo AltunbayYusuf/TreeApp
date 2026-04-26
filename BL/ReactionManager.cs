@@ -118,6 +118,15 @@ public class ReactionManager : IReactionManager
             return (false, _repository.CountAcceptedEmojiReactions(ideaId, emoji));
         }
 
+        var otherEmojiReactions = _repository.ReadAcceptedEmojiReactionsForUser(ideaId, userId)
+            .Where(r => r.Emoji != emoji)
+            .ToList();
+
+        foreach (var otherReaction in otherEmojiReactions)
+        {
+            _repository.DeleteReaction(otherReaction.Id);
+        }
+
         var reaction = new Reaction
         {
             UserId = userId,
