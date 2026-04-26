@@ -48,7 +48,6 @@
         </div>
     </div>
 
-    @* Tabs *@
     <ul class="nav nav-tabs mb-0 border-bottom-0" id="dashboardTabs" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="projecten-tab" data-bs-toggle="tab"
@@ -66,7 +65,6 @@
 
     <div class="tab-content border border-top-0">
 
-        @* Tab: Projecten *@
         <div class="tab-pane fade show active" id="tab-projecten" role="tabpanel">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -214,19 +212,12 @@
             </div>
         </div>
 
-        @* Tab: Ideeën *@
         <div class="tab-pane fade" id="tab-ideeen" role="tabpanel">
-
-            @* Data mount point voor TypeScript *@
             <span id="subplatformIdData" data-id="@Model.SubPlatformId" class="d-none"></span>
-
-            @* Filter balk *@
             <div class="p-3 border-bottom">
 
-                @* Rij 1: project + datum-sortering rechts *@
                 <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center mb-2">
 
-                    @* Filter 1: project *@
                     <label class="fw-semibold me-1 mb-0 text-nowrap">Project:</label>
                     <select id="projectFilter" class="form-select form-select-sm w-auto">
                         <option value="">&#8212; Alle ide&#235;en &#8212;</option>
@@ -238,7 +229,6 @@
 
                     <span id="ideasCount" class="text-muted small"></span>
 
-                    @* Filter 3: datum-sortering (helemaal rechts) *@
                     <div class="ms-sm-auto d-flex align-items-center gap-2">
                         <label class="fw-semibold mb-0 text-nowrap">Datum:</label>
                         <div class="btn-group btn-group-sm" role="group">
