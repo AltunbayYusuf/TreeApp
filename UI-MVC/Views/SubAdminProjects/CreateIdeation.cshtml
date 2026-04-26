@@ -84,40 +84,46 @@
                 </p>
 
                 <div id="topicsContainer" class="space-y-4">
-                    <div class="topic-card rounded-2xl border border-slate-200 bg-slate-50 p-5" data-index="0">
-                        <div class="flex items-start justify-between mb-3">
-                            <h3 class="topic-label text-sm font-semibold text-slate-700">Topic 1</h3>
+                    
+                    @for (var i = 0; i < Model.Topics.Count; i++)
+                    {
+                        <div class="topic-card rounded-2xl border border-slate-200 bg-slate-50 p-5" data-index="@i">
+                            <div class="flex items-start justify-between mb-3">
+                                <h3 class="topic-label text-sm font-semibold text-slate-700">Topic @(i + 1)</h3>
 
-                            <button type="button"
-                                    class="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition">
-                                🗑
-                            </button>
-                        </div>
+                                <button type="button"
+                                        class="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition">
+                                    🗑
+                                </button>
+                            </div>
 
-                        <div class="flex gap-3 items-start">
-                            <div class="flex-1">
-                                <input name="Topics[0].Title"
-                                       id="Topics_0__Title"
-                                       value="@(Model.Topics.ElementAtOrDefault(0)?.Title ?? "")"
-                                       class="topic-title w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                                       placeholder="bv. Acties om mentaal welzijn te verbeteren" />
-                                <span class="topic-title-validation mt-1 block text-sm text-red-600"
-                                      data-valmsg-for="Topics[0].Title"
+                            <div class="flex gap-3 items-start">
+                                <div class="flex-1">
+                                    <input name="Topics[@i].Title"
+                                           id="Topics_@(i)__Title"
+                                           value="@Model.Topics[i].Title"
+                                           class="topic-title w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                           placeholder="bv. Acties om mentaal welzijn te verbeteren"/>
+
+                                    <span class="topic-title-validation mt-1 block text-sm text-red-600"
+                                          data-valmsg-for="Topics[@i].Title"
+                                          data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <textarea name="Topics[@i].Description"
+                                  id="Topics_@(i)__Description"
+                                  rows="4"
+                                  class="topic-description w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                                  placeholder="Beschrijving/context voor dit topic (optioneel)...">@Model.Topics[i].Description</textarea>
+
+                                <span class="topic-description-validation mt-1 block text-sm text-red-600"
+                                      data-valmsg-for="Topics[@i].Description"
                                       data-valmsg-replace="true"></span>
                             </div>
                         </div>
-
-                        <div class="mt-4">
-                            <textarea name="Topics[0].Description"
-                  id="Topics_0__Description"
-                  rows="4"
-                  class="topic-description w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                  placeholder="Beschrijving/context voor dit topic (optioneel)...">@(Model.Topics.ElementAtOrDefault(0)?.Description ?? "")</textarea>
-                            <span class="topic-description-validation mt-1 block text-sm text-red-600"
-                                  data-valmsg-for="Topics[0].Description"
-                                  data-valmsg-replace="true"></span>
-                        </div>
-                    </div>
+                    }
                 </div>
 
                 <button type="button"

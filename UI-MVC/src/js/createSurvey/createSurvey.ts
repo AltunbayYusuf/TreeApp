@@ -77,6 +77,19 @@ export class SurveyBuilder {
 
         document.addEventListener("input", this.handleInputDebounce.bind(this));
 
+        const initialDataElement = document.getElementById("initialSurveyData");
+
+        if (initialDataElement?.textContent?.trim()) {
+            const serverData = JSON.parse(initialDataElement.textContent) as SectionData[];
+            const hasServerQuestions = serverData.some(s => s.questions?.length > 0);
+
+            if (hasServerQuestions) {
+                sessionStorage.setItem("surveyDraft", JSON.stringify(serverData));
+                this.loadFromLocalStorage(serverData);
+                return;
+            }
+        }
+        
         const data = sessionStorage.getItem("surveyDraft");
 
         if (!data) {
