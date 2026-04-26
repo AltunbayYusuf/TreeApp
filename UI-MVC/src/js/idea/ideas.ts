@@ -1,27 +1,29 @@
-function toonMeer(): void {
-    const ideas = document.querySelectorAll<HTMLElement>(".idea-item");
-    const showMoreBtn = document.getElementById("show-more-btn") as HTMLElement | null;
+// ideas/ideas.ts
+export class IdeaViewer {
+    private visibleCount: number = 2;
 
-    let visibleCount: number = 2;
+    init(): void {
+        document.getElementById("show-more-btn")?.addEventListener("click", this.handleShowMore.bind(this));
+        this.updateIdeas();
+    }
 
-    function updateIdeas(): void {
+    private handleShowMore(): void {
+        this.visibleCount += 3;
+        this.updateIdeas();
+    }
+
+    private updateIdeas(): void {
+        const ideas = document.querySelectorAll<HTMLElement>(".idea-item");
+        const showMoreBtn = document.getElementById("show-more-btn") as HTMLElement | null;
+
         ideas.forEach((idea, index) => {
-            idea.style.display = index < visibleCount ? "block" : "none";
+            idea.style.display = index < this.visibleCount ? "block" : "none";
         });
 
-        if (showMoreBtn && visibleCount >= ideas.length) {
+        if (showMoreBtn && this.visibleCount >= ideas.length) {
             showMoreBtn.style.display = "none";
         }
     }
-
-    if (showMoreBtn) {
-        showMoreBtn.addEventListener("click", () => {
-            visibleCount += 3;
-            updateIdeas();
-        });
-    }
-
-    updateIdeas();
 }
 
-document.addEventListener("DOMContentLoaded", toonMeer);
+document.addEventListener("DOMContentLoaded", () => new IdeaViewer().init());

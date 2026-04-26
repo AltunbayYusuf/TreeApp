@@ -1,14 +1,14 @@
 @model IntegratieProject.UI.MVC.Models.SubAdminDashboardViewModel
 @using IntegratieProject.BL.Domain.project
 
-<div class="p-6">
+<div class="container-fluid p-4 p-md-5">
 
-    <div class="flex justify-between items-center mb-6">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
-            <h1 class="text-3xl font-bold">Projecten</h1>
-            <p class="text-gray-500">Beheer je participatieprojecten</p>
+            <h1 class="fs-2 fw-bold mb-1">Projecten</h1>
+            <p class="text-muted mb-0">Beheer je participatieprojecten</p>
         </div>
-
+        
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
            asp-route-subplatform="@Model.Slug"
@@ -17,31 +17,39 @@
         </a>
     </div>
 
-    <div class="grid grid-cols-4 gap-4 mb-6">
-        <div class="border p-4">
-            <p class="text-sm text-gray-500">Totaal projecten</p>
-            <p class="text-3xl font-bold">@Model.TotalProjects</p>
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="border p-4 h-100">
+                <p class="small text-muted mb-2">Totaal projecten</p>
+                <p class="fs-2 fw-bold mb-0">@Model.TotalProjects</p>
+            </div>
         </div>
 
-        <div class="border p-4 bg-green-50">
-            <p class="text-sm text-green-700">Actief</p>
-            <p class="text-3xl font-bold text-green-700">@Model.ActiveProjects</p>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="border p-4 h-100 bg-success bg-opacity-10">
+                <p class="small text-success mb-2">Actief</p>
+                <p class="fs-2 fw-bold text-success mb-0">@Model.ActiveProjects</p>
+            </div>
         </div>
 
-        <div class="border p-4 bg-blue-50">
-            <p class="text-sm text-blue-700">Totaal deelnemers</p>
-            <p class="text-3xl font-bold text-blue-700">@Model.ParticipantsCount</p>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="border p-4 h-100 bg-primary bg-opacity-10">
+                <p class="small text-primary mb-2">Totaal deelnemers</p>
+                <p class="fs-2 fw-bold text-primary mb-0">@Model.ParticipantsCount</p>
+            </div>
         </div>
 
-        <div class="border p-4 bg-purple-50">
-            <p class="text-sm text-purple-700">Totaal ideeën</p>
-            <p class="text-3xl font-bold text-purple-700">@Model.TotalIdeas</p>
+        <div class="col-12 col-sm-6 col-lg-3">
+            <div class="border p-4 h-100" style="background-color:#faf5ff;">
+                <p class="small mb-2" style="color:#7e22ce;">Totaal ideeën</p>
+                <p class="fs-2 fw-bold mb-0" style="color:#7e22ce;">@Model.TotalIdeas</p>
+            </div>
         </div>
     </div>
 
-    <div class="border">
-        <table class="w-full">
-            <thead class="bg-gray-100 text-left">
+    <div class="border table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
             <tr>
                 <th class="p-3">Project</th>
                 <th class="p-3">Status</th>
@@ -58,14 +66,14 @@
             {
                 var statusClass = p.Status switch
                 {
-                    nameof(Status.Active) => "text-green-700 border-green-500",
-                    nameof(Status.Draft) => "text-gray-700 border-gray-400",
-                    nameof(Status.Archived) => "text-orange-700 border-orange-500",
+                    nameof(Status.Active) => "text-success border-success",
+                    nameof(Status.Draft) => "text-secondary border-secondary",
+                    nameof(Status.Archived) => "text-warning border-warning",
                     _ => ""
                 };
 
-                <tr class="border-t">
-                    <td class="p-3 font-semibold">
+                <tr>
+                    <td class="p-3 fw-semibold">
                         <a asp-controller="Project"
                            asp-action="Index"
                            asp-route-subplatform="@Model.Slug"
@@ -85,32 +93,97 @@
                     <td class="p-3">@p.IdeasCount</td>
                     <td class="p-3">@p.ReleaseDate.ToString("d MMM yyyy")</td>
 
-                    <td class="p-3 flex gap-2">
-                        @if (p.Status == nameof(Status.Draft))
-                        {
-                            <form asp-action="UpdateStatus" method="post">
-                                <input type="hidden" name="projectId" value="@p.Id" />
-                                <input type="hidden" name="status" value="Active" />
-                                <input type="hidden" name="subplatform" value="@Model.Slug" />
+                    <td class="p-3">
+                        <div class="d-flex flex-wrap gap-2">
+                            @if (p.Status == nameof(Status.Draft))
+                            {
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="projectId" value="@p.Id" />
+                                    <input type="hidden" name="status" value="Active" />
+                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
 
-                                <button class="px-2 py-1 border bg-green-100 text-green-700">
-                                    Actief
-                                </button>
-                            </form>
-                        }
+                                    <button class="btn btn-sm border bg-success bg-opacity-10 text-success">
+                                        Actief
+                                    </button>
+                                </form>
+                            }
 
-                        @if (p.Status == nameof(Status.Active))
-                        {
-                            <form asp-action="UpdateStatus" method="post">
-                                <input type="hidden" name="projectId" value="@p.Id" />
-                                <input type="hidden" name="status" value="Archived" />
-                                <input type="hidden" name="subplatform" value="@Model.Slug" />
+                            @if (p.Status == nameof(Status.Active))
+                            {
+                                <form asp-action="UpdateStatus" method="post">
+                                    <input type="hidden" name="projectId" value="@p.Id" />
+                                    <input type="hidden" name="status" value="Archived" />
+                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
 
-                                <button class="px-2 py-1 border bg-orange-100 text-orange-700">
-                                    Archief
-                                </button>
-                            </form>
-                        }
+                                    <button class="btn btn-sm border bg-warning bg-opacity-10 text-warning">
+                                        Archief
+                                    </button>
+                                </form>
+                            }
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteProjectModal-@p.Id">
+                                🗑️
+                            </button>
+                        </div>
+
+                        <div class="modal fade"
+                             id="deleteProjectModal-@p.Id"
+                             tabindex="-1"
+                             aria-labelledby="deleteProjectModalLabel-@p.Id"
+                             aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mx-3 mx-sm-auto">
+                                <div class="modal-content">
+
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteProjectModalLabel-@p.Id">
+                                            Project verwijderen
+                                        </h5>
+                                        <button type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Sluiten">
+                                        </button>
+                                    </div>
+
+                                    <div class="modal-body">
+                                        Ben je zeker dat je het project
+                                        <strong class="text-break">@p.Name</strong>
+                                        wilt verwijderen?
+                                        <br />
+                                        <span class="text-danger">
+                                            Deze actie kan niet ongedaan gemaakt worden.
+                                        </span>
+                                    </div>
+
+                                    <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                                        <button type="button"
+                                                class="btn btn-secondary w-100 w-sm-auto"
+                                                data-bs-dismiss="modal">
+                                            Nee
+                                        </button>
+
+                                        <form asp-controller="SubAdmin"
+                                              asp-action="Delete"
+                                              asp-route-subplatform="@Model.Slug"
+                                              method="post"
+                                              class="w-100 w-sm-auto">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden" name="projectId" value="@p.Id" />
+
+                                            <button type="submit" class="btn btn-danger w-100">
+                                                Ja, verwijderen
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
                     </td>
                 </tr>
             }
