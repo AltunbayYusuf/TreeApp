@@ -114,6 +114,11 @@ public class IdeaManager : IIdeaManager
         return _ideaRepository.ReadIdeasInReviewBySubPlatform(subPlatformId);
     }
 
+    public IEnumerable<Idea> GetIdeasBySubPlatform(int subPlatformId, int? projectId = null)
+    {
+        return _ideaRepository.ReadIdeasBySubPlatform(subPlatformId, projectId);
+    }
+
     public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
     {
         return _reactionRepository.ReadReactionsInReviewBySubPlatform(subPlatformId);

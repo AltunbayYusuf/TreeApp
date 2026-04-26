@@ -1,6 +1,9 @@
+using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntegratieProject.UI.MVC.Controllers.api;
@@ -11,11 +14,45 @@ public class IdeasController : ControllerBase
 {
     private readonly IIdeaManager _ideaManager;
     private readonly IUserManager _userManager;
+    private readonly ISubplatformManager _subplatformManager;
 
-    public IdeasController(IIdeaManager ideaManager, IUserManager userManager)
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
+        _subplatformManager = subplatformManager;
+    }
+
+
+    [HttpGet]
+    [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
+    public IActionResult GetIdeas([FromQuery] int subplatformId, [FromQuery] int? projectId = null)
+    {
+        if (subplatformId <= 0)
+            return BadRequest(new { message = "Ongeldig subplatformId." });
+
+        var ideas = _ideaManager.GetIdeasBySubPlatform(subplatformId, projectId);
+
+        var result = ideas.Select(i => new
+        {
+            id = i.Id,
+            title = string.IsNullOrWhiteSpace(i.Title) ? "Zonder titel" : i.Title,
+            text = i.Text,
+            status = i.ModerationStatus.ToString(),
+            topic = i.Topic?.Theme ?? "-",
+            project = i.Topic?.Project?.Name ?? "-",
+            projectId = i.Topic?.Project?.Id,
+            reactions = (i.Reactions ?? Enumerable.Empty<Reaction>())
+                .Select(r => new
+                {
+                    id = r.Id,
+                    text = r.Text ?? "",
+                    emoji = r.Emoji ?? "",
+                    status = r.ModerationStatus.ToString()
+                })
+        });
+
+        return Ok(result);
     }
 
     [HttpPost]

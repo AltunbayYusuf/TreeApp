@@ -10,6 +10,7 @@ public interface IIdeaRepository
     IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId);
     Idea ReadIdeaById(int ideaId);
     IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId);
+    IEnumerable<Idea> ReadIdeasBySubPlatform(int subPlatformId, int? projectId = null);
     void UpdateIdea(Idea idea);
     void DeleteIdea(int ideaId);
 }
