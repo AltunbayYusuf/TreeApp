@@ -133,6 +133,15 @@
                                 Moderatie
                             </a>
                         </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark"
+                               asp-controller="SubAdminIdeas"
+                               asp-action="Index"
+                               asp-route-subplatform="@currentSubplatform">
+                                Ideeen
+                            </a>
+                        </li>
                     }
                     else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
                     {
