@@ -16,7 +16,6 @@ services:
       cloudsql-proxy:
         condition: service_healthy
     restart: on-failure
-
   cloudsql-proxy:
     image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
     command:
@@ -30,12 +29,11 @@ services:
     volumes:
       - /tmp/sa-key.json:/secrets/sa-key.json:ro
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:9090/readiness"]
+      test: ["CMD", "/cloud-sql-proxy", "wait", "--max=10s"]
       interval: 5s
       timeout: 3s
       retries: 10
       start_period: 10s
     restart: always
-
 volumes:
   dataprotection-keys:
