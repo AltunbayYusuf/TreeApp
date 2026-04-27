@@ -34,7 +34,7 @@ DB_NAME="TreeApp"
 # MIG — template-naam bevat de branch zodat verschillende branches naast elkaar kunnen
 INSTANCE_TEMPLATE="treeapp-template-${BRANCH_SAFE}"
 MIG_NAME="treeapp-mig"
-MACHINE_TYPE="e2-small"
+MACHINE_TYPE="e2-medium"
 MIN_VMS=1
 MAX_VMS=3
 CPU_TARGET=0.6
