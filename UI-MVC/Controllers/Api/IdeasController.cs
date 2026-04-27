@@ -26,12 +26,23 @@ public class IdeasController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
-    public IActionResult GetIdeas([FromQuery] int subplatformId, [FromQuery] int? projectId = null)
+    public IActionResult GetIdeas([FromQuery] int subplatformId, [FromQuery] int? projectId = null, [FromQuery] string search = null)
     {
         if (subplatformId <= 0)
             return BadRequest(new { message = "Ongeldig subplatformId." });
 
         var ideas = _ideaManager.GetIdeasBySubPlatform(subplatformId, projectId);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var searchLower = search.ToLower();
+            ideas = ideas.Where(i => 
+                (!string.IsNullOrWhiteSpace(i.Title) && i.Title.ToLower().Contains(searchLower)) ||
+                (!string.IsNullOrWhiteSpace(i.Text) && i.Text.ToLower().Contains(searchLower)) ||
+                (i.Topic != null && !string.IsNullOrWhiteSpace(i.Topic.Theme) && i.Topic.Theme.ToLower().Contains(searchLower)) ||
+                (i.Topic != null && i.Topic.Project != null && !string.IsNullOrWhiteSpace(i.Topic.Project.Name) && i.Topic.Project.Name.ToLower().Contains(searchLower))
+            );
+        }
 
         var result = ideas.Select(i => new
         {

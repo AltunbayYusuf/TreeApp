@@ -28,6 +28,9 @@ export class SubAdminIdeas {
     private allIdeas: IdeaDto[] = [];
     private sortOrder: SortOrder = 'newest';
     private similarityFilter: SimilarityFilter = 'all';
+    private keywordFilter: string = '';
+    private emailSort: 'none' | 'hasEmail' | 'noEmail' = 'none';
+    private statusSort: 'none' | 'Accepted' | 'InReview' | 'Rejected' = 'none';
     private ideaToDelete: IdeaDto | null = null;
     private reactionToDelete: { ideaId: number; reactionId: number } | null = null;
 
@@ -48,11 +51,65 @@ export class SubAdminIdeas {
             btn.addEventListener('click', this.handleSortClick.bind(this));
         });
 
+        const keywordInput = document.getElementById('keywordFilter') as HTMLInputElement;
+        if (keywordInput) {
+            keywordInput.addEventListener('input', this.handleKeywordChange.bind(this));
+        }
+
+        const clearBtn = document.getElementById('clearKeywordBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (keywordInput) {
+                    keywordInput.value = '';
+                    this.keywordFilter = '';
+                    this.renderRows();
+                }
+            });
+        }
+
+        document.getElementById('thStatus')?.addEventListener('click', this.handleStatusSortClick.bind(this));
+        document.getElementById('thEmail')?.addEventListener('click', this.handleEmailSortClick.bind(this));
+
         this.buildDetailModal();
         this.bindDeleteModal();
         this.bindDeleteReactionModal();
 
         this.fetchAndRender(null);
+    }
+
+    private handleEmailSortClick(): void {
+        this.statusSort = 'none';
+        if (this.emailSort === 'none' || this.emailSort === 'noEmail') {
+            this.emailSort = 'hasEmail';
+        } else {
+            this.emailSort = 'noEmail';
+        }
+        this.updateSortIcons();
+        this.renderRows();
+    }
+
+    private handleStatusSortClick(): void {
+        this.emailSort = 'none';
+        if (this.statusSort === 'none' || this.statusSort === 'Rejected') {
+            this.statusSort = 'Accepted';
+        } else if (this.statusSort === 'Accepted') {
+            this.statusSort = 'InReview';
+        } else if (this.statusSort === 'InReview') {
+            this.statusSort = 'Rejected';
+        }
+        this.updateSortIcons();
+        this.renderRows();
+    }
+
+    private updateSortIcons(): void {
+        const iconEmail = document.getElementById('iconEmail');
+        if (iconEmail) {
+            iconEmail.className = this.emailSort === 'none' ? 'text-muted small d-flex align-items-center' : 'text-primary small d-flex align-items-center';
+        }
+        const iconStatus = document.getElementById('iconStatus');
+        if (iconStatus) {
+            iconStatus.className = this.statusSort === 'none' ? 'text-muted small d-flex align-items-center' : 'text-primary small d-flex align-items-center';
+        }
     }
 
     private handleProjectChange(e: Event): void {
@@ -80,6 +137,12 @@ export class SubAdminIdeas {
         this.renderRows();
     }
 
+    private handleKeywordChange(e: Event): void {
+        const input = e.currentTarget as HTMLInputElement;
+        this.keywordFilter = input.value.trim().toLowerCase();
+        this.renderRows();
+    }
+
     private async fetchAndRender(projectId: number | null): Promise<void> {
         this.showLoading(true);
 
@@ -103,8 +166,41 @@ export class SubAdminIdeas {
     private getFilteredAndSortedIdeas(): IdeaDto[] {
         let ideas = this.allIdeas;
 
+        if (this.keywordFilter) {
+            ideas = ideas.filter(i => 
+                (i.title && i.title.toLowerCase().includes(this.keywordFilter)) || 
+                (i.text && i.text.toLowerCase().includes(this.keywordFilter)) ||
+                (i.topic && i.topic.toLowerCase().includes(this.keywordFilter)) ||
+                (i.project && i.project.toLowerCase().includes(this.keywordFilter))
+            );
+        }
+
         if (this.sortOrder === 'oldest') {
             ideas = [...ideas].reverse();
+        } else {
+            ideas = [...ideas];
+        }
+
+        if (this.emailSort === 'hasEmail') {
+            ideas.sort((a, b) => {
+                const aHas = a.userEmail && a.userEmail.trim() !== '' ? 1 : 0;
+                const bHas = b.userEmail && b.userEmail.trim() !== '' ? 1 : 0;
+                return bHas - aHas;
+            });
+        } else if (this.emailSort === 'noEmail') {
+            ideas.sort((a, b) => {
+                const aHas = a.userEmail && a.userEmail.trim() !== '' ? 1 : 0;
+                const bHas = b.userEmail && b.userEmail.trim() !== '' ? 1 : 0;
+                return aHas - bHas;
+            });
+        }
+
+        if (this.statusSort !== 'none') {
+            ideas.sort((a, b) => {
+                const aMatch = a.status === this.statusSort ? 1 : 0;
+                const bMatch = b.status === this.statusSort ? 1 : 0;
+                return bMatch - aMatch;
+            });
         }
 
         return ideas;
@@ -148,22 +244,22 @@ export class SubAdminIdeas {
             <td class="p-3 fw-semibold" style="max-width:160px">
                 <span class="d-block text-truncate">${DomUtils.escapeHtml(idea.title)}</span>
             </td>
-            <td class="p-3 text-muted" style="max-width:260px">
+            <td class="p-3 text-muted d-none d-md-table-cell" style="max-width:260px">
                 <span class="d-block text-truncate">${DomUtils.escapeHtml(idea.text)}</span>
             </td>
-            <td class="p-3">${DomUtils.escapeHtml(idea.topic)}</td>
+            <td class="p-3 d-none d-md-table-cell">${DomUtils.escapeHtml(idea.topic)}</td>
             <td class="p-3">${DomUtils.escapeHtml(idea.project)}</td>
             <td class="p-3">
                 <span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text}">
                     ${DomUtils.escapeHtml(statusCfg.label)}
                 </span>
             </td>
-            <td class="p-3">
+            <td class="p-3 d-none d-md-table-cell">
                 ${hasEmail
             ? `<span class="small text-success" >✔️</span>`
             : `<span class="small text-muted">❌</span>`}
             </td>
-            <td class="p-3">
+            <td class="p-3 d-none d-md-table-cell">
                 <button type="button"
                         class="btn btn-sm btn-outline-secondary toggle-reactions-btn"
                         data-idea-id="${idea.id}"
@@ -173,7 +269,7 @@ export class SubAdminIdeas {
             : `${reactionCount} reactie${reactionCount === 1 ? '' : 's'} tonen`}
                 </button>
             </td>
-            <td class="p-3 text-end">
+            <td class="p-3 text-end d-none d-md-table-cell">
                 <button type="button" class="btn btn-sm btn-outline-danger delete-idea-btn" data-idea-id="${idea.id}">🗑️</button>
             </td>
         `;
@@ -372,10 +468,10 @@ export class SubAdminIdeas {
         const el = document.createElement('div');
         el.innerHTML = `
             <div class="modal fade" id="ideaDetailModal" tabindex="-1" aria-hidden="true" style="display:none">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="ideaDetailTitle"></h5>
+                <div class="modal-dialog modal-lg modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content bg-light">
+                        <div class="modal-header border-bottom-0 pb-0">
+                            <h5 class="modal-title fw-bold" id="ideaDetailTitle"></h5>
                             <button type="button" class="btn-close" aria-label="Sluiten"></button>
                         </div>
                         <div class="modal-body" id="ideaDetailBody"></div>
@@ -410,50 +506,48 @@ export class SubAdminIdeas {
                    <td class="text-muted">Niet opgegeven</td>
                </tr>`;
 
-        const reactions = idea.reactions ?? [];
-        const reactionsHtml = reactions.length === 0
-            ? '<p class="text-muted small mb-0">Geen reacties.</p>'
-            : `<ul class="list-unstyled mb-0">
-                ${reactions.map(r => {
-                const parts: string[] = [];
-                if (r.emoji) parts.push(DomUtils.escapeHtml(r.emoji));
-                if (r.text)  parts.push(DomUtils.escapeHtml(r.text));
-                const cfg = this.getStatusConfig(r.status);
-                return `<li class="d-flex align-items-start gap-2 py-2 border-bottom">
-                                <span class="flex-grow-1">${parts.join(' ')}</span>
-                                <span class="badge ${cfg.bg} ${cfg.text} border">${DomUtils.escapeHtml(cfg.label)}</span>
-                            </li>`;
-            }).join('')}
-               </ul>`;
-
         body.innerHTML = `
-            <table class="table table-borderless table-sm mb-4">
-                <tbody>
-                    <tr>
-                        <th class="text-muted fw-normal" style="width:140px">Project</th>
-                        <td>${DomUtils.escapeHtml(idea.project)}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted fw-normal">Topic</th>
-                        <td>${DomUtils.escapeHtml(idea.topic)}</td>
-                    </tr>
-                    <tr>
-                        <th class="text-muted fw-normal">Status</th>
-                        <td><span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text}">${DomUtils.escapeHtml(statusCfg.label)}</span></td>
-                    </tr>
-                    ${emailRow}
-                </tbody>
-            </table>
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <table class="table table-borderless table-sm mb-0">
+                        <tbody>
+                            <tr>
+                                <th class="text-muted fw-normal" style="width:140px">Project</th>
+                                <td class="fw-semibold">${DomUtils.escapeHtml(idea.project)}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted fw-normal">Topic</th>
+                                <td class="fw-semibold">${DomUtils.escapeHtml(idea.topic)}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted fw-normal">Status</th>
+                                <td><span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text} fw-semibold">${DomUtils.escapeHtml(statusCfg.label)}</span></td>
+                            </tr>
+                            ${emailRow}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-            <h6 class="fw-semibold mb-2">Inhoud</h6>
-            <p class="mb-4" style="white-space:pre-wrap">${DomUtils.escapeHtml(idea.text)}</p>
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3 text-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Inhoud</h6>
+                    <p class="mb-0" style="white-space:pre-wrap; font-size: 1.05rem;">${DomUtils.escapeHtml(idea.text)}</p>
+                </div>
+            </div>
 
-            <h6 class="fw-semibold mb-2">Reacties <span class="text-muted fw-normal">(${reactions.length})</span></h6>
-            ${reactionsHtml}
+            <div class="mt-4 text-end">
+                <button type="button" class="btn btn-outline-danger delete-from-modal-btn">Idee verwijderen 🗑️</button>
+            </div>
         `;
 
         const modalEl = document.getElementById('ideaDetailModal');
         if (!modalEl) return;
+
+        modalEl.querySelector('.delete-from-modal-btn')?.addEventListener('click', (e) => {
+            this.closeDetailModal();
+            this.openDeleteModal(e as MouseEvent, idea);
+        });
 
         modalEl.style.display = 'block';
         modalEl.classList.add('show');
