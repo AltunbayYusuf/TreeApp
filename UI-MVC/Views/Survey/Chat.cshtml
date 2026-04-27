@@ -24,12 +24,12 @@
 @Html.Raw(jsonData)
 </script>
 
-<div class="chatbot-page">
-    <div class="chatbot-header">
-        <img src="@Model.Project.Logo.Uri" alt="Logo" class="chatbot-logo" />
-        <div class="chatbot-header-info">
-            <span class="chatbot-name">Echo Assistent</span>
-            <span class="chatbot-status">
+<div class="chatbot-page d-flex flex-column bg-white overflow-hidden">
+    <div class="chatbot-header d-flex align-items-center gap-3 py-3 px-4 text-white">
+        <img src="@Model.Project.Logo.Uri" alt="Logo" class="chatbot-logo rounded-circle object-fit-cover" />
+        <div class="chatbot-header-info d-flex flex-column">
+            <span class="fw-bold">Echo Assistent</span>
+            <span class="chatbot-status d-flex align-items-center gap-1">
                 <span class="chatbot-status-dot"></span> Online
             </span>
         </div>
@@ -39,5 +39,5 @@
         <div class="chatbot-messages" id="chatMessages"></div>
     </div>
 
-    <div class="chatbot-input-area" id="chatInputArea"></div>
+    <div class="chatbot-input-area d-flex align-items-start flex-wrap gap-2 bg-white" id="chatInputArea"></div>
 </div>

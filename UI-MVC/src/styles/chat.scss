@@ -1,4 +1,4 @@
-// ── Chatbot survey – styling ───────────────────────────────────────────────
+// ── Chatbot survey – custom styles (Bootstrap verzorgt de layout) ──────────
 :root {
   --chat-primary:     #3498db;
   --chat-primary-dk:  #2980b9;
@@ -16,53 +16,35 @@
 .chatbot-page {
   max-width: 680px;
   margin: 1.5rem auto 3rem;
-  display: flex;
-  flex-direction: column;
-  background: #fff;
   border-radius: 16px;
   box-shadow: var(--chat-shadow);
-  overflow: hidden;
   border: 1px solid #dde2ea;
 }
 
 // ── Header ─────────────────────────────────────────────────────────────────
 .chatbot-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.5rem;
   background: linear-gradient(135deg, var(--chat-primary), var(--chat-primary-dk));
-  color: #fff;
 }
 
+// ── Logo ───────────────────────────────────────────────────────────────────
 .chatbot-logo {
   width: 44px;
   height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.4);
-  background: #fff;
 }
 
+// ── Header-info ────────────────────────────────────────────────────────────
 .chatbot-header-info {
-  display: flex;
-  flex-direction: column;
   line-height: 1.3;
 }
 
-.chatbot-name {
-  font-weight: 700;
-  font-size: 1rem;
-}
-
+// ── Status-tekst ───────────────────────────────────────────────────────────
 .chatbot-status {
   font-size: 0.78rem;
   opacity: 0.85;
-  display: flex;
-  align-items: center;
-  gap: 5px;
 }
 
+// ── Status-dot (pulserende animatie) ──────────────────────────────────────
 .chatbot-status-dot {
   width: 8px;
   height: 8px;
@@ -77,7 +59,7 @@
   50%       { opacity: 0.4; }
 }
 
-// ── Chat venster ───────────────────────────────────────────────────────────
+// ── Chat venster (custom hoogte, padding, scrollbar en achtergrond) ────────
 .chatbot-window {
   height: 420px;
   overflow-y: auto;
@@ -105,9 +87,6 @@
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.bot-msg  { justify-content: flex-start; }
-.user-msg { justify-content: flex-end; }
 
 .chat-avatar {
   font-size: 1.3rem;
@@ -138,16 +117,9 @@
   box-shadow: 0 1px 4px rgba(var(--chat-primary-rgb), 0.25);
 }
 
-// ── Typing indicator ───────────────────────────────────────────────────────
+// ── Typing indicator (overschrijft align-items van .chat-msg) ──────────────
 .typing-indicator {
   align-items: center;
-
-  .chat-bubble {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 0.65rem 1rem;
-  }
 
   span {
     width: 8px;
@@ -168,26 +140,14 @@
   40%            { transform: translateY(-8px); }
 }
 
-// ── Input gebied ───────────────────────────────────────────────────────────
+// ── Input gebied (custom padding, border en min-hoogte) ────────────────────
 .chatbot-input-area {
   padding: 1rem 1.5rem 1.25rem;
-  background: #fff;
   border-top: 1px solid #e4e9f0;
   min-height: 72px;
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 0.5rem;
 }
 
-// ── Keuze-opties (Single / Multi) ──────────────────────────────────────────
-.chat-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  width: 100%;
-}
-
+// ── Keuze-knoppen (custom border, achtergrond, hover en selected-staat) ────
 .chat-opt-btn {
   border: 2px solid #d1d9e3;
   background: #f8fafc;
@@ -212,20 +172,7 @@
   }
 }
 
-// ── Multi-choice extra ─────────────────────────────────────────────────────
-.chat-multi-wrap {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.chat-hint {
-  font-size: 0.8rem;
-  color: #6b7c93;
-  margin: 0;
-}
-
+// ── Bevestig-knop (custom radius, padding en disabled-staat) ───────────────
 .chat-confirm-btn {
   align-self: flex-start;
   border-radius: 999px;
@@ -238,28 +185,7 @@
   }
 }
 
-// ── Range ──────────────────────────────────────────────────────────────────
-.chat-range-wrap {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.chat-range-labels {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #6b7c93;
-  padding: 0 2px;
-}
-
-.chat-range-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
+// ── Range-knoppen (vaste grootte, hover met schaal-animatie) ───────────────
 .chat-range-btn {
   width: 52px;
   height: 52px;
@@ -279,14 +205,7 @@
   }
 }
 
-// ── Open vraag ─────────────────────────────────────────────────────────────
-.chat-open-wrap {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
+// ── Open vraag textarea (custom focus-state met box-shadow) ────────────────
 .chat-textarea {
   width: 100%;
   border: 2px solid #d1d9e3;
@@ -308,6 +227,7 @@
   }
 }
 
+// ── Verstuur-knop inline (gradient, animatie) ──────────────────────────────
 .chat-send-btn {
   align-self: flex-end;
   border-radius: 999px;
@@ -325,7 +245,7 @@
   }
 }
 
-// ── Verstuur-knop onderaan ─────────────────────────────────────────────────
+// ── Afsluit-knop (gradient, animatie, volledige breedte) ───────────────────
 .chat-submit-btn {
   border-radius: 999px;
   padding: 0.65rem 2rem;

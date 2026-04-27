@@ -44,7 +44,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
     function addBotMessage(text: string, delay = 0): void {
         setTimeout(() => {
             const typing = document.createElement('div');
-            typing.className = 'chat-msg bot-msg typing-indicator';
+            typing.className = 'chat-msg justify-content-start typing-indicator';
             typing.innerHTML = '<span></span><span></span><span></span>';
             chatMessages!.appendChild(typing);
             scrollBottom();
@@ -52,7 +52,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
             setTimeout(() => {
                 typing.remove();
                 const div = document.createElement('div');
-                div.className = 'chat-msg bot-msg';
+                div.className = 'chat-msg justify-content-start';
                 div.innerHTML = `
                     <div class="chat-avatar">💬</div>
                     <div class="chat-bubble bot-bubble">${text}</div>`;
@@ -64,7 +64,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     function addUserMessage(text: string): void {
         const div = document.createElement('div');
-        div.className = 'chat-msg user-msg';
+        div.className = 'chat-msg justify-content-end';
         div.innerHTML = `<div class="chat-bubble user-bubble">${text}</div>`;
         chatMessages!.appendChild(div);
         scrollBottom();
@@ -88,7 +88,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     function renderSingleChoice(q: SurveyQuestion): void {
         const wrap = document.createElement('div');
-        wrap.className = 'chat-options';
+        wrap.className = 'd-flex flex-wrap gap-2 w-100';
         q.options.forEach(opt => {
             const btn = document.createElement('button');
             btn.className = 'btn chat-opt-btn';
@@ -101,15 +101,15 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     function renderMultiChoice(q: SurveyQuestion): void {
         const wrap = document.createElement('div');
-        wrap.className = 'chat-multi-wrap';
+        wrap.className = 'w-100 d-flex flex-column gap-2';
 
         const hint = document.createElement('p');
-        hint.className = 'chat-hint';
+        hint.className = 'small text-muted m-0';
         hint.textContent = 'Meerdere antwoorden mogelijk – klik Bevestig als je klaar bent.';
         wrap.appendChild(hint);
 
         const optWrap = document.createElement('div');
-        optWrap.className = 'chat-options';
+        optWrap.className = 'd-flex flex-wrap gap-2';
         const selected: string[] = [];
 
         q.options.forEach(opt => {
@@ -148,18 +148,18 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
         const max = q.rangeMax ?? 5;
 
         const wrap = document.createElement('div');
-        wrap.className = 'chat-range-wrap';
+        wrap.className = 'w-100 d-flex flex-column gap-1';
 
         if (q.rangeMinLabel || q.rangeMaxLabel) {
             const labels = document.createElement('div');
-            labels.className = 'chat-range-labels';
+            labels.className = 'd-flex justify-content-between small text-muted px-1';
             labels.innerHTML =
                 `<span>${q.rangeMinLabel ?? ''}</span><span>${q.rangeMaxLabel ?? ''}</span>`;
             wrap.appendChild(labels);
         }
 
         const row = document.createElement('div');
-        row.className = 'chat-range-row';
+        row.className = 'd-flex flex-wrap gap-1';
         for (let i = min; i <= max; i++) {
             const btn = document.createElement('button');
             btn.className = 'btn chat-range-btn';
@@ -173,7 +173,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     function renderOpen(q: SurveyQuestion): void {
         const wrap = document.createElement('div');
-        wrap.className = 'chat-open-wrap';
+        wrap.className = 'w-100 d-flex flex-column gap-2';
 
         const textarea = document.createElement('textarea');
         textarea.className = 'chat-textarea';
