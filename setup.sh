@@ -59,8 +59,7 @@ else
     --tier="$DB_TIER" \
     --region="$REGION" \
     --edition=ENTERPRISE \
-    --root-password="$(gcloud secrets versions access latest --secret=db-password --project=$PROJECT_ID)" \
-    --authorized-networks="0.0.0.0/0"
+    --root-password="$(gcloud secrets versions access latest --secret=db-password --project=$PROJECT_ID)"
 
   echo "  📋 Database $DB_NAME aanmaken..."
   gcloud sql databases create "$DB_NAME" --instance="$DB_INSTANCE" --project="$PROJECT_ID"

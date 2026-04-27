@@ -34,4 +34,4 @@ dist/
 
 # build output
 dist/
-wwwroot/dist/
+wwwroot/dist/sa-key.json

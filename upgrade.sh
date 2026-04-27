@@ -37,6 +37,11 @@ DB_PASSWORD=$(curl -s "https://secretmanager.googleapis.com/v1/projects/$PROJECT
 GEMINI_API_KEY=$(curl -s "https://secretmanager.googleapis.com/v1/projects/$PROJECT_ID/secrets/gemini-api-key/versions/latest:access" \
   -H "Authorization: Bearer $TOKEN" | python3 -c "import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)['payload']['data']).decode())")
 
+echo "🔑 Service account key ophalen voor Cloud SQL Proxy..."
+curl -s "https://secretmanager.googleapis.com/v1/projects/$PROJECT_ID/secrets/sa-key/versions/latest:access" \
+  -H "Authorization: Bearer $TOKEN" | python3 -c "import sys,json,base64; print(base64.b64decode(json.load(sys.stdin)['payload']['data']).decode())" | sudo tee /tmp/sa-key.json > /dev/null
+sudo chmod 600 /tmp/sa-key.json
+
 echo "📥 Laatste code ophalen (branch: $BRANCH)..."
 sudo git fetch origin
 sudo git checkout "$BRANCH"
