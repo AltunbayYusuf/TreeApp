@@ -34,15 +34,16 @@ DB_NAME="TreeApp"
 # MIG — template-naam bevat de branch zodat verschillende branches naast elkaar kunnen
 INSTANCE_TEMPLATE="treeapp-template-${BRANCH_SAFE}"
 MIG_NAME="treeapp-mig"
-MACHINE_TYPE="e2-standard-2"
+MACHINE_TYPE="e2-small"
 MIN_VMS=1
 MAX_VMS=3
 CPU_TARGET=0.6
-COOLDOWN=60
+COOLDOWN=600
 
 echo "🚀 Setup gestart voor project: $PROJECT_ID"
 echo "🌿 Deploying branch: $BRANCH"
 echo "📋 Instance template: $INSTANCE_TEMPLATE"
+echo "💻 Machine type: $MACHINE_TYPE"
 
 # ============================================================
 # 1. Cloud SQL instance
@@ -57,6 +58,7 @@ else
     --database-version="$DB_VERSION" \
     --tier="$DB_TIER" \
     --region="$REGION" \
+    --edition=ENTERPRISE \
     --root-password="$(gcloud secrets versions access latest --secret=db-password --project=$PROJECT_ID)" \
     --authorized-networks="0.0.0.0/0"
 
