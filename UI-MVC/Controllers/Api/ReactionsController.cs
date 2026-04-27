@@ -1,6 +1,8 @@
 ﻿using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models.Dto;
+using IntegratieProject.DAL.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntegratieProject.UI.MVC.Controllers.api;
@@ -170,6 +172,19 @@ public class ReactionsController : ControllerBase
             AiUnavailable = false,
             Message = "Reactie doorgestuurd voor moderatie."
         });
+    }
+
+    [HttpDelete("{reactionId:int}")]
+    [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
+    public IActionResult DeleteReaction(int reactionId)
+    {
+        if (reactionId <= 0)
+        {
+            return BadRequest(new { message = "Ongeldige reactie." });
+        }
+
+        _reactionManager.RejectReaction(reactionId);
+        return Ok(new { ok = true });
     }
 
     private User GetOrCreateUser()

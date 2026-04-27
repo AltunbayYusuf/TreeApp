@@ -72,17 +72,18 @@
                         <th class="p-3">Status</th>
                         <th class="p-3">Email</th>
                         <th class="p-3">Reacties</th>
+                        <th class="p-3"></th>
                     </tr>
                 </thead>
                 <tbody id="ideasTableBody">
                     <tr id="ideasLoadingRow">
-                        <td colspan="7" class="text-center text-muted p-4">
+                        <td colspan="8" class="text-center text-muted p-4">
                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                             Laden...
                         </td>
                     </tr>
                     <tr id="ideasEmptyRow" style="display:none">
-                        <td colspan="7" class="text-center text-muted p-4">
+                        <td colspan="8" class="text-center text-muted p-4">
                             Geen ideeën gevonden.
                         </td>
                     </tr>
@@ -90,5 +91,89 @@
             </table>
         </div>
 
+    </div>
+</div>
+
+<div class="modal fade"
+     id="deleteIdeaModal"
+     tabindex="-1"
+     aria-labelledby="deleteIdeaModalLabel"
+     aria-hidden="true"
+     style="display:none">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mx-3 mx-sm-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteIdeaModalLabel">
+                    Idee verwijderen
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        aria-label="Sluiten">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                Ben je zeker dat je het idee
+                <strong class="text-break" id="deleteIdeaTitle"></strong>
+                wilt verwijderen?
+                <br />
+                <span class="text-danger">
+                    Deze actie kan niet ongedaan gemaakt worden.
+                </span>
+            </div>
+
+            <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                <button type="button"
+                        class="btn btn-secondary w-100 w-sm-auto"
+                        id="cancelDeleteIdeaBtn">
+                    Nee
+                </button>
+
+                <button type="button" class="btn btn-danger w-100" id="confirmDeleteIdeaBtn">
+                    Ja, verwijderen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade"
+     id="deleteReactionModal"
+     tabindex="-1"
+     aria-labelledby="deleteReactionModalLabel"
+     aria-hidden="true"
+     style="display:none">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mx-3 mx-sm-auto">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteReactionModalLabel">
+                    Reactie verwijderen
+                </h5>
+                <button type="button"
+                        class="btn-close"
+                        aria-label="Sluiten">
+                </button>
+            </div>
+
+            <div class="modal-body">
+                Ben je zeker dat je deze reactie wilt verwijderen?
+                <br />
+                <span class="text-danger">
+                    Deze actie kan niet ongedaan gemaakt worden.
+                </span>
+            </div>
+
+            <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                <button type="button"
+                        class="btn btn-secondary w-100 w-sm-auto"
+                        id="cancelDeleteReactionBtn">
+                    Nee
+                </button>
+
+                <button type="button" class="btn btn-danger w-100" id="confirmDeleteReactionBtn">
+                    Ja, verwijderen
+                </button>
+            </div>
+        </div>
     </div>
 </div>

@@ -28,6 +28,8 @@ export class SubAdminIdeas {
     private allIdeas: IdeaDto[] = [];
     private sortOrder: SortOrder = 'newest';
     private similarityFilter: SimilarityFilter = 'all';
+    private ideaToDelete: IdeaDto | null = null;
+    private reactionToDelete: { ideaId: number; reactionId: number } | null = null;
 
     init(): void {
         const mount = document.getElementById('subplatformIdData');
@@ -47,6 +49,8 @@ export class SubAdminIdeas {
         });
 
         this.buildDetailModal();
+        this.bindDeleteModal();
+        this.bindDeleteReactionModal();
 
         this.fetchAndRender(null);
     }
@@ -126,6 +130,8 @@ export class SubAdminIdeas {
             tbody.appendChild(this.buildIdeaRow(idea));
             tbody.appendChild(this.buildReactionsRow(idea));
         });
+
+        this.attachReactionDeleteHandlers();
     }
 
     private buildIdeaRow(idea: IdeaDto): HTMLTableRowElement {
@@ -167,16 +173,21 @@ export class SubAdminIdeas {
             : `${reactionCount} reactie${reactionCount === 1 ? '' : 's'} tonen`}
                 </button>
             </td>
+            <td class="p-3 text-end">
+                <button type="button" class="btn btn-sm btn-outline-danger delete-idea-btn" data-idea-id="${idea.id}">🗑️</button>
+            </td>
         `;
 
         tr.addEventListener('click', (e) => {
             const target = e.target as HTMLElement;
-            if (target.closest('.toggle-reactions-btn')) return;
+            if (target.closest('.toggle-reactions-btn, .delete-idea-btn')) return;
             this.openDetailModal(idea);
         });
 
         tr.querySelector<HTMLButtonElement>('.toggle-reactions-btn')
             ?.addEventListener('click', this.handleToggleReactions.bind(this));
+        tr.querySelector<HTMLButtonElement>('.delete-idea-btn')
+            ?.addEventListener('click', (e) => this.openDeleteModal(e, idea));
 
         return tr;
     }
@@ -202,11 +213,12 @@ export class SubAdminIdeas {
                         <span class="badge ${statusCfg.bg} ${statusCfg.text} border small">
                             ${DomUtils.escapeHtml(statusCfg.label)}
                         </span>
+                        <button type="button" class="btn btn-sm btn-outline-danger delete-reaction-btn" data-idea-id="${idea.id}" data-reaction-id="${r.id}">🗑️</button>
                     </li>`;
             }).join('');
 
         tr.innerHTML = `
-            <td colspan="7" class="p-0">
+            <td colspan="8" class="p-0">
                 <div class="px-4 py-2 bg-light border-bottom">
                     <p class="small fw-semibold text-muted mb-1">Reacties</p>
                     <ul class="list-unstyled mb-0">${reactionItems}</ul>
@@ -233,6 +245,124 @@ export class SubAdminIdeas {
         btn.textContent = isHidden
             ? `${count} reactie${count === 1 ? '' : 's'} verbergen`
             : `${count} reactie${count === 1 ? '' : 's'} tonen`;
+    }
+
+    private bindDeleteModal(): void {
+        const modal = document.getElementById('deleteIdeaModal');
+        if (!modal) return;
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) this.closeDeleteModal();
+        });
+        document.getElementById('cancelDeleteIdeaBtn')?.addEventListener('click', () => this.closeDeleteModal());
+        modal.querySelector('.btn-close')?.addEventListener('click', () => this.closeDeleteModal());
+        document.getElementById('confirmDeleteIdeaBtn')?.addEventListener('click', this.handleDeleteIdea.bind(this));
+    }
+
+    private bindDeleteReactionModal(): void {
+        const modal = document.getElementById('deleteReactionModal');
+        if (!modal) return;
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) this.closeDeleteReactionModal();
+        });
+        document.getElementById('cancelDeleteReactionBtn')?.addEventListener('click', () => this.closeDeleteReactionModal());
+        modal.querySelector('.btn-close')?.addEventListener('click', () => this.closeDeleteReactionModal());
+        document.getElementById('confirmDeleteReactionBtn')?.addEventListener('click', this.handleDeleteReaction.bind(this));
+    }
+
+    private openDeleteModal(e: MouseEvent, idea: IdeaDto): void {
+        e.preventDefault();
+        this.ideaToDelete = idea;
+
+        const title = document.getElementById('deleteIdeaTitle');
+        if (title) title.textContent = idea.title || 'Zonder titel';
+
+        const modal = document.getElementById('deleteIdeaModal');
+        if (!modal) return;
+
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    private closeDeleteModal(): void {
+        const modal = document.getElementById('deleteIdeaModal');
+        if (!modal) return;
+
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        this.ideaToDelete = null;
+    }
+
+    private openDeleteReactionModal(ideaId: number, reactionId: number): void {
+        this.reactionToDelete = { ideaId, reactionId };
+
+        const modal = document.getElementById('deleteReactionModal');
+        if (!modal) return;
+
+        modal.style.display = 'block';
+        modal.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    private closeDeleteReactionModal(): void {
+        const modal = document.getElementById('deleteReactionModal');
+        if (!modal) return;
+
+        modal.style.display = 'none';
+        modal.classList.remove('show');
+        document.body.classList.remove('modal-open');
+        this.reactionToDelete = null;
+    }
+
+    private async handleDeleteIdea(): Promise<void> {
+        const ideaId = this.ideaToDelete?.id;
+        if (!ideaId) return;
+
+        const response = await fetch(`/api/ideas/${ideaId}`, { method: 'DELETE' });
+        if (!response.ok) {
+            this.showError('Kon idee niet verwijderen.');
+            return;
+        }
+
+        this.allIdeas = this.allIdeas.filter(i => i.id !== ideaId);
+        this.closeDeleteModal();
+        this.renderRows();
+    }
+
+    private async handleDeleteReaction(): Promise<void> {
+        const reactionId = this.reactionToDelete?.reactionId;
+        const ideaId = this.reactionToDelete?.ideaId;
+        if (!reactionId || !ideaId) return;
+
+        const response = await fetch(`/api/reactions/${reactionId}`, { method: 'DELETE' });
+        if (!response.ok) {
+            this.showError('Kon reactie niet verwijderen.');
+            return;
+        }
+
+        const idea = this.allIdeas.find(i => i.id === ideaId);
+        if (idea) {
+            idea.reactions = idea.reactions.filter(r => r.id !== reactionId);
+        }
+
+        this.closeDeleteReactionModal();
+        this.renderRows();
+    }
+
+    private attachReactionDeleteHandlers(): void {
+        document.querySelectorAll<HTMLButtonElement>('.delete-reaction-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const reactionId = Number(btn.dataset.reactionId);
+                const ideaId = Number(btn.dataset.ideaId);
+                if (!reactionId || !ideaId) return;
+                this.openDeleteReactionModal(ideaId, reactionId);
+            });
+        });
     }
     
 
@@ -379,7 +509,7 @@ export class SubAdminIdeas {
 
         const tr = document.createElement('tr');
         tr.className = 'idea-row';
-        tr.innerHTML = `<td colspan="7" class="text-center text-danger p-4">${DomUtils.escapeHtml(msg)}</td>`;
+        tr.innerHTML = `<td colspan="8" class="text-center text-danger p-4">${DomUtils.escapeHtml(msg)}</td>`;
         tbody.appendChild(tr);
     }
 

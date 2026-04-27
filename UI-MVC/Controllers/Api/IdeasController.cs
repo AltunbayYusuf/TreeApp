@@ -139,6 +139,19 @@ public class IdeasController : ControllerBase
         });
     }
 
+    [HttpDelete("{ideaId:int}")]
+    [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
+    public IActionResult DeleteIdea(int ideaId)
+    {
+        if (ideaId <= 0)
+        {
+            return BadRequest(new { message = "Ongeldig idee." });
+        }
+
+        _ideaManager.RejectIdea(ideaId);
+        return Ok(new { ok = true });
+    }
+
 
     private User SaveContactPreference(SubmitIdeaViewModel vm)
     {
