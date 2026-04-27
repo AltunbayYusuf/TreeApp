@@ -53,7 +53,7 @@ public class DataSeeder
             Introduction =
                 "Deze vragenlijst is anoniem en helpt ons inzicht te krijgen in het campusleven.",
             Status = Status.Active,
-            Type = ProjectType.VerticalScroll,
+            Type = ProjectType.Chat,
             Prompt = "",
             Duration = 30,
             ReleaseDate = DateTime.UtcNow,

@@ -62,6 +62,37 @@ public class SurveyController : Controller
         return View(questions);
     }
 
+    [HttpGet]
+    public IActionResult Chat(string subplatform, int projectId)
+    {
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+
+        if (project == null)
+        {
+            return NotFound();
+        }
+        if (project.Status != Status.Active)
+        {
+            return NotFound();
+        }
+
+        var user = GetOrCreateUser();
+
+        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, projectId);
+        if (existingResponse != null)
+        {
+            ViewBag.ProjectId = projectId;
+            ViewBag.SubPlatformSlug = subplatform;
+            return View("Results", existingResponse);
+        }
+
+        ViewBag.ProjectId = projectId;
+        ViewBag.SubPlatformSlug = subplatform;
+
+        var questions = _questionManager.GetQuestionListByProject(project);
+        return View(questions);
+    }
+
     [HttpPost]
     public IActionResult Submit(string subplatform,List<AnswerDto> answers, int projectId)
     {

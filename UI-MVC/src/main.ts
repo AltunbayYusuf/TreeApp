@@ -7,6 +7,7 @@ import './main.scss';
 
 import './js/survey/index';
 import './js/survey/results';
+import './js/survey/chat';
 import './js/reaction/index';
 import './js/idea/create';
 import './js/idea/ideas';

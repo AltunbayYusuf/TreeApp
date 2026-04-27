@@ -1,3 +1,4 @@
+@using IntegratieProject.BL.Domain.project
 @model IntegratieProject.BL.Domain.project.Project
 
 @{
@@ -53,13 +54,26 @@
         🔒 Anoniem & Vertrouwelijk
     </div>
 
-    <a asp-controller="Survey"
-       asp-action="Index"
-       asp-route-subplatform="@Model.SubPlatform.Slug"
-       asp-route-projectId="@Model.Id"
-       class="btn btn-dark home-start-btn">
-        Start bevraging
-    </a>
+    @if (Model.Type == ProjectType.Chat)
+    {
+        <a asp-controller="Survey"
+           asp-action="Chat"
+           asp-route-subplatform="@Model.SubPlatform.Slug"
+           asp-route-projectId="@Model.Id"
+           class="btn btn-dark home-start-btn">
+            Start bevraging
+        </a>
+    }
+    else
+    {
+        <a asp-controller="Survey"
+           asp-action="Index"
+           asp-route-subplatform="@Model.SubPlatform.Slug"
+           asp-route-projectId="@Model.Id"
+           class="btn btn-dark home-start-btn">
+            Start bevraging
+        </a>
+    }
 
     <div class="mt-4">
         <div class="border rounded p-3 text-muted"><a asp-controller="Home" asp-action="Privacy">→ Privacy policy </a> </div>
