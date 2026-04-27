@@ -54,6 +54,11 @@ public class SurveyController : Controller
         ViewBag.SubPlatformSlug = subplatform;
 
         var questions = _questionManager.GetQuestionListByProject(project);
+        
+        if (questions == null)
+        {
+            return NotFound();
+        }
         return View(questions);
     }
 

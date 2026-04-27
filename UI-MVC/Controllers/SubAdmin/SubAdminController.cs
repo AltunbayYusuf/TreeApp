@@ -115,4 +115,36 @@ public class SubAdminController : Controller
 
         return RedirectToAction("Index", new { subplatform });
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int projectId, string subplatform)
+    {
+        if (string.IsNullOrWhiteSpace(subplatform))
+            return NotFound();
+
+        var subPlatformEntity = _subplatformManager.GetSubPlatformBySlug(subplatform);
+        if (subPlatformEntity == null)
+            return NotFound();
+
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+            return Redirect("/Identity/Account/Login");
+
+        if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
+            return Forbid();
+
+        var project = _projectManager.GetProject(projectId);
+        if (project == null)
+            return NotFound();
+
+        if (project.SubPlatformId != subPlatformEntity.Id)
+            return Forbid();
+
+        _projectManager.DeleteProject(projectId);
+
+        TempData["Success"] = "Project werd succesvol verwijderd.";
+
+        return RedirectToAction("Index", new { subplatform });
+    }    
 }

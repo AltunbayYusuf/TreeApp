@@ -10,4 +10,6 @@ public interface IProjectRepository
     void ChangeProject(Project project);
 
     void CreateProject(Project project);
+    
+    void DeleteProject(Project project);
 }

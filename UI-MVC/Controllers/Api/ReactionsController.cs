@@ -1,6 +1,8 @@
 ﻿using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models.Dto;
+using IntegratieProject.DAL.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntegratieProject.UI.MVC.Controllers.api;
@@ -98,6 +100,35 @@ public class ReactionsController : ControllerBase
         }
     }
 
+    [HttpPost("toggle-emoji")]
+    public async Task<ActionResult<ReactionResultDto>> ToggleEmoji([FromBody] NewReactionDto newReactionDto)
+    {
+        if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0 || string.IsNullOrWhiteSpace(newReactionDto.Emoji))
+        {
+            return BadRequest(new ReactionResultDto
+            {
+                Ok = false,
+                Message = "Ongeldige emoji reactie."
+            });
+        }
+
+        var user = GetOrCreateUser();
+        var result = await _reactionManager.ToggleEmojiReactionAsync(
+            newReactionDto.IdeaId.Value,
+            newReactionDto.Emoji,
+            user.Id
+        );
+
+        return Ok(new ReactionResultDto
+        {
+            Ok = true,
+            Saved = result.Added,
+            Added = result.Added,
+            Count = result.Count,
+            Message = result.Added ? "Emoji reactie opgeslagen." : "Emoji reactie verwijderd."
+        });
+    }
+
     [HttpPost("force")]
     public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
     {
@@ -141,6 +172,19 @@ public class ReactionsController : ControllerBase
             AiUnavailable = false,
             Message = "Reactie doorgestuurd voor moderatie."
         });
+    }
+
+    [HttpDelete("{reactionId:int}")]
+    [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
+    public IActionResult DeleteReaction(int reactionId)
+    {
+        if (reactionId <= 0)
+        {
+            return BadRequest(new { message = "Ongeldige reactie." });
+        }
+
+        _reactionManager.RejectReaction(reactionId);
+        return Ok(new { ok = true });
     }
 
     private User GetOrCreateUser()

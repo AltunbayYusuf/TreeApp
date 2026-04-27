@@ -8,6 +8,7 @@ public class IdeasOverviewViewModel
 {
     [Required(ErrorMessage = "IdeasOverview must belong to a project")]
     public Project Project { get; set; }
+    public int? CurrentUserId { get; set; }
     public int? SelectedTopicId { get; set; }
     public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
     public IEnumerable<Idea> Ideas { get; set; } = new List<Idea>();

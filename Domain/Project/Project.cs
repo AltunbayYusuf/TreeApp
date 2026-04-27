@@ -6,7 +6,7 @@ using IntegratieProject.BL.Domain.socialeMedia;
 
 namespace IntegratieProject.BL.Domain.project;
 
-public class Project
+public class Project: IValidatableObject
 {
     public int Id { get; set; }
 
@@ -33,7 +33,6 @@ public class Project
     public SubPlatform SubPlatform { get; set; }
     public bool HasBeenActive { get; set; }
 
-    [Required(ErrorMessage = "Project must have topics")]
     public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
     
     public SocialMediaPost SocialMediaPost { get; set; }
@@ -43,4 +42,13 @@ public class Project
     public QuestionList QuestionList { get; set; }
 
     public ICollection<SurveyResponse> SurveyResponses { get; set; } = new List<SurveyResponse>();
+    
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (Topics == null || !Topics.Any())
+        {
+            yield return new ValidationResult(
+                "Project must have at least one topic", new[] { nameof(Topics) });
+        }
+    }
 }

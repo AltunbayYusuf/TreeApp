@@ -17,9 +17,15 @@ public class ProjectRepository : IProjectRepository
     {
         return _context.Projects
             .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
             .Include(p => p.SubPlatform)
             .Include(p => p.Photo)
             .Include(p => p.Logo)
+            .Include(p => p.Topics)
+            .ThenInclude(t => t.Ideas)
+            .Include(p => p.SurveyResponses)
             .FirstOrDefault(p => p.Id == projectId);
     }
 
@@ -54,6 +60,20 @@ public class ProjectRepository : IProjectRepository
     public void CreateProject(Project project)
     {
         _context.Projects.Add(project);
+        _context.SaveChanges();
+    }
+    
+    public void DeleteProject(Project project)
+    { 
+        if (project == null)
+            return;
+        
+        var deletedProject = ReadProject(project.Id);
+        
+        if (deletedProject == null)
+            return;
+        
+        _context.Projects.Remove(deletedProject);
         _context.SaveChanges();
     }
 }

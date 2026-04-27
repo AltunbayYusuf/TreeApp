@@ -101,6 +101,45 @@ public class ReactionManager : IReactionManager
         };
     }
 
+    public async Task<(bool Added, int Count)> ToggleEmojiReactionAsync(int ideaId, string emoji, int userId)
+    {
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new Exception("Idee niet gevonden");
+        }
+
+        var existingReaction = _repository.ReadAcceptedEmojiReaction(ideaId, userId, emoji);
+
+        if (existingReaction != null)
+        {
+            _repository.DeleteReaction(existingReaction.Id);
+            return (false, _repository.CountAcceptedEmojiReactions(ideaId, emoji));
+        }
+
+        var otherEmojiReactions = _repository.ReadAcceptedEmojiReactionsForUser(ideaId, userId)
+            .Where(r => r.Emoji != emoji)
+            .ToList();
+
+        foreach (var otherReaction in otherEmojiReactions)
+        {
+            _repository.DeleteReaction(otherReaction.Id);
+        }
+
+        var reaction = new Reaction
+        {
+            UserId = userId,
+            Idea = idea,
+            Emoji = emoji,
+            Text = null,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        _repository.AddReaction(reaction);
+        return (true, _repository.CountAcceptedEmojiReactions(ideaId, emoji));
+    }
+
     public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
     {
         return _repository.ReadReactionsInReviewBySubPlatform(subPlatformId);

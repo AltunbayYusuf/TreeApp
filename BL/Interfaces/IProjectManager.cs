@@ -12,5 +12,5 @@ public interface IProjectManager
     Project GetProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId);
     IEnumerable<Project> GetProjectsBySubPlatform(int subPlatformId);
 
-
+    void DeleteProject(int projectId);
 }

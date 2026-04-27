@@ -53,6 +53,12 @@
 
             @foreach (var idea in Model.Ideas)
             {
+                var hasThumbsUp = Model.CurrentUserId.HasValue &&
+                                  idea.Reactions?.Any(r => r.UserId == Model.CurrentUserId && r.Text == null && r.Emoji == "👍") == true;
+                var hasHeart = Model.CurrentUserId.HasValue &&
+                               idea.Reactions?.Any(r => r.UserId == Model.CurrentUserId && r.Text == null && r.Emoji == "❤️") == true;
+                var textReactions = idea.Reactions?.Where(r => !string.IsNullOrWhiteSpace(r.Text)).ToList() ??
+                                    new List<IntegratieProject.BL.Domain.ideas.Reaction>();
                 <div class="list-group-item mb-3 idea-item bg-white shadow rounded p-4" style="display:none;">
 
                     <h5 class="mb-1">@idea.Title</h5>
@@ -68,10 +74,10 @@
                     <div class="mt-3 reactions-wrapper">
                         <strong>Reacties</strong>
 
-                        @if (idea.Reactions != null && idea.Reactions.Any())
+                        @if (textReactions.Any())
                         {
                             <ul id="reactions-list-@idea.Id" class="mt-2 mb-0 reactions-list">
-                                @foreach (var reaction in idea.Reactions)
+                                @foreach (var reaction in textReactions)
                                 {
                                     <li>
                                         @if (!string.IsNullOrWhiteSpace(reaction.Emoji))
@@ -124,18 +130,20 @@
 
                             <button
                                 type="button"
-                                class="reaction-emoji-btn btn btn-outline-secondary"
+                                class="reaction-emoji-btn btn @(hasThumbsUp ? "btn-primary selected" : "btn-outline-secondary")"
                                 data-idea-id="@idea.Id"
                                 data-emoji="👍">
                                 👍
+                                <span class="reaction-count" data-count-for="@idea.Id-👍">@(idea.Reactions?.Count(r => r.Text == null && r.Emoji == "👍") ?? 0)</span>
                             </button>
 
                             <button
                                 type="button"
-                                class="reaction-emoji-btn btn btn-outline-secondary"
+                                class="reaction-emoji-btn btn @(hasHeart ? "btn-primary selected" : "btn-outline-secondary")"
                                 data-idea-id="@idea.Id"
                                 data-emoji="❤️">
                                 ❤️
+                                <span class="reaction-count" data-count-for="@idea.Id-❤️">@(idea.Reactions?.Count(r => r.Text == null && r.Emoji == "❤️") ?? 0)</span>
                             </button>
 
                         </div>
