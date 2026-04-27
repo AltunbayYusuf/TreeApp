@@ -86,70 +86,14 @@
                         <td class="p-3">
                             <div class="d-flex flex-wrap gap-2">
 
-                    <td class="p-3">@p.Form</td>
-                    <td class="p-3">@p.ParticipantsCount</td>
-                    <td class="p-3">@p.IdeasCount</td>
-                    <td class="p-3">@p.ReleaseDate.ToString("d MMM yyyy")</td>
-
-                    <td class="p-3">
-                        <div class="d-flex flex-wrap gap-2">
-                            @if (p.Status == nameof(Status.Draft))
-                            {
-                                <form asp-action="UpdateStatus" method="post">
-                                    <input type="hidden" name="projectId" value="@p.Id" />
-                                    <input type="hidden" name="status" value="Active" />
-                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
-
-                                    <button class="btn btn-sm border bg-success bg-opacity-10 text-success">
-                                        Actief
-                                    </button>
-                                </form>
-                                <a asp-controller="SubAdminProjects"
-                                   asp-action="EditDraft"
-                                   asp-route-subplatform="@Model.Slug"
-                                   asp-route-projectId="@p.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Bewerken
-                                </a>
-                            }
-
-                            @if (p.Status == nameof(Status.Active))
-                            {
-                                <form asp-action="UpdateStatus" method="post">
-                                    <input type="hidden" name="projectId" value="@p.Id" />
-                                    <input type="hidden" name="status" value="Archived" />
-                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
-
-                                    <button class="btn btn-sm border bg-warning bg-opacity-10 text-warning">
-                                        Archief
-                                    </button>
-                                </form>
-                            }
-
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteProjectModal-@p.Id">
-                                🗑️
-                            </button>
-                        </div>
-
-                        <div class="modal fade"
-                             id="deleteProjectModal-@p.Id"
-                             tabindex="-1"
-                             aria-labelledby="deleteProjectModalLabel-@p.Id"
-                             aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mx-3 mx-sm-auto">
-                                <div class="modal-content">
-
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteProjectModalLabel-@p.Id">
-                                            Project verwijderen
-                                        </h5>
-                                        <button type="button"
-                                                class="btn-close"
-                                                data-bs-dismiss="modal"
-                                                aria-label="Sluiten">
+                                @if (p.Status == nameof(Status.Draft))
+                                {
+                                    <form asp-action="UpdateStatus" method="post">
+                                        <input type="hidden" name="projectId" value="@p.Id"/>
+                                        <input type="hidden" name="status" value="Active"/>
+                                        <input type="hidden" name="subplatform" value="@Model.Slug"/>
+                                        <button class="btn btn-sm border bg-success bg-opacity-10 text-success">
+                                            Actief
                                         </button>
                                     </form>
                                 }
@@ -226,5 +170,4 @@
             </tbody>
         </table>
     </div>
-
 </div>
