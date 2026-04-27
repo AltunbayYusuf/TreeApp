@@ -19,6 +19,7 @@ interface IdeaDto {
     topic: string;
     project: string;
     projectId: number;
+    userEmail: string | null;
     reactions: ReactionDto[];
 }
 
@@ -35,7 +36,6 @@ export class SubAdminIdeas {
         this.subplatformId = Number(mount.dataset.id ?? 0);
         if (!this.subplatformId) return;
 
-        document.getElementById('ideeen-tab')?.addEventListener('shown.bs.tab', this.handleTabOpen.bind(this));
         document.getElementById('projectFilter')?.addEventListener('change', this.handleProjectChange.bind(this));
 
         document.querySelectorAll<HTMLButtonElement>('[data-similarity]').forEach(btn => {
@@ -45,11 +45,10 @@ export class SubAdminIdeas {
         document.querySelectorAll<HTMLButtonElement>('[data-sort]').forEach(btn => {
             btn.addEventListener('click', this.handleSortClick.bind(this));
         });
-    }
 
-    private handleTabOpen(): void {
-        const projectSelect = document.getElementById('projectFilter') as HTMLSelectElement | null;
-        this.fetchAndRender(projectSelect?.value ? Number(projectSelect.value) : null);
+        this.buildDetailModal();
+
+        this.fetchAndRender(null);
     }
 
     private handleProjectChange(e: Event): void {
@@ -90,8 +89,8 @@ export class SubAdminIdeas {
             this.allIdeas = await response.json() as IdeaDto[];
             this.renderRows();
         } catch (error) {
-            console.error('Fout bij ophalen ideeën:', error);
-            this.showError('Kon ideeën niet ophalen. Probeer opnieuw.');
+            console.error('Fout bij ophalen ideeen:', error);
+            this.showError('Kon ideeen niet ophalen. Probeer opnieuw.');
         } finally {
             this.showLoading(false);
         }
@@ -132,18 +131,18 @@ export class SubAdminIdeas {
     private buildIdeaRow(idea: IdeaDto): HTMLTableRowElement {
         const tr = document.createElement('tr');
         tr.className = 'idea-row align-middle';
+        tr.style.cursor = 'pointer';
 
         const statusCfg = this.getStatusConfig(idea.status);
         const reactionCount = idea.reactions?.length ?? 0;
+        const hasEmail = !!idea.userEmail;
 
         tr.innerHTML = `
-            <td class="p-3 fw-semibold" style="max-width:180px">
-                ${DomUtils.escapeHtml(idea.title)}
+            <td class="p-3 fw-semibold" style="max-width:160px">
+                <span class="d-block text-truncate">${DomUtils.escapeHtml(idea.title)}</span>
             </td>
-            <td class="p-3 text-muted" style="max-width:280px">
-                <span class="d-block text-truncate" title="${DomUtils.escapeHtml(idea.text)}">
-                    ${DomUtils.escapeHtml(idea.text)}
-                </span>
+            <td class="p-3 text-muted" style="max-width:260px">
+                <span class="d-block text-truncate">${DomUtils.escapeHtml(idea.text)}</span>
             </td>
             <td class="p-3">${DomUtils.escapeHtml(idea.topic)}</td>
             <td class="p-3">${DomUtils.escapeHtml(idea.project)}</td>
@@ -151,6 +150,14 @@ export class SubAdminIdeas {
                 <span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text}">
                     ${DomUtils.escapeHtml(statusCfg.label)}
                 </span>
+            </td>
+            <td class="p-3">
+                ${hasEmail
+            ? `<span class="small text-success" title="${DomUtils.escapeHtml(idea.userEmail!)}">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                               <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
+                           </svg>${DomUtils.escapeHtml(idea.userEmail!)}</span>`
+            : `<span class="small text-muted">Geen email</span>`}
             </td>
             <td class="p-3">
                 <button type="button"
@@ -164,7 +171,14 @@ export class SubAdminIdeas {
             </td>
         `;
 
-        tr.querySelector<HTMLButtonElement>('.toggle-reactions-btn')?.addEventListener('click', this.handleToggleReactions.bind(this));
+        tr.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('.toggle-reactions-btn')) return;
+            this.openDetailModal(idea);
+        });
+
+        tr.querySelector<HTMLButtonElement>('.toggle-reactions-btn')
+            ?.addEventListener('click', this.handleToggleReactions.bind(this));
 
         return tr;
     }
@@ -182,7 +196,7 @@ export class SubAdminIdeas {
             : reactions.map(r => {
                 const parts: string[] = [];
                 if (r.emoji) parts.push(`<span>${DomUtils.escapeHtml(r.emoji)}</span>`);
-                if (r.text) parts.push(`<span>${DomUtils.escapeHtml(r.text)}</span>`);
+                if (r.text)  parts.push(`<span>${DomUtils.escapeHtml(r.text)}</span>`);
                 const statusCfg = this.getStatusConfig(r.status);
                 return `
                     <li class="d-flex align-items-center gap-2 py-1 border-bottom">
@@ -194,7 +208,7 @@ export class SubAdminIdeas {
             }).join('');
 
         tr.innerHTML = `
-            <td colspan="6" class="p-0">
+            <td colspan="7" class="p-0">
                 <div class="px-4 py-2 bg-light border-bottom">
                     <p class="small fw-semibold text-muted mb-1">Reacties</p>
                     <ul class="list-unstyled mb-0">${reactionItems}</ul>
@@ -222,6 +236,93 @@ export class SubAdminIdeas {
             ? `${count} reactie${count === 1 ? '' : 's'} verbergen`
             : `${count} reactie${count === 1 ? '' : 's'} tonen`;
     }
+    
+
+    private buildDetailModal(): void {
+        if (document.getElementById('ideaDetailModal')) return;
+
+        const el = document.createElement('div');
+        el.innerHTML = `
+            <div class="modal fade" id="ideaDetailModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ideaDetailTitle"></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                        </div>
+                        <div class="modal-body" id="ideaDetailBody"></div>
+                    </div>
+                </div>
+            </div>`;
+        document.body.appendChild(el.firstElementChild!);
+    }
+
+    private openDetailModal(idea: IdeaDto): void {
+        const title = document.getElementById('ideaDetailTitle');
+        const body  = document.getElementById('ideaDetailBody');
+        if (!title || !body) return;
+
+        const statusCfg = this.getStatusConfig(idea.status);
+
+        title.textContent = idea.title || 'Zonder titel';
+
+        const emailRow = idea.userEmail
+            ? `<tr>
+                   <th class="text-muted fw-normal" style="width:140px">Email</th>
+                   <td><a href="mailto:${DomUtils.escapeHtml(idea.userEmail)}">${DomUtils.escapeHtml(idea.userEmail)}</a></td>
+               </tr>`
+            : `<tr>
+                   <th class="text-muted fw-normal" style="width:140px">Email</th>
+                   <td class="text-muted">Niet opgegeven</td>
+               </tr>`;
+
+        const reactions = idea.reactions ?? [];
+        const reactionsHtml = reactions.length === 0
+            ? '<p class="text-muted small mb-0">Geen reacties.</p>'
+            : `<ul class="list-unstyled mb-0">
+                ${reactions.map(r => {
+                const parts: string[] = [];
+                if (r.emoji) parts.push(DomUtils.escapeHtml(r.emoji));
+                if (r.text)  parts.push(DomUtils.escapeHtml(r.text));
+                const cfg = this.getStatusConfig(r.status);
+                return `<li class="d-flex align-items-start gap-2 py-2 border-bottom">
+                                <span class="flex-grow-1">${parts.join(' ')}</span>
+                                <span class="badge ${cfg.bg} ${cfg.text} border">${DomUtils.escapeHtml(cfg.label)}</span>
+                            </li>`;
+            }).join('')}
+               </ul>`;
+
+        body.innerHTML = `
+            <table class="table table-borderless table-sm mb-4">
+                <tbody>
+                    <tr>
+                        <th class="text-muted fw-normal" style="width:140px">Project</th>
+                        <td>${DomUtils.escapeHtml(idea.project)}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted fw-normal">Topic</th>
+                        <td>${DomUtils.escapeHtml(idea.topic)}</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted fw-normal">Status</th>
+                        <td><span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text}">${DomUtils.escapeHtml(statusCfg.label)}</span></td>
+                    </tr>
+                    ${emailRow}
+                </tbody>
+            </table>
+
+            <h6 class="fw-semibold mb-2">Inhoud</h6>
+            <p class="mb-4" style="white-space:pre-wrap">${DomUtils.escapeHtml(idea.text)}</p>
+
+            <h6 class="fw-semibold mb-2">Reacties <span class="text-muted fw-normal">(${reactions.length})</span></h6>
+            ${reactionsHtml}
+        `;
+
+        const modalEl = document.getElementById('ideaDetailModal')!;
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+
 
     private updateSimilarityButtons(): void {
         document.querySelectorAll<HTMLButtonElement>('[data-similarity]').forEach(btn => {
@@ -246,7 +347,7 @@ export class SubAdminIdeas {
 
     private updateCounter(count: number): void {
         const counter = document.getElementById('ideasCount');
-        if (counter) counter.textContent = `${count} idee${count === 1 ? '' : 'ën'}`;
+        if (counter) counter.textContent = `${count} idee${count === 1 ? '' : 'en'}`;
     }
 
     private showLoading(show: boolean): void {
@@ -262,7 +363,7 @@ export class SubAdminIdeas {
 
         const tr = document.createElement('tr');
         tr.className = 'idea-row';
-        tr.innerHTML = `<td colspan="6" class="text-center text-danger p-4">${DomUtils.escapeHtml(msg)}</td>`;
+        tr.innerHTML = `<td colspan="7" class="text-center text-danger p-4">${DomUtils.escapeHtml(msg)}</td>`;
         tbody.appendChild(tr);
     }
 

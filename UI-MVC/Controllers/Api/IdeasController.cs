@@ -42,6 +42,7 @@ public class IdeasController : ControllerBase
             topic = i.Topic?.Theme ?? "-",
             project = i.Topic?.Project?.Name ?? "-",
             projectId = i.Topic?.Project?.Id,
+            userEmail = string.IsNullOrWhiteSpace(i.User?.Email) ? null : i.User.Email,
             reactions = (i.Reactions ?? Enumerable.Empty<Reaction>())
                 .Select(r => new
                 {
