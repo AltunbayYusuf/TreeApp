@@ -111,13 +111,7 @@
                                    class="btn btn-sm btn-outline-primary">
                                     Bewerken
                                 </a>
-                                <a asp-controller="SubAdminProjects"
-                                   asp-action="EditDraft"
-                                   asp-route-subplatform="@Model.Slug"
-                                   asp-route-projectId="@p.Id"
-                                   class="btn btn-sm btn-outline-primary">
-                                    Gebruik als startpunt
-                                </a>
+                            
                             }
 
                             @if (p.Status == nameof(Status.Active))
@@ -139,6 +133,13 @@
                                     data-bs-target="#deleteProjectModal-@p.Id">
                                 🗑️
                             </button>
+                            <a asp-controller="SubAdminProjects"
+                               asp-action="CopyAsStartPoint"
+                               asp-route-subplatform="@Model.Slug"
+                               asp-route-projectId="@p.Id"
+                               class="btn btn-sm btn-outline-primary">
+                                Startpunt Project
+                            </a>
                         </div>
 
                         <div class="modal fade"
