@@ -59,6 +59,21 @@ public class IdeaRepository : IIdeaRepository
     }
 
 
+    public IEnumerable<Idea> ReadIdeasBySubPlatform(int subPlatformId, int? projectId = null)
+    {
+        var query = _context.Ideas
+            .Include(i => i.Topic)
+            .ThenInclude(t => t.Project)
+            .Include(i => i.User)
+            .Include(i => i.Reactions)
+            .Where(i => i.Topic.Project.SubPlatformId == subPlatformId);
+
+        if (projectId.HasValue)
+            query = query.Where(i => i.Topic.Project.Id == projectId.Value);
+
+        return query.OrderByDescending(i => i.Id).ToList();
+    }
+
     public void UpdateIdea(Idea idea)
     {
         _context.Ideas.Update(idea);

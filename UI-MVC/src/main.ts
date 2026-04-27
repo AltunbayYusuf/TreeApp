@@ -12,3 +12,4 @@ import './js/idea/create';
 import './js/idea/ideas';
 import './js/createSurvey/createSurvey.ts';
 import './js/ideation/create-project-ideation'
+import './js/subadmin/ideas.ts' 

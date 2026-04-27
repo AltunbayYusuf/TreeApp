@@ -2,7 +2,6 @@ using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
-using IntegratieProject.BL.interfaces;
 using IntegratieProject.DAL.interfaces;
 
 namespace IntegratieProject.BL;
@@ -112,6 +111,11 @@ public class IdeaManager : IIdeaManager
     public IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId)
     {
         return _ideaRepository.ReadIdeasInReviewBySubPlatform(subPlatformId);
+    }
+
+    public IEnumerable<Idea> GetIdeasBySubPlatform(int subPlatformId, int? projectId = null)
+    {
+        return _ideaRepository.ReadIdeasBySubPlatform(subPlatformId, projectId);
     }
 
     public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
