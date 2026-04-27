@@ -66,19 +66,11 @@ else
 fi
 
 # ============================================================
-# 2. Startup script downloaden
+# 2. Startup script kopiëren
 # ============================================================
 echo ""
-echo "📥 Stap 2: Startup script downloaden uit GitLab (branch: $BRANCH)..."
-GIT_USER=$(gcloud secrets versions access latest --secret=gitlab-deploy-username --project="$PROJECT_ID")
-GIT_TOKEN=$(gcloud secrets versions access latest --secret=gitlab-deploy-token --project="$PROJECT_ID")
-
-rm -rf /tmp/tree-setup-repo
-git clone --depth 1 --branch "$BRANCH" \
-  "https://$GIT_USER:$GIT_TOKEN@gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/intergratieproject.git" \
-  /tmp/tree-setup-repo
-
-cp /tmp/tree-setup-repo/startup.sh /tmp/startup.sh
+echo "📥 Stap 2: Startup script kopiëren..."
+cp ./startup.sh /tmp/startup.sh
 echo "  ✅ Startup script opgehaald"
 
 # ============================================================
