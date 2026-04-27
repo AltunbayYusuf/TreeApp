@@ -64,6 +64,7 @@ public class IdeaRepository : IIdeaRepository
         var query = _context.Ideas
             .Include(i => i.Topic)
             .ThenInclude(t => t.Project)
+            .Include(i => i.User)
             .Include(i => i.Reactions)
             .Where(i => i.Topic.Project.SubPlatformId == subPlatformId);
 

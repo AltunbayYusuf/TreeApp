@@ -89,8 +89,8 @@ export class SubAdminIdeas {
             this.allIdeas = await response.json() as IdeaDto[];
             this.renderRows();
         } catch (error) {
-            console.error('Fout bij ophalen ideeen:', error);
-            this.showError('Kon ideeen niet ophalen. Probeer opnieuw.');
+            console.error('Fout bij ophalen ideeën:', error);
+            this.showError('Kon ideeën niet ophalen. Probeer opnieuw.');
         } finally {
             this.showLoading(false);
         }
@@ -135,7 +135,8 @@ export class SubAdminIdeas {
 
         const statusCfg = this.getStatusConfig(idea.status);
         const reactionCount = idea.reactions?.length ?? 0;
-        const hasEmail = !!idea.userEmail;
+        const email = idea.userEmail?.trim() ?? '';
+        const hasEmail = email !== '';
 
         tr.innerHTML = `
             <td class="p-3 fw-semibold" style="max-width:160px">
@@ -153,11 +154,8 @@ export class SubAdminIdeas {
             </td>
             <td class="p-3">
                 ${hasEmail
-            ? `<span class="small text-success" title="${DomUtils.escapeHtml(idea.userEmail!)}">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
-                               <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1zm13 2.383-4.708 2.825L15 11.105zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741M1 11.105l4.708-2.897L1 5.383z"/>
-                           </svg>${DomUtils.escapeHtml(idea.userEmail!)}</span>`
-            : `<span class="small text-muted">Geen email</span>`}
+            ? `<span class="small text-success" >✔️</span>`
+            : `<span class="small text-muted">❌</span>`}
             </td>
             <td class="p-3">
                 <button type="button"
@@ -243,18 +241,23 @@ export class SubAdminIdeas {
 
         const el = document.createElement('div');
         el.innerHTML = `
-            <div class="modal fade" id="ideaDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal fade" id="ideaDetailModal" tabindex="-1" aria-hidden="true" style="display:none">
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="ideaDetailTitle"></h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                            <button type="button" class="btn-close" aria-label="Sluiten"></button>
                         </div>
                         <div class="modal-body" id="ideaDetailBody"></div>
                     </div>
                 </div>
             </div>`;
-        document.body.appendChild(el.firstElementChild!);
+        const modal = el.firstElementChild as HTMLElement;
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) this.closeDetailModal();
+        });
+        modal.querySelector('.btn-close')?.addEventListener('click', () => this.closeDetailModal());
+        document.body.appendChild(modal);
     }
 
     private openDetailModal(idea: IdeaDto): void {
@@ -263,13 +266,14 @@ export class SubAdminIdeas {
         if (!title || !body) return;
 
         const statusCfg = this.getStatusConfig(idea.status);
+        const email = idea.userEmail?.trim() ?? '';
 
         title.textContent = idea.title || 'Zonder titel';
 
-        const emailRow = idea.userEmail
+        const emailRow = email
             ? `<tr>
                    <th class="text-muted fw-normal" style="width:140px">Email</th>
-                   <td><a href="mailto:${DomUtils.escapeHtml(idea.userEmail)}">${DomUtils.escapeHtml(idea.userEmail)}</a></td>
+                   <td><a href="mailto:${DomUtils.escapeHtml(email)}">${DomUtils.escapeHtml(email)}</a></td>
                </tr>`
             : `<tr>
                    <th class="text-muted fw-normal" style="width:140px">Email</th>
@@ -318,9 +322,21 @@ export class SubAdminIdeas {
             ${reactionsHtml}
         `;
 
-        const modalEl = document.getElementById('ideaDetailModal')!;
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
+        const modalEl = document.getElementById('ideaDetailModal');
+        if (!modalEl) return;
+
+        modalEl.style.display = 'block';
+        modalEl.classList.add('show');
+        document.body.classList.add('modal-open');
+    }
+
+    private closeDetailModal(): void {
+        const modalEl = document.getElementById('ideaDetailModal');
+        if (!modalEl) return;
+
+        modalEl.style.display = 'none';
+        modalEl.classList.remove('show');
+        document.body.classList.remove('modal-open');
     }
 
 
