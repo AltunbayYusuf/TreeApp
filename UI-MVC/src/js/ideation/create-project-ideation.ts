@@ -15,6 +15,7 @@ export class ProjectIdeationBuilder {
     init(): void {
         document.getElementById("addTopicButton")?.addEventListener("click", this.handleAddTopic.bind(this));
         document.getElementById("ideationForm")?.addEventListener("submit", this.handleSubmit.bind(this));
+        document.getElementById("emojiGroups")?.addEventListener("click", this.handleEmojiGroupClick.bind(this));
 
         this.topicsContainer?.addEventListener("click", this.handleTopicContainerClick.bind(this));
         this.topicsContainer?.addEventListener("input", this.handleTopicContainerInput.bind(this));
@@ -63,6 +64,21 @@ export class ProjectIdeationBuilder {
         } else if (target instanceof HTMLTextAreaElement && target.classList.contains("topic-description")) {
             this.clearFieldError(card, "Description");
         }
+    }
+
+    private handleEmojiGroupClick(event: MouseEvent): void {
+        const target = event.target as HTMLElement | null;
+        const selectedGroup = target?.closest(".emoji-group") as HTMLButtonElement | null;
+        const groups = Array.from(document.querySelectorAll(".emoji-group")) as HTMLButtonElement[];
+
+        if (!selectedGroup) return;
+
+        groups.forEach((group) => {
+            const isSelected = group === selectedGroup;
+            group.dataset.selected = isSelected ? "true" : "false";
+            group.classList.toggle("border-indigo-500", isSelected);
+            group.classList.toggle("bg-indigo-50", isSelected);
+        });
     }
 
     private handleAddTopic(): void {

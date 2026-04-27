@@ -98,6 +98,35 @@ public class ReactionsController : ControllerBase
         }
     }
 
+    [HttpPost("toggle-emoji")]
+    public async Task<ActionResult<ReactionResultDto>> ToggleEmoji([FromBody] NewReactionDto newReactionDto)
+    {
+        if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0 || string.IsNullOrWhiteSpace(newReactionDto.Emoji))
+        {
+            return BadRequest(new ReactionResultDto
+            {
+                Ok = false,
+                Message = "Ongeldige emoji reactie."
+            });
+        }
+
+        var user = GetOrCreateUser();
+        var result = await _reactionManager.ToggleEmojiReactionAsync(
+            newReactionDto.IdeaId.Value,
+            newReactionDto.Emoji,
+            user.Id
+        );
+
+        return Ok(new ReactionResultDto
+        {
+            Ok = true,
+            Saved = result.Added,
+            Added = result.Added,
+            Count = result.Count,
+            Message = result.Added ? "Emoji reactie opgeslagen." : "Emoji reactie verwijderd."
+        });
+    }
+
     [HttpPost("force")]
     public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
     {
