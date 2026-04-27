@@ -13,7 +13,9 @@ services:
     volumes:
       - dataprotection-keys:/root/.aspnet/DataProtection-Keys
     depends_on:
-      - cloudsql-proxy
+      cloudsql-proxy:
+        condition: service_healthy
+    restart: on-failure
 
   cloudsql-proxy:
     image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
@@ -21,9 +23,18 @@ services:
       - "--address=0.0.0.0"
       - "--port=5432"
       - "--credentials-file=/secrets/sa-key.json"
+      - "--health-check"
+      - "--http-address=0.0.0.0"
+      - "--http-port=9090"
       - "integratieproject-mvp:europe-west1:treeapp-db-new"
     volumes:
       - /tmp/sa-key.json:/secrets/sa-key.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:9090/readiness"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
     restart: always
 
 volumes:
