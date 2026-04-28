@@ -16,7 +16,6 @@ INSTANCE="treeapp-db-new"
 
 # MIG resources
 MIG_NAME="treeapp-mig"
-INSTANCE_TEMPLATE="treeapp-template-v2"
 
 # Load balancer resources (voor later als HTTPS wordt opgezet)
 LB_NAME="treeapp-lb"
@@ -46,9 +45,19 @@ gcloud compute url-maps delete "$URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev
 gcloud compute backend-services delete "$BACKEND_SERVICE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($BACKEND_SERVICE overgeslagen)"
 gcloud compute health-checks delete "$HEALTH_CHECK" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HEALTH_CHECK overgeslagen)"
 
-# MIG + template
+# MIG eerst verwijderen (anders kunnen templates niet weg)
 gcloud compute instance-groups managed delete "$MIG_NAME" --zone="$ZONE" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($MIG_NAME overgeslagen)"
-gcloud compute instance-templates delete "$INSTANCE_TEMPLATE" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($INSTANCE_TEMPLATE overgeslagen)"
+
+# Alle treeapp-template-* templates verwijderen (er kunnen er meerdere zijn, één per branch)
+echo "  🗑️  Alle treeapp-template-* verwijderen..."
+TEMPLATES=$(gcloud compute instance-templates list --project="$PROJECT_ID" --filter="name~^treeapp-template-" --format="value(name)" 2>/dev/null || echo "")
+if [ -n "$TEMPLATES" ]; then
+  for TEMPLATE in $TEMPLATES; do
+    gcloud compute instance-templates delete "$TEMPLATE" --project="$PROJECT_ID" --quiet 2>/dev/null && echo "    ✅ $TEMPLATE verwijderd" || echo "    ⏭️  $TEMPLATE overgeslagen"
+  done
+else
+  echo "    (geen templates gevonden)"
+fi
 
 # Static IP
 gcloud compute addresses delete "$STATIC_IP" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($STATIC_IP overgeslagen)"
