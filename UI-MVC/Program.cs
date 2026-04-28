@@ -138,7 +138,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseSession();
-app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -156,6 +155,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapStaticAssets();
