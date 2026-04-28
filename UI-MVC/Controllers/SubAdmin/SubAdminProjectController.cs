@@ -217,6 +217,7 @@ public class SubAdminProjectsController : Controller
         SaveSession(IdeationKey, new CreateProjectIdeationViewModel
         {
             SubplatformSlug = subplatform,
+            SelectedEmojiGroup = project.ReactionEmojiGroup,
             Topics = project.Topics.Select(t => new IdeationTopicViewModel
             {
                 Title = t.Theme,
@@ -288,6 +289,7 @@ private Project BuildProject(
         Name = info.Name,
         Introduction = info.Introduction,
         Type = info.Type,
+        ReactionEmojiGroup = ideation.SelectedEmojiGroup,
         Status = Status.Draft,
         SubPlatformId = subPlatformId,
         ReleaseDate = DateTime.UtcNow,
@@ -347,6 +349,7 @@ private async Task<IActionResult> UpdateExistingDraft(
     existingProject.Name = info.Name;
     existingProject.Introduction = info.Introduction;
     existingProject.Type = info.Type;
+    existingProject.ReactionEmojiGroup = ideation.SelectedEmojiGroup;
     existingProject.Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
         ? new Media { Uri = info.PhotoUri }
         : null;
