@@ -30,7 +30,6 @@ export class ProjectIdeationBuilder {
             this.topicsContainer.appendChild(this.createTopicCard(0));
         }
 
-        this.initializeSelectedEmojiGroup();
         this.updateTopicIndexes();
     }
 
@@ -71,7 +70,6 @@ export class ProjectIdeationBuilder {
         const target = event.target as HTMLElement | null;
         const selectedGroup = target?.closest(".emoji-group") as HTMLButtonElement | null;
         const groups = Array.from(document.querySelectorAll(".emoji-group")) as HTMLButtonElement[];
-        const selectedEmojiGroupInput = document.getElementById("SelectedEmojiGroup") as HTMLInputElement | null;
 
         if (!selectedGroup) return;
 
@@ -81,40 +79,6 @@ export class ProjectIdeationBuilder {
             group.classList.toggle("border-indigo-500", isSelected);
             group.classList.toggle("bg-indigo-50", isSelected);
         });
-
-        if (selectedEmojiGroupInput) {
-            selectedEmojiGroupInput.value = this.getEmojiGroupValue(selectedGroup);
-        }
-    }
-
-    private initializeSelectedEmojiGroup(): void {
-        const groups = Array.from(document.querySelectorAll(".emoji-group")) as HTMLButtonElement[];
-        const selectedEmojiGroupInput = document.getElementById("SelectedEmojiGroup") as HTMLInputElement | null;
-
-        if (groups.length === 0 || !selectedEmojiGroupInput) return;
-
-        const selectedValue = selectedEmojiGroupInput.value.trim();
-        const matchingGroup = groups.find((group) => this.getEmojiGroupValue(group) === selectedValue) ?? groups[0];
-
-        groups.forEach((group) => {
-            const isSelected = group === matchingGroup;
-            group.dataset.selected = isSelected ? "true" : "false";
-            group.classList.toggle("border-indigo-500", isSelected);
-            group.classList.toggle("bg-indigo-50", isSelected);
-        });
-
-        selectedEmojiGroupInput.value = this.getEmojiGroupValue(matchingGroup);
-    }
-
-    private getEmojiGroupValue(group: HTMLButtonElement): string {
-        const explicitValue = group.dataset.value?.trim();
-        if (explicitValue) return explicitValue;
-
-        const emojis = Array.from(group.querySelectorAll("span"))
-            .map((span) => span.textContent?.trim() ?? "")
-            .filter((value) => value.length > 0);
-
-        return emojis.join(",");
     }
 
     private handleAddTopic(): void {

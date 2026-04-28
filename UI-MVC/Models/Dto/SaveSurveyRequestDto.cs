@@ -18,4 +18,13 @@ public class SurveyQuestionDto
     public List<string> Answers { get; set; } = new();
     public string Min { get; set; } = "";
     public string Max { get; set; } = "";
+
+    public List<ConditionalQuestionDto> Conditionals { get; set; } = new();
+}
+
+public class ConditionalQuestionDto
+{
+    public string Trigger { get; set; } = "";
+    public bool Ai { get; set; }
+    public string Question { get; set; } = "";
 }

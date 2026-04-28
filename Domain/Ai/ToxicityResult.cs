@@ -12,4 +12,5 @@ public class ToxicityResult
 
     public string SuggestedText { get; set; } = string.Empty;
     public string Explanation { get; set; } = string.Empty;
+    public string SuggestedTitle { get; set; } = string.Empty;
 }

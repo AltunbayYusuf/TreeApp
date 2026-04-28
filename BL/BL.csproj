@@ -3,21 +3,26 @@
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
+        <NoWarn>$(NoWarn);MEAI001</NoWarn>
         <Nullable>disable</Nullable>
         <RootNamespace>IntegratieProject.BL</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DAL\DAL.csproj" />
-      <ProjectReference Include="..\Domain\Domain.csproj" />
+        <ProjectReference Include="..\DAL\DAL.csproj" />
+        <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="obj\.gitignore" />
+        <Content Include="obj\.gitignore" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Vite.AspNetCore" Version="2.4.1" />
+        <PackageReference Include="Google.Cloud.AIPlatform.V1" Version="3.70.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="2.3.0" />
+        <PackageReference Include="Microsoft.Extensions.AI" Version="10.5.0" />
+        <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.5.0" />
+        <PackageReference Include="Vite.AspNetCore" Version="2.4.1" />
     </ItemGroup>
 
 </Project>

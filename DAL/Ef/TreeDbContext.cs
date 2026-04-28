@@ -1,7 +1,9 @@
 ﻿using System.Diagnostics;
+using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Domain.Questions;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -27,6 +29,11 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<QuestionList> QuestionList { get; set; }
     public DbSet<Section> Section { get; set; }
     public DbSet<QuestionOption> QuestionOptions { get; set; }
+    
+    public DbSet<ConditionalQuestion> ConditionalQuestions { get; set; }
+    public DbSet<AiPrompt> AiPrompts { get; set; }
+    public DbSet<AiUsage> AiUsages { get; set; }
+
 
     public TreeDbContext(DbContextOptions options) : base(options)
     {
@@ -117,6 +124,16 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>
             .HasMany(sr => sr.Answers)
             .WithOne(a => a.SurveyResponse)
             .HasForeignKey(a => a.SurveyResponseId);
+        
+        modelBuilder.Entity<ConditionalQuestion>()
+            .HasOne(cq => cq.ParentQuestion)
+            .WithMany(q => q.ConditionalQuestions)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ConditionalQuestion>()
+            .HasOne(cq => cq.FollowUpQuestion)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Restrict);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

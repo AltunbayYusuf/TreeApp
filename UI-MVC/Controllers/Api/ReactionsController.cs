@@ -103,7 +103,8 @@ public class ReactionsController : ControllerBase
     [HttpPost("toggle-emoji")]
     public async Task<ActionResult<ReactionResultDto>> ToggleEmoji([FromBody] NewReactionDto newReactionDto)
     {
-        if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0 || string.IsNullOrWhiteSpace(newReactionDto.Emoji))
+        if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0 ||
+            string.IsNullOrWhiteSpace(newReactionDto.Emoji))
         {
             return BadRequest(new ReactionResultDto
             {
@@ -154,15 +155,46 @@ public class ReactionsController : ControllerBase
             });
         }
 
-
         var user = GetOrCreateUser();
 
-        await _reactionManager.ForceAddReactionAsync(
+        if (newReactionDto.SkipAiModeration)
+        {
+            await _reactionManager.AddReactionWithoutAiAsync(
+                newReactionDto.IdeaId.Value,
+                newReactionDto.Emoji,
+                newReactionDto.Text,
+                user.Id
+            );
+
+            return Ok(new ReactionResultDto
+            {
+                Ok = true,
+                Saved = true,
+                IsToxic = false,
+                AiUnavailable = false,
+                Message = "AI-alternatief gebruikt en reactie opgeslagen."
+            });
+        }
+
+        var result = await _reactionManager.AddReaction(
             newReactionDto.IdeaId.Value,
             newReactionDto.Emoji,
             newReactionDto.Text,
             user.Id
         );
+
+        if (result.IsToxic)
+        {
+            return Ok(new ReactionResultDto
+            {
+                Ok = true,
+                Saved = false,
+                IsToxic = true,
+                Warning = "Deze reactie bevat toxische inhoud en werd niet verzonden.",
+                Explanation = result.Explanation,
+                SuggestedText = result.SuggestedText
+            });
+        }
 
         return Ok(new ReactionResultDto
         {
@@ -170,7 +202,7 @@ public class ReactionsController : ControllerBase
             Saved = true,
             IsToxic = false,
             AiUnavailable = false,
-            Message = "Reactie doorgestuurd voor moderatie."
+            Message = result.Explanation
         });
     }
 

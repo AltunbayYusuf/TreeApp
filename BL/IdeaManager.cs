@@ -1,44 +1,44 @@
-using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
+using IntegratieProject.DAL.Interfaces;
 
 namespace IntegratieProject.BL;
 
 public class IdeaManager : IIdeaManager
 {
-    private readonly IAiService _aiService;
     private readonly IIdeaRepository _ideaRepository;
     private readonly ITopicRepository _topicRepository;
     private readonly IReactionRepository _reactionRepository;
     private readonly IManager _manager;
+    private readonly IAiModerationService _aiModerationService;
+    private readonly IAiProvider _aiProvider;
+    private readonly IAiPromptService _aiPromptService;
+    private readonly IRepository _repository;
 
 
-    public IdeaManager(IAiService aiService, IIdeaRepository ideaRepository, ITopicRepository topicRepository,
-        IReactionRepository reactionRepository,IManager manager)
+
+
+    public IdeaManager(IIdeaRepository ideaRepository, ITopicRepository topicRepository,
+        IReactionRepository reactionRepository,IManager manager, IAiModerationService aiModerationService, IAiProvider aiProvider, IAiPromptService aiPromptService, IRepository repository)
     {
-        _aiService = aiService;
         _reactionRepository = reactionRepository;
         _topicRepository = topicRepository;
         _ideaRepository = ideaRepository;
         _manager = manager;
+        _aiModerationService = aiModerationService;
+        _aiProvider = aiProvider;
+        _aiPromptService = aiPromptService;
+        _repository = repository;
     }
-
-    public void SubmitIdeaFromChatAsync(int topicId, string text)
-    {
-    }
-
-    public async Task<string> AskAiForIdea(string idea)
-    {
-        var prompt = $"Analyseer dit idee en geef feedback:\n{idea}";
-
-        return await _aiService.GenerateAsync(prompt, FeatureType.IdeaSelection);
-    }
+    
 
     public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId)
     {
-        var topic = _topicRepository.ReadTopicById(topicId);
+        var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
         {
             throw new Exception("Topic niet gevonden");
@@ -59,13 +59,33 @@ public class IdeaManager : IIdeaManager
 
     public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId)
     {
-        var topic = _topicRepository.ReadTopicById(topicId);
+        var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
         {
             throw new Exception("Topic niet gevonden");
         }
 
-        var moderation = await _manager.ModerateTextAsync(text);
+        var safeTitle = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title.Trim();
+        var safeText = text?.Trim() ?? "";
+
+        var moderation = await _aiModerationService.ModerateIdeaAsync(safeTitle, safeText);
+
+        if (moderation.AiUnavailable)
+        {
+            var reviewIdea = new Idea
+            {
+                Title = safeTitle,
+                Text = safeText,
+                UserId = userId,
+                Topic = topic,
+                ModerationStatus = ModerationStatus.InReview
+            };
+
+            _manager.ValidateEntity(reviewIdea);
+            _ideaRepository.AddIdea(reviewIdea);
+
+            return moderation;
+        }
 
         if (moderation.IsToxic)
         {
@@ -74,19 +94,20 @@ public class IdeaManager : IIdeaManager
 
         var idea = new Idea
         {
-            Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title,
-            Text = text,
+            Title = safeTitle,
+            Text = safeText,
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted
         };
-        _manager.ValidateEntity(idea);
 
+        _manager.ValidateEntity(idea);
         _ideaRepository.AddIdea(idea);
 
         return new ToxicityResult
         {
             IsToxic = false,
+            AiUnavailable = false,
             SuggestedText = "",
             Explanation = "Idee succesvol opgeslagen."
         };
@@ -147,4 +168,46 @@ public class IdeaManager : IIdeaManager
 
         _ideaRepository.DeleteIdea(ideaId);
     }
+    
+    public async Task<string> ImproveIdeaTextAsync(int ideaId)
+    {
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+        {
+            throw new ArgumentException("Idea not found");
+        }
+
+        var prompt = _aiPromptService.BuildIdeaImprovementPrompt(idea.Title, idea.Text);
+
+        var improvedText = await _aiProvider.GenerateAsync(prompt);
+
+        if (string.IsNullOrWhiteSpace(improvedText))
+        {
+            throw new InvalidOperationException("AI gaf geen verbeterde tekst terug.");
+        }
+
+        return improvedText.Trim();
+    }
+   
+    
+    public async Task<string> ImproveIdeaTextAsync(string title, string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            throw new ArgumentException("Idea text is required.");
+        }
+
+        var prompt = _aiPromptService.BuildIdeaImprovementPrompt(title ?? string.Empty, text);
+
+        var improvedText = await _aiProvider.GenerateAsync(prompt);
+
+        if (string.IsNullOrWhiteSpace(improvedText))
+        {
+            throw new InvalidOperationException("AI returned an empty response.");
+        }
+
+        return improvedText.Trim();
+    }
+    
 }

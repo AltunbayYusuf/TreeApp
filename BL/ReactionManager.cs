@@ -1,33 +1,111 @@
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
 
 namespace IntegratieProject.BL;
 
 public class ReactionManager : IReactionManager
 {
-    private readonly IReactionRepository _repository;
+    private readonly IAiModerationService _aiModerationService;
+    private readonly IReactionRepository _reactionRepository;
     private readonly IIdeaRepository _ideaRepository;
     private readonly IManager _manager;
 
-
-    public ReactionManager(IReactionRepository repository, IIdeaRepository ideaRepository,IManager manager)
+    public ReactionManager(
+        IReactionRepository reactionRepository,
+        IIdeaRepository ideaRepository,
+        IManager manager,
+        IAiModerationService aiModerationService)
     {
-        _repository = repository;
+        _reactionRepository = reactionRepository;
         _ideaRepository = ideaRepository;
         _manager = manager;
+        _aiModerationService = aiModerationService;
     }
 
+    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
+    {
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
+
+        if (idea == null)
+            throw new Exception("Idee niet gevonden");
+
+        var safeText = text?.Trim();
+
+        if (string.IsNullOrWhiteSpace(safeText))
+        {
+            var emojiReaction = new Reaction
+            {
+                Idea = idea,
+                Emoji = emoji,
+                Text = null,
+                UserId = userId,
+                ModerationStatus = ModerationStatus.Accepted
+            };
+
+            _manager.ValidateEntity(emojiReaction);
+            _reactionRepository.AddReaction(emojiReaction);
+
+            return new ToxicityResult
+            {
+                IsToxic = false,
+                AiUnavailable = false,
+                SuggestedText = "",
+                Explanation = "Reactie toegevoegd."
+            };
+        }
+
+        var moderation = await _aiModerationService.ModerateReactionAsync(safeText);
+
+        if (moderation.AiUnavailable)
+        {
+            var reviewReaction = new Reaction
+            {
+                Idea = idea,
+                Emoji = emoji,
+                Text = safeText,
+                UserId = userId,
+                ModerationStatus = ModerationStatus.InReview
+            };
+
+            _manager.ValidateEntity(reviewReaction);
+            _reactionRepository.AddReaction(reviewReaction);
+
+            return moderation;
+        }
+
+        if (moderation.IsToxic)
+            return moderation;
+
+        var acceptedReaction = new Reaction
+        {
+            Idea = idea,
+            Emoji = emoji,
+            Text = safeText,
+            UserId = userId,
+            ModerationStatus = ModerationStatus.Accepted
+        };
+
+        _manager.ValidateEntity(acceptedReaction);
+        _reactionRepository.AddReaction(acceptedReaction);
+
+        return new ToxicityResult
+        {
+            IsToxic = false,
+            AiUnavailable = false,
+            SuggestedText = "",
+            Explanation = "Reactie toegevoegd."
+        };
+    }
 
     public async Task ForceAddReactionAsync(int ideaId, string emoji, string text, int? userId)
     {
         var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
-        {
             throw new Exception("Idee niet gevonden");
-        }
 
         var reaction = new Reaction
         {
@@ -38,67 +116,33 @@ public class ReactionManager : IReactionManager
             ModerationStatus = ModerationStatus.InReview
         };
 
-        _repository.AddReaction(reaction);
+        _manager.ValidateEntity(reaction);
+        _reactionRepository.AddReaction(reaction);
+
         await Task.CompletedTask;
     }
-
-    public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
+    public async Task AddReactionWithoutAiAsync(int ideaId, string emoji, string text, int? userId)
     {
-        var idea = _ideaRepository.ReadIdeaById(ideaId);
+        Idea idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
         {
             throw new Exception("Idee niet gevonden");
         }
 
-        if (!string.IsNullOrWhiteSpace(emoji) && string.IsNullOrWhiteSpace(text))
+        var reaction = new Reaction
         {
-            var reaction = new Reaction
-            {
-                UserId = userId,
-                Idea = idea,
-                Emoji = emoji,
-                Text = null,
-                ModerationStatus = ModerationStatus.Accepted
-            };
-
-            _repository.AddReaction(reaction);
-
-            return new ToxicityResult
-            {
-                IsToxic = false,
-                SuggestedText = "",
-                AiUnavailable = false,
-                Explanation = "Emoji reactie opgeslagen."
-            };
-        }
-
-        // ALS ER TEKST IS → AI MODERATIE
-        var moderation = await _manager.ModerateTextAsync(text);
-
-        if (moderation.IsToxic)
-        {
-            return moderation;
-        }
-
-        var textReaction = new Reaction
-        {
-            UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
-            Text = text,
+            Text = string.IsNullOrWhiteSpace(text) ? null : text.Trim(),
+            UserId = userId,
             ModerationStatus = ModerationStatus.Accepted
         };
 
-        _repository.AddReaction(textReaction);
+        _manager.ValidateEntity(reaction);
+        _reactionRepository.AddReaction(reaction);
 
-        return new ToxicityResult
-        {
-            IsToxic = false,
-            SuggestedText = "",
-            AiUnavailable = false,
-            Explanation = "Reactie succesvol opgeslagen."
-        };
+        await Task.CompletedTask;
     }
 
     public async Task<(bool Added, int Count)> ToggleEmojiReactionAsync(int ideaId, string emoji, int userId)
@@ -106,25 +150,24 @@ public class ReactionManager : IReactionManager
         var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
-        {
             throw new Exception("Idee niet gevonden");
-        }
 
-        var existingReaction = _repository.ReadAcceptedEmojiReaction(ideaId, userId, emoji);
+        var existingReaction = _reactionRepository.ReadAcceptedEmojiReaction(ideaId, userId, emoji);
 
         if (existingReaction != null)
         {
-            _repository.DeleteReaction(existingReaction.Id);
-            return (false, _repository.CountAcceptedEmojiReactions(ideaId, emoji));
+            _reactionRepository.DeleteReaction(existingReaction.Id);
+            return (false, _reactionRepository.CountAcceptedEmojiReactions(ideaId, emoji));
         }
 
-        var otherEmojiReactions = _repository.ReadAcceptedEmojiReactionsForUser(ideaId, userId)
+        var otherEmojiReactions = _reactionRepository
+            .ReadAcceptedEmojiReactionsForUser(ideaId, userId)
             .Where(r => r.Emoji != emoji)
             .ToList();
 
         foreach (var otherReaction in otherEmojiReactions)
         {
-            _repository.DeleteReaction(otherReaction.Id);
+            _reactionRepository.DeleteReaction(otherReaction.Id);
         }
 
         var reaction = new Reaction
@@ -136,37 +179,35 @@ public class ReactionManager : IReactionManager
             ModerationStatus = ModerationStatus.Accepted
         };
 
-        _repository.AddReaction(reaction);
-        return (true, _repository.CountAcceptedEmojiReactions(ideaId, emoji));
+        _reactionRepository.AddReaction(reaction);
+
+        await Task.CompletedTask;
+        return (true, _reactionRepository.CountAcceptedEmojiReactions(ideaId, emoji));
     }
 
     public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
     {
-        return _repository.ReadReactionsInReviewBySubPlatform(subPlatformId);
+        return _reactionRepository.ReadReactionsInReviewBySubPlatform(subPlatformId);
     }
 
     public void ApproveReaction(int reactionId)
     {
-        var reaction = _repository.ReadReactionById(reactionId);
+        var reaction = _reactionRepository.ReadReactionById(reactionId);
 
         if (reaction == null)
-        {
             throw new ArgumentException("Reaction not found");
-        }
 
         reaction.ModerationStatus = ModerationStatus.Accepted;
-        _repository.UpdateReaction(reaction);
+        _reactionRepository.UpdateReaction(reaction);
     }
 
     public void RejectReaction(int reactionId)
     {
-        var reaction = _repository.ReadReactionById(reactionId);
+        var reaction = _reactionRepository.ReadReactionById(reactionId);
 
         if (reaction == null)
-        {
             throw new ArgumentException("Reaction not found");
-        }
 
-        _repository.DeleteReaction(reactionId);
+        _reactionRepository.DeleteReaction(reactionId);
     }
 }

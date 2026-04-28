@@ -9,11 +9,11 @@ public class Idea
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Idea must have a title")]
-    [MaxLength(200)]
+    [MaxLength(2000)]
     public string Title { get; set; }
 
     [Required(ErrorMessage = "Idea must have a message text")]
-    [MaxLength(200)]
+    [MaxLength(2000)]
 
     public string Text { get; set; }
     public int? UserId { get; set; }

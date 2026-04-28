@@ -30,6 +30,11 @@ export class SurveyBuilder {
     init(): void {
         this.updateCounter();
         this.bindWindowMethods();
+        const generateSurveyButton = document.getElementById("generateSurveyWithAiBtn");
+
+        generateSurveyButton?.addEventListener("click", async () => {
+            await this.generateSurveyWithAi();
+        });
 
         const form = document.getElementById("surveyForm") as HTMLFormElement | null;
 
@@ -89,7 +94,7 @@ export class SurveyBuilder {
                 return;
             }
         }
-        
+
         const data = sessionStorage.getItem("surveyDraft");
 
         if (!data) {
@@ -107,6 +112,7 @@ export class SurveyBuilder {
             this.createInitialSurvey();
         }
     }
+
     private bindWindowMethods(): void {
         // Zorg dat de inline HTML onclick/onchange attributes blijven werken
         (window as any).addSection = this.addSection.bind(this);
@@ -421,13 +427,13 @@ export class SurveyBuilder {
                     const ai = (c.querySelector("input[type='checkbox']") as HTMLInputElement | null)?.checked ?? false;
                     const conditionalQuestion = (c.querySelector(".conditional-input") as HTMLInputElement | null)?.value ?? "";
 
-                    conditionals.push({ trigger, ai, question: conditionalQuestion });
+                    conditionals.push({trigger, ai, question: conditionalQuestion});
                 });
 
-                questions.push({ title: qTitle, type, answers, min, max, conditionals });
+                questions.push({title: qTitle, type, answers, min, max, conditionals});
             });
 
-            sections.push({ title, questions });
+            sections.push({title, questions});
         });
 
         return sections;
@@ -527,6 +533,105 @@ export class SurveyBuilder {
 
         this.isLoading = false;
         this.updateCounter();
+    }
+
+    private async generateSurveyWithAi(): Promise<void> {
+        const promptInput = document.getElementById("aiPrompt") as HTMLTextAreaElement | null;
+        const tokenInput = document.querySelector("input[name='__RequestVerificationToken']") as HTMLInputElement | null;
+        const questionAmountInput = document.getElementById("questionAmount") as HTMLInputElement | null;
+
+        const messageBox = document.getElementById("surveyAiMessage") as HTMLSpanElement | null;
+        const errorBox = document.getElementById("surveyAiError") as HTMLDivElement | null;
+
+        if (!promptInput || !tokenInput) {
+            console.error("AI survey init faalt: promptInput of tokenInput ontbreekt.", {
+                promptInput,
+                tokenInput
+            });
+            return;
+        }
+
+        const description = promptInput.value.trim();
+        const questionAmount = Number(questionAmountInput?.value ?? 5);
+        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
+        const aiUrl = form?.dataset.aiUrl;
+
+        if (!aiUrl) {
+            alert("AI-url ontbreekt.");
+            return;
+        }
+
+        if (errorBox) {
+            errorBox.textContent = "";
+            errorBox.classList.add("hidden");
+        }
+
+        if (!description) {
+            alert("Geef eerst een beschrijving in.");
+            return;
+        }
+
+        if (description.length < 50) {
+            alert("Beschrijving moet minstens 50 tekens bevatten.");
+            return;
+        }
+
+        if (messageBox) {
+            messageBox.textContent = "AI maakt je vragenlijst...";
+        }
+
+        const response = await fetch(aiUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": tokenInput.value
+            },
+            body: JSON.stringify({
+                description,
+                questionAmount
+            })
+        });
+
+        const responseText = await response.text();
+
+        let data: any;
+
+        try {
+            data = JSON.parse(responseText);
+        }catch {
+            console.error("Server gaf geen JSON terug:", responseText);
+
+            if (errorBox) {
+                errorBox.textContent = responseText;
+                errorBox.classList.remove("hidden");
+            }
+
+            if (messageBox) {
+                messageBox.textContent = "";
+            }
+
+            return;
+        }
+
+        if (!response.ok || !data.ok) {
+            if (errorBox) {
+                errorBox.textContent = data.message ?? "AI kon geen vragenlijst genereren.";
+                errorBox.classList.remove("hidden");
+            }
+
+            if (messageBox) {
+                messageBox.textContent = "";
+            }
+
+            return;
+        }
+
+        this.loadFromLocalStorage(data.survey.sections);
+        sessionStorage.setItem("surveyDraft", JSON.stringify(data.survey.sections));
+
+        if (messageBox) {
+            messageBox.textContent = "Vragenlijst gegenereerd.";
+        }
     }
 }
 

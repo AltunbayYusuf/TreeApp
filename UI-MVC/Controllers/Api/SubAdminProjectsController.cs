@@ -1,5 +1,6 @@
 using System.Text.Json;
 using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,14 @@ namespace IntegratieProject.UI.MVC.Controllers.Api;
 [Route("{subplatform}/api/subadmin-projects")]
 public class SubAdminProjectsController : ControllerBase
 {
+    
+    private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
+
+    public SubAdminProjectsController(IAiSurveyGenerationService aiSurveyGenerationService)
+    {
+        _aiSurveyGenerationService = aiSurveyGenerationService;
+    }
+    
     private const string SurveyKey = "CreateProject_Survey";
 
     [HttpPost("survey")]
@@ -63,5 +72,33 @@ public class SubAdminProjectsController : ControllerBase
             redirectUrl = $"/{subplatform}/SubAdminProjects/CreateIdeation"
         });
     }
+    
+    [HttpPost("survey/ai")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateSurvey(string subplatform, [FromBody] GenerateSurveyRequest request)
+    {
+        if (request == null || string.IsNullOrWhiteSpace(request.Description))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Beschrijving is verplicht."
+            });
+        }
+
+        var survey = await _aiSurveyGenerationService.GenerateSurveyAsync(
+            request.Description,
+            request.QuestionAmount
+        );
+
+        return Ok(new
+        {
+            ok = true,
+            survey,
+            message = "Vragenlijst gegenereerd."
+        });
+    }
+    
+    
     
 }

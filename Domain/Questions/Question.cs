@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.Questions;
 
 namespace IntegratieProject.BL.Domain.questions;
 
@@ -21,6 +22,9 @@ public class Question
     public List<Answer> Answers { get; set; }
 
     public List<QuestionOption> Options { get; set; } = new();
+    
+    public ICollection<ConditionalQuestion> ConditionalQuestions { get; set; } = new List<ConditionalQuestion>();
+    public bool IsRequired { get; set; } = true;
 
     // optioneel voor Range-vragen
     public int? RangeMin { get; set; }
