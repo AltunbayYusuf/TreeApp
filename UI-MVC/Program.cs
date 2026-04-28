@@ -1,3 +1,5 @@
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.DataProtection;
 using IntegratieProject.BL;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.interfaces;
@@ -8,6 +10,7 @@ using IntegratieProject.UI.MVC;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
 
@@ -41,12 +44,41 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
 
-// Ai Toegevoegd: tijdelijke fix -> custom DataProtection verwijderd.
-// Reden: keys op /root/.aspnet/... zijn in cloud/container vaak niet echt persistent
-// en kunnen 400 errors geven bij login/antiforgery validatie.
-// builder.Services.AddDataProtection()
-//     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
-//     .SetApplicationName("IntergratieProject");
+// DataProtection keys opslaan in PostgreSQL zodat alle VMs dezelfde keys delen.
+// Noodzakelijk voor correcte werking van auth cookies en antiforgery bij horizontal scaling.
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<TreeDbContext>()
+    .SetApplicationName("IntegratieProject");
+
+// Rate limiting ter bescherming tegen overconsumptie van AI tokens.
+// Elke gebruiker (via cookie of IP) mag max 20 AI-verzoeken per uur indienen.
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("ai-limit", context =>
+    {
+        var partitionKey = context.Request.Cookies["UserIdentifier"]
+                           ?? context.Connection.RemoteIpAddress?.ToString()
+                           ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromHours(1),
+            PermitLimit = 20,
+            QueueLimit = 0,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+        });
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            ok = false,
+            message = "Je hebt het maximum aantal AI-verzoeken bereikt. Probeer over een uur opnieuw."
+        }, token);
+    };
+});
 
 
 builder.Services.AddHttpClient<IAiService, GeminiService>();
@@ -106,6 +138,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseSession();
+app.UseRateLimiter();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

@@ -17,14 +17,16 @@ INSTANCE="treeapp-db-new"
 # MIG resources
 MIG_NAME="treeapp-mig"
 
-# Load balancer resources (voor later als HTTPS wordt opgezet)
-LB_NAME="treeapp-lb"
+# Load balancer resources
 BACKEND_SERVICE="treeapp-backend"
 HEALTH_CHECK="treeapp-health-check"
 URL_MAP="treeapp-url-map"
 TARGET_HTTPS_PROXY="treeapp-https-proxy"
 FORWARDING_RULE="treeapp-https-rule"
 SSL_CERT="treeapp-ssl-cert"
+HTTP_URL_MAP="treeapp-http-redirect"
+TARGET_HTTP_PROXY="treeapp-http-proxy"
+HTTP_FORWARDING_RULE="treeapp-http-rule"
 STATIC_IP="treeapp-ip"
 
 echo "⚠️  Dit verwijdert ALLE cloud resources voor project: $PROJECT_ID"
@@ -37,11 +39,15 @@ fi
 
 echo "🔥 Teardown gestart..."
 
-# Load balancer stack (verwijdert stille als niet bestaat)
+# Load balancer stack (verwijdert stil als niet bestaat)
+# Volgorde is belangrijk: forwarding rules eerst, dan proxies, dan URL maps, dan backend, dan health check
 gcloud compute forwarding-rules delete "$FORWARDING_RULE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($FORWARDING_RULE overgeslagen)"
+gcloud compute forwarding-rules delete "$HTTP_FORWARDING_RULE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HTTP_FORWARDING_RULE overgeslagen)"
 gcloud compute target-https-proxies delete "$TARGET_HTTPS_PROXY" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($TARGET_HTTPS_PROXY overgeslagen)"
-gcloud compute ssl-certificates delete "$SSL_CERT" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($SSL_CERT overgeslagen)"
+gcloud compute target-http-proxies delete "$TARGET_HTTP_PROXY" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($TARGET_HTTP_PROXY overgeslagen)"
+gcloud compute ssl-certificates delete "$SSL_CERT" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($SSL_CERT overgeslagen)"
 gcloud compute url-maps delete "$URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($URL_MAP overgeslagen)"
+gcloud compute url-maps delete "$HTTP_URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HTTP_URL_MAP overgeslagen)"
 gcloud compute backend-services delete "$BACKEND_SERVICE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($BACKEND_SERVICE overgeslagen)"
 gcloud compute health-checks delete "$HEALTH_CHECK" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HEALTH_CHECK overgeslagen)"
 

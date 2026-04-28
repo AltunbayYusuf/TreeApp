@@ -5,6 +5,7 @@ using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace IntegratieProject.UI.MVC.Controllers.api;
 
@@ -68,6 +69,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost]
+    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> SubmitIdea([FromBody] SubmitIdeaViewModel vm)
     {
         if (vm.TopicId <= 0)
