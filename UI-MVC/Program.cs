@@ -102,6 +102,7 @@ builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<ISubplatformManager, SubplatformManager>();
 builder.Services.AddScoped<ITopicManager, TopicManager>();
 builder.Services.AddViteServices();
+builder.Services.AddHealthChecks();
 //150722
 
 
@@ -159,6 +160,8 @@ app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapStaticAssets();
+
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 

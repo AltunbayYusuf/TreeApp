@@ -197,7 +197,7 @@ if gcloud compute health-checks describe "$HEALTH_CHECK" --project="$PROJECT_ID"
 else
   gcloud compute health-checks create http "$HEALTH_CHECK" \
     --port=8080 \
-    --request-path="/" \
+    --request-path=/health \
     --check-interval=10s \
     --timeout=5s \
     --healthy-threshold=2 \
