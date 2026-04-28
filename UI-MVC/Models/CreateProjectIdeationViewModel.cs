@@ -25,6 +25,8 @@ public class CreateProjectIdeationViewModel
     [Range(0, 10, ErrorMessage = "Max keer extra opvragen moet tussen 0 en 10 liggen.")]
     public int MaxExtraRequests { get; set; } = 2;
 
+    public string SelectedEmojiGroup { get; set; } = "👍,❤️";
+
     public bool EnableContactOptIn { get; set; }
 
     [Required(ErrorMessage = "Projectnaam ontbreekt.")]

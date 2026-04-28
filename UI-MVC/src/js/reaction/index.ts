@@ -106,13 +106,12 @@ export class ReactionHandler {
         if (!textArea || !emojiInput) return;
 
         const text = textArea.value.trim();
-        const emoji = emojiInput.value.trim();
         const resultBox = document.getElementById(`reaction-result-${ideaId}`) as HTMLDivElement | null;
 
         this.clearResultBox(resultBox);
 
-        if (text === "" && emoji === "") {
-            this.showResultMsg(resultBox, "Schrijf een reactie of kies een emoji.", "danger");
+        if (text === "") {
+            this.showResultMsg(resultBox, "Schrijf eerst een reactie.", "danger");
             return;
         }
 
@@ -122,7 +121,7 @@ export class ReactionHandler {
             const response = await fetch("/api/reactions", {
                 method: "POST",
                 headers: {"Content-Type": "application/json", "Accept": "application/json"},
-                body: JSON.stringify({ideaId: parseInt(ideaId, 10), emoji, text})
+                body: JSON.stringify({ideaId: parseInt(ideaId, 10), text})
             });
 
             const data: ReactionApiResponse = await response.json();
@@ -133,7 +132,7 @@ export class ReactionHandler {
             }
 
             if (data.isToxic) {
-                this.handleToxicReaction(resultBox, data, ideaId, text, emoji, textArea);
+                this.handleToxicReaction(resultBox, data, ideaId, text, textArea);
                 return;
             }
 
@@ -145,7 +144,7 @@ export class ReactionHandler {
 
             if (data.saved) {
                 this.showResultMsg(resultBox, data.message ?? "Reactie succesvol toegevoegd.", "success");
-                this.appendReactionToList(ideaId, emoji, text);
+                this.appendReactionToList(ideaId, text);
                 this.resetForm(ideaId, textArea, emojiInput);
             }
         } catch (error) {
@@ -173,14 +172,13 @@ export class ReactionHandler {
         this.resetButtons(buttons);
     }
 
-    private appendReactionToList(ideaId: string, emoji: string, text: string): void {
+    private appendReactionToList(ideaId: string, text: string): void {
         const reactionsList = document.getElementById(`reactions-list-${ideaId}`) as HTMLUListElement | null;
         const noReactionsMessage = document.getElementById(`no-reactions-${ideaId}`) as HTMLElement | null;
 
         if (reactionsList) {
             const li = document.createElement("li");
             let html = "";
-            if (emoji) html += `<span>${DomUtils.escapeHtml(emoji)} </span>`;
             if (text) html += `<span>${DomUtils.escapeHtml(text)}</span>`;
 
             li.innerHTML = html;
@@ -194,7 +192,7 @@ export class ReactionHandler {
         }
     }
 
-    private handleToxicReaction(box: HTMLDivElement | null, data: ReactionApiResponse, ideaId: string, text: string, emoji: string, textArea: HTMLTextAreaElement): void {
+    private handleToxicReaction(box: HTMLDivElement | null, data: ReactionApiResponse, ideaId: string, text: string, textArea: HTMLTextAreaElement): void {
         if (!box) return;
 
         box.style.display = "block";
@@ -214,7 +212,7 @@ export class ReactionHandler {
             const forceResponse = await fetch("/api/reactions/force", {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
-                body: JSON.stringify({ideaId: parseInt(ideaId, 10), emoji, text})
+                body: JSON.stringify({ideaId: parseInt(ideaId, 10), text})
             });
 
             const forceData: ReactionApiResponse = await forceResponse.json();
