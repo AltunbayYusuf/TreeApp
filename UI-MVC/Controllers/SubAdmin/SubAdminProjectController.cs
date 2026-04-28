@@ -31,6 +31,7 @@ public class SubAdminProjectsController : Controller
 
     private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
     {
+        
         if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
 
         var subPlatformEntity = _subplatformManager.GetSubPlatformBySlug(subplatform);
@@ -39,6 +40,7 @@ public class SubAdminProjectsController : Controller
         var user = await _userManager.GetUserAsync(User);
         if (user == null) return Redirect("/Identity/Account/Login");
 
+       
         if (!string.Equals(user.SubPlatformSlug, subplatform, StringComparison.OrdinalIgnoreCase))
             return Forbid();
 
@@ -227,6 +229,60 @@ public class SubAdminProjectsController : Controller
 
         return RedirectToAction(nameof(ProjectInfo), new { subplatform });
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> CopyAsStartPoint(string subplatform, int projectId)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
+
+        var project = _projectManager.GetProject(projectId);
+
+        if (project == null || project.SubPlatform.Slug != subplatform)
+            return NotFound();
+
+        HttpContext.Session.Remove(DraftProjectIdKey);
+
+        SaveSession(InfoKey, new CreateProjectInfoViewModel
+        {
+            SubplatformSlug = subplatform,
+            Name = project.Name + " - kopie",
+            Introduction = project.Introduction,
+            Type = project.Type,
+            PhotoUri = project.Photo?.Uri
+        });
+
+        SaveSession(SurveyKey, new CreateProjecSurveyViewModel
+        {
+            SubplatformSlug = subplatform,
+            Sections = project.QuestionList?.Sections.Select(s => new SectionViewModel
+            {
+                Title = s.Title,
+                Order = s.Order,
+                Questions = s.Questions.Select(q => new QuestionViewModel
+                {
+                    Description = q.Description,
+                    QuestionType = q.QuestionType,
+                    RangeMin = q.RangeMin,
+                    RangeMax = q.RangeMax,
+                    Options = q.Options.Select(o => o.Text).ToList()
+                }).ToList()
+            }).ToList() ?? new List<SectionViewModel>()
+        });
+
+        SaveSession(IdeationKey, new CreateProjectIdeationViewModel
+        {
+            SubplatformSlug = subplatform,
+            Topics = project.Topics.Select(t => new IdeationTopicViewModel
+            {
+                Title = t.Theme,
+                Description = t.Description
+            }).ToList()
+        });
+
+        return RedirectToAction(nameof(ProjectInfo), new { subplatform });
+    }
+    
 private async Task<IActionResult> TryCreateProject(string subplatform)
 {
     var validationResult = ValidateProjectSessions(subplatform);

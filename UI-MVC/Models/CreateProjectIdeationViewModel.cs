@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using IntegratieProject.BL.Domain.project;
 
 namespace IntegratieProject.UI.MVC.Models;
 
@@ -28,8 +29,17 @@ public class CreateProjectIdeationViewModel
 
     public bool EnableContactOptIn { get; set; }
 
-    // [Url(ErrorMessage = "Geef een geldige URL op.")]
-    // public string PrivacyPolicyUrl { get; set; }
+    [Required(ErrorMessage = "Projectnaam ontbreekt.")]
+    public string ProjectName { get; set; } = "";
+
+    [Required(ErrorMessage = "Introductietekst ontbreekt.")]
+    public string Introduction { get; set; } = "";
+
+    [Required(ErrorMessage = "Projecttype ontbreekt.")]
+    public ProjectType ProjectType { get; set; }
+
+    [Required(ErrorMessage = "Bevraging ontbreekt.")]
+    public string SurveyJson { get; set; } = "";
 }
 
 public class IdeationTopicViewModel

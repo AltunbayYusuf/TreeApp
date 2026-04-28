@@ -1,10 +1,11 @@
+@using IntegratieProject.BL.Domain.project
 @model IntegratieProject.BL.Domain.project.Project
 
 @{
     ViewData["Title"] = "Project";
 }
 
-<div class="container mt-4" style="max-width: 700px;">
+<div class="container mt-4" style="max-width: 700px;" xmlns="http://www.w3.org/1999/html">
 
     <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-4 home-topbar">
         <div>
@@ -53,17 +54,28 @@
         🔒 Anoniem & Vertrouwelijk
     </div>
 
-    <a asp-controller="Survey"
-       asp-action="Index"
-       asp-route-subplatform="@Model.SubPlatform.Slug"
-       asp-route-projectId="@Model.Id"
-       class="btn btn-dark home-start-btn">
-        Start bevraging
-    </a>
+    @if (Model.Type == ProjectType.Chat)
+    {
+        <a asp-controller="Survey"
+           asp-action="Chat"
+           asp-route-subplatform="@Model.SubPlatform.Slug"
+           asp-route-projectId="@Model.Id"
+           class="btn btn-dark home-start-btn">
+            Start bevraging
+        </a>
+    }
+    else
+    {
+        <a asp-controller="Survey"
+           asp-action="Index"
+           asp-route-subplatform="@Model.SubPlatform.Slug"
+           asp-route-projectId="@Model.Id"
+           class="btn btn-dark home-start-btn">
+            Start bevraging
+        </a>
+    }
 
     <div class="mt-4">
-        <div class="border rounded p-3 mb-2 text-muted">→ Over dit project</div>
-        <div class="border rounded p-3 mb-2 text-muted">→ Over de hogeschool</div>
-        <div class="border rounded p-3 text-muted">→ Privacy policy</div>
+        <div class="border rounded p-3 text-muted"><a asp-controller="Home" asp-action="Privacy">→ Privacy policy </a> </div>
     </div>
 </div>

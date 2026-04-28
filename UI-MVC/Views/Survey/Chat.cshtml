@@ -1,0 +1,43 @@
+@using IntegratieProject.BL.Domain.questions
+@using System.Text.Json
+@model QuestionList
+@{
+    ViewBag.Title = "Survey - Chat";
+    Layout = "_Layout";
+    var allQuestions = Model.Sections.SelectMany(s => s.Questions).ToList();
+    var jsonData = JsonSerializer.Serialize(allQuestions.Select(q => new
+    {
+        id = q.Id,
+        description = q.Description,
+        questionType = q.QuestionType.ToString(),
+        options = q.Options.Select(o => new { text = o.Text }),
+        rangeMin = q.RangeMin,
+        rangeMax = q.RangeMax,
+        rangeMinLabel = q.RangeMinLabel,
+        rangeMaxLabel = q.RangeMaxLabel
+    }));
+}
+
+<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
+
+<script id="survey-data" type="application/json">
+@Html.Raw(jsonData)
+</script>
+
+<div class="chatbot-page d-flex flex-column bg-white overflow-hidden">
+    <div class="chatbot-header d-flex align-items-center gap-3 py-3 px-4 text-white">
+        <img src="@Model.Project.Logo.Uri" alt="Logo" class="chatbot-logo rounded-circle object-fit-cover" />
+        <div class="chatbot-header-info d-flex flex-column">
+            <span class="fw-bold">Echo Assistent</span>
+            <span class="chatbot-status d-flex align-items-center gap-1">
+                <span class="chatbot-status-dot"></span> Online
+            </span>
+        </div>
+    </div>
+
+    <div class="chatbot-window" id="chatWindow">
+        <div class="chatbot-messages" id="chatMessages"></div>
+    </div>
+
+    <div class="chatbot-input-area d-flex align-items-start flex-wrap gap-2 bg-white" id="chatInputArea"></div>
+</div>

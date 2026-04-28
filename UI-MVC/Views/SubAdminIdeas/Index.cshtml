@@ -27,6 +27,13 @@
 
                 <span id="ideasCount" class="text-muted small"></span>
 
+                <div class="input-group input-group-sm w-auto mx-sm-3" style="max-width: 250px;">
+                    <input type="text" id="keywordFilter" class="form-control" placeholder="Zoeken op trefwoord..." />
+                    <button class="btn btn-outline-secondary" type="button" id="clearKeywordBtn">
+                        &times;
+                    </button>
+                </div>
+
                 <div class="ms-sm-auto d-flex align-items-center gap-2">
                     <label class="fw-semibold mb-0 text-nowrap">Datum:</label>
                     <div class="btn-group btn-group-sm" role="group">
@@ -66,13 +73,27 @@
                 <thead class="table-light">
                     <tr>
                         <th class="p-3">Titel</th>
-                        <th class="p-3">Inhoud</th>
-                        <th class="p-3">Topic</th>
+                        <th class="p-3 d-none d-md-table-cell">Inhoud</th>
+                        <th class="p-3 d-none d-md-table-cell">Topic</th>
                         <th class="p-3">Project</th>
-                        <th class="p-3">Status</th>
-                        <th class="p-3">Email</th>
-                        <th class="p-3">Reacties</th>
-                        <th class="p-3"></th>
+                        <th class="p-3 user-select-none" style="cursor:pointer;" id="thStatus" title="Klik om te sorteren op status">
+                            <div class="d-flex align-items-center gap-1">
+                                Status 
+                                <span class="text-muted small d-flex align-items-center" id="iconStatus">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
+                                </span>
+                            </div>
+                        </th>
+                        <th class="p-3 user-select-none d-none d-md-table-cell" style="cursor:pointer;" id="thEmail" title="Klik om te sorteren op email">
+                            <div class="d-flex align-items-center gap-1">
+                                Email 
+                                <span class="text-muted small d-flex align-items-center" id="iconEmail">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
+                                </span>
+                            </div>
+                        </th>
+                        <th class="p-3 d-none d-md-table-cell">Reacties</th>
+                        <th class="p-3 d-none d-md-table-cell"></th>
                     </tr>
                 </thead>
                 <tbody id="ideasTableBody">
