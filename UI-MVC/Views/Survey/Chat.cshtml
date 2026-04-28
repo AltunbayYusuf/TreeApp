@@ -25,6 +25,8 @@
                 text = o.Text ?? ""
             })
             .ToList(),
+        
+        
 
         conditionalQuestions = (q.ConditionalQuestions ?? new List<ConditionalQuestion>())
             .Where(cq => cq != null && cq.FollowUpQuestion != null)
