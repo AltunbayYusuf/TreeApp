@@ -22,6 +22,8 @@ public class Project: IValidatableObject
     public Status Status { get; set; }
     [MaxLength(400)]
     public string Prompt { get; set; }
+    [MaxLength(50)]
+    public string ReactionEmojiGroup { get; set; } = "👍,❤️";
     public int Duration { get; set; }
     public DateTime ReleaseDate { get; set; }
 

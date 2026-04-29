@@ -370,6 +370,7 @@ public class SubAdminProjectsController : Controller
             Introduction = info.Introduction,
             Type = info.Type,
             Status = Status.Draft,
+            ReactionEmojiGroup = ideation.SelectedEmojiGroup,
             SubPlatformId = subPlatformId,
             ReleaseDate = DateTime.UtcNow,
             Duration = 10,
@@ -471,6 +472,7 @@ public class SubAdminProjectsController : Controller
         existingProject.Name = info.Name;
         existingProject.Introduction = info.Introduction;
         existingProject.Type = info.Type;
+        existingProject.ReactionEmojiGroup = ideation.SelectedEmojiGroup;
         existingProject.Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
             ? new Media { Uri = info.PhotoUri }
             : null;
