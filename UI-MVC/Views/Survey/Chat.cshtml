@@ -1,84 +1,38 @@
 @using IntegratieProject.BL.Domain.questions
 @using System.Text.Json
-@using IntegratieProject.BL.Domain.Questions
 @model QuestionList
 @{
     ViewBag.Title = "Survey - Chat";
     Layout = "_Layout";
-
     var allQuestions = Model?.Sections?
         .Where(s => s != null)
-        .SelectMany(s => s.Questions ?? new List<Question>())
-        .Where(q => q != null)
+        .SelectMany(s => s.Questions ?? Enumerable.Empty<Question>())
         .ToList() ?? new List<Question>();
-
-    var surveyData = allQuestions.Select(q => new
+    var jsonData = JsonSerializer.Serialize(allQuestions.Select(q => new
     {
         id = q.Id,
-        description = q.Description ?? "",
+        description = q.Description,
         questionType = q.QuestionType.ToString(),
-
-        options = (q.Options ?? new List<QuestionOption>())
-            .Where(o => o != null)
-            .Select(o => new
-            {
-                text = o.Text ?? ""
-            })
-            .ToList(),
-        
-        
-
-        conditionalQuestions = (q.ConditionalQuestions ?? new List<ConditionalQuestion>())
-            .Where(cq => cq != null && cq.FollowUpQuestion != null)
-            .Select(cq => new
-            {
-                triggerValue = cq.TriggerValue ?? "",
-                triggerType = cq.TriggerType.ToString(),
-                followUpQuestionId = cq.FollowUpQuestion!.Id,
-                followUpQuestion = new
-                {
-                    id = cq.FollowUpQuestion.Id,
-                    description = cq.FollowUpQuestion.Description ?? "",
-                    questionType = cq.FollowUpQuestion.QuestionType.ToString(),
-
-                    options = (cq.FollowUpQuestion.Options ?? new List<QuestionOption>())
-                        .Where(o => o != null)
-                        .Select(o => new
-                        {
-                            text = o.Text ?? ""
-                        })
-                        .ToList(),
-
-                    rangeMin = cq.FollowUpQuestion.RangeMin,
-                    rangeMax = cq.FollowUpQuestion.RangeMax,
-                    rangeMinLabel = cq.FollowUpQuestion.RangeMinLabel ?? "",
-                    rangeMaxLabel = cq.FollowUpQuestion.RangeMaxLabel ?? ""
-                }
-            })
-            .ToList(),
-
+        options = (q.Options ?? Enumerable.Empty<QuestionOption>()).Select(o => new { text = o.Text }),
         rangeMin = q.RangeMin,
         rangeMax = q.RangeMax,
-        rangeMinLabel = q.RangeMinLabel ?? "",
-        rangeMaxLabel = q.RangeMaxLabel ?? ""
-    }).ToList();
-
-    var jsonData = JsonSerializer.Serialize(surveyData);
+        rangeMinLabel = q.RangeMinLabel,
+        rangeMaxLabel = q.RangeMaxLabel
+    }));
+    var logoUri = Model?.Project?.Logo?.Uri ?? "";
 }
 
-<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug"/>
+<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
 
 <script id="survey-data" type="application/json">
 @Html.Raw(jsonData)
-
 </script>
 
 <div class="chatbot-page d-flex flex-column bg-white overflow-hidden">
     <div class="chatbot-header d-flex align-items-center gap-3 py-3 px-4 text-white">
-        <img src="@Model.Project.Logo.Uri" alt="Logo" class="chatbot-logo rounded-circle object-fit-cover"/>
-        @if (Model.Project?.Logo != null)
+        @if (!string.IsNullOrWhiteSpace(logoUri))
         {
-            <img src="@Model.Project.Logo.Uri" alt="Logo" class="w-52 h-40">
+            <img src="@logoUri" alt="Logo" class="chatbot-logo rounded-circle object-fit-cover" />
         }
         <div class="chatbot-header-info d-flex flex-column">
             <span class="fw-bold">Echo Assistent</span>

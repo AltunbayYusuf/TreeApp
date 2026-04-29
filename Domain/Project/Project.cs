@@ -15,7 +15,7 @@ public class Project: IValidatableObject
     public string Name { get; set; } = "";
 
     [Required(ErrorMessage = "Project must have an introduction")]
-    [MaxLength(200)]
+    [MaxLength(400)]
     public string Introduction { get; set; }
 
     [Required(ErrorMessage = "Project must have a status")]
