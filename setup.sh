@@ -197,7 +197,7 @@ if gcloud compute health-checks describe "$HEALTH_CHECK" --project="$PROJECT_ID"
 else
   gcloud compute health-checks create http "$HEALTH_CHECK" \
     --port=8080 \
-    --request-path=/health \
+    --request-path=//favicon.ico \
     --check-interval=10s \
     --timeout=5s \
     --healthy-threshold=2 \
@@ -290,14 +290,16 @@ if [ -n "$DOMAIN" ]; then
   if gcloud compute url-maps describe "$HTTP_URL_MAP" --project="$PROJECT_ID" &>/dev/null; then
     echo "  ⏭️  HTTP redirect URL map bestaat al, overgeslagen"
   else
-    gcloud compute url-maps import "$HTTP_URL_MAP" \
-      --source /dev/stdin \
-      --global \
-      --project="$PROJECT_ID" << 'YAMLEOF'
+    cat > /tmp/http-redirect.yaml <<"YAMLEOF"
+name: treeapp-http-redirect
 defaultUrlRedirect:
   redirectResponseCode: MOVED_PERMANENTLY_DEFAULT
   httpsRedirect: true
 YAMLEOF
+    gcloud compute url-maps import "$HTTP_URL_MAP" \
+      --source=/tmp/http-redirect.yaml \
+      --global \
+      --project="$PROJECT_ID"
   fi
 
   if gcloud compute target-http-proxies describe "$TARGET_HTTP_PROXY" --project="$PROJECT_ID" &>/dev/null; then

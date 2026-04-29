@@ -45,7 +45,7 @@ gcloud compute forwarding-rules delete "$FORWARDING_RULE" --global --project="$P
 gcloud compute forwarding-rules delete "$HTTP_FORWARDING_RULE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HTTP_FORWARDING_RULE overgeslagen)"
 gcloud compute target-https-proxies delete "$TARGET_HTTPS_PROXY" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($TARGET_HTTPS_PROXY overgeslagen)"
 gcloud compute target-http-proxies delete "$TARGET_HTTP_PROXY" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($TARGET_HTTP_PROXY overgeslagen)"
-gcloud compute ssl-certificates delete "$SSL_CERT" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($SSL_CERT overgeslagen)"
+# gcloud compute ssl-certificates delete "$SSL_CERT" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($SSL_CERT overgeslagen)"
 gcloud compute url-maps delete "$URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($URL_MAP overgeslagen)"
 gcloud compute url-maps delete "$HTTP_URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HTTP_URL_MAP overgeslagen)"
 gcloud compute backend-services delete "$BACKEND_SERVICE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($BACKEND_SERVICE overgeslagen)"
@@ -66,7 +66,7 @@ else
 fi
 
 # Static IP
-gcloud compute addresses delete "$STATIC_IP" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($STATIC_IP overgeslagen)"
+# gcloud compute addresses delete "$STATIC_IP" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($STATIC_IP overgeslagen)"
 
 # Cloud SQL (helemaal op het einde, anders kan app niet afsluiten)
 gcloud sql instances delete "$INSTANCE" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($INSTANCE overgeslagen)"
