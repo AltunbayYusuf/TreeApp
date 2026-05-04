@@ -51,6 +51,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="src\js\admin\" />
         <Folder Include="wwwroot\js\" />
     </ItemGroup>
 

@@ -49,6 +49,8 @@ public class UserRepository : IUserRepository
             .ThenInclude(sp => sp.Projects)
             .Include(g => g.SubAdmins)
             .ThenInclude(sa => sa.SubPlatform)
+            .ThenInclude(sp => sp.Projects)
+            .ThenInclude(p => p.SurveyResponses)
             .FirstOrDefault();
     }
 }

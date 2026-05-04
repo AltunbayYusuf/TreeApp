@@ -1,4 +1,5 @@
 using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.DAL.interfaces;
 
@@ -10,6 +11,7 @@ public class ProjectManager : IProjectManager
     private readonly ISubplatformRepository _subplatformRepository;
     private readonly IProjectRepository _projectRepository;
     private readonly IManager _manager;
+    private IProjectManager _projectManagerImplementation;
 
 
     public ProjectManager(ISubplatformRepository subplatformRepository, IProjectRepository projectRepository,IManager manager)
@@ -68,4 +70,6 @@ public class ProjectManager : IProjectManager
 
         _projectRepository.DeleteProject(project);
     }
+
+  
 }
