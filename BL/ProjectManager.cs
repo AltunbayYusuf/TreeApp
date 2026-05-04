@@ -52,6 +52,11 @@ public class ProjectManager : IProjectManager
     {
         _manager.ValidateEntity(project);
         _projectRepository.CreateProject(project);
+    } 
+    public IEnumerable<Project> GetAllProject()
+    {
+      var projects=  _projectRepository.ReadAllProjects();
+        return projects;
     }
 
     public Project GetProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)

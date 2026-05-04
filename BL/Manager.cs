@@ -34,4 +34,8 @@ public class Manager : IManager
             throw new ValidationException(message);
         }
     }
+    public IEnumerable<SubPlatform> GetAllSubPlatformsWithAdmins()
+    {
+        return _repository.ReadAllSubPlatformsWithAdmins();
+    }
 }

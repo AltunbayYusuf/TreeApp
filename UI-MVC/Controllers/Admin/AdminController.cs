@@ -2,7 +2,7 @@ using IntegratieProject.BL.interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace IntegratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers.Admin;
 
 [Authorize(Roles = CustomIdentityConstants.GeneralAdminRoleName)]
 [Route("admin")]
@@ -16,9 +16,7 @@ public class AdminController : Controller
         _logger = logger;
         _manager = manager;
     }
-
-    [HttpGet("")]
-    [HttpGet("index")]
+    
     public IActionResult Index()
     {
         return View();
