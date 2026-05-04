@@ -3,6 +3,7 @@ using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Interfaces;
+using IntegratieProject.DAL;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
 
