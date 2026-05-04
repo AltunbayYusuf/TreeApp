@@ -29,7 +29,7 @@ TARGET_HTTP_PROXY="treeapp-http-proxy"
 HTTP_FORWARDING_RULE="treeapp-http-rule"
 STATIC_IP="treeapp-ip"
 
-echo "⚠️  Dit verwijdert ALLE cloud resources voor project: $PROJECT_ID"
+echo "  Dit verwijdert ALLE cloud resources voor project: $PROJECT_ID"
 echo "Ben je zeker? (yes/no)"
 read -r CONFIRM
 if [ "$CONFIRM" != "yes" ]; then
@@ -37,7 +37,7 @@ if [ "$CONFIRM" != "yes" ]; then
   exit 0
 fi
 
-echo "🔥 Teardown gestart..."
+echo " Teardown gestart..."
 
 # Load balancer stack (verwijdert stil als niet bestaat)
 # Volgorde is belangrijk: forwarding rules eerst, dan proxies, dan URL maps, dan backend, dan health check
@@ -55,11 +55,11 @@ gcloud compute health-checks delete "$HEALTH_CHECK" --project="$PROJECT_ID" --qu
 gcloud compute instance-groups managed delete "$MIG_NAME" --zone="$ZONE" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($MIG_NAME overgeslagen)"
 
 # Alle treeapp-template-* templates verwijderen (er kunnen er meerdere zijn, één per branch)
-echo "  🗑️  Alle treeapp-template-* verwijderen..."
+echo "    Alle treeapp-template-* verwijderen..."
 TEMPLATES=$(gcloud compute instance-templates list --project="$PROJECT_ID" --filter="name~^treeapp-template-" --format="value(name)" 2>/dev/null || echo "")
 if [ -n "$TEMPLATES" ]; then
   for TEMPLATE in $TEMPLATES; do
-    gcloud compute instance-templates delete "$TEMPLATE" --project="$PROJECT_ID" --quiet 2>/dev/null && echo "    ✅ $TEMPLATE verwijderd" || echo "    ⏭️  $TEMPLATE overgeslagen"
+    gcloud compute instance-templates delete "$TEMPLATE" --project="$PROJECT_ID" --quiet 2>/dev/null && echo "     $TEMPLATE verwijderd" || echo "      $TEMPLATE overgeslagen"
   done
 else
   echo "    (geen templates gevonden)"
@@ -71,4 +71,4 @@ fi
 # Cloud SQL (helemaal op het einde, anders kan app niet afsluiten)
 gcloud sql instances delete "$INSTANCE" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($INSTANCE overgeslagen)"
 
-echo "✅ Teardown voltooid!"
+echo " Teardown voltooid!"
