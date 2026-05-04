@@ -17,6 +17,23 @@ body {
   margin-bottom: 60px;
 }
 
+.idea-item-own {
+  background-color: #eaf4ff;
+  border: 1px solid #b8d8ff;
+}
+
+.idea-item-own-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  background-color: #d7ebff;
+  color: #0b5cab;
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
 .btn:focus,
 .btn:active:focus,
 .btn-link.nav-link:focus,
