@@ -15,13 +15,16 @@ public class Project: IValidatableObject
     public string Name { get; set; } = "";
 
     [Required(ErrorMessage = "Project must have an introduction")]
-    [MaxLength(200)]
+    [MaxLength(1000)]
+    [MinLength(4)]
     public string Introduction { get; set; }
 
     [Required(ErrorMessage = "Project must have a status")]
     public Status Status { get; set; }
     [MaxLength(400)]
     public string Prompt { get; set; }
+    [MaxLength(50)]
+    public string ReactionEmojiGroup { get; set; } = "👍,❤️";
     public int Duration { get; set; }
     public DateTime ReleaseDate { get; set; }
 

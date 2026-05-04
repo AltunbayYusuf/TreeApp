@@ -1,204 +1,220 @@
-﻿@using IntegratieProject.DAL.Identity
-@using IntegratieProject.UI.MVC
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.WebUtilities
-@inject UserManager<ApplicationUser> UserManager
+﻿    @using IntegratieProject.DAL.Identity
+    @using IntegratieProject.UI.MVC
+    @using Microsoft.AspNetCore.Identity
+    @using Microsoft.AspNetCore.WebUtilities
+    @inject UserManager<ApplicationUser> UserManager
 
-@{
-    var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
-    if (string.IsNullOrWhiteSpace(currentSubplatform))
-    {
-        currentSubplatform = Context.Request.Query["subplatform"].ToString();
-    }
-
-    var currentProjectId = Context.Request.Query["projectId"].ToString();
-
-    if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
-    {
-        currentProjectId = ViewContext.RouteData.Values["projectId"]!.ToString();
-    }
-
-    if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
-    {
-        currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
-    }
-
-    if (string.IsNullOrWhiteSpace(currentSubplatform))
-    {
-        currentSubplatform = "kdg-hogeschool";
-    }
-
-    var returnUrl = Context.Request.Query["returnUrl"].ToString();
-
-    if (!string.IsNullOrWhiteSpace(returnUrl))
-    {
-        var decodedReturnUrl = Uri.UnescapeDataString(returnUrl);
-
-        var pathPart = decodedReturnUrl;
-        var queryPart = "";
-
-        var questionMarkIndex = decodedReturnUrl.IndexOf('?');
-        if (questionMarkIndex >= 0)
+    @{
+        var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+        if (string.IsNullOrWhiteSpace(currentSubplatform))
         {
-            pathPart = decodedReturnUrl.Substring(0, questionMarkIndex);
-            queryPart = decodedReturnUrl.Substring(questionMarkIndex);
+            currentSubplatform = Context.Request.Query["subplatform"].ToString();
         }
 
-        var segments = pathPart.Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var currentProjectId = Context.Request.Query["projectId"].ToString();
 
-        if (string.IsNullOrWhiteSpace(currentSubplatform) && segments.Length > 0)
+        if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
         {
-            currentSubplatform = segments[0];
+            currentProjectId = ViewContext.RouteData.Values["projectId"]!.ToString();
         }
 
-        if (string.IsNullOrWhiteSpace(currentProjectId) && !string.IsNullOrWhiteSpace(queryPart))
+        if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
         {
-            var parsedQuery = QueryHelpers.ParseQuery(queryPart);
+            currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
+        }
 
-            if (parsedQuery.TryGetValue("projectId", out var projectIdFromReturnUrl))
+        if (string.IsNullOrWhiteSpace(currentSubplatform))
+        {
+            currentSubplatform = "kdg-hogeschool";
+        }
+
+        var returnUrl = Context.Request.Query["returnUrl"].ToString();
+
+        if (!string.IsNullOrWhiteSpace(returnUrl))
+        {
+            var decodedReturnUrl = Uri.UnescapeDataString(returnUrl);
+
+            var pathPart = decodedReturnUrl;
+            var queryPart = "";
+
+            var questionMarkIndex = decodedReturnUrl.IndexOf('?');
+            if (questionMarkIndex >= 0)
             {
-                currentProjectId = projectIdFromReturnUrl.ToString();
+                pathPart = decodedReturnUrl.Substring(0, questionMarkIndex);
+                queryPart = decodedReturnUrl.Substring(questionMarkIndex);
+            }
+
+            var segments = pathPart.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (string.IsNullOrWhiteSpace(currentSubplatform) && segments.Length > 0)
+            {
+                currentSubplatform = segments[0];
+            }
+
+            if (string.IsNullOrWhiteSpace(currentProjectId) && !string.IsNullOrWhiteSpace(queryPart))
+            {
+                var parsedQuery = QueryHelpers.ParseQuery(queryPart);
+
+                if (parsedQuery.TryGetValue("projectId", out var projectIdFromReturnUrl))
+                {
+                    currentProjectId = projectIdFromReturnUrl.ToString();
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(currentProjectId) && segments.Length >= 3
+                                                            && string.Equals(segments[1], "Project", StringComparison.OrdinalIgnoreCase))
+            {
+                currentProjectId = segments[2];
             }
         }
 
-        if (string.IsNullOrWhiteSpace(currentProjectId) && segments.Length >= 3
-                                                        && string.Equals(segments[1], "Project", StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(currentProjectId))
         {
-            currentProjectId = segments[2];
+            currentProjectId = "1";
         }
     }
 
-    if (string.IsNullOrWhiteSpace(currentProjectId))
-    {
-        currentProjectId = "1";
-    }
-}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>@ViewData["Title"] - Echo</title>
+        <style>
+        body {
+            visibility: hidden;
+        }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>@ViewData["Title"] - Echo</title>
-   @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
-    {
-        <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
-        <script type="module" vite-src="~/main.ts"></script>
-    }
-    else
-    {
-        <link rel="stylesheet" asp-href-include="~/dist/main*.css" />
-        <script type="module" src="~/dist/main.js"></script>
-    }
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-</head>
-<body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            @if (User.Identity?.IsAuthenticated == false)
-            {
-                <a class="navbar-brand"
-                   asp-area=""
-                   asp-controller="Project"
-                   asp-action="Index"
-                   asp-route-subplatform="@currentSubplatform"
-                   asp-route-id="@currentProjectId">
-                    Echo
-                </a>
-            }
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav">
-                    @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="SubAdmin"
-                               asp-action="Index"
-                               asp-route-subplatform="@currentSubplatform">
-                                Dashboard
-                            </a>
-                        </li>
+        body.css-loaded {
+            visibility: visible;
+        }
+    </style>
+        
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+        {
+            <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
+            <script type="module" vite-src="~/main.ts"></script>
+        }
+        else
+        {
+            <link rel="stylesheet" asp-href-include="~/dist/main*.css" />
+            <script type="module" src="~/dist/main.js"></script>
+        }
+      
+    </head>
+    <body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                @if (User.Identity?.IsAuthenticated == false)
+                {
+                    <a class="navbar-brand"
+                       asp-area=""
+                       asp-controller="Project"
+                       asp-action="Index"
+                       asp-route-subplatform="@currentSubplatform"
+                       asp-route-id="@currentProjectId">
+                        Echo
+                    </a>
+                }
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav">
+                        @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-controller="SubAdmin"
+                                   asp-action="Index"
+                                   asp-route-subplatform="@currentSubplatform">
+                                    Dashboard
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="SubAdminModeration"
-                               asp-action="Index"
-                               asp-route-subplatform="@currentSubplatform">
-                                Moderatie
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-controller="SubAdminModeration"
+                                   asp-action="Index"
+                                   asp-route-subplatform="@currentSubplatform">
+                                    Moderatie
+                                </a>
+                            </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-controller="SubAdminIdeas"
-                               asp-action="Index"
-                               asp-route-subplatform="@currentSubplatform">
-                                Ideeën
-                            </a>
-                        </li>
-                    }
-                    else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
-                        </li>
-                    }
-                    else
-                    {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Project"
-                               asp-action="Index"
-                               asp-route-subplatform="@currentSubplatform"
-                               asp-route-id="@currentProjectId">
-                                Project
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark"
-                               asp-area=""
-                               asp-controller="Idea"
-                               asp-action="Index"
-                               asp-route-subplatform="@currentSubplatform"
-                               asp-route-projectId="@currentProjectId">
-                                Ideeën
-                            </a>
-                        </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-controller="SubAdminIdeas"
+                                   asp-action="Index"
+                                   asp-route-subplatform="@currentSubplatform">
+                                    Ideeën
+                                </a>
+                            </li>
+                        }
+                        else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-area=""
+                                   asp-controller="Project"
+                                   asp-action="Index"
+                                   asp-route-subplatform="@currentSubplatform"
+                                   asp-route-id="@currentProjectId">
+                                    Project
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-area=""
+                                   asp-controller="Idea"
+                                   asp-action="Index"
+                                   asp-route-subplatform="@currentSubplatform"
+                                   asp-route-projectId="@currentProjectId">
+                                    Ideeën
+                                </a>
+                            </li>
 
-                   
+                       
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home"
-                               asp-action="Privacy">Privacy</a>
-                        </li>
-                    }
-                </ul>
-                <partial name="_LoginPartial"/>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home"
+                                   asp-action="Privacy">Privacy</a>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial"/>
+                </div>
             </div>
-        </div>
-    </nav>
-</header>
+        </nav>
+    </header>
 
-<div class="container">
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
-</div>
-
-<footer class="border-top footer text-muted">
     <div class="container">
-        &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                                asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
     </div>
-</footer>
 
-@await RenderSectionAsync("Scripts", required: false)
-</body>
-</html>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy"
+                                    asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
+        </div>
+    </footer>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    <script>
+    window.addEventListener("load", function () {
+        document.body.classList.add("css-loaded");
+    });
+</script>
+    </body>
+    </html>

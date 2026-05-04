@@ -1,22 +1,39 @@
 @model IntegratieProject.BL.Domain.questions.SurveyResponse
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = "Bevraging ingevuld";
     Layout = "_Layout";
 }
 
 <input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
 
-<h2>Je hebt deze vragenlijst beantwoord!</h2>
-<h3>Jouw antwoorden:</h3>
+<div class="results-page">
 
-@foreach (var answer in Model.Answers)
-{
-    <div class="answer-row">
-        <strong>Vraag:</strong> @answer.Question.Description <br />
-        <strong>Jouw antwoord:</strong> <span>@answer.Text</span>
+    <div class="results-header">
+        <div class="results-check">&#10003;</div>
+        <h1 class="results-title">Bedankt voor je deelname!</h1>
+        <p class="results-subtitle">Je hebt de vragenlijst succesvol ingevuld. Hieronder vind je een overzicht van jouw antwoorden.</p>
     </div>
-}
 
-<button type="button" class="btn btn-primary" id="ideeGeven">Geef een idee</button>
-<button type="button" class="btn btn-primary" id="ideeenBekijken">Bekijk andere ideeën</button>
+    <div class="results-card">
+        <p class="results-card-label">Jouw antwoorden</p>
+        @{ int i = 1; }
+        @foreach (var answer in Model.Answers)
+        {
+            <div class="results-answer-item">
+                <div class="results-answer-q">
+                    <span class="results-answer-num">@i</span>
+                    <span class="results-answer-question">@answer.Question.Description</span>
+                </div>
+                <p class="results-answer-value">@answer.Text</p>
+            </div>
+            i++;
+        }
+    </div>
+
+    <div class="results-actions">
+        <button type="button" class="btn results-btn-primary" id="ideeGeven">Geef een idee</button>
+        <button type="button" class="btn results-btn-secondary" id="ideeenBekijken">Bekijk andere ideeën</button>
+    </div>
+
+</div>

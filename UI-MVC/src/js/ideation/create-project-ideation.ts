@@ -29,7 +29,8 @@ export class ProjectIdeationBuilder {
         if (this.getTopicCards().length === 0 && this.topicsContainer) {
             this.topicsContainer.appendChild(this.createTopicCard(0));
         }
-
+        
+        this.selectDefaultEmojiGroup();
         this.updateTopicIndexes();
     }
 
@@ -70,15 +71,23 @@ export class ProjectIdeationBuilder {
         const target = event.target as HTMLElement | null;
         const selectedGroup = target?.closest(".emoji-group") as HTMLButtonElement | null;
         const groups = Array.from(document.querySelectorAll(".emoji-group")) as HTMLButtonElement[];
+        const hiddenInput = document.getElementById("SelectedEmojiGroup") as HTMLInputElement | null;
 
-        if (!selectedGroup) return;
+        if (!selectedGroup || !hiddenInput) return;
 
         groups.forEach((group) => {
             const isSelected = group === selectedGroup;
+
             group.dataset.selected = isSelected ? "true" : "false";
-            group.classList.toggle("border-indigo-500", isSelected);
+
+            group.classList.toggle("border-indigo-600", isSelected);
             group.classList.toggle("bg-indigo-50", isSelected);
+            group.classList.toggle("ring-2", isSelected);
+            group.classList.toggle("ring-indigo-100", isSelected);
         });
+
+        hiddenInput.value = selectedGroup.dataset.value || "";
+
     }
 
     private handleAddTopic(): void {
@@ -239,6 +248,17 @@ export class ProjectIdeationBuilder {
         return true;
     }
 
+    private selectDefaultEmojiGroup(): void {
+        const hiddenInput = document.getElementById("SelectedEmojiGroup") as HTMLInputElement | null;
+        const groups = Array.from(document.querySelectorAll(".emoji-group")) as HTMLButtonElement[];
+
+        if (!hiddenInput || groups.length === 0) return;
+
+        const defaultGroup =
+            groups.find(group => group.dataset.value === hiddenInput.value) || groups[0];
+
+        defaultGroup.click();
+    }
     private handleSubmit(event: Event): void {
         this.clearSummaryMessage();
 

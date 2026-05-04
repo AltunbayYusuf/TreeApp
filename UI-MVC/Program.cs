@@ -1,12 +1,16 @@
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.DataProtection;
+using Google.Cloud.AIPlatform.V1;
+using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
-using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Ai;
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Ef;
 using IntegratieProject.DAL.Identity;
+using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -43,7 +47,6 @@ builder.Services.AddAntiforgery(options =>
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
 });
-
 // DataProtection keys opslaan in PostgreSQL zodat alle VMs dezelfde keys delen.
 // Noodzakelijk voor correcte werking van auth cookies en antiforgery bij horizontal scaling.
 builder.Services.AddDataProtection()
@@ -80,8 +83,47 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
+// Ai Toegevoegd: tijdelijke fix -> custom DataProtection verwijderd.
+// Reden: keys op /root/.aspnet/... zijn in cloud/container vaak niet echt persistent
+// en kunnen 400 errors geven bij login/antiforgery validatie.
+// builder.Services.AddDataProtection()
+//     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
+//     .SetApplicationName("IntergratieProject");
+var predictionBuilder = new PredictionServiceClientBuilder
+{
+    Endpoint = builder.Configuration["Google:Endpoint"]
+               ?? "us-central1-aiplatform.googleapis.com"
+};
 
-builder.Services.AddHttpClient<IAiService, GeminiService>();
+var projectId = builder.Configuration["Google:ProjectId"]
+                ?? throw new InvalidOperationException("Missing configuration: Google:ProjectId");
+
+var location = builder.Configuration["Google:Location"]
+               ?? throw new InvalidOperationException("Missing configuration: Google:Location");
+
+var moderationModel = builder.Configuration["Google:ModerationModel"]
+                      ?? "gemini-2.5-flash-lite";
+
+var chatModelResource = EndpointName.FormatProjectLocationPublisherModel(
+    projectId,
+    location,
+    "google",
+    moderationModel);
+var chatClient = await predictionBuilder.BuildIChatClientAsync(chatModelResource);
+
+
+builder.Services.AddChatClient(chatClient);
+builder.Services.AddScoped<IAiProvider, VertexAiProvider>();
+builder.Services.AddScoped<IAiPromptService, AiPromptService>();
+builder.Services.AddScoped<IAiModerationService, AiModerationService>();
+builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService>();
+builder.Services.AddScoped<IAiUsageManager, AiUsageManager>();
+
+builder.Services.AddScoped<IAiRepository, AiRepository>();
+builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
+
+builder.Services.AddScoped<IIntroTextService, IntroTextService>();
+builder.Services.AddScoped<IImageGenerationService, DummyImageGenerationService>();
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
