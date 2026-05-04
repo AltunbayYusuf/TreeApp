@@ -35,3 +35,5 @@ dist/
 # build output
 dist/
 wwwroot/dist/sa-key.json
+
+.claude/
