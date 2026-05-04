@@ -1,13 +1,48 @@
 @model IntegratieProject.BL.Domain.users.GeneralAdmin
 
 @{
-    ViewData["Title"] = "Admin - Index";
+    ViewData["Title"] = "Admin Dashboard";
 }
 
-<h1>Admin</h1>
-<p>Welkom, beheerder. Je bent succesvol aangemeld.</p>
+<h1>Admin Dashboard</h1>
+<p>Welkom beheerder.</p>
 
-@if (User?.Identity?.IsAuthenticated ?? false)
-{
-    <p>Ingelogd als: <strong>@User.Identity!.Name</strong></p>
-}
+<button id="overviewBtn" class="btn btn-primary">
+    Overzicht
+</button>
+
+<div id="overviewSection" style="display:none; margin-top:20px;">
+    <h2>Deelplatform Overzicht</h2>
+
+    @if (Model?.SubAdmins != null && Model.SubAdmins.Any())
+    {
+        @foreach (var subAdmin in Model.SubAdmins)
+        {
+            <div class="card p-3 mb-3">
+                <h3>@subAdmin.SubPlatform.CompanyName</h3>
+
+                <p>
+                    <strong>Subadmin:</strong> @subAdmin.Name
+                </p>
+
+                <p>
+                    <strong>Aantal projecten:</strong>
+                    @subAdmin.SubPlatform.Projects.Count()
+                </p>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Geen subadmins gevonden.</p>
+    }
+</div>
+
+<script>
+    document.getElementById("overviewBtn").addEventListener("click", function () {
+        let section = document.getElementById("overviewSection");
+
+        section.style.display =
+            section.style.display === "none" ? "block" : "none";
+    });
+</script>

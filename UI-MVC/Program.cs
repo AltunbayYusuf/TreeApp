@@ -132,12 +132,17 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
         .GetRequiredService<TreeDbContext>();
+
     if (context.CreateDatabase(dropDatabase: true))
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
         SeedIdentity(userManager, roleManager);
-        DataSeeder.Seed(context);
+
+        var adminUser = userManager.FindByEmailAsync("admin@gmail.com").Result;
+
+        DataSeeder.Seed(context, adminUser?.Id);
     }
 }
 
@@ -164,7 +169,6 @@ app.UseAuthorization();
 app.MapStaticAssets();
 
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
-
 
 
 app.MapControllerRoute(
@@ -237,6 +241,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
     userManager.AddToRoleAsync(ap, CustomIdentityConstants.SubAdminRoleName).Wait();
 }
+
 
 public partial class Program
 {

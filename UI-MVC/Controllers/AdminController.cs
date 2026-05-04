@@ -1,6 +1,8 @@
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.BL.Domain.users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace IntegratieProject.UI.MVC.Controllers;
 
@@ -9,18 +11,25 @@ namespace IntegratieProject.UI.MVC.Controllers;
 public class AdminController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IManager _manager;
+    private readonly IUserManager _userManager;
 
-    public AdminController(ILogger<HomeController> logger, IManager manager)
+    public AdminController(ILogger<HomeController> logger, IUserManager userManager)
     {
         _logger = logger;
-        _manager = manager;
+        _userManager = userManager;
     }
 
     [HttpGet("")]
     [HttpGet("index")]
     public IActionResult Index()
     {
-        return View();
+        var generalAdmin = _userManager.GetGeneralAdmin();
+
+        if (generalAdmin == null)
+        {
+            return Content("Geen general admin gevonden.");
+        }
+
+        return View(generalAdmin);
     }
 }

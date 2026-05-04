@@ -47,6 +47,7 @@
         <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewImports.cshtml" />
         <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
         <_ContentIncludedByDefault Remove="Views\SubPlatform\Index.cshtml" />
+        <_ContentIncludedByDefault Remove="Views\Platform\Overview.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
