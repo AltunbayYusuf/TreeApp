@@ -160,7 +160,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
 
         if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
         {
-            return Redirect("/Platform");
+            return Redirect("/admin");
         }
 
         return LocalRedirect(returnUrl);

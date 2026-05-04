@@ -1,0 +1,11 @@
+@{
+    ViewData["Title"] = "Admin - Index";
+}
+
+<h1>Admin</h1>
+<p>Welkom, beheerder. Je bent succesvol aangemeld.</p>
+
+@if (User?.Identity?.IsAuthenticated ?? false)
+{
+    <p>Ingelogd als: <strong>@User.Identity!.Name</strong></p>
+}
