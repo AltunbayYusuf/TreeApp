@@ -225,33 +225,4 @@
 @section Scripts
 {
     <partial name="_ValidationScriptsPartial" />
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const buttons = document.querySelectorAll(".emoji-group");
-            const hiddenInput = document.getElementById("SelectedEmojiGroup");
-
-            buttons.forEach(button => {
-                button.addEventListener("click", function () {
-                    buttons.forEach(b => {
-                        b.dataset.selected = "false";
-                        b.classList.remove("border-indigo-600", "bg-indigo-50", "ring-2", "ring-indigo-100");
-                    });
-
-                    this.dataset.selected = "true";
-                    this.classList.add("border-indigo-600", "bg-indigo-50", "ring-2", "ring-indigo-100");
-
-                    hiddenInput.value = this.dataset.value;
-                });
-            });
-
-            const defaultButton =
-                document.querySelector('.emoji-group[data-value="' + hiddenInput.value + '"]')
-                || buttons[0];
-
-            if (defaultButton) {
-                defaultButton.click();
-            }
-        });
-    </script>
 }

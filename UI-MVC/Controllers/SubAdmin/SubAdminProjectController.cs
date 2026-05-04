@@ -214,6 +214,7 @@ public class SubAdminProjectsController : Controller
         SaveSession(IdeationKey, new CreateProjectIdeationViewModel
         {
             SubplatformSlug = subplatform,
+            SelectedEmojiGroup = project.ReactionEmojiGroup,
             Topics = project.Topics.Select(t => new IdeationTopicViewModel
             {
                 Title = t.Theme,
@@ -251,6 +252,7 @@ public class SubAdminProjectsController : Controller
         SaveSession(IdeationKey, new CreateProjectIdeationViewModel
         {
             SubplatformSlug = subplatform,
+            SelectedEmojiGroup = project.ReactionEmojiGroup,
             Topics = project.Topics.Select(t => new IdeationTopicViewModel
             {
                 Title = t.Theme,
