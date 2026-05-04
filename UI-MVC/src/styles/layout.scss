@@ -10,3 +10,25 @@
   min-width: 80px;
   text-align: center;
 }
+
+.font-size-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.font-size-button {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid #ced4da;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #212529;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.font-size-button:hover,
+.font-size-button:focus-visible {
+  background: #f8f9fa;
+}

@@ -191,7 +191,21 @@
                             </li>
                         }
                     </ul>
+                    <div class="d-flex align-items-center gap-3">
+
+                    @if (User.Identity?.IsAuthenticated == false)
+                    {
+                            <div class="font-size-controls" role="group" aria-label="Tekstgrootte aanpassen">
+                                <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
+                                    A-
+                                </button>
+                                <button type="button" class="font-size-button" data-font-size="up" aria-label="Tekst vergroten">
+                                    A+
+                                </button>
+                            </div>
+                    }
                     <partial name="_LoginPartial"/>
+                    </div>
                 </div>
             </div>
         </nav>
