@@ -73,7 +73,7 @@ public class AiModerationService : IAiModerationService
 
             return new ToxicityResult
             {
-                IsToxic = isToxic || needsMoreDetail,
+                IsToxic = isToxic,
                 AiUnavailable = false,
                 SuggestedTitle = suggestedTitle,
                 SuggestedText = suggestedText,

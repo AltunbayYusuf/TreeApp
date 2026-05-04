@@ -124,10 +124,10 @@ public class SubAdminProjectsController : Controller
 
             vm.PhotoUri = $"/images/photos/{fileName}";
         }
-
         vm.PhotoUpload = null;
         SaveSession(InfoKey, vm);
-
+      
+        
         return await TryCreateProject(subplatform);
     }
 

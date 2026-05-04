@@ -799,12 +799,20 @@ questions.Add(copingQuestion);
         var apReactions2 = new List<Reaction> { apReaction21, apReaction22 };
 
         
-var ideaModerationPrompt = new AiPrompt
+        var ideaModerationPrompt = new AiPrompt
         {
             Key = "idea_moderation",
             Name = "Idea moderation",
             PromptText = """
                          Je bent een moderator voor een jongerenplatform.
+
+                         Controleer de titel en inhoud van een idee.
+
+                         Titel:
+                         {title}
+
+                         Inhoud:
+                         {text}
 
                          Geef ALLEEN geldig JSON terug.
                          Geen markdown.
@@ -815,16 +823,21 @@ var ideaModerationPrompt = new AiPrompt
                            "isToxic": true/false,
                            "needsMoreDetail": true/false,
                            "explanation": "korte uitleg in het Nederlands",
-                           "suggestedText": "verbeterde en respectvolle versie in het Nederlands"
+                           "suggestedTitle": "verbeterde titel in het Nederlands",
+                           "suggestedText": "verbeterde inhoud in het Nederlands"
                          }
 
                          Regels:
-                         - Detecteer beledigende, haatdragende, bedreigende of respectloze taal als toxisch.
-                         - Detecteer vage, lege of te korte ideeën als "needsMoreDetail".
-                         - Controleer bij ideeën zowel respect als inhoud.
-                         - suggestedText moet dezelfde betekenis behouden maar duidelijker en respectvoller zijn.
-                         - Als de tekst goed is: beide booleans = false en suggestedText = lege string.
-                         - Antwoord ALLES in het Nederlands.
+                         - isToxic is alleen true bij beledigende, haatdragende, bedreigende, discriminerende of respectloze taal.
+                         - Zet isToxic NIET op true als het idee gewoon te kort, vaag of onduidelijk is.
+                         - needsMoreDetail is true als het idee te kort, vaag of onvoldoende concreet is.
+                         - Als needsMoreDetail true is, maak suggestedTitle Ã©n suggestedText concreter.
+                         - suggestedTitle moet een titel zijn, geen volledige tekst.
+                         - suggestedText moet een duidelijke uitwerking van het idee zijn.
+                         - Behoud de oorspronkelijke betekenis.
+                         - Voeg geen onrealistische of compleet nieuwe feiten toe.
+                         - Als de tekst goed is: isToxic = false, needsMoreDetail = false, suggestedTitle = "", suggestedText = "".
+                         - Antwoord alles in het Nederlands.
                          """,
             IsActive = true
         };

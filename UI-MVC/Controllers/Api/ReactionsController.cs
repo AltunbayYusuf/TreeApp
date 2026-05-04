@@ -176,25 +176,12 @@ public class ReactionsController : ControllerBase
             });
         }
 
-        var result = await _reactionManager.AddReaction(
+        await _reactionManager.ForceAddReactionAsync(
             newReactionDto.IdeaId.Value,
             newReactionDto.Emoji,
             newReactionDto.Text,
             user.Id
         );
-
-        if (result.IsToxic)
-        {
-            return Ok(new ReactionResultDto
-            {
-                Ok = true,
-                Saved = false,
-                IsToxic = true,
-                Warning = "Deze reactie bevat toxische inhoud en werd niet verzonden.",
-                Explanation = result.Explanation,
-                SuggestedText = result.SuggestedText
-            });
-        }
 
         return Ok(new ReactionResultDto
         {
@@ -202,7 +189,7 @@ public class ReactionsController : ControllerBase
             Saved = true,
             IsToxic = false,
             AiUnavailable = false,
-            Message = result.Explanation
+            Message = "Reactie doorgestuurd voor moderatie."
         });
     }
 
