@@ -14,35 +14,26 @@
 <div id="overviewSection" style="display:none; margin-top:20px;">
     <h2>Deelplatform Overzicht</h2>
 
-    @if (Model?.SubAdmins != null && Model.SubAdmins.Any())
+    @foreach (var platform in @Model.Platform.SubPlatforms)
     {
-        @foreach (var subAdmin in Model.SubAdmins)
-        {
-            <div class="card p-3 mb-3">
-                <h3>@subAdmin.SubPlatform.CompanyName</h3>
+        var subAdminsCount = Model.SubAdmins
+            .Count(sa => sa.SubPlatform.Id == platform.Id);
 
-                <p>
-                    <strong>Subadmin:</strong> @subAdmin.Name
-                </p>
+        var projectCount = platform.Projects?.Count() ?? 0;
 
-                <p>
-                    <strong>Aantal projecten:</strong>
-                    @subAdmin.SubPlatform.Projects.Count()
-                </p>
-            </div>
-        }
-    }
-    else
-    {
-        <p>Geen subadmins gevonden.</p>
+        <div class="card p-3 mb-3">
+            <h3>@platform.CompanyName</h3>
+
+            <p>
+                <strong>Aantal subadmins:</strong>
+                @subAdminsCount
+            </p>
+
+            <p>
+                <strong>Aantal projecten:</strong>
+                @projectCount
+            </p>
+        </div>
     }
 </div>
 
-<script>
-    document.getElementById("overviewBtn").addEventListener("click", function () {
-        let section = document.getElementById("overviewSection");
-
-        section.style.display =
-            section.style.display === "none" ? "block" : "none";
-    });
-</script>

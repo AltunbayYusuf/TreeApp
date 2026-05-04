@@ -204,7 +204,9 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     var adminuser = new ApplicationUser
     {
         UserName = "admin@gmail.com",
-        Email = "admin@gmail.com"
+        Email = "admin@gmail.com",
+        SubPlatformSlug = "admin"
+
     };
     userManager.CreateAsync(adminuser, "Test123!").Wait();
 

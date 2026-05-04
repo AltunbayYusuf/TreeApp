@@ -44,9 +44,11 @@ public class UserRepository : IUserRepository
     public GeneralAdmin GetGeneralAdmin()
     {
         return _context.GeneralAdmins
-            .Include(g => g.SubAdmins)
-            .ThenInclude(s => s.SubPlatform)
+            .Include(g => g.Platform)
+            .ThenInclude(p => p.SubPlatforms)
             .ThenInclude(sp => sp.Projects)
+            .Include(g => g.SubAdmins)
+            .ThenInclude(sa => sa.SubPlatform)
             .FirstOrDefault();
     }
 }
