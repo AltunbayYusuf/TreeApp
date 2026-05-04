@@ -28,5 +28,10 @@ public class Repository : IRepository
             .FirstOrDefault(sp => sp.Slug == slug);
     }
     
-
+    public IEnumerable<SubPlatform> ReadAllSubPlatformsWithAdmins()
+    {
+        return _context.SubPlatforms
+            .Include(sp => sp.SubAdmins)
+            .ToList();
+    }
 }

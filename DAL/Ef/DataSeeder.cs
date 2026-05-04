@@ -3,25 +3,20 @@ using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.BL.Domain.Questions;
+using IntegratieProject.BL.Domain.users;
 
 namespace IntegratieProject.DAL.Ef;
 
 public class DataSeeder
 {
-    public static void Seed(TreeDbContext dbContext)
+    public static void Seed(TreeDbContext dbContext, string adminIdentityId)
     {
         var platform = new Platform
         {
             CompanyName = "Tree Platform"
         };
-
-        var subPlatform = new SubPlatform
-        {
-            CompanyName = "KdG Hogeschool (Demo)",
-            Slug = "kdg-hogeschool",
-            Language = Language.Nl,
-            Platform = platform
-        };
+      
+        
         var kdgLogo = new Media
         {
             Uri = "/images/logos/kdg-logo.png"
@@ -30,6 +25,33 @@ public class DataSeeder
         {
             Uri = "/images/logos/AP-logo.png"
         };
+ 
+        var generalAdmin = new GeneralAdmin
+        {
+            Name = "Main Admin",
+            IdentityUserId = adminIdentityId,
+            Platform = platform
+        };
+        var kdgAdmin = new SubAdmin
+        {
+            Name = "kdg",
+            GeneralAdmin = generalAdmin
+        };
+        var apAdmin = new SubAdmin
+        {
+            Name = "ap",
+            GeneralAdmin = generalAdmin
+        };
+        ICollection<SubAdmin> kdgAdmins = new List<SubAdmin> { kdgAdmin };
+        var subPlatform = new SubPlatform
+        {
+            CompanyName = "KdG Hogeschool (Demo)",
+            Slug = "kdg-hogeschool",
+            Language = Language.Nl,
+            Platform = platform,
+            SubAdmins = kdgAdmins
+        };
+
         var project = new Project
         {
             Name = "Actieplan Mentaal Welzijn 2026",
@@ -42,7 +64,7 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-            Logo =kdgLogo,
+            Logo = kdgLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -66,7 +88,6 @@ public class DataSeeder
                 Uri = "/images/photos/kdg-Photo.jpg"
             }
         };
-
         /* =========================
            PROJECT 1
         ========================= */
@@ -86,112 +107,113 @@ public class DataSeeder
 
         var questions = (List<Question>)section.Questions;
 
-var mentalWellbeingQuestion = new Question
-{
-    Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
-    QuestionType = QuestionType.SingleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Zeer goed" },
-        new() { Text = "Goed" },
-        new() { Text = "Neutraal" },
-        new() { Text = "Eerder slecht" },
-        new() { Text = "Zeer slecht" }
-    }
-};
+        var mentalWellbeingQuestion = new Question
+        {
+            Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Zeer goed" },
+                new() { Text = "Goed" },
+                new() { Text = "Neutraal" },
+                new() { Text = "Eerder slecht" },
+                new() { Text = "Zeer slecht" }
+            }
+        };
 
-questions.Add(mentalWellbeingQuestion);
+        questions.Add(mentalWellbeingQuestion);
 
-var stressSourcesQuestion = new Question
-{
-    Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
-    QuestionType = QuestionType.MultipleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Studies / examens" },
-        new() { Text = "Combinatie studie-werk" },
-        new() { Text = "Financiële zorgen" },
-        new() { Text = "Sociale druk / eenzaamheid / relaties" },
-        new() { Text = "Fysieke of mentale gezondheid" },
-        new() { Text = "Thuissituatie" },
-        new() { Text = "Toekomstzorgen" },
-        new() { Text = "Andere" }
-    }
-};
+        var stressSourcesQuestion = new Question
+        {
+            Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Studies / examens" },
+                new() { Text = "Combinatie studie-werk" },
+                new() { Text = "Financiële zorgen" },
+                new() { Text = "Sociale druk / eenzaamheid / relaties" },
+                new() { Text = "Fysieke of mentale gezondheid" },
+                new() { Text = "Thuissituatie" },
+                new() { Text = "Toekomstzorgen" },
+                new() { Text = "Andere" }
+            }
+        };
 
-questions.Add(stressSourcesQuestion);
+        questions.Add(stressSourcesQuestion);
 
-var studyStressQuestion = new Question
-{
-    Description = "In welke mate ervaar jij stress door je studies?",
-    QuestionType = QuestionType.Range,
-    Section = section,
-    RangeMin = 1,
-    RangeMax = 5,
-    RangeMinLabel = "1 = geen stress",
-    RangeMaxLabel = "5 = extreem veel stress",
-    ConditionalQuestions = new List<ConditionalQuestion>()
-};
+        var studyStressQuestion = new Question
+        {
+            Description = "In welke mate ervaar jij stress door je studies?",
+            QuestionType = QuestionType.Range,
+            Section = section,
+            RangeMin = 1,
+            RangeMax = 5,
+            RangeMinLabel = "1 = geen stress",
+            RangeMaxLabel = "5 = extreem veel stress",
+            ConditionalQuestions = new List<ConditionalQuestion>()
+        };
 
-questions.Add(studyStressQuestion);
+        questions.Add(studyStressQuestion);
 
-var stressFollowUpQuestion = new Question
-{
-    Description = "Je gaf aan veel stress te ervaren. Wat zou jou concreet helpen om die stress te verminderen?",
-    QuestionType = QuestionType.OpenQuestion,
-    Section = section,
-    IsRequired = true
-};
+        var stressFollowUpQuestion = new Question
+        {
+            Description =
+                "Je gaf aan veel stress te ervaren. Wat zou jou concreet helpen om die stress te verminderen?",
+            QuestionType = QuestionType.OpenQuestion,
+            Section = section,
+            IsRequired = true
+        };
 
-questions.Add(stressFollowUpQuestion);
+        questions.Add(stressFollowUpQuestion);
 
-studyStressQuestion.ConditionalQuestions.Add(new ConditionalQuestion
-{
-    ParentQuestion = studyStressQuestion,
-    FollowUpQuestion = stressFollowUpQuestion,
-    TriggerType = TriggerType.GreaterOrEqual,
-    TriggerValue = "4"
-});
+        studyStressQuestion.ConditionalQuestions.Add(new ConditionalQuestion
+        {
+            ParentQuestion = studyStressQuestion,
+            FollowUpQuestion = stressFollowUpQuestion,
+            TriggerType = TriggerType.GreaterOrEqual,
+            TriggerValue = "4"
+        });
 
-var pressureQuestion = new Question
-{
-    Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
-    QuestionType = QuestionType.SingleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Ja, meestal wel" },
-        new() { Text = "Soms wel, soms niet" },
-        new() { Text = "Eerder niet" },
-        new() { Text = "Helemaal niet" }
-    }
-};
+        var pressureQuestion = new Question
+        {
+            Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ja, meestal wel" },
+                new() { Text = "Soms wel, soms niet" },
+                new() { Text = "Eerder niet" },
+                new() { Text = "Helemaal niet" }
+            }
+        };
 
-questions.Add(pressureQuestion);
+        questions.Add(pressureQuestion);
 
-var copingQuestion = new Question
-{
-    Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
-    QuestionType = QuestionType.MultipleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
-        new() { Text = "Erover praten met ouders/familie/partner" },
-        new() { Text = "Erover praten met vrienden/medestudenten" },
-        new() { Text = "Professionele hulp zoeken" },
-        new() { Text = "Sporten/bewegen" },
-        new() { Text = "Afleiding zoeken" },
-        new() { Text = "Studietaken uitstellen/vermijden" },
-        new() { Text = "Bewust rust inplannen" },
-        new() { Text = "Medicatie/alcohol/andere middelen" },
-        new() { Text = "Iets anders" }
-    }
-};
+        var copingQuestion = new Question
+        {
+            Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
+                new() { Text = "Erover praten met ouders/familie/partner" },
+                new() { Text = "Erover praten met vrienden/medestudenten" },
+                new() { Text = "Professionele hulp zoeken" },
+                new() { Text = "Sporten/bewegen" },
+                new() { Text = "Afleiding zoeken" },
+                new() { Text = "Studietaken uitstellen/vermijden" },
+                new() { Text = "Bewust rust inplannen" },
+                new() { Text = "Medicatie/alcohol/andere middelen" },
+                new() { Text = "Iets anders" }
+            }
+        };
 
-questions.Add(copingQuestion);
+        questions.Add(copingQuestion);
 
         questionList.Sections = new List<Section> { section };
         project.QuestionList = questionList;
@@ -434,18 +456,20 @@ questions.Add(copingQuestion);
 
         var ideas2 = new List<Idea> { idea21, idea22, idea23, idea24 };
         var reactions2 = new List<Reaction> { reaction21, reaction22 };
-    
-        
+
+
         /* =========================
            SUBPLATFORM 2 - AP HOGESCHOOL
         ========================= */
 
+        ICollection<SubAdmin> apAdmins =  new List<SubAdmin> { apAdmin };
         var apSubPlatform = new SubPlatform
         {
             CompanyName = "AP Hogeschool",
             Slug = "ap-hogeschool",
             Language = Language.Nl,
-            Platform = platform
+            Platform = platform,
+            SubAdmins = apAdmins
         };
 
         var apProject1 = new Project
@@ -470,7 +494,7 @@ questions.Add(copingQuestion);
 
         var apProject2 = new Project
         {
-            Name= "AP Campusbeleving & Verbondenheid",
+            Name = "AP Campusbeleving & Verbondenheid",
             Introduction =
                 "Hoe maken we van AP een campus waar studenten zich welkom, veilig en verbonden voelen?\n\n" +
                 "Via deze bevraging en ideeënronde verzamelen we concrete input van studenten.",
@@ -566,7 +590,8 @@ questions.Add(copingQuestion);
 
         apQuestions1.Add(new Question
         {
-            Description = "Wat zou AP volgens jou concreet kunnen verbeteren om studenten beter mentaal te ondersteunen?",
+            Description =
+                "Wat zou AP volgens jou concreet kunnen verbeteren om studenten beter mentaal te ondersteunen?",
             QuestionType = QuestionType.OpenQuestion,
             Section = apSection1
         });
@@ -587,7 +612,8 @@ questions.Add(copingQuestion);
         var apIdea1 = new Idea
         {
             Title = "Meer spreiding van deadlines",
-            Text = "Veel stress ontstaat wanneer verschillende opdrachten en examens in dezelfde periode samenvallen. Een betere spreiding zou helpen.",
+            Text =
+                "Veel stress ontstaat wanneer verschillende opdrachten en examens in dezelfde periode samenvallen. Een betere spreiding zou helpen.",
             Topic = apTopic1,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -595,7 +621,8 @@ questions.Add(copingQuestion);
         var apIdea2 = new Idea
         {
             Title = "Snellere toegang tot studentenbegeleiding",
-            Text = "Het zou fijn zijn als studenten sneller een eerste gesprek kunnen krijgen wanneer ze zich mentaal niet goed voelen.",
+            Text =
+                "Het zou fijn zijn als studenten sneller een eerste gesprek kunnen krijgen wanneer ze zich mentaal niet goed voelen.",
             Topic = apTopic2,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -611,7 +638,8 @@ questions.Add(copingQuestion);
         var apIdea4 = new Idea
         {
             Title = "Meer zichtbare communicatie over hulp",
-            Text = "Veel studenten weten niet waar ze terechtkunnen. Regelmatige communicatie via Toledo, mail en schermen op campus zou helpen.",
+            Text =
+                "Veel studenten weten niet waar ze terechtkunnen. Regelmatige communicatie via Toledo, mail en schermen op campus zou helpen.",
             Topic = apTopic4,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -747,7 +775,8 @@ questions.Add(copingQuestion);
         var apIdea21 = new Idea
         {
             Title = "Meer laagdrempelige middagactiviteiten",
-            Text = "Korte activiteiten tijdens de middagpauze kunnen studenten makkelijker samenbrengen zonder grote tijdsinvestering.",
+            Text =
+                "Korte activiteiten tijdens de middagpauze kunnen studenten makkelijker samenbrengen zonder grote tijdsinvestering.",
             Topic = apTopic23,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -755,7 +784,8 @@ questions.Add(copingQuestion);
         var apIdea22 = new Idea
         {
             Title = "Een gezellige ontmoetingsruimte",
-            Text = "Een vaste plek met zitruimte en rustige sfeer zou studenten helpen om elkaar spontaan te ontmoeten.",
+            Text =
+                "Een vaste plek met zitruimte en rustige sfeer zou studenten helpen om elkaar spontaan te ontmoeten.",
             Topic = apTopic24,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -798,7 +828,7 @@ questions.Add(copingQuestion);
         var apIdeas2 = new List<Idea> { apIdea21, apIdea22, apIdea23, apIdea24 };
         var apReactions2 = new List<Reaction> { apReaction21, apReaction22 };
 
-        
+
         var ideaModerationPrompt = new AiPrompt
         {
             Key = "idea_moderation",
@@ -975,46 +1005,46 @@ questions.Add(copingQuestion);
         {
             Key = "idea_improvement",
             Name = "Idea improvement",
-            PromptText ="""
-                                     Je bent een AI-assistent voor een jongerenparticipatieplatform.
+            PromptText = """
+                         Je bent een AI-assistent voor een jongerenparticipatieplatform.
 
-                                     Herschrijf de titel en inhoud van het idee duidelijker en concreter.
+                         Herschrijf de titel en inhoud van het idee duidelijker en concreter.
 
-                                     Originele titel:
-                                     {title}
+                         Originele titel:
+                         {title}
 
-                                     Originele inhoud:
-                                     {text}
+                         Originele inhoud:
+                         {text}
 
-                                     Regels:
-                                     - Behoud de originele betekenis.
-                                     - Voeg geen volledig nieuwe feiten toe.
-                                     - Schrijf in het Nederlands.
-                                     - Geef ALLEEN geldige JSON terug.
-                                     - Geen markdown.
-                                     - Geen uitleg.
+                         Regels:
+                         - Behoud de originele betekenis.
+                         - Voeg geen volledig nieuwe feiten toe.
+                         - Schrijf in het Nederlands.
+                         - Geef ALLEEN geldige JSON terug.
+                         - Geen markdown.
+                         - Geen uitleg.
 
-                                     JSON schema:
-                                     {
-                                       "title": "verbeterde titel",
-                                       "text": "verbeterde inhoud"
-                                     }
-                                     """,
+                         JSON schema:
+                         {
+                           "title": "verbeterde titel",
+                           "text": "verbeterde inhoud"
+                         }
+                         """,
             IsActive = true
         };
 
-        
+
         /* =========================
            DATABASE INSERT
         ========================= */
 
-        
+
         dbContext.AiPrompts.Add(ideaModerationPrompt);
         dbContext.AiPrompts.Add(reactionModerationPrompt);
         dbContext.AiPrompts.Add(projectImagePrompt);
         dbContext.AiPrompts.Add(projectIntroPrompt);
         dbContext.AiPrompts.Add(surveyGeneraration);
-        dbContext.AiPrompts.Add(ideaImprovementPrompt);        
+        dbContext.AiPrompts.Add(ideaImprovementPrompt);
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.SubPlatforms.Add(apSubPlatform);
@@ -1036,9 +1066,11 @@ questions.Add(copingQuestion);
         dbContext.Topics.AddRange(project2.Topics);
         dbContext.Ideas.AddRange(ideas2);
         dbContext.Reactions.AddRange(reactions2);
+        dbContext.GeneralAdmins.Add(generalAdmin);
+        dbContext.SubAdmins.Add(kdgAdmin);
+        dbContext.SubAdmins.Add(apAdmin);
 
-  
-        
+
         /* =========================
            DATABASE INSERT - AP
         ========================= */
@@ -1063,8 +1095,7 @@ questions.Add(copingQuestion);
         dbContext.Topics.AddRange(apProject2.Topics);
         dbContext.Ideas.AddRange(apIdeas2);
         dbContext.Reactions.AddRange(apReactions2);
-        
+
         dbContext.SaveChanges();
-        
     }
 }
