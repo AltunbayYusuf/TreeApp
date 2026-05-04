@@ -28,8 +28,11 @@ public class IdeaController : Controller
         _aiPromptService = aiPromptService;
     }
     
-    public IActionResult Index(string subplatform, int projectId, int? topicId)
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+
+    public IActionResult Index(int projectId, int? topicId)
     {
+        var subplatform = Subplatform;
         Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
         
@@ -52,8 +55,9 @@ public class IdeaController : Controller
     }
 
     [HttpGet]
-    public IActionResult Create(string subplatform, int projectId)
+    public IActionResult Create(int projectId)
     {
+        var subplatform = Subplatform;
         Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
 

@@ -1,15 +1,10 @@
 ﻿    @using IntegratieProject.DAL.Identity
     @using IntegratieProject.UI.MVC
     @using Microsoft.AspNetCore.Identity
-    @using Microsoft.AspNetCore.WebUtilities
     @inject UserManager<ApplicationUser> UserManager
 
     @{
-        var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
-        if (string.IsNullOrWhiteSpace(currentSubplatform))
-        {
-            currentSubplatform = Context.Request.Query["subplatform"].ToString();
-        }
+        var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
 
         var currentProjectId = Context.Request.Query["projectId"].ToString();
 
@@ -21,51 +16,6 @@
         if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
         {
             currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
-        }
-
-        if (string.IsNullOrWhiteSpace(currentSubplatform))
-        {
-            currentSubplatform = "kdg-hogeschool";
-        }
-
-        var returnUrl = Context.Request.Query["returnUrl"].ToString();
-
-        if (!string.IsNullOrWhiteSpace(returnUrl))
-        {
-            var decodedReturnUrl = Uri.UnescapeDataString(returnUrl);
-
-            var pathPart = decodedReturnUrl;
-            var queryPart = "";
-
-            var questionMarkIndex = decodedReturnUrl.IndexOf('?');
-            if (questionMarkIndex >= 0)
-            {
-                pathPart = decodedReturnUrl.Substring(0, questionMarkIndex);
-                queryPart = decodedReturnUrl.Substring(questionMarkIndex);
-            }
-
-            var segments = pathPart.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-            if (string.IsNullOrWhiteSpace(currentSubplatform) && segments.Length > 0)
-            {
-                currentSubplatform = segments[0];
-            }
-
-            if (string.IsNullOrWhiteSpace(currentProjectId) && !string.IsNullOrWhiteSpace(queryPart))
-            {
-                var parsedQuery = QueryHelpers.ParseQuery(queryPart);
-
-                if (parsedQuery.TryGetValue("projectId", out var projectIdFromReturnUrl))
-                {
-                    currentProjectId = projectIdFromReturnUrl.ToString();
-                }
-            }
-
-            if (string.IsNullOrWhiteSpace(currentProjectId) && segments.Length >= 3
-                                                            && string.Equals(segments[1], "Project", StringComparison.OrdinalIgnoreCase))
-            {
-                currentProjectId = segments[2];
-            }
         }
 
         if (string.IsNullOrWhiteSpace(currentProjectId))
@@ -113,7 +63,6 @@
                        asp-area=""
                        asp-controller="Project"
                        asp-action="Index"
-                       asp-route-subplatform="@currentSubplatform"
                        asp-route-id="@currentProjectId">
                         Echo
                     </a>
@@ -130,8 +79,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
                                    asp-controller="SubAdmin"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
+                                   asp-action="Index">
                                     Dashboard
                                 </a>
                             </li>
@@ -139,8 +87,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
                                    asp-controller="SubAdminModeration"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
+                                   asp-action="Index">
                                     Moderatie
                                 </a>
                             </li>
@@ -148,8 +95,7 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark"
                                    asp-controller="SubAdminIdeas"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
+                                   asp-action="Index">
                                     Ideeën
                                 </a>
                             </li>
@@ -167,7 +113,6 @@
                                    asp-area=""
                                    asp-controller="Project"
                                    asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform"
                                    asp-route-id="@currentProjectId">
                                     Project
                                 </a>
@@ -177,7 +122,6 @@
                                    asp-area=""
                                    asp-controller="Idea"
                                    asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform"
                                    asp-route-projectId="@currentProjectId">
                                     Ideeën
                                 </a>
@@ -206,7 +150,7 @@
     <footer class="border-top footer text-muted">
         <div class="container">
             &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                                    asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
+                                    asp-route-projectId="@currentProjectId">Privacy</a>
         </div>
     </footer>
 

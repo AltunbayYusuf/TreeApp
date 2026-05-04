@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using IntegratieProject.UI.MVC.Middleware;
 using Google.Cloud.AIPlatform.V1;
 using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
@@ -197,6 +198,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseMiddleware<SubdomainMiddleware>();
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
@@ -205,32 +207,19 @@ app.MapStaticAssets();
 
 app.MapHealthChecks("/health").AllowAnonymous();
 
-app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
-
-
-
 app.MapControllerRoute(
-    name: "subplatform_root",
-    pattern: "{subplatform}",
+    name: "root",
+    pattern: "",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
 
 app.MapControllerRoute(
-    name: "subplatform_short",
-    pattern: "{subplatform}/{controller=Project}/{id:int}",
+    name: "short",
+    pattern: "{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
-//  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
-app.MapControllerRoute(
-    name: "subplatform_default",
-    pattern: "{subplatform}/{controller=Project}",
-    defaults: new { action = "Index", id = 1 });
-
-app.MapControllerRoute(
-    name: "subplatform_action",
-    pattern: "{subplatform}/{controller=Project}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Project}/{action=Index}/{id=1}");
+    pattern: "{controller=Project}/{action=Index}/{id?}");
 
 
 app.MapRazorPages();

@@ -9,7 +9,6 @@
 
     <div class="mb-4 flex gap-3 items-end flex-wrap">
         <form method="get" asp-controller="Idea" asp-action="Index">
-            <input type="hidden" name="subplatform" value="@Model.Project.SubPlatform.Slug" />
             <input type="hidden" name="projectId" value="@Model.Project.Id" />
             <label for="topicId" class="form-label">Filter op topic</label>
             <select id="topicId" name="topicId" class="form-select" onchange="this.form.submit()">
@@ -32,7 +31,6 @@
         <div>
             <a asp-controller="Idea"
                asp-action="Create"
-               asp-route-subplatform="@Model.Project.SubPlatform.Slug"
                asp-route-projectId="@Model.Project.Id"
                class="btn btn-primary">
                 Ik heb een idee!

@@ -24,7 +24,7 @@
 
         <li class="nav-item">
             @{
-                var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+                var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
                 var logoutProjectId = "";
 
                 if (!string.IsNullOrWhiteSpace(currentSubplatform))
@@ -41,7 +41,7 @@
             <form class="form-inline"
                   asp-area="Identity"
                   asp-page="/Account/Logout"
-                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
+                  asp-route-returnUrl="@($"/Project/{logoutProjectId}")"
                   method="post">
                 <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
             </form>

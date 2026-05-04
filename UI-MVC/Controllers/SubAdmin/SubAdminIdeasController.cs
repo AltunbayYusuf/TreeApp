@@ -21,9 +21,12 @@ public class SubAdminIdeasController : Controller
         _userManager = userManager;
     }
 
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+
     [HttpGet]
-    public async Task<IActionResult> Index(string subplatform)
+    public async Task<IActionResult> Index()
     {
+        var subplatform = Subplatform;
         if (string.IsNullOrWhiteSpace(subplatform))
             return NotFound();
 

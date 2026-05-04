@@ -244,14 +244,10 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get('projectId');
-        const subplatformInput =
-            document.getElementById('subplatformSlug') as HTMLInputElement | null;
-        const subplatform = subplatformInput?.value;
 
-        const submitUrl =
-            projectId && subplatform
-                ? `/${subplatform}/Survey/Submit?projectId=${projectId}`
-                : '/Survey/Submit';
+        const submitUrl = projectId
+            ? `/Survey/Submit?projectId=${projectId}`
+            : '/Survey/Submit';
 
         fetch(submitUrl, {
             method: 'POST',

@@ -13,7 +13,6 @@
             <div class="flex items-start gap-4">
                 <a asp-controller="SubAdmin"
                    asp-action="Index"
-                   asp-route-subplatform="@Model.SubplatformSlug"
                    class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 transition">
                     ←
                 </a>
@@ -47,7 +46,6 @@
 
                 <a asp-controller="SubAdminProjects"
                    asp-action="CreateSurvey"
-                   asp-route-subplatform="@Model.SubplatformSlug"
                    class="rounded-t-lg border border-b-0 border-transparent bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
                     Bevraging
                 </a>
@@ -55,7 +53,6 @@
 
                 <a asp-controller="SubAdminProjects"
                    asp-action="CreateIdeation"
-                   asp-route-subplatform="@Model.SubplatformSlug"
                    class="rounded-t-lg border border-b-0 border-transparent bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
                     Ideation
                 </a>
@@ -65,10 +62,8 @@
         <form id="createProjectForm"
               asp-controller="SubAdminProjects"
               asp-action="Create"
-              asp-route-subplatform="@Model.SubplatformSlug"
               method="post"
               enctype="multipart/form-data"
-              data-subplatform="@Model.SubplatformSlug"
               class="space-y-6">
             @Html.AntiForgeryToken()
 

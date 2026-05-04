@@ -41,7 +41,7 @@ export class SurveyBuilder {
         form?.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            //die haal je op bij form (data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey")
+            //die haal je op bij form (data-save-url="/api/subadmin-projects/survey")
             const url = form.dataset.saveUrl;
             const token = form.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement | null;
             const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;

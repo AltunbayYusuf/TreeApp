@@ -11,7 +11,6 @@
         
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
-           asp-route-subplatform="@Model.Slug"
            class="bg-black text-white px-4 py-2 rounded">
             + Nieuw project
         </a>
@@ -76,7 +75,6 @@
                     <td class="p-3 fw-semibold">
                         <a asp-controller="Project"
                            asp-action="Index"
-                           asp-route-subplatform="@Model.Slug"
                            asp-route-id="@p.Id">
                             @p.Name
                         </a>
@@ -100,7 +98,6 @@
                                 <form asp-action="UpdateStatus" method="post">
                                     <input type="hidden" name="projectId" value="@p.Id" />
                                     <input type="hidden" name="status" value="Active" />
-                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
 
                                     <button class="btn btn-sm border bg-success bg-opacity-10 text-success">
                                         Actief
@@ -108,7 +105,6 @@
                                 </form>
                                 <a asp-controller="SubAdminProjects"
                                    asp-action="EditDraft"
-                                   asp-route-subplatform="@Model.Slug"
                                    asp-route-projectId="@p.Id"
                                    class="btn btn-sm btn-outline-primary">
                                     Bewerken
@@ -121,7 +117,6 @@
                                 <form asp-action="UpdateStatus" method="post">
                                     <input type="hidden" name="projectId" value="@p.Id" />
                                     <input type="hidden" name="status" value="Archived" />
-                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
 
                                     <button class="btn btn-sm border bg-warning bg-opacity-10 text-warning">
                                         Archief
@@ -137,7 +132,6 @@
                             </button>
                             <a asp-controller="SubAdminProjects"
                                asp-action="CopyAsStartPoint"
-                               asp-route-subplatform="@Model.Slug"
                                asp-route-projectId="@p.Id"
                                class="btn btn-sm btn-outline-primary">
                                 Startpunt Project
@@ -182,7 +176,6 @@
 
                                         <form asp-controller="SubAdmin"
                                               asp-action="Delete"
-                                              asp-route-subplatform="@Model.Slug"
                                               method="post"
                                               class="w-100 w-sm-auto">
 

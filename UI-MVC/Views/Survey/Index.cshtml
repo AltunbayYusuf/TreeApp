@@ -17,14 +17,11 @@
 
 <form asp-controller="Survey"
       asp-action="Submit"
-      asp-route-subplatform="@ViewBag.SubPlatformSlug"
       asp-route-projectId="@Model.Project.Id"
       method="post"
       id="surveyForm">
 
     @Html.AntiForgeryToken()
-
-    <input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug"/>
 
     @foreach (var section in Model.Sections.OrderBy(s => s.Order))
     {

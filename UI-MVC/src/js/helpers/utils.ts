@@ -12,11 +12,9 @@ export class DomUtils {
     static getProjectRedirectUrl(basePath: string): string {
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get("projectId");
-        const pathSegments = window.location.pathname.split("/").filter(Boolean);
-        const subplatform = pathSegments[0] || "";
 
         return projectId
-            ? `/${subplatform}/${basePath}?projectId=${projectId}`
-            : `/${subplatform}/${basePath}`;
+            ? `/${basePath}?projectId=${projectId}`
+            : `/${basePath}`;
     }
 }
