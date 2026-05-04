@@ -192,8 +192,7 @@
                         }
                     </ul>
                     <div class="d-flex align-items-center gap-3">
-
-                    @if (User.Identity?.IsAuthenticated == false)
+                    @if (User.Identity?.IsAuthenticated != true)
                     {
                             <div class="font-size-controls" role="group" aria-label="Tekstgrootte aanpassen">
                                 <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
