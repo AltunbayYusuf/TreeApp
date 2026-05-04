@@ -212,7 +212,6 @@ app.MapHealthChecks("/health").AllowAnonymous();
 
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
-
 app.MapControllerRoute(
     name: "subplatform_root",
     pattern: "{subplatform}",
