@@ -1,3 +1,4 @@
+using System.Text.Json;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
@@ -101,6 +102,7 @@ public class IdeasController : ControllerBase
                 aiUnavailable = false,
                 warning = "Deze tekst bevat toxische inhoud en werd niet verzonden.",
                 explanation = result.Explanation,
+                suggestedTitle = result.SuggestedTitle,
                 suggestedText = result.SuggestedText
             });
         }
@@ -203,5 +205,44 @@ public class IdeasController : ControllerBase
 
         _userManager.AddUser(user);
         return user;
+    }
+    
+    [HttpPost("improve")]
+    public async Task<IActionResult> ImproveIdea([FromBody] ImproveIdeaViewModel vm)
+    {
+        if (string.IsNullOrWhiteSpace(vm.Text))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Tekst is leeg."
+            });
+        }
+
+        try
+        {
+            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text);
+
+            using var document = JsonDocument.Parse(improvedJson);
+            var root = document.RootElement;
+
+            var improvedTitle = root.GetProperty("title").GetString();
+            var improvedText = root.GetProperty("text").GetString();
+
+            return Ok(new
+            {
+                ok = true,
+                improvedTitle,
+                improvedText
+            });
+        }
+        catch
+        {
+            return StatusCode(503, new
+            {
+                ok = false,
+                message = "AI tijdelijk niet beschikbaar."
+            });
+        }
     }
 }

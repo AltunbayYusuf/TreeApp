@@ -90,6 +90,13 @@ public class SurveyController : Controller
         ViewBag.SubPlatformSlug = subplatform;
 
         var questions = _questionManager.GetQuestionListByProject(project);
+        
+        if (questions == null)
+            return NotFound("Dit project heeft geen bevraging.");
+
+        if (questions.Sections == null)
+            questions.Sections = new List<Section>();
+        
         return View(questions);
     }
 

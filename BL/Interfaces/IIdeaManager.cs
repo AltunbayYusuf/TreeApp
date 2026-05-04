@@ -6,7 +6,6 @@ namespace IntegratieProject.BL.interfaces;
 
 public interface IIdeaManager
 {
-    public Task<string> AskAiForIdea(string idea);
     Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId);
     Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId);
     public IEnumerable<Idea> GetIdeasByProject(Project project, int? topicId = null);
@@ -15,4 +14,7 @@ public interface IIdeaManager
 
     void ApproveIdea(int ideaId);
     void RejectIdea(int ideaId);
+    Task<string> ImproveIdeaTextAsync(string title, string text);
+    Task<string> ImproveIdeaTextAsync(int ideaId);
+
 }

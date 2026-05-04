@@ -34,7 +34,6 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     let currentIndex = 0;
     const answers: CollectedAnswer[] = [];
-    const messageCheckpoints: number[] = [];
 
     // ── helpers ──────────────────────────────────────────────────────────
 
@@ -73,37 +72,6 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     function clearInput(): void {
         chatInputArea!.innerHTML = '';
-    }
-
-    // ── terug navigeren ───────────────────────────────────────────────────
-
-    function goBack(): void {
-        if (answers.length === 0) return;
-
-        const targetIndex = answers.length - 1;
-        const restoreCount = messageCheckpoints[targetIndex] ?? 0;
-
-        while (chatMessages!.children.length > restoreCount) {
-            chatMessages!.lastElementChild!.remove();
-        }
-
-        answers.pop();
-        currentIndex = targetIndex;
-        clearInput();
-        scrollBottom();
-        showQuestion(targetIndex);
-    }
-
-    function appendBackButton(questionIndex: number): void {
-        if (questionIndex === 0) return;
-        const wrap = document.createElement('div');
-        wrap.className = 'w-100';
-        const btn = document.createElement('button');
-        btn.className = 'btn chat-back-btn';
-        btn.innerHTML = '&#8592; Vorige vraag';
-        btn.addEventListener('click', goBack);
-        wrap.appendChild(btn);
-        chatInputArea!.appendChild(wrap);
     }
 
     // ── record + advance ──────────────────────────────────────────────────
@@ -244,7 +212,6 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
             return;
         }
         const q = questions[index];
-        messageCheckpoints[index] = chatMessages!.children.length;
         addBotMessage(q.description, 0);
 
         setTimeout(() => {
@@ -254,59 +221,17 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
                 case 'Range':          renderRange(q);         break;
                 case 'OpenQuestion':   renderOpen(q);          break;
             }
-            appendBackButton(index);
         }, 900);
     }
 
     function showFinish(): void {
-        addBotMessage('Super! Je hebt alle vragen beantwoord. Hier is een overzicht van jouw antwoorden:', 0);
-
+        addBotMessage('Bedankt voor je antwoorden! Klik hieronder om de bevraging af te ronden.', 0);
         setTimeout(() => {
-            const card = document.createElement('div');
-            card.className = 'chat-summary-card';
-
-            const title = document.createElement('p');
-            title.className = 'chat-summary-title';
-            title.textContent = 'Jouw antwoorden';
-            card.appendChild(title);
-
-            answers.forEach((answer, i) => {
-                const q = questions.find(q => q.id === answer.questionId);
-                if (!q) return;
-
-                const item = document.createElement('div');
-                item.className = 'chat-summary-item';
-
-                const qRow = document.createElement('div');
-                qRow.className = 'chat-summary-q';
-                qRow.innerHTML = `<span class="chat-summary-num">${i + 1}</span><span class="chat-summary-label">${q.description}</span>`;
-
-                const aRow = document.createElement('p');
-                aRow.className = 'chat-summary-answer';
-                aRow.textContent = answer.value;
-
-                item.appendChild(qRow);
-                item.appendChild(aRow);
-                card.appendChild(item);
-            });
-
-            chatMessages!.appendChild(card);
-            scrollBottom();
-
-            const backWrap = document.createElement('div');
-            backWrap.className = 'w-100';
-            const backBtn = document.createElement('button');
-            backBtn.className = 'btn chat-back-btn';
-            backBtn.innerHTML = '&#8592; Antwoord aanpassen';
-            backBtn.addEventListener('click', goBack);
-            backWrap.appendChild(backBtn);
-            chatInputArea!.appendChild(backWrap);
-
-            const submitBtn = document.createElement('button');
-            submitBtn.className = 'btn btn-primary chat-submit-btn';
-            submitBtn.textContent = '✓ Bevraging afronden';
-            submitBtn.addEventListener('click', submitSurvey);
-            chatInputArea!.appendChild(submitBtn);
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-primary chat-submit-btn';
+            btn.textContent = '✓ Bevraging afronden';
+            btn.addEventListener('click', submitSurvey);
+            chatInputArea!.appendChild(btn);
         }, 900);
     }
 

@@ -1,6 +1,8 @@
+using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Domain.Questions;
 
 namespace IntegratieProject.DAL.Ef;
 
@@ -84,83 +86,112 @@ public class DataSeeder
 
         var questions = (List<Question>)section.Questions;
 
-        questions.Add(new Question
-        {
-            Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
-            QuestionType = QuestionType.SingleChoice,
-            Section = section,
-            Options = new List<QuestionOption>
-            {
-                new() { Text = "Zeer goed" },
-                new() { Text = "Goed" },
-                new() { Text = "Neutraal" },
-                new() { Text = "Eerder slecht" },
-                new() { Text = "Zeer slecht" }
-            }
-        });
+var mentalWellbeingQuestion = new Question
+{
+    Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
+    QuestionType = QuestionType.SingleChoice,
+    Section = section,
+    Options = new List<QuestionOption>
+    {
+        new() { Text = "Zeer goed" },
+        new() { Text = "Goed" },
+        new() { Text = "Neutraal" },
+        new() { Text = "Eerder slecht" },
+        new() { Text = "Zeer slecht" }
+    }
+};
 
-        questions.Add(new Question
-        {
-            Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
-            QuestionType = QuestionType.MultipleChoice,
-            Section = section,
-            Options = new List<QuestionOption>
-            {
-                new() { Text = "Studies / examens" },
-                new() { Text = "Combinatie studie-werk" },
-                new() { Text = "Financiële zorgen" },
-                new() { Text = "Sociale druk / eenzaamheid / relaties" },
-                new() { Text = "Fysieke of mentale gezondheid" },
-                new() { Text = "Thuissituatie" },
-                new() { Text = "Toekomstzorgen" },
-                new() { Text = "Andere" }
-            }
-        });
+questions.Add(mentalWellbeingQuestion);
 
-        questions.Add(new Question
-        {
-            Description = "In welke mate ervaar jij stress door je studies?",
-            QuestionType = QuestionType.Range,
-            Section = section,
-            RangeMin = 1,
-            RangeMax = 5,
-            RangeMinLabel = "1 = geen stress",
-            RangeMaxLabel = "5 = extreem veel stress"
-        });
+var stressSourcesQuestion = new Question
+{
+    Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
+    QuestionType = QuestionType.MultipleChoice,
+    Section = section,
+    Options = new List<QuestionOption>
+    {
+        new() { Text = "Studies / examens" },
+        new() { Text = "Combinatie studie-werk" },
+        new() { Text = "Financiële zorgen" },
+        new() { Text = "Sociale druk / eenzaamheid / relaties" },
+        new() { Text = "Fysieke of mentale gezondheid" },
+        new() { Text = "Thuissituatie" },
+        new() { Text = "Toekomstzorgen" },
+        new() { Text = "Andere" }
+    }
+};
 
-        questions.Add(new Question
-        {
-            Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
-            QuestionType = QuestionType.SingleChoice,
-            Section = section,
-            Options = new List<QuestionOption>
-            {
-                new() { Text = "Ja, meestal wel" },
-                new() { Text = "Soms wel, soms niet" },
-                new() { Text = "Eerder niet" },
-                new() { Text = "Helemaal niet" }
-            }
-        });
+questions.Add(stressSourcesQuestion);
 
-        questions.Add(new Question
-        {
-            Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
-            QuestionType = QuestionType.MultipleChoice,
-            Section = section,
-            Options = new List<QuestionOption>
-            {
-                new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
-                new() { Text = "Erover praten met ouders/familie/partner" },
-                new() { Text = "Erover praten met vrienden/medestudenten" },
-                new() { Text = "Professionele hulp zoeken" },
-                new() { Text = "Sporten/bewegen" },
-                new() { Text = "Afleiding zoeken" },
-                new() { Text = "Studietaken uitstellen/vermijden" },
-                new() { Text = "Bewust rust inplannen" },
-                new() { Text = "Medicatie/alcohol/andere middelen" },
-                new() { Text = "Iets anders" }
-            }
-        });
+var studyStressQuestion = new Question
+{
+    Description = "In welke mate ervaar jij stress door je studies?",
+    QuestionType = QuestionType.Range,
+    Section = section,
+    RangeMin = 1,
+    RangeMax = 5,
+    RangeMinLabel = "1 = geen stress",
+    RangeMaxLabel = "5 = extreem veel stress",
+    ConditionalQuestions = new List<ConditionalQuestion>()
+};
+
+questions.Add(studyStressQuestion);
+
+var stressFollowUpQuestion = new Question
+{
+    Description = "Je gaf aan veel stress te ervaren. Wat zou jou concreet helpen om die stress te verminderen?",
+    QuestionType = QuestionType.OpenQuestion,
+    Section = section,
+    IsRequired = true
+};
+
+questions.Add(stressFollowUpQuestion);
+
+studyStressQuestion.ConditionalQuestions.Add(new ConditionalQuestion
+{
+    ParentQuestion = studyStressQuestion,
+    FollowUpQuestion = stressFollowUpQuestion,
+    TriggerType = TriggerType.GreaterOrEqual,
+    TriggerValue = "4"
+});
+
+var pressureQuestion = new Question
+{
+    Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
+    QuestionType = QuestionType.SingleChoice,
+    Section = section,
+    Options = new List<QuestionOption>
+    {
+        new() { Text = "Ja, meestal wel" },
+        new() { Text = "Soms wel, soms niet" },
+        new() { Text = "Eerder niet" },
+        new() { Text = "Helemaal niet" }
+    }
+};
+
+questions.Add(pressureQuestion);
+
+var copingQuestion = new Question
+{
+    Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
+    QuestionType = QuestionType.MultipleChoice,
+    Section = section,
+    Options = new List<QuestionOption>
+    {
+        new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
+        new() { Text = "Erover praten met ouders/familie/partner" },
+        new() { Text = "Erover praten met vrienden/medestudenten" },
+        new() { Text = "Professionele hulp zoeken" },
+        new() { Text = "Sporten/bewegen" },
+        new() { Text = "Afleiding zoeken" },
+        new() { Text = "Studietaken uitstellen/vermijden" },
+        new() { Text = "Bewust rust inplannen" },
+        new() { Text = "Medicatie/alcohol/andere middelen" },
+        new() { Text = "Iets anders" }
+    }
+};
+
+questions.Add(copingQuestion);
 
         questionList.Sections = new List<Section> { section };
         project.QuestionList = questionList;
@@ -768,10 +799,222 @@ public class DataSeeder
         var apReactions2 = new List<Reaction> { apReaction21, apReaction22 };
 
         
+        var ideaModerationPrompt = new AiPrompt
+        {
+            Key = "idea_moderation",
+            Name = "Idea moderation",
+            PromptText = """
+                         Je bent een moderator voor een jongerenplatform.
+
+                         Controleer de titel en inhoud van een idee.
+
+                         Titel:
+                         {title}
+
+                         Inhoud:
+                         {text}
+
+                         Geef ALLEEN geldig JSON terug.
+                         Geen markdown.
+                         Geen codeblokken.
+
+                         JSON schema:
+                         {
+                           "isToxic": true/false,
+                           "needsMoreDetail": true/false,
+                           "explanation": "korte uitleg in het Nederlands",
+                           "suggestedTitle": "verbeterde titel in het Nederlands",
+                           "suggestedText": "verbeterde inhoud in het Nederlands"
+                         }
+
+                         Regels:
+                         - isToxic is alleen true bij beledigende, haatdragende, bedreigende, discriminerende of respectloze taal.
+                         - Zet isToxic NIET op true als het idee gewoon te kort, vaag of onduidelijk is.
+                         - needsMoreDetail is true als het idee te kort, vaag of onvoldoende concreet is.
+                         - Als needsMoreDetail true is, maak suggestedTitle Ã©n suggestedText concreter.
+                         - suggestedTitle moet een titel zijn, geen volledige tekst.
+                         - suggestedText moet een duidelijke uitwerking van het idee zijn.
+                         - Behoud de oorspronkelijke betekenis.
+                         - Voeg geen onrealistische of compleet nieuwe feiten toe.
+                         - Als de tekst goed is: isToxic = false, needsMoreDetail = false, suggestedTitle = "", suggestedText = "".
+                         - Antwoord alles in het Nederlands.
+                         """,
+            IsActive = true
+        };
+
+        var reactionModerationPrompt = new AiPrompt
+        {
+            Key = "reaction_moderation",
+            Name = "Reaction moderation",
+            PromptText = """
+                         Je bent een moderator voor een jongerenplatform.
+
+                         Controleer de volgende tekst:
+                         Titel: {title}
+                         Inhoud: {text}
+
+                         Beoordeel:
+                         1. Is de tekst toxisch (beledigend, haatdragend, bedreigend)?
+                         2. Is de tekst te vaag of onvoldoende uitgewerkt?
+
+                         Geef ALTIJD een antwoord in geldig JSON formaat, zonder extra tekst:
+
+                         {
+                           "isToxic": true/false,
+                           "needsMoreDetail": true/false,
+                           "explanation": "korte uitleg in het Nederlands",
+                           "suggestedText": "herschreven versie van de tekst in het Nederlands"
+                         }
+
+                         Regels:
+                         - Antwoord ALLES in het Nederlands
+                         - explanation moet duidelijk zijn voor een student
+                         - suggestedText moet een verbeterde versie zijn van de input
+                         - Geef GEEN tekst buiten de JSON
+                         """,
+            IsActive = true
+        };
+
+        var projectImagePrompt = new AiPrompt
+        {
+            Key = "project_image_generation",
+            Name = "Project image generation",
+            PromptText = """
+                         Maak een visueel aantrekkelijke, moderne afbeelding voor een jongerenproject.
+
+                         Projectnaam:
+                         {projectName}
+
+                         Regels:
+                         - De afbeelding moet passen bij een digitaal participatieplatform voor jongeren.
+                         - Gebruik een frisse, moderne en toegankelijke stijl.
+                         - Toon geen tekst in de afbeelding.
+                         - De afbeelding moet bruikbaar zijn als project cover.
+                         """,
+            IsActive = true
+        };
+
+        var projectIntroPrompt = new AiPrompt
+        {
+            Key = "project_intro_generation",
+            Name = "Project intro generation",
+            PromptText = """
+                         Schrijf een korte introductietekst voor een jongerenparticipatieproject.
+
+                         Projectnaam:
+                         {projectName}
+
+                         Regels:
+                         - Schrijf in het Nederlands.
+                         - Gebruik eenvoudige, motiverende taal voor jongeren/studenten.
+                         - Leg kort uit waarom deelnemen belangrijk is.
+                         - Maximum 5 zinnen.
+                         - Geef alleen de introductietekst terug, geen extra uitleg.
+                         """,
+            IsActive = true
+        };
+
+        var surveyGeneraration = new AiPrompt
+        {
+            Key = "survey_generation",
+            PromptText = """ 
+                         Je bent een AI-assistent die helpt om vragenlijsten te maken voor participatieprojecten.
+
+                         Maak op basis van de beschrijving een gestructureerde survey.
+
+                         Antwoord ALLEEN met geldig JSON.
+                         Gebruik GEEN markdown.
+                         Gebruik GEEN ```json blokken.
+                         Gebruik GEEN extra uitleg.
+
+                         JSON schema:
+                         {
+                           "sections": [
+                             {
+                               "title": "string",
+                               "questions": [
+                                 {
+                                   "title": "string",
+                                   "type": "single | multiple | range | open",
+                                   "answers": ["string"],
+                                   "min": "string",
+                                   "max": "string",
+                                   "conditionals": []
+                                 }
+                               ]
+                             }
+                           ]
+                         }
+
+                         Regels:
+                         - Maak exact {{questionAmount}} vragen in totaal.
+                         - Verdeel deze vragen logisch over 1 tot 4 sections.
+                         - Als er geen aantal vragen is meegegeven, geef dan standaard 10 vragen.
+                         - Maak maximaal 20 vragen totaal.
+                         - Gebruik duidelijke, neutrale en korte vragen.
+                         - Gebruik type "single" voor één keuze.
+                         - Gebruik type "multiple" voor meerdere keuzes.
+                         - Gebruik type "range" voor schaalvragen.
+                         - Gebruik type "open" voor open vragen.
+                         - Bij "single" en "multiple" moeten answers ingevuld zijn.
+                         - Bij "range" moeten min en max ingevuld zijn, bijvoorbeeld "1" en "5".
+                         - Bij "open" moeten answers leeg zijn.
+                         - Conditionals mogen leeg zijn.
+                         - Gebruik Nederlands.
+                         - Maak GEEN conditionele vragen.
+                         - Zet bij elke question altijd exact dit veld: "conditionals": []
+                         - Vul nooit "trigger", "ai" of "question" in.
+                         - Conditionele vragen worden later manueel door de gebruiker toegevoegd.
+                         - De vragenlijst moet passen bij deze beschrijving en question amount:
+
+                         {{questionAmount}}
+                         {{description}}
+                         """
+        };
+        var ideaImprovementPrompt = new AiPrompt
+        {
+            Key = "idea_improvement",
+            Name = "Idea improvement",
+            PromptText ="""
+                                     Je bent een AI-assistent voor een jongerenparticipatieplatform.
+
+                                     Herschrijf de titel en inhoud van het idee duidelijker en concreter.
+
+                                     Originele titel:
+                                     {title}
+
+                                     Originele inhoud:
+                                     {text}
+
+                                     Regels:
+                                     - Behoud de originele betekenis.
+                                     - Voeg geen volledig nieuwe feiten toe.
+                                     - Schrijf in het Nederlands.
+                                     - Geef ALLEEN geldige JSON terug.
+                                     - Geen markdown.
+                                     - Geen uitleg.
+
+                                     JSON schema:
+                                     {
+                                       "title": "verbeterde titel",
+                                       "text": "verbeterde inhoud"
+                                     }
+                                     """,
+            IsActive = true
+        };
+
+        
         /* =========================
            DATABASE INSERT
         ========================= */
 
+        
+        dbContext.AiPrompts.Add(ideaModerationPrompt);
+        dbContext.AiPrompts.Add(reactionModerationPrompt);
+        dbContext.AiPrompts.Add(projectImagePrompt);
+        dbContext.AiPrompts.Add(projectIntroPrompt);
+        dbContext.AiPrompts.Add(surveyGeneraration);
+        dbContext.AiPrompts.Add(ideaImprovementPrompt);        
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.SubPlatforms.Add(apSubPlatform);

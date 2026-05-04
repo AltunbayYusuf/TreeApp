@@ -14,4 +14,6 @@ public class QuestionViewModel
 
     public int? RangeMin { get; set; }
     public int? RangeMax { get; set; }
+    public List<ConditionalQuestionViewModel> Conditionals { get; set; } = new();
+
 }

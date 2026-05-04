@@ -4,6 +4,7 @@
 @{
     ViewBag.Title = "Nieuw project aanmaken";
     Layout = "_Layout";
+
     var initialSurveyData = Model.Sections.Select(s => new
     {
         title = s.Title,
@@ -20,13 +21,19 @@
             answers = q.Options ?? new List<string>(),
             min = q.RangeMin?.ToString() ?? "",
             max = q.RangeMax?.ToString() ?? "",
-            conditionals = new List<object>()
+            conditionals = q.Conditionals.Select(c => new
+            {
+                trigger = c.Trigger,
+                ai = c.UseAi,
+                question = c.QuestionText
+            })
         })
     });
 }
 
 <div class="bg-slate-50 min-h-screen">
     <div class="max-w-6xl mx-auto px-5 py-6">
+
         <div class="flex items-start justify-between border-b border-slate-200 pb-5 mb-6">
             <div class="flex items-start gap-4">
                 <a asp-controller="SubAdmin"
@@ -78,8 +85,10 @@
                 </a>
             </div>
         </div>
+
         <form id="surveyForm"
               data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey"
+              data-ai-url="/@Model.SubplatformSlug/api/subadmin-projects/survey/ai"
               class="space-y-6">
 
             @Html.AntiForgeryToken()
@@ -87,24 +96,61 @@
             <div id="surveyError"
                  class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             </div>
+
             <div asp-validation-summary="ModelOnly"
-                 class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
+                 class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            </div>
 
             <div class="max-w-4xl mx-auto">
+
                 <div class="rounded-2xl border-2 border-purple-300 bg-purple-50 p-6 mb-6 shadow-sm">
-                    <h2 class="text-lg font-semibold text-slate-900 mb-2">AI Vragenlijst Assistent</h2>
-                    <p class="text-sm text-slate-600 mb-3">
-                        Beschrijf wat je wil weten van jongeren
-                    </p>
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="text-lg font-semibold text-slate-900 mb-2">
+                                AI Vragenlijst Assistent
+                            </h2>
+
+                            <p class="text-sm text-slate-600 mb-3">
+                                Beschrijf wat je wil weten van jongeren. De AI maakt gewone vragen aan,
+                                zonder conditionele bijvragen. Bijvragen voeg je daarna zelf toe.
+                            </p>
+                        </div>
+
+                        <div class="min-w-28">
+                            <label for="questionAmount"
+                                   class="block text-xs font-medium text-slate-600 mb-1">
+                                Aantal vragen
+                            </label>
+
+                            <input id="questionAmount"
+                                   type="number"
+                                   min="1"
+                                   max="20"
+                                   value="5"
+                                   class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500"/>
+                        </div>
+                    </div>
 
                     <textarea id="aiPrompt"
+                              rows="4"
                               class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
-                              placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren..."></textarea>
+                              placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren en welke ondersteuning ze verwachten van de school..."></textarea>
 
-                    <button type="button"
-                            class="mt-3 inline-flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 transition">
-                        Genereer vragenlijst
-                    </button>
+                    <div class="mt-3 flex items-center gap-3">
+                        <button type="button"
+                                id="generateSurveyWithAiBtn"
+                                class="inline-flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 transition">
+                            Genereer vragenlijst
+                        </button>
+
+                        <span id="surveyAiMessage"
+                              class="text-sm text-slate-600">
+                        </span>
+                    </div>
+
+                    <div id="surveyAiError"
+                         class="hidden mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                    </div>
                 </div>
 
                 <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
@@ -131,8 +177,10 @@
 
 <script id="initialSurveyData" type="application/json">
     @Html.Raw(System.Text.Json.JsonSerializer.Serialize(initialSurveyData))
+
 </script>
+
 @section Scripts
 {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
 }

@@ -6,5 +6,8 @@ public enum FeatureType
     Moderation,
     Summarization,
     QuestionSuggestion,
-    IdeaSelection
+    IdeaSelection,
+    SurveyGeneration,
+    IntroText,
+    ImageGeneration
 }

@@ -1,5 +1,6 @@
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,15 +12,20 @@ public class IdeaController : Controller
     private readonly IIdeaManager _ideaManager;
     private readonly IProjectManager _projectManager;
     private readonly IUserManager _userManager;
+    private readonly IAiProvider _aiProvider;
+    private readonly IAiPromptService _aiPromptService;
 
 
 
-    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager, IUserManager userManager)
+    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager,IAiProvider aiProvider,
+        IAiPromptService aiPromptService, IUserManager userManager)
     {
         _topicManager = topicManager;
         _ideaManager = ideaManager;
         _projectManager = projectManager;
         _userManager = userManager;
+        _aiProvider = aiProvider;
+        _aiPromptService = aiPromptService;
     }
     
     public IActionResult Index(string subplatform, int projectId, int? topicId)

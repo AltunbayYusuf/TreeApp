@@ -1,115 +1,153 @@
 @using IntegratieProject.BL.Domain.questions
-@model QuestionList
+@using IntegratieProject.BL.Domain.Questions
+@model IntegratieProject.BL.Domain.questions.QuestionList
+
 @{
     ViewBag.Title = "Survey";
     Layout = "_Layout";
     int questionNumber = 1;
 }
 
-<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
-
 <h2 class="text-center mt-4">
-    @if (Model?.Project?.Logo?.Uri != null)
+    @if (Model.Project?.Logo != null)
     {
-        <h2 class="text-center mt-4">
-            <img src="@Model.Project.Logo.Uri" alt="Logo" class="w-52 h-40">
-        </h2>
+        <img src="@Model.Project.Logo.Uri" alt="Logo" class="w-52 h-40">
     }
-    else
-    {
-        <h2 class="text-center mt-4">
-            @Model?.Project?.SubPlatform.CompanyName
-        </h2>
-    }</h2>
+</h2>
 
-@foreach (var s in Model.Sections)
-{
-    <div>
-        @foreach (Question question in s.Questions)
+<form asp-controller="Survey"
+      asp-action="Submit"
+      asp-route-subplatform="@ViewBag.SubPlatformSlug"
+      asp-route-projectId="@Model.Project.Id"
+      method="post"
+      id="surveyForm">
+
+    @Html.AntiForgeryToken()
+
+    <input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug"/>
+
+    @foreach (var section in Model.Sections.OrderBy(s => s.Order))
+    {
+        foreach (Question question in section.Questions)
         {
-            <div class="survey-question mb-5 pb-4 border-bottom survey-container"
+            var conditional = Model.Sections
+                .SelectMany(sec => sec.Questions)
+                .SelectMany(q => q.ConditionalQuestions)
+                .FirstOrDefault(cq => cq.FollowUpQuestion.Id == question.Id);
+
+            <div class="survey-question survey-container mb-5 p-4 @(conditional != null ? "conditional-question d-none" : "")"
                  data-question-id="@question.Id"
-                 data-type="@question.QuestionType">
+                 data-type="@question.QuestionType"
+                 data-parent-question-id="@(conditional?.ParentQuestion.Id)"
+                 data-trigger-type="@(conditional?.TriggerType)"
+                 data-trigger-value="@(conditional?.TriggerValue)">
 
                 <div class="d-flex align-items-start gap-3">
+
+                    <!-- nummer -->
                     <div class="question-number-circle">
-                        @questionNumber
+                        @if (conditional != null)
+                        {
+                            <span>↳</span>
+                        }
+                        else
+                        {
+                            @questionNumber
+                        }
                     </div>
 
                     <div class="flex-grow-1">
-                        <h4 class="survey-question-title">@question.Description</h4>
 
-                        @switch (question.QuestionType)
-                        {
-                            case QuestionType.SingleChoice:
-                                <p class="survey-question-meta">[Single choice]</p>
+                        <!-- titel -->
+                        <h4 class="survey-question-title">
+                            @question.Description
+                        </h4>
 
-                                @foreach (var option in question.Options)
+                        <!-- type label -->
+                        <div class="mb-3">
+                            @if (question.QuestionType.ToString() == "SingleChoice")
+                            {
+                                <span class="badge bg-light text-dark">[ SINGLE CHOICE ]</span>
+                            }
+                            else if (question.QuestionType.ToString() == "MultipleChoice")
+                            {
+                                <span class="badge bg-light text-dark">[ MULTIPLE CHOICE ]</span>
+                            }
+                        </div>
+
+                        <!-- antwoorden -->
+                        <div class="d-flex flex-column gap-2">
+
+                            @* SINGLE *@
+                            @if (question.QuestionType.ToString() == "SingleChoice")
+                            {
+                                foreach (var option in question.Options)
                                 {
                                     <label class="survey-option-card d-flex align-items-center">
-                                        <input type="radio" name="q@(question.Id)" value="@option.Text" class="me-3" />
+                                        <input type="radio"
+                                               name="question-@question.Id"
+                                               value="@option.Text"
+                                               class="me-3"/>
                                         <span>@option.Text</span>
                                     </label>
                                 }
-                                break;
+                            }
 
-                            case QuestionType.MultipleChoice:
-                                <p class="survey-question-extra">Meerdere antwoorden mogelijk</p>
-                                <p class="survey-question-meta">[Multiple choice]</p>
-
-                                @foreach (var option in question.Options)
+                            @* MULTIPLE *@
+                            else if (question.QuestionType.ToString() == "MultipleChoice")
+                            {
+                                foreach (var option in question.Options)
                                 {
                                     <label class="survey-option-card d-flex align-items-center">
-                                        <input type="checkbox" name="q@(question.Id)" value="@option.Text" class="me-3" />
+                                        <input type="checkbox"
+                                               name="question-@question.Id"
+                                               value="@option.Text"
+                                               class="me-3"/>
                                         <span>@option.Text</span>
                                     </label>
                                 }
-                                break;
+                            }
 
-                            case QuestionType.Range:
-                                <p class="survey-question-meta">[Range]</p>
-
-                                <div class="d-flex justify-content-between range-labels mb-2">
-                                    <span>@question.RangeMinLabel</span>
-                                    <span>@question.RangeMaxLabel</span>
-                                </div>
-
-                                <div class="d-flex">
-                                    <div class="btn-group w-50" role="group">
-                                        @for (int i = question.RangeMin ?? 1; i <= (question.RangeMax ?? 5); i++)
-                                        {
+                            @* RANGE (FIX!!) *@
+                            else if (question.QuestionType.ToString() == "Range")
+                            {
+                                <div class="d-flex gap-2">
+                                    @for (int i = question.RangeMin ?? 1; i <= (question.RangeMax ?? 5); i++)
+                                    {
+                                        <label class="range-box btn btn-outline-primary">
                                             <input type="radio"
-                                                   class="btn-check"
-                                                   name="range@question.Id"
-                                                   id="range@question.Id-@i"
+                                                   name="question-@question.Id"
                                                    value="@i"
-                                                   autocomplete="off">
-
-                                            <label class="btn btn-outline-primary px-4 py-3 fs-4 text-center flex-fill"
-                                                   for="range@question.Id-@i">
-                                                @i
-                                            </label>
-                                        }
-                                    </div>
+                                                   class="d-none"/>
+                                            @i
+                                        </label>
+                                    }
                                 </div>
-                                break;
+                            }
 
-                            case QuestionType.OpenQuestion:
-                                <p class="survey-question-meta">[Open text field]</p>
-                                <textarea class="survey-textarea question-text" placeholder="Type hier je antwoord..."></textarea>
-                                break;
-                        }
+                            @* OPEN *@
+                            else if (question.QuestionType.ToString() == "OpenQuestion")
+                            {
+                                <textarea class="survey-textarea question-text"
+                                          name="question-@question.Id"
+                                          placeholder="Typ je antwoord hier..."></textarea>
+                            }
+
+                        </div>
                     </div>
                 </div>
             </div>
 
-            questionNumber++;
+            if (conditional == null)
+            {
+                questionNumber++;
+            }
         }
-    </div>
-}
+    }
 
-<div class="text-center mt-4">
-    <button type="button" class="btn btn-primary" id="verzendbtn">
-        Bevraging afronden
-    </button>
-</div>
+    <div class="text-center mt-5">
+        <button type="submit" id="verzendbtn" class="btn btn-primary px-5">
+            Verzenden
+        </button>
+    </div>
+</form>

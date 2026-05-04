@@ -20,6 +20,13 @@ public class ProjectRepository : IProjectRepository
             .ThenInclude(ql => ql.Sections)
             .ThenInclude(s => s.Questions)
             .ThenInclude(q => q.Options)
+
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.ConditionalQuestions)
+            .ThenInclude(cq => cq.FollowUpQuestion)
+
             .Include(p => p.SubPlatform)
             .Include(p => p.Photo)
             .Include(p => p.Logo)
