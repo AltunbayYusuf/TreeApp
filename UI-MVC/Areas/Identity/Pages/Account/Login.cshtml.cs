@@ -124,7 +124,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         return Page();
     }
 
-    var requestedSubplatform = GetSubplatformFromReturnUrl(returnUrl);
+    var requestedSubplatform = HttpContext.Items["subplatform"]?.ToString();
 
     if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
     {
@@ -150,7 +150,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         {
             if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
             {
-                return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
+                return Redirect("/SubAdmin");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -179,38 +179,6 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
 
     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
     return Page();
-}
-
-private string? GetSubplatformFromReturnUrl(string? returnUrl)
-{
-    if (string.IsNullOrWhiteSpace(returnUrl))
-    {
-        return null;
-    }
-
-    var cleanUrl = returnUrl.Split('?', '#')[0].Trim('/');
-
-    if (string.IsNullOrWhiteSpace(cleanUrl))
-    {
-        return null;
-    }
-
-    var segments = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-    if (segments.Length == 0)
-    {
-        return null;
-    }
-
-    var firstSegment = segments[0];
-
-    if (string.Equals(firstSegment, "Identity", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(firstSegment, "Platform", StringComparison.OrdinalIgnoreCase))
-    {
-        return null;
-    }
-
-    return firstSegment;
 }
     }
 }

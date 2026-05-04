@@ -1,7 +1,9 @@
 ﻿    @using IntegratieProject.DAL.Identity
     @using IntegratieProject.UI.MVC
+    @using IntegratieProject.BL.interfaces
     @using Microsoft.AspNetCore.Identity
     @inject UserManager<ApplicationUser> UserManager
+    @inject IProjectManager ProjectManager
 
     @{
         var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
@@ -20,7 +22,15 @@
 
         if (string.IsNullOrWhiteSpace(currentProjectId))
         {
-            currentProjectId = "1";
+            if (!string.IsNullOrWhiteSpace(currentSubplatform))
+            {
+                var firstProject = ProjectManager.GetFirstProjectBySubPlatform(currentSubplatform);
+                currentProjectId = firstProject?.Id.ToString() ?? "1";
+            }
+            else
+            {
+                currentProjectId = "1";
+            }
         }
     }
 
