@@ -6,6 +6,8 @@ namespace IntegratieProject.BL.interfaces;
 public interface IProjectManager
 {
     Project GetProject(int projectId);
+     IEnumerable<Project> GetAllProject();
+
     Project GetFirstProjectBySubPlatform(string slug);
     void UpdateProject(Project project);
 

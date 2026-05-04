@@ -9,11 +9,13 @@
 }
 
 html {
+  --font-scale: 1;
   position: relative;
   min-height: 100%;
 }
 
 body {
+  font-size: calc(1rem * var(--font-scale));
   margin-bottom: 60px;
 }
 

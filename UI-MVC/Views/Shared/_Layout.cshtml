@@ -159,6 +159,14 @@
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index"> Dashboard</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"
+                                   asp-controller="AdminStats"
+                                   asp-action="Index">
+                                    Overview
+                                </a>
+                                
+                            </li>
                         }
                         else
                         {
@@ -191,7 +199,23 @@
                             </li>
                         }
                     </ul>
+                    <div class="d-flex align-items-center gap-3">
+                    @if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <div class="font-size-control" role="group" aria-label="Tekstgrootte aanpassen">
+                            <span class="font-size-label" aria-hidden="true">A</span>
+                            
+                            <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
+                                -
+                            </button>
+
+                            <button type="button" class="font-size-button" data-font-size="up" aria-label="Tekst vergroten">
+                                +
+                            </button>
+                        </div>
+                    }
                     <partial name="_LoginPartial"/>
+                    </div>
                 </div>
             </div>
         </nav>

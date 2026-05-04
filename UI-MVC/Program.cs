@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Google.Cloud.AIPlatform.V1;
 using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
@@ -9,9 +10,11 @@ using IntegratieProject.DAL.Ef;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
 
@@ -43,6 +46,41 @@ builder.Services.AddAntiforgery(options =>
 {
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
+});
+// DataProtection keys opslaan in PostgreSQL zodat alle VMs dezelfde keys delen.
+// Noodzakelijk voor correcte werking van auth cookies en antiforgery bij horizontal scaling.
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<TreeDbContext>()
+    .SetApplicationName("IntegratieProject");
+
+// Rate limiting ter bescherming tegen overconsumptie van AI tokens.
+// Elke gebruiker (via cookie of IP) mag max 20 AI-verzoeken per uur indienen.
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("ai-limit", context =>
+    {
+        var partitionKey = context.Request.Cookies["UserIdentifier"]
+                           ?? context.Connection.RemoteIpAddress?.ToString()
+                           ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromHours(1),
+            PermitLimit = 20,
+            QueueLimit = 0,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+        });
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            ok = false,
+            message = "Je hebt het maximum aantal AI-verzoeken bereikt. Probeer over een uur opnieuw."
+        }, token);
+    };
 });
 
 // Ai Toegevoegd: tijdelijke fix -> custom DataProtection verwijderd.
@@ -106,6 +144,7 @@ builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<ISubplatformManager, SubplatformManager>();
 builder.Services.AddScoped<ITopicManager, TopicManager>();
 builder.Services.AddViteServices();
+builder.Services.AddHealthChecks();
 //150722
 
 
@@ -164,12 +203,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
-app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
+app.MapHealthChecks("/health").AllowAnonymous();
 
+app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
 
 app.MapControllerRoute(
     name: "subplatform_root",

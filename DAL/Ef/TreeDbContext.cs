@@ -6,14 +6,16 @@ using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.BL.Domain.Questions;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.DAL.Identity;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace IntegratieProject.DAL.Ef;
 
-public class TreeDbContext : IdentityDbContext<ApplicationUser>
+public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
 {
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
     public DbSet<GeneralAdmin> GeneralAdmins { get; set; }
     public DbSet<SubAdmin> SubAdmins { get; set; }
     public DbSet<User> Users { get; set; }

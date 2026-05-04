@@ -25,7 +25,13 @@
         <li class="nav-item">
             @{
                 var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
-                var logoutProjectId = "";
+
+                if (string.IsNullOrWhiteSpace(currentSubplatform))
+                {
+                    currentSubplatform = Context.Request.Query["subplatform"].ToString();
+                }
+
+                var logoutReturnUrl = "/";
 
                 if (!string.IsNullOrWhiteSpace(currentSubplatform))
                 {
@@ -33,7 +39,7 @@
 
                     if (firstProject != null)
                     {
-                        logoutProjectId = firstProject.Id.ToString();
+                        logoutReturnUrl = $"/{currentSubplatform}/Project/{firstProject.Id}";
                     }
                 }
             }
@@ -41,9 +47,11 @@
             <form class="form-inline"
                   asp-area="Identity"
                   asp-page="/Account/Logout"
-                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
+                  asp-route-returnUrl="@logoutReturnUrl"
                   method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
+                <button type="submit" class="nav-link btn btn-link text-dark">
+                    Click here to Logout
+                </button>
             </form>
         </li>
     }

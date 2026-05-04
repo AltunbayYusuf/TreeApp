@@ -37,6 +37,28 @@ public class ProjectRepository : IProjectRepository
             .FirstOrDefault(p => p.Id == projectId);
     }
 
+    public IEnumerable<Project> ReadAllProjects()
+    {
+        return _context.Projects
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
+
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.ConditionalQuestions)
+            .ThenInclude(cq => cq.FollowUpQuestion)
+
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .Include(p => p.Topics)
+            .ThenInclude(t => t.Ideas)
+            .Include(p => p.SurveyResponses);
+    }
+
     public Project ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
     {
         return _context.Projects

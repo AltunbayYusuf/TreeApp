@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace IntegratieProject.UI.MVC.Controllers;
+namespace IntegratieProject.UI.MVC.Controllers.Admin;
 
 [Authorize(Roles = CustomIdentityConstants.GeneralAdminRoleName)]
 [Route("admin")]
@@ -18,9 +18,7 @@ public class AdminController : Controller
         _logger = logger;
         _userManager = userManager;
     }
-
-    [HttpGet("")]
-    [HttpGet("index")]
+    
     public IActionResult Index()
     {
         var generalAdmin = _userManager.GetGeneralAdmin();
