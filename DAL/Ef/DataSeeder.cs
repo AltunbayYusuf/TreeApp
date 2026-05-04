@@ -42,7 +42,7 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-            Logo =kdgLogo,
+            Logo = kdgLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -86,112 +86,113 @@ public class DataSeeder
 
         var questions = (List<Question>)section.Questions;
 
-var mentalWellbeingQuestion = new Question
-{
-    Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
-    QuestionType = QuestionType.SingleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Zeer goed" },
-        new() { Text = "Goed" },
-        new() { Text = "Neutraal" },
-        new() { Text = "Eerder slecht" },
-        new() { Text = "Zeer slecht" }
-    }
-};
+        var mentalWellbeingQuestion = new Question
+        {
+            Description = "Hoe zou jij je mentaal welzijn in de voorbije maand omschrijven?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Zeer goed" },
+                new() { Text = "Goed" },
+                new() { Text = "Neutraal" },
+                new() { Text = "Eerder slecht" },
+                new() { Text = "Zeer slecht" }
+            }
+        };
 
-questions.Add(mentalWellbeingQuestion);
+        questions.Add(mentalWellbeingQuestion);
 
-var stressSourcesQuestion = new Question
-{
-    Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
-    QuestionType = QuestionType.MultipleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Studies / examens" },
-        new() { Text = "Combinatie studie-werk" },
-        new() { Text = "Financiële zorgen" },
-        new() { Text = "Sociale druk / eenzaamheid / relaties" },
-        new() { Text = "Fysieke of mentale gezondheid" },
-        new() { Text = "Thuissituatie" },
-        new() { Text = "Toekomstzorgen" },
-        new() { Text = "Andere" }
-    }
-};
+        var stressSourcesQuestion = new Question
+        {
+            Description = "Wat zijn voor jou momenteel de grootste bronnen van stress?",
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Studies / examens" },
+                new() { Text = "Combinatie studie-werk" },
+                new() { Text = "Financiële zorgen" },
+                new() { Text = "Sociale druk / eenzaamheid / relaties" },
+                new() { Text = "Fysieke of mentale gezondheid" },
+                new() { Text = "Thuissituatie" },
+                new() { Text = "Toekomstzorgen" },
+                new() { Text = "Andere" }
+            }
+        };
 
-questions.Add(stressSourcesQuestion);
+        questions.Add(stressSourcesQuestion);
 
-var studyStressQuestion = new Question
-{
-    Description = "In welke mate ervaar jij stress door je studies?",
-    QuestionType = QuestionType.Range,
-    Section = section,
-    RangeMin = 1,
-    RangeMax = 5,
-    RangeMinLabel = "1 = geen stress",
-    RangeMaxLabel = "5 = extreem veel stress",
-    ConditionalQuestions = new List<ConditionalQuestion>()
-};
+        var studyStressQuestion = new Question
+        {
+            Description = "In welke mate ervaar jij stress door je studies?",
+            QuestionType = QuestionType.Range,
+            Section = section,
+            RangeMin = 1,
+            RangeMax = 5,
+            RangeMinLabel = "1 = geen stress",
+            RangeMaxLabel = "5 = extreem veel stress",
+            ConditionalQuestions = new List<ConditionalQuestion>()
+        };
 
-questions.Add(studyStressQuestion);
+        questions.Add(studyStressQuestion);
 
-var stressFollowUpQuestion = new Question
-{
-    Description = "Je gaf aan veel stress te ervaren. Wat zou jou concreet helpen om die stress te verminderen?",
-    QuestionType = QuestionType.OpenQuestion,
-    Section = section,
-    IsRequired = true
-};
+        var stressFollowUpQuestion = new Question
+        {
+            Description =
+                "Je gaf aan veel stress te ervaren. Wat zou jou concreet helpen om die stress te verminderen?",
+            QuestionType = QuestionType.OpenQuestion,
+            Section = section,
+            IsRequired = true
+        };
 
-questions.Add(stressFollowUpQuestion);
+        questions.Add(stressFollowUpQuestion);
 
-studyStressQuestion.ConditionalQuestions.Add(new ConditionalQuestion
-{
-    ParentQuestion = studyStressQuestion,
-    FollowUpQuestion = stressFollowUpQuestion,
-    TriggerType = TriggerType.GreaterOrEqual,
-    TriggerValue = "4"
-});
+        studyStressQuestion.ConditionalQuestions.Add(new ConditionalQuestion
+        {
+            ParentQuestion = studyStressQuestion,
+            FollowUpQuestion = stressFollowUpQuestion,
+            TriggerType = TriggerType.GreaterOrEqual,
+            TriggerValue = "4"
+        });
 
-var pressureQuestion = new Question
-{
-    Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
-    QuestionType = QuestionType.SingleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Ja, meestal wel" },
-        new() { Text = "Soms wel, soms niet" },
-        new() { Text = "Eerder niet" },
-        new() { Text = "Helemaal niet" }
-    }
-};
+        var pressureQuestion = new Question
+        {
+            Description = "Heb je het gevoel dat je de mentale druk die je ervaart meestal aankan?",
+            QuestionType = QuestionType.SingleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ja, meestal wel" },
+                new() { Text = "Soms wel, soms niet" },
+                new() { Text = "Eerder niet" },
+                new() { Text = "Helemaal niet" }
+            }
+        };
 
-questions.Add(pressureQuestion);
+        questions.Add(pressureQuestion);
 
-var copingQuestion = new Question
-{
-    Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
-    QuestionType = QuestionType.MultipleChoice,
-    Section = section,
-    Options = new List<QuestionOption>
-    {
-        new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
-        new() { Text = "Erover praten met ouders/familie/partner" },
-        new() { Text = "Erover praten met vrienden/medestudenten" },
-        new() { Text = "Professionele hulp zoeken" },
-        new() { Text = "Sporten/bewegen" },
-        new() { Text = "Afleiding zoeken" },
-        new() { Text = "Studietaken uitstellen/vermijden" },
-        new() { Text = "Bewust rust inplannen" },
-        new() { Text = "Medicatie/alcohol/andere middelen" },
-        new() { Text = "Iets anders" }
-    }
-};
+        var copingQuestion = new Question
+        {
+            Description = "Wat doe jij meestal wanneer je het mentaal moeilijk hebt?",
+            QuestionType = QuestionType.MultipleChoice,
+            Section = section,
+            Options = new List<QuestionOption>
+            {
+                new() { Text = "Ik weet niet goed wat ik kan of moet doen" },
+                new() { Text = "Erover praten met ouders/familie/partner" },
+                new() { Text = "Erover praten met vrienden/medestudenten" },
+                new() { Text = "Professionele hulp zoeken" },
+                new() { Text = "Sporten/bewegen" },
+                new() { Text = "Afleiding zoeken" },
+                new() { Text = "Studietaken uitstellen/vermijden" },
+                new() { Text = "Bewust rust inplannen" },
+                new() { Text = "Medicatie/alcohol/andere middelen" },
+                new() { Text = "Iets anders" }
+            }
+        };
 
-questions.Add(copingQuestion);
+        questions.Add(copingQuestion);
 
         questionList.Sections = new List<Section> { section };
         project.QuestionList = questionList;
@@ -434,8 +435,8 @@ questions.Add(copingQuestion);
 
         var ideas2 = new List<Idea> { idea21, idea22, idea23, idea24 };
         var reactions2 = new List<Reaction> { reaction21, reaction22 };
-    
-        
+
+
         /* =========================
            SUBPLATFORM 2 - AP HOGESCHOOL
         ========================= */
@@ -470,7 +471,7 @@ questions.Add(copingQuestion);
 
         var apProject2 = new Project
         {
-            Name= "AP Campusbeleving & Verbondenheid",
+            Name = "AP Campusbeleving & Verbondenheid",
             Introduction =
                 "Hoe maken we van AP een campus waar studenten zich welkom, veilig en verbonden voelen?\n\n" +
                 "Via deze bevraging en ideeënronde verzamelen we concrete input van studenten.",
@@ -566,7 +567,8 @@ questions.Add(copingQuestion);
 
         apQuestions1.Add(new Question
         {
-            Description = "Wat zou AP volgens jou concreet kunnen verbeteren om studenten beter mentaal te ondersteunen?",
+            Description =
+                "Wat zou AP volgens jou concreet kunnen verbeteren om studenten beter mentaal te ondersteunen?",
             QuestionType = QuestionType.OpenQuestion,
             Section = apSection1
         });
@@ -587,7 +589,8 @@ questions.Add(copingQuestion);
         var apIdea1 = new Idea
         {
             Title = "Meer spreiding van deadlines",
-            Text = "Veel stress ontstaat wanneer verschillende opdrachten en examens in dezelfde periode samenvallen. Een betere spreiding zou helpen.",
+            Text =
+                "Veel stress ontstaat wanneer verschillende opdrachten en examens in dezelfde periode samenvallen. Een betere spreiding zou helpen.",
             Topic = apTopic1,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -595,7 +598,8 @@ questions.Add(copingQuestion);
         var apIdea2 = new Idea
         {
             Title = "Snellere toegang tot studentenbegeleiding",
-            Text = "Het zou fijn zijn als studenten sneller een eerste gesprek kunnen krijgen wanneer ze zich mentaal niet goed voelen.",
+            Text =
+                "Het zou fijn zijn als studenten sneller een eerste gesprek kunnen krijgen wanneer ze zich mentaal niet goed voelen.",
             Topic = apTopic2,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -611,7 +615,8 @@ questions.Add(copingQuestion);
         var apIdea4 = new Idea
         {
             Title = "Meer zichtbare communicatie over hulp",
-            Text = "Veel studenten weten niet waar ze terechtkunnen. Regelmatige communicatie via Toledo, mail en schermen op campus zou helpen.",
+            Text =
+                "Veel studenten weten niet waar ze terechtkunnen. Regelmatige communicatie via Toledo, mail en schermen op campus zou helpen.",
             Topic = apTopic4,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -747,7 +752,8 @@ questions.Add(copingQuestion);
         var apIdea21 = new Idea
         {
             Title = "Meer laagdrempelige middagactiviteiten",
-            Text = "Korte activiteiten tijdens de middagpauze kunnen studenten makkelijker samenbrengen zonder grote tijdsinvestering.",
+            Text =
+                "Korte activiteiten tijdens de middagpauze kunnen studenten makkelijker samenbrengen zonder grote tijdsinvestering.",
             Topic = apTopic23,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -755,7 +761,8 @@ questions.Add(copingQuestion);
         var apIdea22 = new Idea
         {
             Title = "Een gezellige ontmoetingsruimte",
-            Text = "Een vaste plek met zitruimte en rustige sfeer zou studenten helpen om elkaar spontaan te ontmoeten.",
+            Text =
+                "Een vaste plek met zitruimte en rustige sfeer zou studenten helpen om elkaar spontaan te ontmoeten.",
             Topic = apTopic24,
             ModerationStatus = ModerationStatus.Accepted
         };
@@ -798,46 +805,44 @@ questions.Add(copingQuestion);
         var apIdeas2 = new List<Idea> { apIdea21, apIdea22, apIdea23, apIdea24 };
         var apReactions2 = new List<Reaction> { apReaction21, apReaction22 };
 
-        
+
         var ideaModerationPrompt = new AiPrompt
         {
             Key = "idea_moderation",
             Name = "Idea moderation",
             PromptText = """
-                         Je bent een moderator voor een jongerenplatform.
+                         Je bent een moderator voor een studentenplatform.
 
-                         Controleer de titel en inhoud van een idee.
+                         Controleer en herschrijf een idee.
 
-                         Titel:
-                         {title}
+                         Titel: {title}
+                         Inhoud: {text}
 
-                         Inhoud:
-                         {text}
+                         Geef ALLEEN JSON terug:
 
-                         Geef ALLEEN geldig JSON terug.
-                         Geen markdown.
-                         Geen codeblokken.
-
-                         JSON schema:
                          {
                            "isToxic": true/false,
                            "needsMoreDetail": true/false,
-                           "explanation": "korte uitleg in het Nederlands",
-                           "suggestedTitle": "verbeterde titel in het Nederlands",
-                           "suggestedText": "verbeterde inhoud in het Nederlands"
+                           "explanation": "korte uitleg",
+                           "suggestedTitle": "verbeterde titel",
+                           "suggestedText": "verbeterde tekst"
                          }
 
                          Regels:
-                         - isToxic is alleen true bij beledigende, haatdragende, bedreigende, discriminerende of respectloze taal.
-                         - Zet isToxic NIET op true als het idee gewoon te kort, vaag of onduidelijk is.
-                         - needsMoreDetail is true als het idee te kort, vaag of onvoldoende concreet is.
-                         - Als needsMoreDetail true is, maak suggestedTitle Ã©n suggestedText concreter.
-                         - suggestedTitle moet een titel zijn, geen volledige tekst.
-                         - suggestedText moet een duidelijke uitwerking van het idee zijn.
-                         - Behoud de oorspronkelijke betekenis.
-                         - Voeg geen onrealistische of compleet nieuwe feiten toe.
-                         - Als de tekst goed is: isToxic = false, needsMoreDetail = false, suggestedTitle = "", suggestedText = "".
-                         - Antwoord alles in het Nederlands.
+                         - isToxic = true bij scheldwoorden of beledigingen
+                         - needsMoreDetail = true als het idee te kort of vaag is
+
+                         - Als isToxic = true:
+                           → herschrijf titel en tekst op een respectvolle manier
+                           → voorbeeld:
+                             "ik vind jou een klootzak" → "ik ben het niet eens met deze persoon"
+
+                         - Als needsMoreDetail = true:
+                           → maak het idee concreter
+
+                         - Behoud altijd de betekenis
+                         - Geen lege suggestedTitle of suggestedText
+                         - Antwoord in het Nederlands
                          """,
             IsActive = true
         };
@@ -847,30 +852,42 @@ questions.Add(copingQuestion);
             Key = "reaction_moderation",
             Name = "Reaction moderation",
             PromptText = """
-                         Je bent een moderator voor een jongerenplatform.
+                         Je bent een moderator voor een studentenplatform.
 
-                         Controleer de volgende tekst:
-                         Titel: {title}
-                         Inhoud: {text}
+                         Controleer en herschrijf de volgende tekst zodat deze respectvol is.
 
-                         Beoordeel:
-                         1. Is de tekst toxisch (beledigend, haatdragend, bedreigend)?
-                         2. Is de tekst te vaag of onvoldoende uitgewerkt?
+                         Originele tekst:
+                         {text}
 
-                         Geef ALTIJD een antwoord in geldig JSON formaat, zonder extra tekst:
+                         Geef ALLEEN JSON terug:
 
                          {
                            "isToxic": true/false,
-                           "needsMoreDetail": true/false,
-                           "explanation": "korte uitleg in het Nederlands",
-                           "suggestedText": "herschreven versie van de tekst in het Nederlands"
+                           "needsMoreDetail": false,
+                           "explanation": "korte uitleg",
+                           "suggestedText": "minder agressieve versie"
                          }
 
                          Regels:
-                         - Antwoord ALLES in het Nederlands
-                         - explanation moet duidelijk zijn voor een student
-                         - suggestedText moet een verbeterde versie zijn van de input
-                         - Geef GEEN tekst buiten de JSON
+                         - isToxic = true als er scheldwoorden of beledigingen in staan
+                         - needsMoreDetail = altijd false
+
+                         - Als isToxic = true:
+                           → herschrijf de tekst op een respectvolle manier
+                           → voorbeeld:
+                             "je bent een klootzak" → "ik vind dit niet oké"
+
+                         - Als isToxic = false:
+                           → suggestedText = ""
+
+                         - Behoud de betekenis, maar maak het beleefd
+                         - Gebruik geen scheldwoorden in de herschreven versie
+                         - Maak de tekst geschikt voor een schoolomgeving
+                         - Antwoord in het Nederlands
+
+                         BELANGRIJK:
+                         - Geef enkel JSON terug
+                         - Geen extra tekst buiten JSON
                          """,
             IsActive = true
         };
@@ -975,46 +992,46 @@ questions.Add(copingQuestion);
         {
             Key = "idea_improvement",
             Name = "Idea improvement",
-            PromptText ="""
-                                     Je bent een AI-assistent voor een jongerenparticipatieplatform.
+            PromptText = """
+                         Je bent een AI-assistent voor een jongerenparticipatieplatform.
 
-                                     Herschrijf de titel en inhoud van het idee duidelijker en concreter.
+                         Herschrijf de titel en inhoud van het idee duidelijker en concreter.
 
-                                     Originele titel:
-                                     {title}
+                         Originele titel:
+                         {title}
 
-                                     Originele inhoud:
-                                     {text}
+                         Originele inhoud:
+                         {text}
 
-                                     Regels:
-                                     - Behoud de originele betekenis.
-                                     - Voeg geen volledig nieuwe feiten toe.
-                                     - Schrijf in het Nederlands.
-                                     - Geef ALLEEN geldige JSON terug.
-                                     - Geen markdown.
-                                     - Geen uitleg.
+                         Regels:
+                         - Behoud de originele betekenis.
+                         - Voeg geen volledig nieuwe feiten toe.
+                         - Schrijf in het Nederlands.
+                         - Geef ALLEEN geldige JSON terug.
+                         - Geen markdown.
+                         - Geen uitleg.
 
-                                     JSON schema:
-                                     {
-                                       "title": "verbeterde titel",
-                                       "text": "verbeterde inhoud"
-                                     }
-                                     """,
+                         JSON schema:
+                         {
+                           "title": "verbeterde titel",
+                           "text": "verbeterde inhoud"
+                         }
+                         """,
             IsActive = true
         };
 
-        
+
         /* =========================
            DATABASE INSERT
         ========================= */
 
-        
+
         dbContext.AiPrompts.Add(ideaModerationPrompt);
         dbContext.AiPrompts.Add(reactionModerationPrompt);
         dbContext.AiPrompts.Add(projectImagePrompt);
         dbContext.AiPrompts.Add(projectIntroPrompt);
         dbContext.AiPrompts.Add(surveyGeneraration);
-        dbContext.AiPrompts.Add(ideaImprovementPrompt);        
+        dbContext.AiPrompts.Add(ideaImprovementPrompt);
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.SubPlatforms.Add(apSubPlatform);
@@ -1037,8 +1054,7 @@ questions.Add(copingQuestion);
         dbContext.Ideas.AddRange(ideas2);
         dbContext.Reactions.AddRange(reactions2);
 
-  
-        
+
         /* =========================
            DATABASE INSERT - AP
         ========================= */
@@ -1063,8 +1079,7 @@ questions.Add(copingQuestion);
         dbContext.Topics.AddRange(apProject2.Topics);
         dbContext.Ideas.AddRange(apIdeas2);
         dbContext.Reactions.AddRange(apReactions2);
-        
+
         dbContext.SaveChanges();
-        
     }
 }
