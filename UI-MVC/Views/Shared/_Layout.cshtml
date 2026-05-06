@@ -203,8 +203,6 @@
                     @if (User.Identity?.IsAuthenticated != true)
                     {
                         <div class="font-size-control" role="group" aria-label="Tekstgrootte aanpassen">
-                            <span class="font-size-label" aria-hidden="true">A</span>
-                            
                             <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
                                 -
                             </button>
@@ -214,6 +212,16 @@
                             </button>
                         </div>
                     }
+                    <div id="google_translate_element" style="display:none;"></div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            NL
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('nl', 'NL')">Nederlands</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en', 'EN')">English</a></li>
+                        </ul>
+                    </div>
                     <partial name="_LoginPartial"/>
                     </div>
                 </div>
