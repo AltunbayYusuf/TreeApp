@@ -128,20 +128,27 @@
                                     </button>
                                 </form>
                             }
-
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteProjectModal-@p.Id">
-                                🗑️
-                            </button>
                             <a asp-controller="SubAdminProjects"
                                asp-action="CopyAsStartPoint"
                                asp-route-subplatform="@Model.Slug"
                                asp-route-projectId="@p.Id"
-                               class="btn btn-sm btn-outline-primary">
-                                Startpunt Project
+                               class="btn btn-sm btn-outline-primary"
+                               title="Project Kopiëren">
+                                ⧉
                             </a>
+                            <a asp-controller="SubAdmin"
+                               asp-action="ExportProjectsCsv"
+                               asp-route-subplatform="@Model.Slug"
+                               class="btn btn-sm btn-outline-secondary">
+                                Export CSV
+                            </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteProjectModal-@p.Id"
+                                    title="Project Verwijderen">
+                                🗑️
+                            </button>
                         </div>
 
                         <div class="modal fade"
