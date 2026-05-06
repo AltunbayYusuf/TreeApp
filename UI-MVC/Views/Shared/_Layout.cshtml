@@ -120,42 +120,8 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav">
-                        @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="SubAdmin"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
-                                    Dashboard
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="SubAdminModeration"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
-                                    Moderatie
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="SubAdminIdeas"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
-                                    Ideeën
-                                </a>
-                            </li>
-                        }
-                        else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
-                            </li>
-                        }
-                        else
+                        @if (!User.IsInRole(CustomIdentityConstants.SubAdminRoleName) &&
+                             !User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
                         {
                             <li class="nav-item">
                                 <a class="nav-link"
@@ -177,9 +143,6 @@
                                     Ideeën
                                 </a>
                             </li>
-
-                       
-
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Home"
                                    asp-action="Privacy">Privacy</a>

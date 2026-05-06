@@ -1,6 +1,7 @@
 // ── Admin Dashboard (SubAdmin) ────────────────────────────────────────────────
+// admin-content in de layout voorziet de horizontale padding
 .admin-page {
-  padding: 1.5rem 0 3rem;
+  padding: 2rem 0 3rem;
 }
 
 .admin-header {
@@ -369,7 +370,7 @@
 
 // ── Moderatie pagina ──────────────────────────────────────────────────────────
 .moderation-page {
-  padding: 1.5rem 0 3rem;
+  padding: 2rem 0 3rem;
 }
 
 .moderation-list-card {
