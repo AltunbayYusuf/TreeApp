@@ -3,6 +3,7 @@ using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.BL.Domain.Questions;
+using IntegratieProject.BL.Domain.users;
 
 namespace IntegratieProject.DAL.Ef;
 
@@ -1019,6 +1020,244 @@ public class DataSeeder
                          """,
             IsActive = true
         };
+        
+        var projectTrendSummaryPrompt = new AiPrompt
+        {
+            Key = "project_trend_summary",
+            Name = "Project trend summary",
+            PromptText = """
+                         Je bent een AI-analist voor een participatieplatform.
+
+                         Analyseer de data van één project. Je krijgt:
+                         - topics
+                         - ideeën
+                         - reacties
+                         - ingevulde enquêtes met vragen en antwoorden
+
+                         Doel:
+                         De subadmin moet snel en overzichtelijk begrijpen:
+                         - welke trends terugkomen
+                         - hoe deelnemers denken over het project
+                         - welke bezorgdheden vaak terugkomen
+                         - welke ideeën steun krijgen
+                         - wat uit de enquêtes blijkt
+                         - welke acties de organisatie best kan nemen
+
+                         Geef een duidelijke analyse in het Nederlands.
+
+                         Structuur:
+                         1. Algemene indruk
+                         2. Belangrijkste trends
+                         3. Wat blijkt uit de ideeën
+                         4. Wat blijkt uit de reacties
+                         5. Wat blijkt uit de enquêtes
+                         6. Sentiment van de deelnemers
+                         7. Veel voorkomende bezorgdheden
+                         8. Populaire of sterke ideeën
+                         9. Aanbevelingen voor de subadmin
+
+                         Regels:
+                         - Gebruik alleen de meegegeven data.
+                         - Verzin geen cijfers.
+                         - Als er weinig data is, zeg dat duidelijk.
+                         - Maak het overzichtelijk met korte titels.
+                         - Schrijf professioneel maar begrijpelijk.
+                         - Geef geen JSON terug.
+                         - Geef geen markdown codeblok terug.
+                         - Geef concrete aanbevelingen, maar overdrijf niet.
+
+                         DATA:
+                         {{projectData}}
+                         """,
+            IsActive = true
+        };
+        
+        var openQuestionSummaryPrompt = new AiPrompt
+        {
+            Key = "open_question_summary",
+            PromptText = """
+                         Vat de open antwoorden kort samen voor een subadmin.
+
+                         Regels:
+                         - Schrijf maximaal 5 korte bullets.
+                         - Gebruik geen Markdown-opmaak zoals **vetgedrukt**.
+                         - Gebruik geen lange alinea's.
+                         - Maak geen personen herkenbaar.
+                         - Schrijf concreet en duidelijk Nederlands.
+
+                         Geef exact deze structuur:
+
+                         Belangrijkste inzichten:
+                         - ...
+                         - ...
+                         - ...
+
+                         Korte conclusie:
+                         ...
+
+                         Vraag:
+                         {{question}}
+
+                         Antwoorden:
+                         {{answers}}
+                         """,
+            IsActive = true
+        };
+        
+        var surveyUsers = Enumerable.Range(1, 10).Select(i => new User
+    {
+        CookieIdentifier = $"seed-survey-user-{i}"
+    })
+    .ToList();
+
+var surveyResponses = new List<SurveyResponse>
+{
+    new()
+    {
+        Project = project,
+        User = surveyUsers[0],
+        SubmittedAt = DateTime.UtcNow.AddDays(-10),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+            new() { Question = stressSourcesQuestion, Text = "Studies / examens;Toekomstzorgen" },
+            new() { Question = studyStressQuestion, Text = "4" },
+            new() { Question = stressFollowUpQuestion, Text = "Een betere spreiding van deadlines zou helpen." },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Sporten/bewegen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[1],
+        SubmittedAt = DateTime.UtcNow.AddDays(-9),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Financiële zorgen;Combinatie studie-werk" },
+            new() { Question = studyStressQuestion, Text = "5" },
+            new() { Question = stressFollowUpQuestion, Text = "Meer begrip voor studenten die werken naast hun studies." },
+            new() { Question = pressureQuestion, Text = "Eerder niet" },
+            new() { Question = copingQuestion, Text = "Afleiding zoeken;Studietaken uitstellen/vermijden" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[2],
+        SubmittedAt = DateTime.UtcNow.AddDays(-8),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
+            new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[3],
+        SubmittedAt = DateTime.UtcNow.AddDays(-7),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Studies / examens;Fysieke of mentale gezondheid" },
+            new() { Question = studyStressQuestion, Text = "4" },
+            new() { Question = stressFollowUpQuestion, Text = "Duidelijkere planning en minder taken tegelijk." },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[4],
+        SubmittedAt = DateTime.UtcNow.AddDays(-6),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+            new() { Question = stressSourcesQuestion, Text = "Toekomstzorgen" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+            new() { Question = copingQuestion, Text = "Sporten/bewegen;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[5],
+        SubmittedAt = DateTime.UtcNow.AddDays(-5),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Zeer goed" },
+            new() { Question = stressSourcesQuestion, Text = "Studies / examens" },
+            new() { Question = studyStressQuestion, Text = "2" },
+            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+            new() { Question = copingQuestion, Text = "Erover praten met ouders/familie/partner;Sporten/bewegen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[6],
+        SubmittedAt = DateTime.UtcNow.AddDays(-4),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Thuissituatie;Financiële zorgen" },
+            new() { Question = studyStressQuestion, Text = "5" },
+            new() { Question = stressFollowUpQuestion, Text = "Meer flexibele deadlines bij persoonlijke problemen." },
+            new() { Question = pressureQuestion, Text = "Helemaal niet" },
+            new() { Question = copingQuestion, Text = "Ik weet niet goed wat ik kan of moet doen;Afleiding zoeken" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[7],
+        SubmittedAt = DateTime.UtcNow.AddDays(-3),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+            new() { Question = stressSourcesQuestion, Text = "Combinatie studie-werk" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Afleiding zoeken" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[8],
+        SubmittedAt = DateTime.UtcNow.AddDays(-2),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
+            new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties;Toekomstzorgen" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Afleiding zoeken;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[9],
+        SubmittedAt = DateTime.UtcNow.AddDays(-1),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Fysieke of mentale gezondheid;Studies / examens" },
+            new() { Question = studyStressQuestion, Text = "5" },
+            new() { Question = stressFollowUpQuestion, Text = "Sneller toegang tot begeleiding en minder druk in examenperiodes." },
+            new() { Question = pressureQuestion, Text = "Eerder niet" },
+            new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Afleiding zoeken" }
+        }
+    }
+};
 
 
         /* =========================
@@ -1032,6 +1271,8 @@ public class DataSeeder
         dbContext.AiPrompts.Add(projectIntroPrompt);
         dbContext.AiPrompts.Add(surveyGeneraration);
         dbContext.AiPrompts.Add(ideaImprovementPrompt);
+        dbContext.AiPrompts.Add(projectTrendSummaryPrompt);
+        dbContext.AiPrompts.Add(openQuestionSummaryPrompt);
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.SubPlatforms.Add(apSubPlatform);
@@ -1080,6 +1321,9 @@ public class DataSeeder
         dbContext.Ideas.AddRange(apIdeas2);
         dbContext.Reactions.AddRange(apReactions2);
 
+        dbContext.Users.AddRange(surveyUsers);
+        dbContext.SurveyResponses.AddRange(surveyResponses);
+        
         dbContext.SaveChanges();
     }
 }
