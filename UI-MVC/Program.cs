@@ -207,6 +207,23 @@ app.MapStaticAssets();
 
 app.MapHealthChecks("/health").AllowAnonymous();
 
+if (app.Environment.IsDevelopment())
+{
+    app.MapControllerRoute(
+        name: "slug_root",
+        pattern: "{subplatform:regex([a-z][a-z0-9-]+)}",
+        defaults: new { controller = "Project", action = "RedirectToFirstProject" });
+
+    app.MapControllerRoute(
+        name: "slug_short",
+        pattern: "{subplatform:regex([a-z][a-z0-9-]+)}/{controller=Project}/{id:int}",
+        defaults: new { action = "Index" });
+
+    app.MapControllerRoute(
+        name: "slug_default",
+        pattern: "{subplatform:regex([a-z][a-z0-9-]+)}/{controller=Project}/{action=Index}/{id?}");
+}
+
 app.MapControllerRoute(
     name: "root",
     pattern: "",
