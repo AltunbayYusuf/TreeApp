@@ -1,56 +1,57 @@
-﻿@model IntegratieProject.UI.MVC.Models.IdeasOverviewViewModel
+@model IntegratieProject.UI.MVC.Models.IdeasOverviewViewModel
 @{
     ViewData["Title"] = "Ideeën";
 }
 
-<div class="max-w-3xl mx-auto px-4 py-6">
+<div class="ideas-page">
 
-    <h1 class="text-3xl font-bold mb-6">Ideeën</h1>
+    <div class="ideas-page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <h1>Ideeën</h1>
+            <p class="text-muted mb-0">Bekijk en reageer op ingediende ideeën</p>
+        </div>
+        <a asp-controller="Idea"
+           asp-action="Create"
+           asp-route-subplatform="@Model.Project.SubPlatform.Slug"
+           asp-route-projectId="@Model.Project.Id"
+           class="btn btn-primary">
+            + Ik heb een idee!
+        </a>
+    </div>
 
-    <div class="mb-4 flex gap-3 items-end flex-wrap">
-        <form method="get" asp-controller="Idea" asp-action="Index">
+    <div class="ideas-filter-bar mt-3">
+        <form method="get" asp-controller="Idea" asp-action="Index" class="d-flex align-items-end gap-2 flex-wrap">
             <input type="hidden" name="subplatform" value="@Model.Project.SubPlatform.Slug" />
             <input type="hidden" name="projectId" value="@Model.Project.Id" />
-            <label for="topicId" class="form-label">Filter op topic</label>
-            <select id="topicId" name="topicId" class="form-select" onchange="this.form.submit()">
-                <option value="">Alle topics</option>
-
-                @foreach (var topic in Model.Topics)
-                {
-                    if (Model.SelectedTopicId == topic.Id)
+            <div>
+                <label for="topicId" class="form-label mb-1">Filter op topic</label>
+                <select id="topicId" name="topicId" class="form-select form-select-sm" style="min-width:180px;" onchange="this.form.submit()">
+                    <option value="">Alle topics</option>
+                    @foreach (var topic in Model.Topics)
                     {
-                        <option value="@topic.Id" selected>@topic.Theme</option>
+                        if (Model.SelectedTopicId == topic.Id)
+                        {
+                            <option value="@topic.Id" selected>@topic.Theme</option>
+                        }
+                        else
+                        {
+                            <option value="@topic.Id">@topic.Theme</option>
+                        }
                     }
-                    else
-                    {
-                        <option value="@topic.Id">@topic.Theme</option>
-                    }
-                }
-            </select>
+                </select>
+            </div>
         </form>
-
-        <div>
-            <a asp-controller="Idea"
-               asp-action="Create"
-               asp-route-subplatform="@Model.Project.SubPlatform.Slug"
-               asp-route-projectId="@Model.Project.Id"
-               class="btn btn-primary">
-                Ik heb een idee!
-            </a>
-            
-        </div>
     </div>
 
     @if (!Model.Ideas.Any())
     {
-        <div class="alert alert-info">
-            Geen ideeën gevonden.
+        <div class="alert alert-info mt-3">
+            <strong>Geen ideeën gevonden.</strong> Wees de eerste die een idee deelt!
         </div>
     }
     else
     {
-        <div class="space-y-4">
-
+        <div class="mt-3">
             @foreach (var idea in Model.Ideas)
             {
                 var hasThumbsUp = Model.CurrentUserId.HasValue &&
@@ -59,32 +60,30 @@
                                idea.Reactions?.Any(r => r.UserId == Model.CurrentUserId && r.Text == null && r.Emoji == "❤️") == true;
                 var textReactions = idea.Reactions?.Where(r => !string.IsNullOrWhiteSpace(r.Text)).ToList() ??
                                     new List<IntegratieProject.BL.Domain.ideas.Reaction>();
-                <div class="list-group-item mb-3 idea-item bg-white shadow rounded p-4" style="display:none;">
 
-                    <h5 class="mb-1">@idea.Title</h5>
-                    <p class="mb-2">@idea.Text</p>
+                <div class="idea-card idea-item" style="display:none;">
+
+                    <h5 class="idea-title">@idea.Title</h5>
+                    <p class="idea-body">@idea.Text</p>
 
                     @if (idea.Topic != null)
                     {
-                        <small class="text-muted d-block mb-2">
-                            Topic: @idea.Topic.Theme
-                        </small>
+                        <span class="idea-topic-pill">@idea.Topic.Theme</span>
                     }
 
-                    <div class="mt-3 reactions-wrapper">
-                        <strong>Reacties</strong>
+                    <div class="reactions-wrapper">
+                        <div class="reactions-label">Reacties</div>
 
                         @if (textReactions.Any())
                         {
-                            <ul id="reactions-list-@idea.Id" class="mt-2 mb-0 reactions-list">
+                            <ul id="reactions-list-@idea.Id" class="reactions-list">
                                 @foreach (var reaction in textReactions)
                                 {
                                     <li>
                                         @if (!string.IsNullOrWhiteSpace(reaction.Emoji))
                                         {
-                                            <span>@reaction.Emoji </span>
+                                            <span>@reaction.Emoji</span>
                                         }
-
                                         @if (!string.IsNullOrWhiteSpace(reaction.Text))
                                         {
                                             <span>@reaction.Text</span>
@@ -95,70 +94,57 @@
                         }
                         else
                         {
-                            <ul id="reactions-list-@idea.Id" class="mt-2 mb-0 reactions-list" style="display:none;"></ul>
-
-                            <small id="no-reactions-@idea.Id" class="text-muted no-reactions-message">
+                            <ul id="reactions-list-@idea.Id" class="reactions-list" style="display:none;"></ul>
+                            <small id="no-reactions-@idea.Id" class="no-reactions-message">
                                 Nog geen reacties.
                             </small>
                         }
+
+                        <form class="mt-3 reaction-form" data-idea-id="@idea.Id">
+                            <input type="hidden" name="ideaId" value="@idea.Id" />
+                            <input type="hidden" name="emoji" id="emoji-@idea.Id" value="" />
+
+                            <div class="mb-2">
+                                <textarea name="text"
+                                          class="form-control"
+                                          rows="2"
+                                          placeholder="Schrijf een reactie..."></textarea>
+                            </div>
+
+                            <div class="reaction-result mt-2"
+                                 id="reaction-result-@idea.Id"
+                                 style="display:none;"></div>
+
+                            <div class="d-flex gap-2 flex-wrap mt-2">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    Verzenden
+                                </button>
+                                <button type="button"
+                                        class="reaction-emoji-btn btn btn-sm @(hasThumbsUp ? "btn-primary selected" : "btn-outline-secondary")"
+                                        data-idea-id="@idea.Id"
+                                        data-emoji="👍">
+                                    👍
+                                    <span class="reaction-count" data-count-for="@idea.Id-👍">@(idea.Reactions?.Count(r => r.Text == null && r.Emoji == "👍") ?? 0)</span>
+                                </button>
+                                <button type="button"
+                                        class="reaction-emoji-btn btn btn-sm @(hasHeart ? "btn-primary selected" : "btn-outline-secondary")"
+                                        data-idea-id="@idea.Id"
+                                        data-emoji="❤️">
+                                    ❤️
+                                    <span class="reaction-count" data-count-for="@idea.Id-❤️">@(idea.Reactions?.Count(r => r.Text == null && r.Emoji == "❤️") ?? 0)</span>
+                                </button>
+                            </div>
+                        </form>
                     </div>
-
-                    <form class="mt-3 reaction-form" data-idea-id="@idea.Id">
-
-                        <input type="hidden" name="ideaId" value="@idea.Id" />
-                        <input type="hidden" name="emoji" id="emoji-@idea.Id" value="" />
-
-                        <div class="mb-2">
-                            <textarea
-                                name="text"
-                                class="form-control"
-                                rows="3"
-                                placeholder="Schrijf een reactie"></textarea>
-                        </div>
-
-                        <div
-                            class="reaction-result mt-2"
-                            id="reaction-result-@idea.Id"
-                            style="display:none;"></div>
-
-                        <div
-                            class="d-flex gap-2 flex-wrap mt-2">
-
-                            <button type="submit" class="btn btn-primary">
-                                Verzenden
-                            </button>
-
-                            <button
-                                type="button"
-                                class="reaction-emoji-btn btn @(hasThumbsUp ? "btn-primary selected" : "btn-outline-secondary")"
-                                data-idea-id="@idea.Id"
-                                data-emoji="👍">
-                                👍
-                                <span class="reaction-count" data-count-for="@idea.Id-👍">@(idea.Reactions?.Count(r => r.Text == null && r.Emoji == "👍") ?? 0)</span>
-                            </button>
-
-                            <button
-                                type="button"
-                                class="reaction-emoji-btn btn @(hasHeart ? "btn-primary selected" : "btn-outline-secondary")"
-                                data-idea-id="@idea.Id"
-                                data-emoji="❤️">
-                                ❤️
-                                <span class="reaction-count" data-count-for="@idea.Id-❤️">@(idea.Reactions?.Count(r => r.Text == null && r.Emoji == "❤️") ?? 0)</span>
-                            </button>
-
-                        </div>
-
-                    </form>
 
                 </div>
             }
-
         </div>
     }
 
-    <div class="mt-3">
+    <div class="mt-4">
         <button id="show-more-btn" class="btn btn-outline-primary">
-            Toon meer
+            Toon meer ideeën
         </button>
     </div>
 

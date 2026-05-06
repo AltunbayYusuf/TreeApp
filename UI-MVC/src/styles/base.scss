@@ -1,28 +1,132 @@
-﻿html {
-  font-size: 14px;
-}
+// ── Echo Design Tokens ────────────────────────────────────────────────────────
+:root {
+  --echo-primary:       #6366f1;
+  --echo-primary-dark:  #4f46e5;
+  --echo-primary-light: #a5b4fc;
+  --echo-secondary:     #8b5cf6;
+  --echo-success:       #10b981;
+  --echo-danger:        #ef4444;
+  --echo-warning:       #f59e0b;
+  --echo-navy:          #0f172a;
+  --echo-bg:            #f8fafc;
+  --echo-card-bg:       #ffffff;
+  --echo-border:        #e2e8f0;
+  --echo-text:          #1e293b;
+  --echo-muted:         #64748b;
+  --echo-radius:        0.75rem;
+  --echo-radius-lg:     1rem;
+  --echo-shadow:        0 1px 3px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.05);
+  --echo-shadow-md:     0 4px 20px rgba(0,0,0,0.1);
+  --echo-shadow-lg:     0 8px 32px rgba(0,0,0,0.12);
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+  // Bootstrap overrides
+  --bs-primary:         #6366f1;
+  --bs-primary-rgb:     99, 102, 241;
+  --bs-link-color:      #6366f1;
+  --bs-link-hover-color:#4f46e5;
+  --bs-body-bg:         #f8fafc;
+  --bs-body-color:      #1e293b;
+  --bs-border-color:    #e2e8f0;
+  --bs-border-radius:   0.5rem;
+  --bs-border-radius-lg:0.75rem;
+  --bs-border-radius-xl:1rem;
+  --bs-card-border-radius: 0.75rem;
 }
 
 html {
+  font-size: 15px;
+  scroll-behavior: smooth;
   position: relative;
   min-height: 100%;
 }
 
+@media (min-width: 768px) { html { font-size: 16px; } }
+
 body {
-  margin-bottom: 60px;
+  color: var(--echo-text);
+  background-color: var(--echo-bg);
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
+body > .container { flex: 1; }
+
+// ── Buttons ───────────────────────────────────────────────────────────────────
+.btn {
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--echo-primary) 0%, var(--echo-primary-dark) 100%);
+  border: none;
+  font-weight: 600;
+
+  &:hover, &:focus {
+    background: linear-gradient(135deg, var(--echo-primary-dark) 0%, #3730a3 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    border: none;
+  }
+
+  &:active { transform: translateY(0); }
+  &:disabled { transform: none; box-shadow: none; }
+}
+
+.btn-outline-primary {
+  color: var(--echo-primary);
+  border-color: var(--echo-primary);
+  font-weight: 500;
+
+  &:hover {
+    background: var(--echo-primary);
+    border-color: var(--echo-primary);
+    color: #fff;
+  }
+}
+
+.btn-dark {
+  background: var(--echo-navy);
+  border-color: var(--echo-navy);
+
+  &:hover {
+    background: #1e293b;
+    border-color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(15,23,42,0.3);
+  }
+}
+
+// ── Focus states ──────────────────────────────────────────────────────────────
+.btn:focus-visible,
 .form-control:focus,
+.form-select:focus,
 .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+  border-color: var(--echo-primary);
+  outline: none;
+}
+
+// ── Forms ─────────────────────────────────────────────────────────────────────
+.form-control,
+.form-select {
+  border-color: var(--echo-border);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.875rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  color: var(--echo-text);
+
+  &::placeholder { color: #94a3b8; }
+}
+
+.form-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--echo-text);
+  margin-bottom: 0.4rem;
 }
 
 .form-floating > .form-control-plaintext::placeholder,
@@ -34,4 +138,94 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder,
 .form-floating > .form-control:focus::placeholder {
   text-align: start;
+}
+
+// ── Cards ─────────────────────────────────────────────────────────────────────
+.card {
+  border: 1px solid var(--echo-border);
+  box-shadow: var(--echo-shadow);
+  border-radius: var(--echo-radius);
+}
+
+.card-header {
+  background: #f8fafc;
+  border-bottom: 1px solid var(--echo-border);
+  font-weight: 600;
+  padding: 1rem 1.25rem;
+}
+
+// ── Tables ────────────────────────────────────────────────────────────────────
+.table {
+  --bs-table-hover-bg: rgba(99, 102, 241, 0.04);
+
+  th {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--echo-muted);
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--echo-border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 0.875rem 1rem;
+    vertical-align: middle;
+    border-color: #f1f5f9;
+  }
+}
+
+// ── Badges ────────────────────────────────────────────────────────────────────
+.badge {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+// ── Alerts ────────────────────────────────────────────────────────────────────
+.alert {
+  border: none;
+  border-radius: var(--echo-radius);
+  border-left: 4px solid;
+
+  &.alert-info    { border-left-color: var(--echo-primary);   background: rgba(99,102,241,0.07); color: #3730a3; }
+  &.alert-success { border-left-color: var(--echo-success);   background: rgba(16,185,129,0.08); color: #065f46; }
+  &.alert-danger  { border-left-color: var(--echo-danger);    background: rgba(239,68,68,0.08);  color: #991b1b; }
+  &.alert-warning { border-left-color: var(--echo-warning);   background: rgba(245,158,11,0.09); color: #92400e; }
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────────
+.modal-content {
+  border: none;
+  border-radius: var(--echo-radius-lg);
+  box-shadow: var(--echo-shadow-lg);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--echo-border);
+  padding: 1.25rem 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--echo-border);
+  padding: 1rem 1.5rem;
+}
+
+// ── Page header utility ───────────────────────────────────────────────────────
+.page-header {
+  margin-bottom: 2rem;
+
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--echo-text);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+
+  .page-subtitle {
+    color: var(--echo-muted);
+    margin: 0;
+    font-size: 0.9rem;
+  }
 }

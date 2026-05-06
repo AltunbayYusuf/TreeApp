@@ -1,12 +1,108 @@
-﻿.home-topbar {
-  background: white;
+// ── Navbar ────────────────────────────────────────────────────────────────────
+.navbar {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+  padding: 0.75rem 0;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.25);
+  border-bottom: none !important;
+
+  .navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff !important;
+    letter-spacing: -0.04em;
+
+    &::after {
+      content: '';
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      background: var(--echo-primary);
+      border-radius: 50%;
+      margin-left: 3px;
+      vertical-align: middle;
+      margin-bottom: 5px;
+    }
+  }
+
+  .nav-link {
+    color: rgba(255, 255, 255, 0.72) !important;
+    font-weight: 500;
+    font-size: 0.92rem;
+    padding: 0.45rem 0.9rem !important;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: #fff !important;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  .navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.3);
+    padding: 0.35rem 0.6rem;
+
+    .navbar-toggler-icon {
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  // Logout knop als link
+  form .btn-link.nav-link,
+  .btn-link.nav-link {
+    color: rgba(255, 255, 255, 0.72) !important;
+    text-decoration: none;
+    border: none;
+    background: none;
+    padding: 0.45rem 0.9rem !important;
+
+    &:hover { color: #fff !important; background: rgba(255,255,255,0.1); }
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.footer {
+  background: #0f172a;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 1.25rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.07) !important;
+  margin-top: auto;
+  font-size: 0.87rem;
+
+  a {
+    color: rgba(255, 255, 255, 0.72);
+    text-decoration: none;
+    transition: color 0.15s;
+
+    &:hover { color: var(--echo-primary); }
+  }
+}
+
+// ── Project topbar (gebruikt op Project/Index) ────────────────────────────────
+.home-topbar {
+  background: #fff;
+  border: 1px solid var(--echo-border) !important;
+  border-radius: var(--echo-radius) !important;
+  padding: 0.875rem 1.25rem !important;
+  box-shadow: var(--echo-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .home-logo {
-  max-height: 60px;
+  max-height: 52px;
+  width: auto;
 }
 
 .home-lang-switch {
-  min-width: 80px;
+  min-width: 56px;
   text-align: center;
+  font-size: 0.83rem;
+  font-weight: 700;
+  color: var(--echo-muted);
+  border: 1px solid var(--echo-border) !important;
+  border-radius: 0.5rem !important;
+  padding: 0.35rem 0.65rem;
+  background: #f8fafc;
 }

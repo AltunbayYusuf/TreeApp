@@ -6,189 +6,131 @@
     Layout = "_Layout";
 }
 
-<div class="bg-slate-50 min-h-screen">
-    <div class="max-w-6xl mx-auto px-5 py-6">
+<div class="admin-page">
 
-        <div class="flex items-start justify-between border-b border-slate-200 pb-5 mb-6">
-            <div class="flex items-start gap-4">
-                <a asp-controller="SubAdmin"
-                   asp-action="Index"
-                   asp-route-subplatform="@Model.SubplatformSlug"
-                   class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 transition">
-                    ←
-                </a>
-
-                <div>
-                    <h1 class="text-2xl font-semibold text-slate-900">Nieuw project aanmaken</h1>
-                    <p class="text-sm text-slate-500 mt-1">Status: Draft</p>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button type="button"
-                        class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-                    Preview
-                </button>
-
-                <button type="submit"
-                        form="createProjectForm"
-                        class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition shadow-sm">
-                    Opslaan
-                </button>
+    <div class="admin-header">
+        <div class="d-flex align-items-center gap-3">
+            <a asp-controller="SubAdmin"
+               asp-action="Index"
+               asp-route-subplatform="@Model.SubplatformSlug"
+               class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+               style="width:38px;height:38px;border-radius:8px;">
+                ←
+            </a>
+            <div>
+                <h1 class="admin-title">Nieuw project aanmaken</h1>
+                <span class="badge bg-secondary">Draft</span>
             </div>
         </div>
-
-        <div class="mb-6 border-b border-slate-200">
-            <div class="flex gap-2">
-                <button type="button"
-                        class="rounded-t-lg border border-b-0 border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 shadow-sm">
-                    Project Info
-                </button>
-
-                <a asp-controller="SubAdminProjects"
-                   asp-action="CreateSurvey"
-                   asp-route-subplatform="@Model.SubplatformSlug"
-                   class="rounded-t-lg border border-b-0 border-transparent bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
-                    Bevraging
-                </a>
-
-
-                <a asp-controller="SubAdminProjects"
-                   asp-action="CreateIdeation"
-                   asp-route-subplatform="@Model.SubplatformSlug"
-                   class="rounded-t-lg border border-b-0 border-transparent bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
-                    Ideation
-                </a>
-            </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary">Preview</button>
+            <button type="submit" form="createProjectForm" class="btn btn-primary">Opslaan</button>
         </div>
-
-        <form id="createProjectForm"
-              asp-controller="SubAdminProjects"
-              asp-action="Create"
-              asp-route-subplatform="@Model.SubplatformSlug"
-              method="post"
-              enctype="multipart/form-data"
-              data-subplatform="@Model.SubplatformSlug"
-              class="space-y-6">
-            @Html.AntiForgeryToken()
-
-            <div asp-validation-summary="ModelOnly"
-                 class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700"></div>
-
-            <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-                <h2 class="text-2xl font-semibold text-slate-900 mb-6">Basisinformatie</h2>
-
-                <div class="mb-6">
-                    <label asp-for="Name" class="block text-sm font-semibold text-slate-800 mb-2">
-                        Project naam <span class="text-red-500">*</span>
-                    </label>
-                    <input asp-for="Name"
-                           class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                           placeholder="bijv. Actieplan mentaal welzijn 2026"/>
-                    <span asp-validation-for="Name" class="mt-1 block text-sm text-red-600"></span>
-                </div>
-
-                <div class="mb-8">
-                    <label asp-for="PhotoUpload" class="block text-sm font-semibold text-slate-800 mb-2">
-                        Project afbeelding
-                    </label>
-
-                    <div class="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-10 text-center">
-                        <div class="mb-4 text-5xl text-slate-400">🖼</div>
-
-                        <label for="PhotoUpload"
-                               class="inline-flex cursor-pointer items-center justify-center rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition shadow-sm">
-                            Upload afbeelding
-                        </label>
-                        <input asp-for="PhotoUpload" type="file" class="hidden"/>
-
-                        <div class="my-4 text-sm text-slate-500">of</div>
-
-                        <button type="button"
-                                class="inline-flex items-center justify-center rounded-lg border border-indigo-200 bg-indigo-50 px-5 py-2.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 transition">
-                            Genereer met AI
-                        </button>
-
-                        <p class="mt-5 text-sm text-slate-500">
-                            Als geen afbeelding wordt geüpload, genereert AI automatisch een afbeelding op basis van de
-                            projectnaam
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mb-8">
-                    <label asp-for="Introduction" class="block text-sm font-semibold text-slate-800 mb-2">
-                        Introductietekst <span class="text-red-500">*</span>
-                    </label>
-
-                    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-                        <div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
-
-                            <button type="button"
-                                    id="generateIntroductionButton"
-                                    class="rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm text-indigo-700 hover:bg-indigo-100 transition">
-                                AI hulp
-                            </button>
-                        </div>
-
-                        <textarea asp-for="Introduction"
-                                  rows="8"
-                                  class="w-full px-4 py-4 text-sm text-slate-900 placeholder:text-slate-400 outline-none"
-                                  placeholder="Schrijf hier de introductie voor jongeren..."></textarea>
-                    </div>
-
-                    <span asp-validation-for="Introduction" class="mt-1 block text-sm text-red-600"></span>
-                </div>
-
-                <div>
-                    <h2 class="text-xl font-semibold text-slate-900 mb-4">Vorm van het project</h2>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 ">
-                        <label class="group block cursor-pointer">
-                            <input asp-for="Type"
-                                   type="radio"
-                                   value="@ProjectType.Chat"
-                                   class="sr-only peer"/>
-                            <div
-                                class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition group-hover:border-indigo-300 group-hover:shadow-md peer-checked:border-indigo-600 peer-checked:ring-2 peer-checked:ring-indigo-100">
-                                <div
-                                    class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 text-xl">
-                                    💬
-                                </div>
-                                <h3 class="text-lg font-semibold text-slate-900">Chat-vorm</h3>
-                                <p class="mt-2 text-sm text-slate-600">
-                                    Vragen verschijnen als chat-berichten. Interactief en conversationeel.
-                                </p>
-                            </div>
-                        </label>
-
-                        <label class="group block cursor-pointer">
-                            <input asp-for="Type"
-                                   type="radio"
-                                   value="@ProjectType.VerticalScroll"
-                                   class="sr-only peer"/>
-                            <div
-                                class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-indigo-300 hover:shadow-md peer-checked:border-indigo-600 peer-checked:ring-2 peer-checked:ring-indigo-100">
-                                <div
-                                    class="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 text-xl">
-                                    ↕️
-                                </div>
-                                <h3 class="text-lg font-semibold text-slate-900">Verticale scroll-vorm</h3>
-                                <p class="mt-2 text-sm text-slate-600">
-                                    Doorheen vragen scrollen in één doorlopende flow.
-                                </p>
-                            </div>
-                        </label>
-                    </div>
-
-                    <span asp-validation-for="Type" class="mt-1 block text-sm text-red-600"></span>
-                </div>
-            </div>
-        </form>
     </div>
+
+    <nav class="admin-tabs mb-4">
+        <button type="button" class="admin-tab-link active">Project Info</button>
+        <a asp-controller="SubAdminProjects"
+           asp-action="CreateSurvey"
+           asp-route-subplatform="@Model.SubplatformSlug"
+           class="admin-tab-link">Bevraging</a>
+        <a asp-controller="SubAdminProjects"
+           asp-action="CreateIdeation"
+           asp-route-subplatform="@Model.SubplatformSlug"
+           class="admin-tab-link">Ideation</a>
+    </nav>
+
+    <form id="createProjectForm"
+          asp-controller="SubAdminProjects"
+          asp-action="Create"
+          asp-route-subplatform="@Model.SubplatformSlug"
+          method="post"
+          enctype="multipart/form-data"
+          data-subplatform="@Model.SubplatformSlug">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <div class="admin-form-card">
+            <h2 class="admin-form-title">Basisinformatie</h2>
+            <p class="admin-form-subtitle">Geef je project een naam en een visuele identiteit.</p>
+
+            <div class="mb-4">
+                <label asp-for="Name" class="form-label">
+                    Projectnaam <span class="text-danger">*</span>
+                </label>
+                <input asp-for="Name"
+                       class="form-control"
+                       placeholder="bijv. Actieplan mentaal welzijn 2026"/>
+                <span asp-validation-for="Name" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="PhotoUpload" class="form-label">Project afbeelding</label>
+                <div class="upload-zone">
+                    <span class="upload-icon">🖼️</span>
+                    <label for="PhotoUpload" class="btn btn-primary btn-sm mb-2">Upload afbeelding</label>
+                    <input asp-for="PhotoUpload" type="file" class="d-none"/>
+                    <div class="text-muted small mb-2">of</div>
+                    <button type="button" class="btn btn-outline-primary btn-sm">✨ Genereer met AI</button>
+                    <p class="text-muted small mt-3 mb-0">
+                        Als geen afbeelding wordt geüpload, genereert AI automatisch een afbeelding.
+                    </p>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Introduction" class="form-label">
+                    Introductietekst <span class="text-danger">*</span>
+                </label>
+                <div class="border rounded overflow-hidden">
+                    <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-light border-bottom">
+                        <span class="small text-muted fw-semibold">Tekstinhoud</span>
+                        <button type="button"
+                                id="generateIntroductionButton"
+                                class="btn btn-outline-primary btn-sm">
+                            ✨ AI hulp
+                        </button>
+                    </div>
+                    <textarea asp-for="Introduction"
+                              rows="8"
+                              class="form-control border-0 rounded-0"
+                              placeholder="Schrijf hier de introductie voor jongeren..."></textarea>
+                </div>
+                <span asp-validation-for="Introduction" class="text-danger small"></span>
+            </div>
+
+            <div>
+                <h3 class="admin-form-title mb-1">Vorm van het project</h3>
+                <p class="admin-form-subtitle">Kies hoe deelnemers de vragen beantwoorden.</p>
+
+                <div class="type-selector-grid">
+                    <label class="project-type-label">
+                        <input asp-for="Type" type="radio" value="@ProjectType.Chat"/>
+                        <div class="project-type-card">
+                            <div class="type-icon">💬</div>
+                            <h3>Chat-vorm</h3>
+                            <p>Vragen verschijnen als chat-berichten. Interactief en conversationeel.</p>
+                        </div>
+                    </label>
+
+                    <label class="project-type-label">
+                        <input asp-for="Type" type="radio" value="@ProjectType.VerticalScroll"/>
+                        <div class="project-type-card">
+                            <div class="type-icon">↕️</div>
+                            <h3>Verticale scroll-vorm</h3>
+                            <p>Doorheen vragen scrollen in één doorlopende flow.</p>
+                        </div>
+                    </label>
+                </div>
+
+                <span asp-validation-for="Type" class="text-danger small d-block mt-2"></span>
+            </div>
+        </div>
+    </form>
+
 </div>
 
-@section Scripts
-{
+@section Scripts {
     <partial name="_ValidationScriptsPartial"/>
 }

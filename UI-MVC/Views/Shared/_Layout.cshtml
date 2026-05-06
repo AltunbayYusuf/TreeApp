@@ -75,19 +75,14 @@
     }
 
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="nl">
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>@ViewData["Title"] - Echo</title>
         <style>
-        body {
-            visibility: hidden;
-        }
-
-        body.css-loaded {
-            visibility: visible;
-        }
+        body { visibility: hidden; }
+        body.css-loaded { visibility: visible; }
     </style>
         
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -105,8 +100,8 @@
     </head>
     <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-dark">
+            <div class="container-fluid px-4">
                 @if (User.Identity?.IsAuthenticated == false)
                 {
                     <a class="navbar-brand"
@@ -128,7 +123,7 @@
                         @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link"
                                    asp-controller="SubAdmin"
                                    asp-action="Index"
                                    asp-route-subplatform="@currentSubplatform">
@@ -137,7 +132,7 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link"
                                    asp-controller="SubAdminModeration"
                                    asp-action="Index"
                                    asp-route-subplatform="@currentSubplatform">
@@ -146,7 +141,7 @@
                             </li>
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link"
                                    asp-controller="SubAdminIdeas"
                                    asp-action="Index"
                                    asp-route-subplatform="@currentSubplatform">
@@ -157,13 +152,13 @@
                         else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
+                                <a class="nav-link" asp-area="" asp-controller="Platform" asp-action="Index">Platform</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link"
                                    asp-area=""
                                    asp-controller="Project"
                                    asp-action="Index"
@@ -173,7 +168,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark"
+                                <a class="nav-link"
                                    asp-area=""
                                    asp-controller="Idea"
                                    asp-action="Index"
@@ -186,7 +181,7 @@
                        
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home"
+                                <a class="nav-link" asp-area="" asp-controller="Home"
                                    asp-action="Privacy">Privacy</a>
                             </li>
                         }
@@ -197,16 +192,17 @@
         </nav>
     </header>
 
-    <div class="container">
+    <div class="container py-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                                    asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
+    <footer class="footer">
+        <div class="container px-4">
+            &copy; 2026 Echo &mdash;
+            <a asp-area="" asp-controller="Home" asp-action="Privacy"
+               asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
         </div>
     </footer>
 

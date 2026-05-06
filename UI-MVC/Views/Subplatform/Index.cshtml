@@ -1,8 +1,15 @@
-﻿@model IntegratieProject.BL.Domain.project.SubPlatform
+@model IntegratieProject.BL.Domain.project.SubPlatform
 
 @{
-    ViewBag.Title = "title";
+    ViewBag.Title = Model?.CompanyName ?? "Subplatform";
     Layout = "_Layout";
 }
 
-<h2>title</h2>
+<div class="admin-page">
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">@(Model?.CompanyName ?? "Subplatform")</h1>
+            <p class="admin-subtitle">Overzicht van dit subplatform</p>
+        </div>
+    </div>
+</div>
