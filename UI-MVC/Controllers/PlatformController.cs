@@ -1,5 +1,6 @@
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models;
+using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,5 +26,18 @@ public class PlatformController : Controller
         if (subPlatform == null) return NotFound();
 
         return View(subPlatform);
+    }
+
+    [HttpPost]
+    public IActionResult CreateSubPlatform([FromBody] CreateSubPlatformDto dto)
+    {
+        _subplatformManager.CreateSubPlatform(
+            dto.CompanyName,
+            dto.Slug,
+            dto.ContactEmail,
+            dto.AdminEmail
+        );
+
+        return Ok();
     }
 }

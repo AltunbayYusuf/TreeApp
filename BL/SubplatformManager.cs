@@ -1,4 +1,5 @@
 ﻿using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.DAL.interfaces;
 
@@ -22,5 +23,29 @@ public class SubplatformManager : ISubplatformManager
     public SubPlatform GetSubPlatform(int subPlatformId)
     {
         return _subplatformRepository.ReadSubPlatform(subPlatformId);
+    }
+
+    public void CreateSubPlatform( string companyName,  string slug,  string contactEmail,  string adminEmail)
+    {
+        var platform = _subplatformRepository.ReadPlatform();
+
+        var subPlatform = new SubPlatform
+        {
+            CompanyName = companyName,
+            Slug = slug,
+            Platform = platform,
+            Language = Language.Nl  
+        };
+
+        _subplatformRepository.CreateSubPlatform(subPlatform);
+
+        var subAdmin = new SubAdmin
+        {
+            Name = adminEmail,
+            SubPlatform = subPlatform
+        };
+
+        _subplatformRepository.CreateSubAdmin(subAdmin);
+
     }
 }

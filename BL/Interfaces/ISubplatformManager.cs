@@ -6,4 +6,6 @@ public interface ISubplatformManager
 {
     SubPlatform GetSubPlatformBySlug(string slug);
     SubPlatform GetSubPlatform(int subPlatformId);
+
+    void CreateSubPlatform( string companyName,  string slug,  string contactEmail,  string adminEmail );
 }

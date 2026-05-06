@@ -5,12 +5,52 @@
 }
 
 <h1>Admin Dashboard</h1>
-<p>Welkom beheerder.</p>
-
-
 
 <div id="overviewSection" style=" margin-top:20px;">
-    <h2>Deelplatformen (@Model.Platform.SubPlatforms.Count())</h2>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">Deelplatformen (@Model.Platform.SubPlatforms.Count())</h2>
+        <button id="newSubplatform" class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#createSubplatformModal">Nieuwe deelplatform</button>
+    </div>
+
+    <div class="modal fade" id="createSubplatformModal" tabindex="-1" aria-labelledby="createSubplatformLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createSubplatformLabel">Nieuw Deelplatform Aanmaken</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+                </div>
+                <form id="createSubplatformForm" novalidate>
+                    <div class="modal-body">
+                        <p class="text-muted mb-4">Maak een nieuw deelplatform aan voor een klant.</p>
+
+                        <div class="mb-3">
+                            <label for="companyName" class="form-label">Naam van de klant *</label>
+                            <input id="companyName" name="companyName" type="text" class="form-control" placeholder="Bijv. Stad Gent" maxlength="50" required />
+                            <div class="invalid-feedback">Vul een geldige naam in (max. 50 tekens).</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="contactEmail" class="form-label">Mailadres contactpersoon *</label>
+                            <input id="contactEmail" name="contactEmail" type="email" class="form-control" placeholder="contact@voorbeeld.be" required />
+                            <div class="invalid-feedback">Vul een geldig e‑mailadres in.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="adminEmail" class="form-label">Mailadres beheersaccount *</label>
+                            <input id="adminEmail" name="adminEmail" type="email" class="form-control" placeholder="admin@voorbeeld.be" required />
+                            <div class="invalid-feedback">Vul een geldig e‑mailadres in.</div>
+                        </div>
+
+                        <div class="form-text">Een wachtwoord wordt automatisch gegenereerd</div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuleren</button>
+                        <button id="submitCreateSubplatform" type="submit" class="btn btn-primary">Aanmaken</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     @foreach (var subPlatform in @Model.Platform.SubPlatforms)
     {
@@ -25,21 +65,21 @@
 
                 <div class="col-md-4">
                     <p>
-                        <strong>Aantal subadmins:</strong><br />
+                        <strong>Aantal subadmins:</strong><br/>
                         @subAdminsCount
                     </p>
                 </div>
 
                 <div class="col-md-4">
                     <p>
-                        <strong>Aantal projecten:</strong><br />
+                        <strong>Aantal projecten:</strong><br/>
                         @(subPlatform.Projects?.Count() ?? 0)
                     </p>
                 </div>
 
                 <div class="col-md-4">
                     <p>
-                        <strong>Totaal deelnemers:</strong><br />
+                        <strong>Totaal deelnemers:</strong><br/>
                         @(subPlatform.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0)
                     </p>
                 </div>
@@ -54,4 +94,6 @@
         </div>
     }
 </div>
+
+
 
