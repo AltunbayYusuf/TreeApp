@@ -7,24 +7,27 @@ type SubplatformPayload = {
 class SubplatformBuilder {
     private triggerBtn!: HTMLButtonElement;
     private modalEl!: HTMLElement;
+    private successModalEl!: HTMLElement; 
     private form!: HTMLFormElement;
 
     private companyInput!: HTMLInputElement;
     private adminInput!: HTMLInputElement;
 
     private modal: any = null;
+    private successModal: any = null;
     private readonly BACKDROP_ID = "modal-backdrop-fallback";
 
     init(): void {
         this.triggerBtn = document.getElementById("newSubplatform") as HTMLButtonElement;
         this.modalEl = document.getElementById("createSubplatformModal") as HTMLElement;
+        this.successModalEl = document.getElementById("successModal") as HTMLElement;
         this.form = document.getElementById("createSubplatformForm") as HTMLFormElement;
 
         this.companyInput = document.getElementById("companyName") as HTMLInputElement;
         this.adminInput = document.getElementById("adminEmail") as HTMLInputElement;
 
-        if (!this.triggerBtn || !this.modalEl || !this.form || !this.companyInput || !this.adminInput) {
-            console.error("Subplatform elements niet gevonden");
+        if (!this.triggerBtn || !this.modalEl || !this.successModalEl || !this.form) {
+            console.error("Een of meerdere HTML elementen voor het subplatform ontbreken!");
             return;
         }
 
@@ -37,13 +40,16 @@ class SubplatformBuilder {
 
         if (bootstrapInstance?.Modal) {
             this.modal = new bootstrapInstance.Modal(this.modalEl);
+            this.successModal = new bootstrapInstance.Modal(this.successModalEl);
         }
 
-        this.modalEl
-            .querySelectorAll("[data-bs-dismiss='modal']")
-            .forEach((el) => {
-                el.addEventListener("click", () => this.hideModal());
-            });
+        this.modalEl.querySelectorAll("[data-bs-dismiss='modal']").forEach((el) => {
+            el.addEventListener("click", () => this.hideModal());
+        });
+
+        document.getElementById("reloadPageBtn")?.addEventListener("click", () => {
+            window.location.reload();
+        });
     }
 
     private bindEvents(): void {
@@ -58,9 +64,7 @@ class SubplatformBuilder {
 
         this.form.addEventListener("submit", async (e) => {
             e.preventDefault();
-
             if (!this.validate()) return;
-
             await this.createSubplatform();
         });
     }
@@ -72,18 +76,8 @@ class SubplatformBuilder {
         }
 
         this.modalEl.style.display = "block";
-        this.modalEl.classList.add("show");
-        this.modalEl.removeAttribute("aria-hidden");
-
-        if (!document.getElementById(this.BACKDROP_ID)) {
-            const backdrop = document.createElement("div");
-            backdrop.id = this.BACKDROP_ID;
-            backdrop.className = "modal-backdrop fade show";
-            document.body.appendChild(backdrop);
-        }
-
-        document.body.classList.add("modal-open");
-        document.body.style.overflow = "hidden";
+        setTimeout(() => this.modalEl.classList.add("show"), 10);
+        this.addBackdrop();
     }
 
     private hideModal(): void {
@@ -92,23 +86,45 @@ class SubplatformBuilder {
             return;
         }
 
-        this.modalEl.style.display = "none";
         this.modalEl.classList.remove("show");
-        this.modalEl.setAttribute("aria-hidden", "true");
+        setTimeout(() => {
+            this.modalEl.style.display = "none";
+        }, 150); 
+        
+        this.removeBackdrop();
+    }
 
-        const backdrop = document.getElementById(this.BACKDROP_ID);
-
-        if (backdrop) {
-            backdrop.remove();
+    private showSuccessModal(): void {
+        if (this.successModal) {
+            this.successModal.show();
+            return;
         }
 
+        this.successModalEl.style.display = "block";
+        setTimeout(() => this.successModalEl.classList.add("show"), 10);
+        this.addBackdrop();
+    }
+
+    private addBackdrop(): void {
+        if (!document.getElementById(this.BACKDROP_ID)) {
+            const backdrop = document.createElement("div");
+            backdrop.id = this.BACKDROP_ID;
+            backdrop.className = "modal-backdrop fade show";
+            document.body.appendChild(backdrop);
+        }
+        document.body.classList.add("modal-open");
+        document.body.style.overflow = "hidden";
+    }
+
+    private removeBackdrop(): void {
+        const backdrop = document.getElementById(this.BACKDROP_ID);
+        if (backdrop) backdrop.remove();
         document.body.classList.remove("modal-open");
         document.body.style.overflow = "";
     }
 
     private resetForm(): void {
         this.form.reset();
-
         [this.companyInput, this.adminInput].forEach((input) => {
             input.classList.remove("is-invalid", "is-valid");
         });
@@ -151,7 +167,7 @@ class SubplatformBuilder {
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",
-                    "RequestVerificationToken": token 
+                    "RequestVerificationToken": token || ""
                 },
                 body: JSON.stringify(payload)
             });
@@ -160,8 +176,7 @@ class SubplatformBuilder {
                 let msg = "Onbekende fout";
                 try {
                     msg = await response.text();
-                } catch {
-                }
+                } catch {}
                 throw new Error(msg);
             }
 
@@ -170,24 +185,19 @@ class SubplatformBuilder {
 
             this.hideModal();
 
-            if (password) {
-                alert(
-                    `Subplatform succesvol aangemaakt!\n\n` +
-                    `Het wachtwoord voor ${payload.adminEmail} is:\n\n${password}\n\n` +
-                    `Kopieer dit, je ziet dit hierna niet meer.`
-                );
-            } else {
-                alert(
-                    `Subplatform succesvol aangemaakt!\n\n` +
-                    `Opmerking: geen wachtwoord ontvangen van de server.`
-                );
-            }
+            setTimeout(() => {
+                const emailSpan = document.getElementById("successEmail");
+                const passwordSpan = document.getElementById("successPassword");
 
-            setTimeout(() => window.location.reload(), 200);
+                if (emailSpan) emailSpan.textContent = payload.adminEmail;
+                if (passwordSpan) passwordSpan.textContent = password || "Geen wachtwoord ontvangen van de server";
+
+                this.showSuccessModal();
+            }, 300);
 
         } catch (error) {
             console.error(error);
-            alert("Fout bij aanmaken van subplatform");
+            alert("Fout bij aanmaken van subplatform: " + (error as Error).message);
         }
     }
 
@@ -207,7 +217,6 @@ class SubplatformBuilder {
         return re.test(value.trim());
     }
 }
-
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("newSubplatform script loaded");

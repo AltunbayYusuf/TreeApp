@@ -9,7 +9,7 @@ namespace IntegratieProject.BL;
 public class SubplatformManager : ISubplatformManager
 {
     private readonly ISubplatformRepository _subplatformRepository;
-    private readonly IUserManager _userManager; 
+    private readonly IUserManager _userManager;
 
     public SubplatformManager(ISubplatformRepository subplatformRepository, IUserManager userManager)
     {
@@ -34,14 +34,14 @@ public class SubplatformManager : ISubplatformManager
 
     public async Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail)
     {
-        //var generatedPassword = GenerateRandomPassword(); 
-        var generatedPassword = "TestPassword123!";
-        var user = new ApplicationUser 
-        { 
-            UserName = adminEmail, 
-            Email = adminEmail, 
+        var generatedPassword = GenerateRandomPassword();
+        
+        var user = new ApplicationUser
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
             EmailConfirmed = true,
-            SubPlatformSlug = slug 
+            SubPlatformSlug = slug
         };
         var result = await _userManager.CreateUserAsync(user, generatedPassword);
 
@@ -55,24 +55,24 @@ public class SubplatformManager : ISubplatformManager
             {
                 CompanyName = companyName,
                 Slug = slug,
-                Platform = rootPlatform 
+                Platform = rootPlatform
             };
-        
+
             _subplatformRepository.CreateSubPlatform(newSubPlatform);
 
             var generalAdmin = _userManager.GetGeneralAdmin();
 
-            if (generalAdmin == null) 
+            if (generalAdmin == null)
             {
                 throw new Exception("Kan geen SubAdmin aanmaken: er is nog geen GeneralAdmin in de database!");
             }
 
-            var newSubAdmin = new SubAdmin 
+            var newSubAdmin = new SubAdmin
             {
-                Name = companyName + " Admin", 
-                IdentityUserId = user.Id, 
+                Name = companyName + " Admin",
+                IdentityUserId = user.Id,
                 SubPlatform = newSubPlatform,
-                GeneralAdmin = generalAdmin 
+                GeneralAdmin = generalAdmin
             };
 
             _subplatformRepository.CreateSubAdmin(newSubAdmin);
@@ -86,6 +86,6 @@ public class SubplatformManager : ISubplatformManager
 
     private string GenerateRandomPassword()
     {
-        return Guid.NewGuid().ToString("N").Substring(0, 8) + "Aa1!"; 
+        return Guid.NewGuid().ToString("N").Substring(0, 8) + "Aa1!";
     }
 }
