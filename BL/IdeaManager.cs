@@ -37,7 +37,7 @@ public class IdeaManager : IIdeaManager
     }
     
 
-    public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId)
+    public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId,string imageUri=null)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -51,14 +51,18 @@ public class IdeaManager : IIdeaManager
             Text = text,
             UserId = userId,
             Topic = topic,
-            ModerationStatus = ModerationStatus.InReview
+            ModerationStatus = ModerationStatus.InReview,
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
+            {
+                Uri = imageUri
+            }
         };
 
         _ideaRepository.AddIdea(idea);
         await Task.CompletedTask;
     }
 
-    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId)
+    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId,string imageUri=null)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -79,7 +83,11 @@ public class IdeaManager : IIdeaManager
                 Text = safeText,
                 UserId = userId,
                 Topic = topic,
-                ModerationStatus = ModerationStatus.InReview
+                ModerationStatus = ModerationStatus.InReview,
+                Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
+                {
+                    Uri = imageUri
+                }
             };
 
             _manager.ValidateEntity(reviewIdea);
@@ -99,7 +107,11 @@ public class IdeaManager : IIdeaManager
             Text = safeText,
             UserId = userId,
             Topic = topic,
-            ModerationStatus = ModerationStatus.Accepted
+            ModerationStatus = ModerationStatus.Accepted,
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
+            {
+                Uri = imageUri
+            }
         };
 
         _manager.ValidateEntity(idea);

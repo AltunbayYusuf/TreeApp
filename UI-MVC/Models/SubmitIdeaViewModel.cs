@@ -12,4 +12,8 @@ public class SubmitIdeaViewModel
     public string Text { get; set; }
     public bool ContactOptIn { get; set; }
     public string Email { get; set; }
+    
+    public string SubplatformSlug { get; set; }
+
+    public IFormFile ImageUpload { get; set; }
 }

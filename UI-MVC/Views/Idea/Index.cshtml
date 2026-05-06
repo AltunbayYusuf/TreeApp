@@ -90,7 +90,15 @@
                         }
                     </div>
                     <p class="mb-2">@idea.Text</p>
-
+                    
+                    @if (idea.Image != null && !string.IsNullOrWhiteSpace(idea.Image.Uri))
+                    {
+                        <div class="my-3 text-center">
+                            <img src="@idea.Image.Uri"
+                                 alt="Afbeelding bij idee"
+                                 class="img-fluid rounded border w-75 w-md-50" />
+                        </div>
+                    }
                     @if (idea.Topic != null)
                     {
                         <small class="text-muted d-block mb-2">

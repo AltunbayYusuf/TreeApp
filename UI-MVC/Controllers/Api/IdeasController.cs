@@ -4,6 +4,7 @@ using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
+using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -17,12 +18,13 @@ public class IdeasController : ControllerBase
     private readonly IIdeaManager _ideaManager;
     private readonly IUserManager _userManager;
     private readonly ISubplatformManager _subplatformManager;
-
-    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager)
+    private readonly IGoogleCloudStorageService _googleCloudStorageService;
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager,IGoogleCloudStorageService googleCloudStorageService)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
         _subplatformManager = subplatformManager;
+        _googleCloudStorageService = googleCloudStorageService;
     }
 
 
@@ -71,7 +73,7 @@ public class IdeasController : ControllerBase
 
     [HttpPost]
     [EnableRateLimiting("ai-limit")]
-    public async Task<IActionResult> SubmitIdea([FromBody] SubmitIdeaViewModel vm)
+    public async Task<IActionResult> SubmitIdea([FromForm] SubmitIdeaViewModel vm)
     {
         if (vm.TopicId <= 0)
         {
@@ -91,8 +93,25 @@ public class IdeasController : ControllerBase
             });
         }
 
+        string imageUri = null;
+
+        if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
+        {
+            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+                vm.ImageUpload,
+                vm.SubplatformSlug ?? "unknown"
+            );
+        }
+
         var user = SaveContactPreference(vm);
-        var result = await _ideaManager.SubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
+
+        var result = await _ideaManager.SubmitIdeaAsync(
+            vm.TopicId,
+            vm.Title,
+            vm.Text,
+            user.Id,
+            imageUri
+        );
 
         if (result.IsToxic)
         {
@@ -120,7 +139,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("force")]
-    public async Task<IActionResult> ForceSubmitIdea([FromBody] SubmitIdeaViewModel vm)
+    public async Task<IActionResult> ForceSubmitIdea([FromForm] SubmitIdeaViewModel vm)
     {
         if (vm.TopicId <= 0)
         {
@@ -140,9 +159,25 @@ public class IdeasController : ControllerBase
             });
         }
 
+        string imageUri = null;
+
+        if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
+        {
+            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+                vm.ImageUpload,
+                vm.SubplatformSlug ?? "unknown"
+            );
+        }
 
         var user = SaveContactPreference(vm);
-        await _ideaManager.ForceSubmitIdeaAsync(vm.TopicId, vm.Title, vm.Text, user.Id);
+
+        await _ideaManager.ForceSubmitIdeaAsync(
+            vm.TopicId,
+            vm.Title,
+            vm.Text,
+            user.Id,
+            imageUri
+        );
 
         return Ok(new
         {
