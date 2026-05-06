@@ -14,7 +14,7 @@ public class GeneralAdmin : IAdmin
     public string Name { get; set; }
 
     public string IdentityUserId { get; set; }
-    public IEnumerable<SubAdmin> SubAdmins { get; set; }
+    public IEnumerable<SubAdmin> SubAdmins { get; set; } = new List<SubAdmin>();
 
     [Required(ErrorMessage = "GeneralAdmin must belong to a platform")]
 

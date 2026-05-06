@@ -31,4 +31,12 @@ public class UserManager : IUserManager
         _manager.ValidateEntity(user);
         _userRepository.UpdateUser(user);
     }
+    public IEnumerable<SubAdmin> GetAllSubAdmins()
+    {
+        return _userRepository.ReadAllSubAdminsWithPlatformsAndProjects();
+    }
+    public GeneralAdmin GetGeneralAdmin()
+    {
+        return _userRepository.GetGeneralAdmin();
+    }
 }

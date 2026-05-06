@@ -1,5 +1,5 @@
 ﻿// ideas/create.ts
-import {DomUtils} from "../helpers/utils";
+import { DomUtils } from "../helpers/utils";
 
 type IdeaResponse = {
     ok?: boolean;
@@ -24,7 +24,9 @@ export class IdeaCreator {
     private title = "";
     private text = "";
 
-  //  private aiAlternativeWasUsedd ;
+    // Toegevoegd: gekozen afbeelding bijhouden
+    private imageFile: File | null = null;
+
     private aiAlternativeTitle = "";
     private aiAlternativeText = "";
 
@@ -34,10 +36,43 @@ export class IdeaCreator {
         document.getElementById("ai-improve-create-btn")?.addEventListener("click", this.handleImproveWithAi.bind(this));
         document.getElementById("use-ai-improvement-btn")?.addEventListener("click", this.useAiImprovement.bind(this));
 
-      //  document.getElementById("idea-title")?.addEventListener("input", () => this.aiAlternativeWasUsedd = false);
-       // document.getElementById("idea-text")?.addEventListener("input", () => this.aiAlternativeWasUsedd = false);
+        // Toegevoegd: afbeelding preview
+        document.getElementById("idea-image")?.addEventListener("change", this.handleImagePreview.bind(this));
 
         this.toggleContactEmail();
+    }
+
+    private handleImagePreview(): void {
+        const imageInput = document.getElementById("idea-image") as HTMLInputElement | null;
+        const previewWrapper = document.getElementById("idea-image-preview-wrapper") as HTMLDivElement | null;
+        const previewImage = document.getElementById("idea-image-preview") as HTMLImageElement | null;
+
+        if (!imageInput) {
+            return;
+        }
+
+        const file = imageInput.files?.[0] ?? null;
+        this.imageFile = file;
+
+        if (!file || !previewWrapper || !previewImage) {
+            if (previewWrapper) {
+                previewWrapper.style.display = "none";
+            }
+            return;
+        }
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+        if (!allowedTypes.includes(file.type)) {
+            this.showError("Alleen jpg, jpeg, png of webp is toegestaan.");
+            imageInput.value = "";
+            this.imageFile = null;
+            previewWrapper.style.display = "none";
+            return;
+        }
+
+        previewImage.src = URL.createObjectURL(file);
+        previewWrapper.style.display = "block";
     }
 
     private async handleImproveWithAi(): Promise<void> {
@@ -107,8 +142,6 @@ export class IdeaCreator {
 
         ideaTitle.value = this.aiAlternativeTitle;
         ideaText.value = this.aiAlternativeText;
-
-        this.aiAlternativeWasUsed = true;
 
         if (resultBox) {
             resultBox.style.display = "none";
@@ -202,18 +235,25 @@ export class IdeaCreator {
     private async postIdea(url: string, skipAiModeration: boolean): Promise<IdeaResponse> {
         const contactOptIn = document.getElementById("idea-contact-opt-in") as HTMLInputElement | null;
         const contactEmail = document.getElementById("idea-contact-email") as HTMLInputElement | null;
+        const subplatformSlug = document.getElementById("idea-subplatform-slug") as HTMLInputElement | null;
+
+        const formData = new FormData();
+
+        formData.append("topicId", String(Number(this.topicId)));
+        formData.append("title", this.title);
+        formData.append("text", this.text);
+        formData.append("contactOptIn", String(contactOptIn?.checked ?? false));
+        formData.append("email", contactEmail?.value.trim() ?? "");
+        formData.append("subplatformSlug", subplatformSlug?.value ?? "");
+        formData.append("skipAiModeration", String(skipAiModeration));
+
+        if (this.imageFile) {
+            formData.append("imageUpload", this.imageFile);
+        }
 
         const response = await fetch(url, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                topicId: Number(this.topicId),
-                title: this.title,
-                text: this.text,
-                contactOptIn: contactOptIn?.checked ?? false,
-                email: contactEmail?.value.trim() ?? "",
-                skipAiModeration: skipAiModeration
-            })
+            body: formData
         });
 
         const data = await response.json() as IdeaResponse;
@@ -271,7 +311,6 @@ export class IdeaCreator {
                 ideaText.focus();
             }
 
-            this.aiAlternativeWasUsed = true;
             this.clearAiMessage();
         });
     }

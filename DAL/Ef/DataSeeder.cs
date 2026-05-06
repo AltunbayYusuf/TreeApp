@@ -9,20 +9,14 @@ namespace IntegratieProject.DAL.Ef;
 
 public class DataSeeder
 {
-    public static void Seed(TreeDbContext dbContext)
+    public static void Seed(TreeDbContext dbContext, string adminIdentityId)
     {
         var platform = new Platform
         {
             CompanyName = "Tree Platform"
         };
-
-        var subPlatform = new SubPlatform
-        {
-            CompanyName = "KdG Hogeschool (Demo)",
-            Slug = "kdg-hogeschool",
-            Language = Language.Nl,
-            Platform = platform
-        };
+      
+        
         var kdgLogo = new Media
         {
             Uri = "/images/logos/kdg-logo.png"
@@ -31,6 +25,33 @@ public class DataSeeder
         {
             Uri = "/images/logos/AP-logo.png"
         };
+ 
+        var generalAdmin = new GeneralAdmin
+        {
+            Name = "Main Admin",
+            IdentityUserId = adminIdentityId,
+            Platform = platform
+        };
+        var kdgAdmin = new SubAdmin
+        {
+            Name = "kdg",
+            GeneralAdmin = generalAdmin
+        };
+        var apAdmin = new SubAdmin
+        {
+            Name = "ap",
+            GeneralAdmin = generalAdmin
+        };
+        ICollection<SubAdmin> kdgAdmins = new List<SubAdmin> { kdgAdmin };
+        var subPlatform = new SubPlatform
+        {
+            CompanyName = "KdG Hogeschool (Demo)",
+            Slug = "kdg-hogeschool",
+            Language = Language.Nl,
+            Platform = platform,
+            SubAdmins = kdgAdmins
+        };
+
         var project = new Project
         {
             Name = "Actieplan Mentaal Welzijn 2026",
@@ -67,7 +88,6 @@ public class DataSeeder
                 Uri = "/images/photos/kdg-Photo.jpg"
             }
         };
-
         /* =========================
            PROJECT 1
         ========================= */
@@ -442,12 +462,14 @@ public class DataSeeder
            SUBPLATFORM 2 - AP HOGESCHOOL
         ========================= */
 
+        ICollection<SubAdmin> apAdmins =  new List<SubAdmin> { apAdmin };
         var apSubPlatform = new SubPlatform
         {
             CompanyName = "AP Hogeschool",
             Slug = "ap-hogeschool",
             Language = Language.Nl,
-            Platform = platform
+            Platform = platform,
+            SubAdmins = apAdmins
         };
 
         var apProject1 = new Project
@@ -1294,6 +1316,10 @@ var surveyResponses = new List<SurveyResponse>
         dbContext.Topics.AddRange(project2.Topics);
         dbContext.Ideas.AddRange(ideas2);
         dbContext.Reactions.AddRange(reactions2);
+        dbContext.GeneralAdmins.Add(generalAdmin);
+        dbContext.SubAdmins.Add(kdgAdmin);
+        dbContext.SubAdmins.Add(apAdmin);
+
 
 
         /* =========================

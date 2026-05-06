@@ -5,4 +5,5 @@ namespace IntegratieProject.BL.interfaces;
 public interface ISubplatformManager
 {
     SubPlatform GetSubPlatformBySlug(string slug);
+    SubPlatform GetSubPlatform(int subPlatformId);
 }

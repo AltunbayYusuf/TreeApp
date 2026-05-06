@@ -18,4 +18,9 @@ public class SubplatformManager : ISubplatformManager
     {
         return _subplatformRepository.ReadSubPlatformBySlug(slug);
     }
+
+    public SubPlatform GetSubPlatform(int subPlatformId)
+    {
+        return _subplatformRepository.ReadSubPlatform(subPlatformId);
+    }
 }

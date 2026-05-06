@@ -23,9 +23,12 @@ public class IdeaRepository : IIdeaRepository
 
     public IEnumerable<Idea> ReadIdeasByProject(Project project)
     {
-        return _context.Ideas.Include(i => i.Topic)
+        return _context.Ideas.
+            Include(i => i.Topic)
+            .Include(i => i.Image)
             // .Include(i => i.Reactions)
-            .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
+            .Include(i => i.Reactions
+                .Where(r => r.ModerationStatus == ModerationStatus.Accepted))
             .Where(i => i.Topic.Project == project)
             .ToList();
     }
@@ -34,6 +37,7 @@ public class IdeaRepository : IIdeaRepository
     public IEnumerable<Idea> ReadIdeasByTopic(Project project, int topicId)
     {
         return _context.Ideas.Include(i => i.Topic)
+            .Include(i => i.Image)
             //  .Include(i => i.Reactions)
             .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
             .Where(i => i.Topic.Project == project && i.Topic.Id == topicId)
@@ -44,6 +48,7 @@ public class IdeaRepository : IIdeaRepository
     public Idea ReadIdeaById(int ideaId)
     {
         return _context.Ideas.Include(i => i.Topic)
+            .Include(i => i.Image)
             .Include(i => i.Reactions)
             .FirstOrDefault(i => i.Id == ideaId);
     }
@@ -52,6 +57,7 @@ public class IdeaRepository : IIdeaRepository
     public IEnumerable<Idea> ReadIdeasInReviewBySubPlatform(int subPlatformId)
     {
         return _context.Ideas.Include(i => i.Topic)
+            
             .ThenInclude(t => t.Project)
             .Where(i => i.Topic.Project.SubPlatformId == subPlatformId &&
                         i.ModerationStatus == ModerationStatus.InReview)
@@ -64,6 +70,7 @@ public class IdeaRepository : IIdeaRepository
         var query = _context.Ideas
             .Include(i => i.Topic)
             .ThenInclude(t => t.Project)
+            .Include(i => i.Image)
             .Include(i => i.User)
             .Include(i => i.Reactions)
             .Where(i => i.Topic.Project.SubPlatformId == subPlatformId);

@@ -2,13 +2,16 @@
 # ============================================================
 # setup.sh
 # Bouwt de volledige cloud omgeving op vanaf nul
-# Gebruik: bash setup.sh [BRANCH]
+# Gebruik: bash setup.sh [BRANCH] [DOMAIN]
 #   - BRANCH: optioneel, default = main
+#   - DOMAIN: optioneel, bv. treeapp.example.com
+#             Als opgegeven: HTTPS load balancer + Google-managed SSL worden aangemaakt
+#             Als weggelaten: alleen HTTP op poort 8080 (directe VM toegang)
 #   - Voorbeelden:
 #       bash setup.sh
 #       bash setup.sh main
-#       bash setup.sh sprint3-chatbot-survey
-#       bash setup.sh feature/nieuwe-feature
+#       bash setup.sh main treeapp.example.com
+#       bash setup.sh feature/nieuwe-feature staging.example.com
 #
 # Vereist: je bent ingelogd met gcloud en hebt rechten op project
 # ============================================================
@@ -17,6 +20,8 @@ set -euo pipefail
 
 # Branch om te deployen (default: main)
 BRANCH="${1:-main}"
+# Optioneel domein voor HTTPS (bv. treeapp.example.com of *.example.com)
+DOMAIN="${2:-}"
 
 # Veilige naam voor in template-naam: vervang '/' door '-' en lowercase
 BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
@@ -34,24 +39,39 @@ DB_NAME="TreeApp"
 # MIG — template-naam bevat de branch zodat verschillende branches naast elkaar kunnen
 INSTANCE_TEMPLATE="treeapp-template-${BRANCH_SAFE}"
 MIG_NAME="treeapp-mig"
-MACHINE_TYPE="e2-small"
+MACHINE_TYPE="e2-medium"
 MIN_VMS=1
 MAX_VMS=3
 CPU_TARGET=0.6
 COOLDOWN=600
 
-echo "🚀 Setup gestart voor project: $PROJECT_ID"
-echo "🌿 Deploying branch: $BRANCH"
-echo "📋 Instance template: $INSTANCE_TEMPLATE"
-echo "💻 Machine type: $MACHINE_TYPE"
+# Load balancer resources
+STATIC_IP="treeapp-ip"
+HEALTH_CHECK="treeapp-health-check"
+BACKEND_SERVICE="treeapp-backend"
+URL_MAP="treeapp-url-map"
+SSL_CERT="treeapp-ssl-cert"
+TARGET_HTTPS_PROXY="treeapp-https-proxy"
+FORWARDING_RULE="treeapp-https-rule"
+HTTP_URL_MAP="treeapp-http-redirect"
+TARGET_HTTP_PROXY="treeapp-http-proxy"
+HTTP_FORWARDING_RULE="treeapp-http-rule"
+
+echo " Setup gestart voor project: $PROJECT_ID"
+echo " Deploying branch: $BRANCH"
+echo " Instance template: $INSTANCE_TEMPLATE"
+echo " Machine type: $MACHINE_TYPE"
+if [ -n "$DOMAIN" ]; then
+  echo " HTTPS domein: $DOMAIN"
+fi
 
 # ============================================================
 # 1. Cloud SQL instance
 # ============================================================
 echo ""
-echo "📦 Stap 1: Cloud SQL Postgres aanmaken..."
+echo " Stap 1: Cloud SQL Postgres aanmaken..."
 if gcloud sql instances describe "$DB_INSTANCE" --project="$PROJECT_ID" &>/dev/null; then
-  echo "  ⏭️  $DB_INSTANCE bestaat al, overgeslagen"
+  echo "    $DB_INSTANCE bestaat al, overgeslagen"
 else
   gcloud sql instances create "$DB_INSTANCE" \
     --project="$PROJECT_ID" \
@@ -59,36 +79,27 @@ else
     --tier="$DB_TIER" \
     --region="$REGION" \
     --edition=ENTERPRISE \
-    --root-password="$(gcloud secrets versions access latest --secret=db-password --project=$PROJECT_ID)" \
-    --authorized-networks="0.0.0.0/0"
+    --root-password="$(gcloud secrets versions access latest --secret=db-password --project=$PROJECT_ID)"
 
-  echo "  📋 Database $DB_NAME aanmaken..."
+  echo "   Database $DB_NAME aanmaken..."
   gcloud sql databases create "$DB_NAME" --instance="$DB_INSTANCE" --project="$PROJECT_ID"
 fi
 
 # ============================================================
-# 2. Startup script downloaden
+# 2. Startup script kopiëren
 # ============================================================
 echo ""
-echo "📥 Stap 2: Startup script downloaden uit GitLab (branch: $BRANCH)..."
-GIT_USER=$(gcloud secrets versions access latest --secret=gitlab-deploy-username --project="$PROJECT_ID")
-GIT_TOKEN=$(gcloud secrets versions access latest --secret=gitlab-deploy-token --project="$PROJECT_ID")
-
-rm -rf /tmp/tree-setup-repo
-git clone --depth 1 --branch "$BRANCH" \
-  "https://$GIT_USER:$GIT_TOKEN@gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/intergratieproject.git" \
-  /tmp/tree-setup-repo
-
-cp /tmp/tree-setup-repo/startup.sh /tmp/startup.sh
-echo "  ✅ Startup script opgehaald"
+echo " Stap 2: Startup script kopiëren..."
+cp ./startup.sh /tmp/startup.sh
+echo "   Startup script opgehaald"
 
 # ============================================================
 # 3. Instance template
 # ============================================================
 echo ""
-echo "📝 Stap 3: Instance template aanmaken..."
+echo " Stap 3: Instance template aanmaken..."
 if gcloud compute instance-templates describe "$INSTANCE_TEMPLATE" --project="$PROJECT_ID" &>/dev/null; then
-  echo "  ⏭️  $INSTANCE_TEMPLATE bestaat al, overgeslagen"
+  echo "    $INSTANCE_TEMPLATE bestaat al, overgeslagen"
 else
   gcloud compute instance-templates create "$INSTANCE_TEMPLATE" \
     --project="$PROJECT_ID" \
@@ -108,10 +119,10 @@ fi
 # 4. MIG (Managed Instance Group)
 # ============================================================
 echo ""
-echo "🏭 Stap 4: Managed Instance Group aanmaken..."
+echo " Stap 4: Managed Instance Group aanmaken..."
 if gcloud compute instance-groups managed describe "$MIG_NAME" --zone="$ZONE" --project="$PROJECT_ID" &>/dev/null; then
-  echo "  ⏭️  $MIG_NAME bestaat al"
-  echo "  🔄 Template wisselen naar $INSTANCE_TEMPLATE en VM's vervangen..."
+  echo "    $MIG_NAME bestaat al"
+  echo "   Template wisselen naar $INSTANCE_TEMPLATE en VM's vervangen..."
   gcloud compute instance-groups managed set-instance-template "$MIG_NAME" \
     --zone="$ZONE" \
     --project="$PROJECT_ID" \
@@ -121,7 +132,7 @@ if gcloud compute instance-groups managed describe "$MIG_NAME" --zone="$ZONE" --
     --zone="$ZONE" \
     --project="$PROJECT_ID" \
     --max-unavailable=1
-  echo "  ✅ Rolling replace gestart"
+  echo "   Rolling replace gestart"
 else
   gcloud compute instance-groups managed create "$MIG_NAME" \
     --project="$PROJECT_ID" \
@@ -135,7 +146,7 @@ fi
 # 5. Autoscaling
 # ============================================================
 echo ""
-echo "📈 Stap 5: Autoscaling configureren..."
+echo " Stap 5: Autoscaling configureren..."
 gcloud compute instance-groups managed set-autoscaling "$MIG_NAME" \
   --zone="$ZONE" \
   --project="$PROJECT_ID" \
@@ -148,9 +159,9 @@ gcloud compute instance-groups managed set-autoscaling "$MIG_NAME" \
 # 6. Firewall regel voor poort 8080
 # ============================================================
 echo ""
-echo "🔥 Stap 6: Firewall regel voor poort 8080..."
+echo " Stap 6: Firewall regels..."
 if gcloud compute firewall-rules describe allow-http-8080 --project="$PROJECT_ID" &>/dev/null; then
-  echo "  ⏭️  allow-http-8080 bestaat al, overgeslagen"
+  echo "    allow-http-8080 bestaat al, overgeslagen"
 else
   gcloud compute firewall-rules create allow-http-8080 \
     --project="$PROJECT_ID" \
@@ -161,12 +172,174 @@ else
     --target-tags=http-server
 fi
 
+# ============================================================
+# 7. Statisch IP adres
+# ============================================================
 echo ""
-echo "✅ Setup voltooid voor branch: $BRANCH"
+echo " Stap 7: Statisch IP adres reserveren..."
+if gcloud compute addresses describe "$STATIC_IP" --global --project="$PROJECT_ID" &>/dev/null; then
+  echo "    $STATIC_IP bestaat al, overgeslagen"
+else
+  gcloud compute addresses create "$STATIC_IP" \
+    --global \
+    --project="$PROJECT_ID"
+fi
+STATIC_IP_ADDRESS=$(gcloud compute addresses describe "$STATIC_IP" --global --project="$PROJECT_ID" --format="value(address)")
+echo "   Statisch IP: $STATIC_IP_ADDRESS"
+
+# ============================================================
+# 8. Health check + named ports voor de load balancer
+# ============================================================
 echo ""
-echo "⏳ Wacht 5-8 minuten tot de VM volledig opgestart is."
-echo "📋 Check status met:"
+echo "  Stap 8: Health check aanmaken..."
+if gcloud compute health-checks describe "$HEALTH_CHECK" --project="$PROJECT_ID" &>/dev/null; then
+  echo "    $HEALTH_CHECK bestaat al, overgeslagen"
+else
+  gcloud compute health-checks create http "$HEALTH_CHECK" \
+    --port=8080 \
+    --request-path=//favicon.ico \
+    --check-interval=10s \
+    --timeout=5s \
+    --healthy-threshold=2 \
+    --unhealthy-threshold=3 \
+    --project="$PROJECT_ID"
+fi
+
+echo "   Named ports instellen op MIG..."
+gcloud compute instance-groups managed set-named-ports "$MIG_NAME" \
+  --named-ports=http:8080 \
+  --zone="$ZONE" \
+  --project="$PROJECT_ID"
+
+# ============================================================
+# 9. Backend service (met session affinity voor sticky sessions)
+# ============================================================
+echo ""
+echo "  Stap 9: Backend service aanmaken..."
+if gcloud compute backend-services describe "$BACKEND_SERVICE" --global --project="$PROJECT_ID" &>/dev/null; then
+  echo "    $BACKEND_SERVICE bestaat al, overgeslagen"
+else
+  gcloud compute backend-services create "$BACKEND_SERVICE" \
+    --protocol=HTTP \
+    --port-name=http \
+    --health-checks="$HEALTH_CHECK" \
+    --session-affinity=GENERATED_COOKIE \
+    --affinity-cookie-ttl=86400 \
+    --global \
+    --project="$PROJECT_ID"
+
+  gcloud compute backend-services add-backend "$BACKEND_SERVICE" \
+    --instance-group="$MIG_NAME" \
+    --instance-group-zone="$ZONE" \
+    --global \
+    --project="$PROJECT_ID"
+  echo "   Backend service aangemaakt met session affinity (cookie, 24u TTL)"
+fi
+
+# ============================================================
+# 10. HTTPS Load Balancer (alleen als DOMAIN opgegeven)
+# ============================================================
+echo ""
+if [ -n "$DOMAIN" ]; then
+  echo " Stap 10: HTTPS load balancer aanmaken voor $DOMAIN..."
+
+  # URL map voor HTTPS verkeer
+  if gcloud compute url-maps describe "$URL_MAP" --project="$PROJECT_ID" &>/dev/null; then
+    echo "    URL map bestaat al, overgeslagen"
+  else
+    gcloud compute url-maps create "$URL_MAP" \
+      --default-service="$BACKEND_SERVICE" \
+      --project="$PROJECT_ID"
+  fi
+
+  # Google-managed SSL certificaat (gratis, automatisch vernieuwd)
+  if gcloud compute ssl-certificates describe "$SSL_CERT" --global --project="$PROJECT_ID" &>/dev/null; then
+    echo "    SSL certificaat bestaat al, overgeslagen"
+  else
+    gcloud compute ssl-certificates create "$SSL_CERT" \
+      --domains="$DOMAIN" \
+      --global \
+      --project="$PROJECT_ID"
+    echo "   SSL certificaat aangemaakt — Google provisioneert dit binnen 15-60 min"
+    echo "    Zorg dat DNS van '$DOMAIN' wijst naar: $STATIC_IP_ADDRESS"
+  fi
+
+  # HTTPS target proxy
+  if gcloud compute target-https-proxies describe "$TARGET_HTTPS_PROXY" --project="$PROJECT_ID" &>/dev/null; then
+    echo "    HTTPS proxy bestaat al, overgeslagen"
+  else
+    gcloud compute target-https-proxies create "$TARGET_HTTPS_PROXY" \
+      --url-map="$URL_MAP" \
+      --ssl-certificates="$SSL_CERT" \
+      --project="$PROJECT_ID"
+  fi
+
+  # HTTPS forwarding rule (poort 443)
+  if gcloud compute forwarding-rules describe "$FORWARDING_RULE" --global --project="$PROJECT_ID" &>/dev/null; then
+    echo "    HTTPS forwarding rule bestaat al, overgeslagen"
+  else
+    gcloud compute forwarding-rules create "$FORWARDING_RULE" \
+      --target-https-proxy="$TARGET_HTTPS_PROXY" \
+      --ports=443 \
+      --global \
+      --address="$STATIC_IP" \
+      --project="$PROJECT_ID"
+  fi
+
+  # HTTP → HTTPS redirect (aparte URL map met redirect actie)
+  if gcloud compute url-maps describe "$HTTP_URL_MAP" --project="$PROJECT_ID" &>/dev/null; then
+    echo "    HTTP redirect URL map bestaat al, overgeslagen"
+  else
+    cat > /tmp/http-redirect.yaml <<"YAMLEOF"
+name: treeapp-http-redirect
+defaultUrlRedirect:
+  redirectResponseCode: MOVED_PERMANENTLY_DEFAULT
+  httpsRedirect: true
+YAMLEOF
+    gcloud compute url-maps import "$HTTP_URL_MAP" \
+      --source=/tmp/http-redirect.yaml \
+      --global \
+      --project="$PROJECT_ID"
+  fi
+
+  if gcloud compute target-http-proxies describe "$TARGET_HTTP_PROXY" --project="$PROJECT_ID" &>/dev/null; then
+    echo "    HTTP proxy bestaat al, overgeslagen"
+  else
+    gcloud compute target-http-proxies create "$TARGET_HTTP_PROXY" \
+      --url-map="$HTTP_URL_MAP" \
+      --project="$PROJECT_ID"
+  fi
+
+  if gcloud compute forwarding-rules describe "$HTTP_FORWARDING_RULE" --global --project="$PROJECT_ID" &>/dev/null; then
+    echo "    HTTP forwarding rule bestaat al, overgeslagen"
+  else
+    gcloud compute forwarding-rules create "$HTTP_FORWARDING_RULE" \
+      --target-http-proxy="$TARGET_HTTP_PROXY" \
+      --ports=80 \
+      --global \
+      --address="$STATIC_IP" \
+      --project="$PROJECT_ID"
+  fi
+
+  echo ""
+  echo " HTTPS load balancer geconfigureerd!"
+  echo "    HTTPS URL : https://$DOMAIN"
+  echo "    HTTP → HTTPS redirect actief"
+  echo "    Session affinity: GENERATED_COOKIE (24u)"
+  echo "    DNS instelling vereist: $DOMAIN → $STATIC_IP_ADDRESS"
+  echo "    SSL provisioning kan 15-60 min duren na DNS koppeling"
+else
+  echo "  Stap 10: Geen DOMAIN opgegeven — HTTPS load balancer overgeslagen"
+  echo "    Gebruik: bash setup.sh $BRANCH <jouw-domein.com>"
+  echo "    Direct toegankelijk via VM IP op poort 8080"
+fi
+
+echo ""
+echo " Setup voltooid voor branch: $BRANCH"
+echo ""
+echo " Wacht 5-8 minuten tot de VM volledig opgestart is."
+echo " Check status met:"
 echo "   gcloud compute instance-groups managed list-instances $MIG_NAME --zone=$ZONE --project=$PROJECT_ID"
 echo ""
-echo "🌐 Vind het externe IP:"
+echo " Vind het externe IP:"
 echo "   gcloud compute instances list --filter=\"name~treeapp\" --format=\"value(name,EXTERNAL_IP)\""

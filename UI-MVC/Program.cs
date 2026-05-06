@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using Google.Cloud.AIPlatform.V1;
 using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
@@ -9,9 +10,12 @@ using IntegratieProject.DAL.Ef;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
+using IntegratieProject.UI.MVC.Services;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
 
@@ -30,6 +34,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 
 builder.Services.AddSession();
 
+//dit is voor buckets
+builder.Services.AddScoped<IGoogleCloudStorageService, GoogleCloudStorageService>();
+
 // Cookie policy: werkt ook over HTTP (GCP deploy zonder HTTPS)
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -43,6 +50,41 @@ builder.Services.AddAntiforgery(options =>
 {
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Lax;
+});
+// DataProtection keys opslaan in PostgreSQL zodat alle VMs dezelfde keys delen.
+// Noodzakelijk voor correcte werking van auth cookies en antiforgery bij horizontal scaling.
+builder.Services.AddDataProtection()
+    .PersistKeysToDbContext<TreeDbContext>()
+    .SetApplicationName("IntegratieProject");
+
+// Rate limiting ter bescherming tegen overconsumptie van AI tokens.
+// Elke gebruiker (via cookie of IP) mag max 20 AI-verzoeken per uur indienen.
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddPolicy("ai-limit", context =>
+    {
+        var partitionKey = context.Request.Cookies["UserIdentifier"]
+                           ?? context.Connection.RemoteIpAddress?.ToString()
+                           ?? "anonymous";
+        return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
+        {
+            Window = TimeSpan.FromHours(1),
+            PermitLimit = 20,
+            QueueLimit = 0,
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+        });
+    });
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsJsonAsync(new
+        {
+            ok = false,
+            message = "Je hebt het maximum aantal AI-verzoeken bereikt. Probeer over een uur opnieuw."
+        }, token);
+    };
 });
 
 // Ai Toegevoegd: tijdelijke fix -> custom DataProtection verwijderd.
@@ -108,6 +150,7 @@ builder.Services.AddScoped<ISubplatformManager, SubplatformManager>();
 builder.Services.AddScoped<ITopicManager, TopicManager>();
 builder.Services.AddScoped<IProjectStatisticsManager, StatisticsManager>();
 builder.Services.AddViteServices();
+builder.Services.AddHealthChecks();
 //150722
 
 
@@ -134,12 +177,17 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
         .GetRequiredService<TreeDbContext>();
+
     if (context.CreateDatabase(dropDatabase: true))
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
         SeedIdentity(userManager, roleManager);
-        DataSeeder.Seed(context);
+
+        var adminUser = userManager.FindByEmailAsync("admin@gmail.com").Result;
+
+        DataSeeder.Seed(context, adminUser?.Id);
     }
 }
 
@@ -161,13 +209,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
+app.MapHealthChecks("/health").AllowAnonymous();
+
 app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
-
-
 
 app.MapControllerRoute(
     name: "subplatform_root",
@@ -202,7 +251,9 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     var adminuser = new ApplicationUser
     {
         UserName = "admin@gmail.com",
-        Email = "admin@gmail.com"
+        Email = "admin@gmail.com",
+        SubPlatformSlug = "admin"
+
     };
     userManager.CreateAsync(adminuser, "Test123!").Wait();
 
@@ -239,6 +290,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
     userManager.AddToRoleAsync(ap, CustomIdentityConstants.SubAdminRoleName).Wait();
 }
+
 
 public partial class Program
 {

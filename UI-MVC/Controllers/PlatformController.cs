@@ -1,4 +1,5 @@
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,16 +9,21 @@ namespace IntegratieProject.UI.MVC.Controllers;
 public class PlatformController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IManager _manager;
+    private readonly ISubplatformManager _subplatformManager;
 
-    public PlatformController(ILogger<HomeController> logger, IManager manager)
+    public PlatformController(ILogger<HomeController> logger, ISubplatformManager subplatformManager)
     {
         _logger = logger;
-        _manager = manager;
+        _subplatformManager = subplatformManager;
     }
-    
-    public IActionResult Index()
+
+    [HttpGet]
+    public IActionResult Details(int id)
     {
-        return View();
+        var subPlatform = _subplatformManager.GetSubPlatform(id);
+
+        if (subPlatform == null) return NotFound();
+
+        return View(subPlatform);
     }
 }
