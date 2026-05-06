@@ -93,11 +93,10 @@
                     
                     @if (idea.Image != null && !string.IsNullOrWhiteSpace(idea.Image.Uri))
                     {
-                        <div class="my-3">
+                        <div class="my-3 text-center">
                             <img src="@idea.Image.Uri"
                                  alt="Afbeelding bij idee"
-                                 class="img-fluid rounded border"
-                                 style="max-height: 350px; object-fit: cover;" />
+                                 class="img-fluid rounded border w-75 w-md-50" />
                         </div>
                     }
                     @if (idea.Topic != null)

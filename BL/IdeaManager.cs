@@ -107,7 +107,11 @@ public class IdeaManager : IIdeaManager
             Text = safeText,
             UserId = userId,
             Topic = topic,
-            ModerationStatus = ModerationStatus.Accepted
+            ModerationStatus = ModerationStatus.Accepted,
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
+            {
+                Uri = imageUri
+            }
         };
 
         _manager.ValidateEntity(idea);
