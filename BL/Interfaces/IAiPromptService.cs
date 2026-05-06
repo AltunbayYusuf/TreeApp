@@ -8,4 +8,6 @@ public interface IAiPromptService
     string BuildProjectIntroPrompt(string projectName);
     string BuildSurveyGenerationPrompt(string description, int questionAmount);
     string BuildIdeaImprovementPrompt(string title, string text);
+    string BuildProjectTrendSummaryPrompt(string projectData);
+    string BuildOpenQuestionSummaryPrompt(string question, string answers);
 }

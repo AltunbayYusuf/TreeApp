@@ -37,6 +37,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
     public DbSet<ConditionalQuestion> ConditionalQuestions { get; set; }
     public DbSet<AiPrompt> AiPrompts { get; set; }
     public DbSet<AiUsage> AiUsages { get; set; }
+    public DbSet<AiOpenQuestionSummary> AiOpenQuestionSummaries { get; set; }
 
 
     public TreeDbContext(DbContextOptions options) : base(options)
@@ -139,11 +140,9 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
             .WithMany()
             .OnDelete(DeleteBehavior.Restrict);
         
-        modelBuilder.Entity<Idea>()
-            .HasOne(i => i.Image)
-            .WithMany()
-            .HasForeignKey(i => i.ImageId)
-            .OnDelete(DeleteBehavior.SetNull);
+        modelBuilder.Entity<AiOpenQuestionSummary>()
+            .HasIndex(s => new { s.ProjectId, s.QuestionId })
+            .IsUnique();
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

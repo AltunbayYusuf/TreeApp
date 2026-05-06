@@ -106,4 +106,17 @@ public class IdeaRepository : IIdeaRepository
         _context.Ideas.Remove(idea);
         _context.SaveChanges();
     }
+
+    public IEnumerable<Idea> ReadAcceptedIdeasWithReactionsByProjectId(int projectId)
+    {
+        return _context.Ideas
+            .Include(i => i.Topic)
+            .ThenInclude(t => t.Project)
+            .Include(i => i.Reactions.Where(r => r.ModerationStatus == ModerationStatus.Accepted))
+            .Where(i =>
+                i.Topic.Project.Id == projectId &&
+                i.ModerationStatus == ModerationStatus.Accepted)
+            .OrderBy(i => i.Topic.Theme)
+            .ToList();
+    }
 }

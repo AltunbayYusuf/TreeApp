@@ -76,4 +76,22 @@ public class AiPromptService : IAiPromptService
             .Replace("{title}", title)
             .Replace("{text}", text);
     }
+    
+    public string BuildProjectTrendSummaryPrompt(string projectData)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("project_trend_summary")
+                     ?? throw new InvalidOperationException("Prompt 'project_trend_summary' niet gevonden.");
+
+        return prompt.PromptText.Replace("{{projectData}}", projectData);
+    }
+    
+    public string BuildOpenQuestionSummaryPrompt(string question, string answers)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("open_question_summary")
+                     ?? throw new InvalidOperationException("Prompt 'open_question_summary' niet gevonden.");
+
+        return prompt.PromptText
+            .Replace("{{question}}", question)
+            .Replace("{{answers}}", answers);
+    }
 }

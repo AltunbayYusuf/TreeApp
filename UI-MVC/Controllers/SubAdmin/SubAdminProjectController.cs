@@ -23,8 +23,9 @@ public class SubAdminProjectsController : Controller
     private readonly IImageGenerationService _imageGenerationService;
     private readonly IIntroTextService _introTextService;
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
-    private readonly IGoogleCloudStorageService _googleCloudStorageService;
-    
+    private readonly IProjectStatisticsManager _projectStatisticsManager;
+    private readonly IAiSummaryIdeas _aiSummaryIdeas;
+
     private const string InfoKey = "CreateProject_Info";
     private const string SurveyKey = "CreateProject_Survey";
     private const string IdeationKey = "CreateProject_Ideation";
@@ -36,7 +37,9 @@ public class SubAdminProjectsController : Controller
         UserManager<ApplicationUser> userManager,
         IImageGenerationService imageGenerationService,
         IIntroTextService introTextService,
-        IAiSurveyGenerationService aiSurveyGenerationService,IGoogleCloudStorageService googleCloudStorageService)
+        IAiSurveyGenerationService aiSurveyGenerationService,
+        IProjectStatisticsManager projectStatisticsManager,
+        IAiSummaryIdeas aiSummaryIdeas)
     {
         _subplatformManager = subplatformManager;
         _projectManager = projectManager;
@@ -44,7 +47,8 @@ public class SubAdminProjectsController : Controller
         _imageGenerationService = imageGenerationService;
         _introTextService = introTextService;
         _aiSurveyGenerationService = aiSurveyGenerationService;
-        _googleCloudStorageService = googleCloudStorageService;
+        _projectStatisticsManager = projectStatisticsManager;
+        _aiSummaryIdeas = aiSummaryIdeas;
     }
 
     private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
@@ -556,6 +560,50 @@ public class SubAdminProjectsController : Controller
         {
             ok = true,
             introduction
+        });
+    }
+    
+    [HttpGet]
+    public async Task<IActionResult> Statistics(string subplatform, int projectId)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
+
+        var project = _projectManager.GetProject(projectId);
+
+        if (project == null || project.SubPlatform.Slug != subplatform)
+        {
+            return NotFound();
+        }
+
+        var statistics = _projectStatisticsManager.GetProjectStatistics(projectId);
+
+        return View(statistics);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateOpenQuestionSummary(
+        string subplatform,
+        int projectId,
+        int questionId)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
+
+        var project = _projectManager.GetProject(projectId);
+
+        if (project == null || project.SubPlatform.Slug != subplatform)
+        {
+            return NotFound();
+        }
+
+        await _aiSummaryIdeas.GenerateOpenQuestionSummaryAsync(projectId, questionId);
+
+        return RedirectToAction(nameof(Statistics), new
+        {
+            subplatform,
+            projectId
         });
     }
 

@@ -122,6 +122,7 @@ builder.Services.AddScoped<IAiPromptService, AiPromptService>();
 builder.Services.AddScoped<IAiModerationService, AiModerationService>();
 builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService>();
 builder.Services.AddScoped<IAiUsageManager, AiUsageManager>();
+builder.Services.AddScoped<IAiSummaryIdeas, AiSummaryIdeas>();
 
 builder.Services.AddScoped<IAiRepository, AiRepository>();
 builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
@@ -147,6 +148,7 @@ builder.Services.AddScoped<ISurveyManager, SurveyManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<ISubplatformManager, SubplatformManager>();
 builder.Services.AddScoped<ITopicManager, TopicManager>();
+builder.Services.AddScoped<IProjectStatisticsManager, StatisticsManager>();
 builder.Services.AddViteServices();
 builder.Services.AddHealthChecks();
 //150722
