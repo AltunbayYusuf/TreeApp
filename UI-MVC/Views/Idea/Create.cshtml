@@ -56,6 +56,29 @@
                         </div>
                     </div>
                 </div>
+                <div class="mb-3">
+                    <label for="idea-image" class="form-label">Afbeelding toevoegen</label>
+                    <input id="idea-image"
+                           class="form-control"
+                           type="file"
+                           accept="image/png,image/jpeg,image/jpg,image/webp" />
+
+                    <small class="text-muted">
+                        Je kan een afbeelding toevoegen aan je idee.
+                    </small>
+
+                    <div class="mt-3" id="idea-image-preview-wrapper" style="display:none;">
+                        <img id="idea-image-preview"
+                             src=""
+                             alt="Voorbeeld afbeelding"
+                             class="img-fluid rounded border"
+                             style="max-height: 250px; object-fit: cover;" />
+                    </div>
+                </div>
+
+                <input type="hidden"
+                       id="idea-subplatform-slug"
+                       value="@Model.Project.SubPlatform.Slug" />
 
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="idea-contact-opt-in"/>

@@ -90,7 +90,16 @@
                         }
                     </div>
                     <p class="mb-2">@idea.Text</p>
-
+                    
+                    @if (idea.Image != null && !string.IsNullOrWhiteSpace(idea.Image.Uri))
+                    {
+                        <div class="my-3">
+                            <img src="@idea.Image.Uri"
+                                 alt="Afbeelding bij idee"
+                                 class="img-fluid rounded border"
+                                 style="max-height: 350px; object-fit: cover;" />
+                        </div>
+                    }
                     @if (idea.Topic != null)
                     {
                         <small class="text-muted d-block mb-2">

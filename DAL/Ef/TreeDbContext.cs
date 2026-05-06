@@ -22,6 +22,8 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
     public DbSet<Idea> Ideas { get; set; }
     public DbSet<Reaction> Reactions { get; set; }
     public DbSet<Topic> Topics { get; set; }
+    
+    public DbSet<Media> Media { get; set; }
     public DbSet<Platform> Platforms { get; set; }
     public DbSet<SubPlatform> SubPlatforms { get; set; }
     public DbSet<Project> Projects { get; set; }
@@ -136,6 +138,12 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
             .HasOne(cq => cq.FollowUpQuestion)
             .WithMany()
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<Idea>()
+            .HasOne(i => i.Image)
+            .WithMany()
+            .HasForeignKey(i => i.ImageId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
