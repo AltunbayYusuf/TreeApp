@@ -29,15 +29,24 @@ public class PlatformController : Controller
     }
 
     [HttpPost]
-    public IActionResult CreateSubPlatform([FromBody] CreateSubPlatformDto dto)
+    public async Task<IActionResult> CreateSubPlatform([FromBody] CreateSubPlatformDto dto)
     {
-        _subplatformManager.CreateSubPlatform(
-            dto.CompanyName,
-            dto.Slug,
-            dto.ContactEmail,
-            dto.AdminEmail
-        );
+        if (dto == null)
+            return BadRequest("DTO is null - JSON binding failed");
 
-        return Ok();
+        try 
+        {
+            var generatedPassword = await _subplatformManager.CreateSubPlatformAsync(
+                dto.CompanyName,
+                dto.Slug,
+                dto.AdminEmail
+            );
+
+            return Ok(new { password = generatedPassword });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message); 
+        }
     }
 }

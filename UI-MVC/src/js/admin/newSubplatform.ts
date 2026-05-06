@@ -1,17 +1,15 @@
 type SubplatformPayload = {
     companyName: string;
     slug: string;
-    contactEmail: string;
     adminEmail: string;
 };
 
- class SubplatformBuilder {
+class SubplatformBuilder {
     private triggerBtn!: HTMLButtonElement;
     private modalEl!: HTMLElement;
     private form!: HTMLFormElement;
 
     private companyInput!: HTMLInputElement;
-    private contactInput!: HTMLInputElement;
     private adminInput!: HTMLInputElement;
 
     private modal: any = null;
@@ -23,17 +21,9 @@ type SubplatformPayload = {
         this.form = document.getElementById("createSubplatformForm") as HTMLFormElement;
 
         this.companyInput = document.getElementById("companyName") as HTMLInputElement;
-        this.contactInput = document.getElementById("contactEmail") as HTMLInputElement;
         this.adminInput = document.getElementById("adminEmail") as HTMLInputElement;
 
-        if (
-            !this.triggerBtn ||
-            !this.modalEl ||
-            !this.form ||
-            !this.companyInput ||
-            !this.contactInput ||
-            !this.adminInput
-        ) {
+        if (!this.triggerBtn || !this.modalEl || !this.form || !this.companyInput || !this.adminInput) {
             console.error("Subplatform elements niet gevonden");
             return;
         }
@@ -119,11 +109,7 @@ type SubplatformPayload = {
     private resetForm(): void {
         this.form.reset();
 
-        [
-            this.companyInput,
-            this.contactInput,
-            this.adminInput
-        ].forEach((input) => {
+        [this.companyInput, this.adminInput].forEach((input) => {
             input.classList.remove("is-invalid", "is-valid");
         });
     }
@@ -137,14 +123,6 @@ type SubplatformPayload = {
         } else {
             this.companyInput.classList.remove("is-invalid");
             this.companyInput.classList.add("is-valid");
-        }
-
-        if (!this.isEmail(this.contactInput.value)) {
-            this.contactInput.classList.add("is-invalid");
-            valid = false;
-        } else {
-            this.contactInput.classList.remove("is-invalid");
-            this.contactInput.classList.add("is-valid");
         }
 
         if (!this.isEmail(this.adminInput.value)) {
@@ -162,25 +140,51 @@ type SubplatformPayload = {
         const payload: SubplatformPayload = {
             companyName: this.companyInput.value.trim(),
             slug: this.generateSlug(this.companyInput.value.trim()),
-            contactEmail: this.contactInput.value.trim(),
             adminEmail: this.adminInput.value.trim()
         };
 
         try {
+            const token = (document.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement)?.value;
+
             const response = await fetch("/Platform/CreateSubPlatform", {
                 method: "POST",
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                    "RequestVerificationToken": token 
                 },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                throw new Error(await response.text());
+                let msg = "Onbekende fout";
+                try {
+                    msg = await response.text();
+                } catch {
+                }
+                throw new Error(msg);
             }
 
+            const data = await response.json();
+            const password = data?.password;
+
             this.hideModal();
-            window.location.reload();
+
+            if (password) {
+                alert(
+                    `Subplatform succesvol aangemaakt!\n\n` +
+                    `Het wachtwoord voor ${payload.adminEmail} is:\n\n${password}\n\n` +
+                    `Kopieer dit, je ziet dit hierna niet meer.`
+                );
+            } else {
+                alert(
+                    `Subplatform succesvol aangemaakt!\n\n` +
+                    `Opmerking: geen wachtwoord ontvangen van de server.`
+                );
+            }
+
+            setTimeout(() => window.location.reload(), 200);
+
         } catch (error) {
             console.error(error);
             alert("Fout bij aanmaken van subplatform");
@@ -203,6 +207,7 @@ type SubplatformPayload = {
         return re.test(value.trim());
     }
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
     console.log("newSubplatform script loaded");
