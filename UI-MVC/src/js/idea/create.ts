@@ -23,8 +23,6 @@ export class IdeaCreator {
     private topicId = "";
     private title = "";
     private text = "";
-
-  //  private aiAlternativeWasUsedd ;
     private aiAlternativeTitle = "";
     private aiAlternativeText = "";
 
@@ -33,10 +31,6 @@ export class IdeaCreator {
         document.getElementById("submit-idea-btn")?.addEventListener("click", this.handleSubmit.bind(this));
         document.getElementById("ai-improve-create-btn")?.addEventListener("click", this.handleImproveWithAi.bind(this));
         document.getElementById("use-ai-improvement-btn")?.addEventListener("click", this.useAiImprovement.bind(this));
-
-      //  document.getElementById("idea-title")?.addEventListener("input", () => this.aiAlternativeWasUsedd = false);
-       // document.getElementById("idea-text")?.addEventListener("input", () => this.aiAlternativeWasUsedd = false);
-
         this.toggleContactEmail();
     }
 
@@ -108,7 +102,6 @@ export class IdeaCreator {
         ideaTitle.value = this.aiAlternativeTitle;
         ideaText.value = this.aiAlternativeText;
 
-        this.aiAlternativeWasUsed = true;
 
         if (resultBox) {
             resultBox.style.display = "none";
@@ -271,8 +264,7 @@ export class IdeaCreator {
                 ideaText.focus();
             }
 
-            this.aiAlternativeWasUsed = true;
-            this.clearAiMessage();
+                this.clearAiMessage();
         });
     }
 
