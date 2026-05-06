@@ -25,7 +25,8 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -105,7 +106,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-       public async Task<IActionResult> OnPostAsync(string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
 {
     returnUrl ??= Url.Content("~/");
 
@@ -124,17 +125,8 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         return Page();
     }
 
-    var requestedSubplatform = GetSubplatformFromReturnUrl(returnUrl);
-
-    if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
-    {
-        if (!string.IsNullOrWhiteSpace(requestedSubplatform) &&
-            !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
-        {
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return Page();
-        }
-    }
+    // OPMERKING: De strenge blokkade op requestedSubplatform is hier weggehaald!
+    // We laten de gebruiker gewoon inloggen als het wachtwoord klopt.
 
     var result = await _signInManager.PasswordSignInAsync(
         Input.Email,
@@ -150,6 +142,8 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         {
             if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
             {
+                // Hier wordt de subadmin ALTIJD naar zijn eigen dashboard gestuurd,
+                // ongeacht via welke pagina hij probeerde in te loggen. Probleem opgelost!
                 return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
             }
 
@@ -181,36 +175,36 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
     return Page();
 }
 
-private string? GetSubplatformFromReturnUrl(string? returnUrl)
-{
-    if (string.IsNullOrWhiteSpace(returnUrl))
-    {
-        return null;
-    }
+        private string GetSubplatformFromReturnUrl(string returnUrl)
+        {
+            if (string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return null;
+            }
 
-    var cleanUrl = returnUrl.Split('?', '#')[0].Trim('/');
+            var cleanUrl = returnUrl.Split('?', '#')[0].Trim('/');
 
-    if (string.IsNullOrWhiteSpace(cleanUrl))
-    {
-        return null;
-    }
+            if (string.IsNullOrWhiteSpace(cleanUrl))
+            {
+                return null;
+            }
 
-    var segments = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var segments = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
 
-    if (segments.Length == 0)
-    {
-        return null;
-    }
+            if (segments.Length == 0)
+            {
+                return null;
+            }
 
-    var firstSegment = segments[0];
+            var firstSegment = segments[0];
 
-    if (string.Equals(firstSegment, "Identity", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(firstSegment, "Platform", StringComparison.OrdinalIgnoreCase))
-    {
-        return null;
-    }
+            if (string.Equals(firstSegment, "Identity", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(firstSegment, "Platform", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
 
-    return firstSegment;
-}
+            return firstSegment;
+        }
     }
 }

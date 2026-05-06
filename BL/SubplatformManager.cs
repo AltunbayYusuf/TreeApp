@@ -34,21 +34,30 @@ public class SubplatformManager : ISubplatformManager
 
     public async Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail)
     {
-        var generatedPassword = GenerateRandomPassword(); 
-    
-        var user = new ApplicationUser { UserName = adminEmail, Email = adminEmail ,EmailConfirmed = true};
+        //var generatedPassword = GenerateRandomPassword(); 
+        var generatedPassword = "TestPassword123!";
+        var user = new ApplicationUser 
+        { 
+            UserName = adminEmail, 
+            Email = adminEmail, 
+            EmailConfirmed = true,
+            SubPlatformSlug = slug 
+        };
         var result = await _userManager.CreateUserAsync(user, generatedPassword);
-    
+
         if (result.Succeeded)
         {
             await _userManager.AddUserToRoleAsync(user, "SubAdmin");
 
+            var rootPlatform = _subplatformRepository.ReadPlatform();
+
             var newSubPlatform = new SubPlatform
             {
                 CompanyName = companyName,
-                Slug = slug
+                Slug = slug,
+                Platform = rootPlatform 
             };
-            
+        
             _subplatformRepository.CreateSubPlatform(newSubPlatform);
 
             var generalAdmin = _userManager.GetGeneralAdmin();
@@ -63,7 +72,6 @@ public class SubplatformManager : ISubplatformManager
                 Name = companyName + " Admin", 
                 IdentityUserId = user.Id, 
                 SubPlatform = newSubPlatform,
-    
                 GeneralAdmin = generalAdmin 
             };
 
