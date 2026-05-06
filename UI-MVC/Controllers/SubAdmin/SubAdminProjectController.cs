@@ -10,6 +10,7 @@ using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using IntegratieProject.UI.MVC.Services;
 
 namespace IntegratieProject.UI.MVC.Controllers.subAdmin;
 
@@ -19,11 +20,11 @@ public class SubAdminProjectsController : Controller
     private readonly ISubplatformManager _subplatformManager;
     private readonly IProjectManager _projectManager;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IManager _manager;
     private readonly IImageGenerationService _imageGenerationService;
     private readonly IIntroTextService _introTextService;
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
-
+    private readonly IGoogleCloudStorageService _googleCloudStorageService;
+    
     private const string InfoKey = "CreateProject_Info";
     private const string SurveyKey = "CreateProject_Survey";
     private const string IdeationKey = "CreateProject_Ideation";
@@ -33,21 +34,20 @@ public class SubAdminProjectsController : Controller
         ISubplatformManager subplatformManager,
         IProjectManager projectManager,
         UserManager<ApplicationUser> userManager,
-        IManager manager,
         IImageGenerationService imageGenerationService,
         IIntroTextService introTextService,
-        IAiSurveyGenerationService aiSurveyGenerationService)
+        IAiSurveyGenerationService aiSurveyGenerationService,IGoogleCloudStorageService googleCloudStorageService)
     {
         _subplatformManager = subplatformManager;
         _projectManager = projectManager;
         _userManager = userManager;
-        _manager = manager;
         _imageGenerationService = imageGenerationService;
         _introTextService = introTextService;
         _aiSurveyGenerationService = aiSurveyGenerationService;
+        _googleCloudStorageService = googleCloudStorageService;
     }
 
-    private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
+    private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
 
@@ -68,7 +68,7 @@ public class SubAdminProjectsController : Controller
         HttpContext.Session.SetString(key, JsonSerializer.Serialize(value));
     }
 
-    private T? GetSession<T>(string key)
+    private T GetSession<T>(string key)
     {
         var json = HttpContext.Session.GetString(key);
         return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json);
@@ -113,16 +113,10 @@ public class SubAdminProjectsController : Controller
                 return View("ProjectInfo", vm);
             }
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "photos");
-            Directory.CreateDirectory(uploadsFolder);
-
-            var fileName = $"{Guid.NewGuid()}{extension}";
-            var filePath = Path.Combine(uploadsFolder, fileName);
-
-            await using var stream = new FileStream(filePath, FileMode.Create);
-            await vm.PhotoUpload.CopyToAsync(stream);
-
-            vm.PhotoUri = $"/images/photos/{fileName}";
+            vm.PhotoUri = await _googleCloudStorageService.UploadProjectImageAsync(
+                vm.PhotoUpload,
+                subplatform
+            );
         }
         vm.PhotoUpload = null;
         SaveSession(InfoKey, vm);
@@ -337,7 +331,7 @@ public class SubAdminProjectsController : Controller
         return RedirectToAction("Index", "SubAdmin", new { subplatform });
     }
 
-    private IActionResult? ValidateProjectSessions(string subplatform)
+    private IActionResult ValidateProjectSessions(string subplatform)
     {
         if (GetSession<CreateProjectInfoViewModel>(InfoKey) == null)
         {

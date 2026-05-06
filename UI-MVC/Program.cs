@@ -10,6 +10,7 @@ using IntegratieProject.DAL.Ef;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
+using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -32,6 +33,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddEntityFrameworkStores<TreeDbContext>();
 
 builder.Services.AddSession();
+
+//dit is voor buckets
+builder.Services.AddScoped<IGoogleCloudStorageService, GoogleCloudStorageService>();
 
 // Cookie policy: werkt ook over HTTP (GCP deploy zonder HTTPS)
 builder.Services.ConfigureApplicationCookie(options =>
