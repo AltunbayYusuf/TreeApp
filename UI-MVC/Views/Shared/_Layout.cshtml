@@ -202,12 +202,12 @@
                     <div class="d-flex align-items-center gap-3">
                     @if (User.Identity?.IsAuthenticated != true)
                     {
-                        <div class="font-size-control" role="group" aria-label="Tekstgrootte aanpassen">
-                            <span class="font-size-label" aria-hidden="true">A</span>
-                            
+                        <div class="font-size-control" role="group" aria-label="Zoom aanpassen">
                             <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
                                 -
                             </button>
+
+                            <span class="font-size-value" data-font-size-value>100%</span>
 
                             <button type="button" class="font-size-button" data-font-size="up" aria-label="Tekst vergroten">
                                 +
