@@ -12,10 +12,8 @@ using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
 using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
 
