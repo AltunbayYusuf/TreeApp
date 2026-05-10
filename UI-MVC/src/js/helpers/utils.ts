@@ -9,12 +9,18 @@ export class DomUtils {
             .replace(/'/g, "&#039;");
     }
 
+    static getSubplatform(): string {
+        return document.body.getAttribute("data-subplatform") ?? "";
+    }
+
     static getProjectRedirectUrl(basePath: string): string {
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get("projectId");
+        const subplatform = DomUtils.getSubplatform();
+        const prefix = subplatform ? `/${subplatform}` : "";
 
         return projectId
-            ? `/${basePath}?projectId=${projectId}`
-            : `/${basePath}`;
+            ? `${prefix}/${basePath}?projectId=${projectId}`
+            : `${prefix}/${basePath}`;
     }
 }

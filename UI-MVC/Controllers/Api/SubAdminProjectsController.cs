@@ -70,7 +70,7 @@ public class SubAdminProjectsController : ControllerBase
         return Ok(new
         {
             ok = true,
-            redirectUrl = "/SubAdminProjects/CreateIdeation"
+            redirectUrl = Url.Action("CreateIdeation", "SubAdminProjects", new { subplatform })
         });
     }
     

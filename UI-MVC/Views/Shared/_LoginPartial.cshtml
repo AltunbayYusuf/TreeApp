@@ -41,7 +41,7 @@
             <form class="form-inline"
                   asp-area="Identity"
                   asp-page="/Account/Logout"
-                  asp-route-returnUrl="@($"/Project/{logoutProjectId}")"
+                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
                   method="post">
                 <button type="submit" class="nav-link btn btn-link text-dark">Click here to Logout</button>
             </form>

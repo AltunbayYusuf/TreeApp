@@ -150,7 +150,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         {
             if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
             {
-                return Redirect("/SubAdmin");
+                return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");

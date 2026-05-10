@@ -153,7 +153,7 @@ public class SurveyController : Controller
 
         return Ok(new
         {
-            redirectUrl = Url.Action("Index", "Survey", new { projectId })
+            redirectUrl = Url.Action("Index", "Survey", new { subplatform = Subplatform, projectId })
         });
     }
 
