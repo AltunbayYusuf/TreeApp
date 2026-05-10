@@ -214,17 +214,17 @@ app.MapControllerRoute(
 
 app.MapControllerRoute(
     name: "slug_root",
-    pattern: "{subplatform:regex([a-z][a-z0-9-]+)}",
+    pattern: "{subplatform:regex([a-z][a-z0-9-]*-[a-z0-9-]+)}",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
 
 app.MapControllerRoute(
     name: "slug_short",
-    pattern: "{subplatform:regex([a-z][a-z0-9-]+)}/{controller=Project}/{id:int}",
+    pattern: "{subplatform:regex([a-z][a-z0-9-]*-[a-z0-9-]+)}/{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
 
 app.MapControllerRoute(
     name: "slug_default",
-    pattern: "{subplatform:regex([a-z][a-z0-9-]+)}/{controller=Project}/{action=Index}/{id?}");
+    pattern: "{subplatform:regex([a-z][a-z0-9-]*-[a-z0-9-]+)}/{controller=Project}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "root",
