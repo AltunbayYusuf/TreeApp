@@ -208,6 +208,11 @@ app.MapStaticAssets();
 app.MapHealthChecks("/health").AllowAnonymous();
 
 app.MapControllerRoute(
+    name: "platform_admin",
+    pattern: "Platform/{action=Index}/{id?}",
+    defaults: new { controller = "Platform" });
+
+app.MapControllerRoute(
     name: "slug_root",
     pattern: "{subplatform:regex([a-z][a-z0-9-]+)}",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
