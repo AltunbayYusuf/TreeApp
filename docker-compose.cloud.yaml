@@ -10,7 +10,9 @@ services:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=cloudsql-proxy;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD}
       Gemini__ApiKey: ${GEMINI_API_KEY}
+      GOOGLE_APPLICATION_CREDENTIALS: /secrets/sa-key.json
     volumes:
+      - /tmp/sa-key.json:/secrets/sa-key.json:ro
       - dataprotection-keys:/root/.aspnet/DataProtection-Keys
     depends_on:
       cloudsql-proxy:
