@@ -25,6 +25,7 @@ public class SubAdminProjectsController : Controller
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
     private readonly IProjectStatisticsManager _projectStatisticsManager;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
+    private readonly IGoogleCloudStorageService _googleCloudStorageService;
 
     private const string InfoKey = "CreateProject_Info";
     private const string SurveyKey = "CreateProject_Survey";
@@ -39,7 +40,8 @@ public class SubAdminProjectsController : Controller
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
         IProjectStatisticsManager projectStatisticsManager,
-        IAiSummaryIdeas aiSummaryIdeas)
+        IAiSummaryIdeas aiSummaryIdeas,IGoogleCloudStorageService googleCloudStorageService
+        )
     {
         _subplatformManager = subplatformManager;
         _projectManager = projectManager;
@@ -49,6 +51,7 @@ public class SubAdminProjectsController : Controller
         _aiSurveyGenerationService = aiSurveyGenerationService;
         _projectStatisticsManager = projectStatisticsManager;
         _aiSummaryIdeas = aiSummaryIdeas;
+        _googleCloudStorageService=googleCloudStorageService;
     }
 
     private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
