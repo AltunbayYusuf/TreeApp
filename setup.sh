@@ -50,7 +50,7 @@ STATIC_IP="echo20-ip"
 HEALTH_CHECK="echo20-health-check"
 BACKEND_SERVICE="echo20-backend"
 URL_MAP="echo20-url-map"
-SSL_CERT="echo20-ssl-cert"
+CERT_MAP="treeapp-cert-map"
 TARGET_HTTPS_PROXY="echo20-https-proxy"
 FORWARDING_RULE="echo20-https-rule"
 HTTP_URL_MAP="echo20-http-redirect"
@@ -252,17 +252,9 @@ if [ -n "$DOMAIN" ]; then
       --project="$PROJECT_ID"
   fi
 
-  # Google-managed SSL certificaat (gratis, automatisch vernieuwd)
-  if gcloud compute ssl-certificates describe "$SSL_CERT" --global --project="$PROJECT_ID" &>/dev/null; then
-    echo "    SSL certificaat bestaat al, overgeslagen"
-  else
-    gcloud compute ssl-certificates create "$SSL_CERT" \
-      --domains="$DOMAIN" \
-      --global \
-      --project="$PROJECT_ID"
-    echo "   SSL certificaat aangemaakt — Google provisioneert dit binnen 15-60 min"
-    echo "    Zorg dat DNS van '$DOMAIN' wijst naar: $STATIC_IP_ADDRESS"
-  fi
+  # Wildcard SSL via Certificate Manager (dekt automatisch elk *.echo20.com subdomein)
+  # De cert map 'treeapp-cert-map' bevat een ACTIEF wildcard-cert voor *.echo20.com
+  # Nieuw subdomein toevoegen = alleen DNS-record aanmaken, niets anders
 
   # HTTPS target proxy
   if gcloud compute target-https-proxies describe "$TARGET_HTTPS_PROXY" --project="$PROJECT_ID" &>/dev/null; then
@@ -270,7 +262,7 @@ if [ -n "$DOMAIN" ]; then
   else
     gcloud compute target-https-proxies create "$TARGET_HTTPS_PROXY" \
       --url-map="$URL_MAP" \
-      --ssl-certificates="$SSL_CERT" \
+      --certificate-map="$CERT_MAP" \
       --project="$PROJECT_ID"
   fi
 
