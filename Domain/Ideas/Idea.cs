@@ -23,4 +23,6 @@ public class Idea
     public IEnumerable<Reaction> Reactions { get; set; }
 
     public AiIntegration AiIntegration { get; set; }
+    public Media Image { get; set; }
+    public int? ImageId { get; set; }
 }

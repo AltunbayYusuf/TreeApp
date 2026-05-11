@@ -1,0 +1,175 @@
+﻿@model IntegratieProject.BL.Domain.Statistics.ProjectStatistics
+
+@{
+    ViewBag.Title = "Projectstatistieken";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid px-4 px-md-5 py-4">
+
+    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-start align-items-lg-center gap-3 mb-4">
+        <div>
+            <h1 class="fs-2 fw-bold mb-1">Statistieken</h1>
+            <p class="text-muted mb-0">@Model.ProjectName</p>
+        </div>
+
+        <a asp-controller="SubAdmin"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Terug naar dashboard
+        </a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-2">Deelnemers</p>
+                    <p class="display-6 fw-bold mb-0">@Model.ParticipantsCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-2">Ideeën</p>
+                    <p class="display-6 fw-bold mb-0">@Model.IdeasCount</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-2">Reacties</p>
+                    <p class="display-6 fw-bold mb-0">@Model.ReactionsCount</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var question in Model.Questions)
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+                            <div>
+                                <h2 class="fs-5 fw-bold mb-2">@question.Question</h2>
+                                <p class="text-muted small mb-0">
+                                    Type: @question.QuestionType |
+                                    Antwoorden: @question.TotalAnswers
+                                </p>
+                            </div>
+
+                            @if (question.Average.HasValue)
+                            {
+                                <span class="badge text-bg-primary rounded-pill px-3 py-2">
+                                    Gem. @question.Average
+                                </span>
+                            }
+                        </div>
+
+                        @if (question.Options.Any())
+                        {
+                            var maxPercentage = question.Options.Max(o => o.Percentage);
+
+                            <div class="overflow-auto">
+                                <div class="d-flex align-items-end gap-4 pb-3" style="height:260px;">
+
+                                    @foreach (var option in question.Options)
+                                    {
+                                        var barHeight = maxPercentage == 0
+                                            ? 0
+                                            : Math.Max((option.Percentage / maxPercentage) * 170, 12);
+
+                                        <div class="d-flex flex-column align-items-center justify-content-end flex-shrink-0 w-25">
+
+                                            <div class="small fw-semibold mb-2">
+                                                @option.Percentage%
+                                            </div>
+
+                                            <div class="bg-primary rounded-top w-75"
+                                                 title="@option.Answer - @option.Count antwoorden"
+                                                 style="height:@(barHeight)px;">
+                                            </div>
+
+                                            <div class="small text-muted mt-2 text-center">
+                                                @option.Count antw.
+                                            </div>
+
+                                            <div class="small fw-semibold text-center text-wrap w-100"
+                                                 title="@option.Answer">
+                                                @option.Answer
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else if (question.QuestionType == "OpenQuestion")
+                        {
+                           
+
+                            <div class="card bg-light border">
+                                <div class="card-body">
+                                    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+                                        <div>
+                                            <h3 class="fs-6 fw-bold mb-1">AI-samenvatting open antwoorden</h3>
+
+                                            @if (question.AiSummaryGeneratedAt.HasValue)
+                                            {
+                                                <p class="text-muted small mb-0">
+                                                    Laatst gegenereerd:
+                                                    @question.AiSummaryGeneratedAt.Value.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                                                </p>
+                                            }
+                                        </div>
+
+                                        <form asp-controller="SubAdminProjects"
+                                              asp-action="GenerateOpenQuestionSummary"
+                                              asp-route-subplatform="@ViewContext.RouteData.Values["subplatform"]"
+                                              asp-route-projectId="@Model.ProjectId"
+                                              asp-route-questionId="@question.QuestionId"
+                                              method="post">
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="submit" class="btn btn-primary btn-sm">
+                                                @(string.IsNullOrWhiteSpace(question.AiSummary)
+                                                    ? "Genereer samenvatting"
+                                                    : question.AiSummaryNeedsRefresh
+                                                        ? "Vernieuw samenvatting"
+                                                        : "Toon opgeslagen samenvatting")
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    @if (!string.IsNullOrWhiteSpace(question.AiSummary))
+                                    {
+                                        <p class="mb-0">@question.AiSummary</p>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted mb-0">
+                                            Nog geen AI-samenvatting gegenereerd.
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-light border mb-0">
+                                Geen gesloten statistieken beschikbaar voor deze vraag.
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

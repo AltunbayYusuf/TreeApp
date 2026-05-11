@@ -1,0 +1,77 @@
+@model IntegratieProject.BL.Domain.project.SubPlatform
+
+@{
+    ViewBag.Title = "title";
+    Layout = "_Layout";
+}
+<a asp-action="Index" asp-controller="Admin" class="btn btn-light mb-3">
+    ← Terug naar overzicht
+</a>
+<h1>@Model.CompanyName</h1>
+
+<h3 class="mt-4">Subadmins</h3>
+
+<ul class="list-group">
+    @foreach (var subAdmin in Model.SubAdmins)
+    {
+        <li class="list-group-item">
+            @subAdmin.Name
+        </li>
+    }
+</ul>
+
+<h3 class="mt-4">Subplatform overzicht</h3>
+
+<div class="row">
+    <div class="col">
+        <div class="card p-3 text-center">
+
+            <div>@Model.Projects.Count()</div>
+            <em>Projecten</em>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="card p-3 text-center">
+            <div>
+                @Model.Projects.Sum(p => p.SurveyResponses?.Count ?? 0)
+            </div>
+            <em>Deelnemers</em>
+
+        </div>
+    </div>
+    <div class="col">
+        <div class="card p-3 text-center">
+            <div>
+            </div>
+            <em>gem. minuten</em>
+
+        </div>
+    </div>
+    <div class="col">
+        <div class="card p-3 text-center" >
+            <div>
+            </div>
+            <em>Totale kosten</em>
+
+        </div>
+    </div>
+</div>
+
+<h3 class="mt-4">Projecten (@Model.Projects.Count())</h3>
+
+@foreach (var project in Model.Projects)
+{
+    <a asp-controller="Project"
+       asp-action="Index"
+       asp-route-id="@project.Id"
+       asp-route-subplatform="@Model.Slug"
+       class="card p-3 mb-2 d-block text-decoration-none">
+
+        <h5>@project.Name</h5>
+
+        <small>
+            @(project.SurveyResponses?.Count ?? 0) deelnemers
+        </small>
+    </a>
+}

@@ -195,7 +195,7 @@ echo "  Stap 8: Health check aanmaken..."
 if gcloud compute health-checks describe "$HEALTH_CHECK" --project="$PROJECT_ID" &>/dev/null; then
   echo "    $HEALTH_CHECK bestaat al, overgeslagen"
 else
-  gcloud compute health-checks create http "$HEALTH_CHECK" \
+  MSYS2_ARG_CONV_EXCL="--request-path" gcloud compute health-checks create http "$HEALTH_CHECK" \
     --port=8080 \
     --request-path=/health \
     --check-interval=10s \

@@ -11,6 +11,7 @@
         
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
+           asp-route-subplatform="@Model.Slug"
            class="bg-black text-white px-4 py-2 rounded">
             + Nieuw project
         </a>
@@ -75,6 +76,7 @@
                     <td class="p-3 fw-semibold">
                         <a asp-controller="Project"
                            asp-action="Index"
+                           asp-route-subplatform="@Model.Slug"
                            asp-route-id="@p.Id">
                             @p.Name
                         </a>
@@ -124,6 +126,14 @@
                                 </form>
                             }
 
+                            <a asp-controller="SubAdminProjects"
+                               asp-action="Statistics"
+                               asp-route-subplatform="@Model.Slug"
+                               asp-route-projectId="@p.Id"
+                               class="btn btn-sm btn-outline-dark">
+                                Statistieken
+                            </a>
+
                             <button type="button"
                                     class="btn btn-sm btn-outline-danger"
                                     data-bs-toggle="modal"
@@ -161,7 +171,7 @@
                                         Ben je zeker dat je het project
                                         <strong class="text-break">@p.Name</strong>
                                         wilt verwijderen?
-                                        <br />
+                                        <br/>
                                         <span class="text-danger">
                                             Deze actie kan niet ongedaan gemaakt worden.
                                         </span>

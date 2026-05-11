@@ -33,15 +33,37 @@
 
                 <div class="mb-3">
                     <label for="idea-text" class="form-label">Beschrijf je idee</label>
-                    <textarea id="idea-text" class="form-control" rows="6" maxlength="1000"
-                              placeholder="Beschrijf hier je idee zo gedetailleerd mogelijk. Wat wil je verbeteren? Hoe zou het werken? Wie zou het helpen?"></textarea>
-                    <div class="mt-2">
+
+                    <textarea id="idea-text"
+              class="form-control"
+              rows="6"
+              maxlength="1000"
+              placeholder="Beschrijf hier je idee zo gedetailleerd mogelijk. Wat wil je verbeteren? Hoe zou het werken? Wie zou het helpen?"></textarea>
+
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button type="button"
+                                id="speech-to-text-btn"
+                                class="btn btn-outline-primary btn-sm">
+                            🎤 Spreek je idee in
+                        </button>
+
+                        <button type="button"
+                                id="stop-speech-btn"
+                                class="btn btn-outline-danger btn-sm"
+                                style="display:none;">
+                            Stop opname
+                        </button>
+
                         <button type="button"
                                 id="ai-improve-create-btn"
                                 class="btn btn-outline-secondary btn-sm">
                             ✨ Herschrijf met AI
                         </button>
                     </div>
+
+                    <small id="speech-status" class="text-muted d-block mt-2" style="display:none;">
+                        Luisteren...
+                    </small>
 
                     <div id="ai-improve-result" class="mt-3" style="display:none;">
                         <div class="alert alert-success mb-0">
@@ -56,6 +78,45 @@
                         </div>
                     </div>
                 </div>
+                <div class="mb-4">
+                    <label for="idea-image" class="form-label fw-semibold">
+                        Afbeelding toevoegen
+                    </label>
+
+                    <div class="border rounded-3 p-3 bg-light">
+                        <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <div class="fs-2">
+                                📷
+                            </div>
+
+                            <div class="flex-grow-1">
+                                <input id="idea-image"
+                                       name="imageUpload"
+                                       class="form-control"
+                                       type="file"
+                                       accept="image/png,image/jpeg,image/jpg,image/webp" />
+
+                                <small class="text-muted d-block mt-2">
+                                    Voeg eventueel een afbeelding toe om je idee duidelijker te maken.
+                                    Toegestaan: JPG, PNG of WEBP.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="mt-3 text-center" id="idea-image-preview-wrapper" style="display:none;">
+                            <p class="small text-muted mb-2">Voorbeeld van je afbeelding:</p>
+
+                            <img id="idea-image-preview"
+                                 src=""
+                                 alt="Voorbeeld afbeelding"
+                                 class="img-fluid rounded-3 border shadow-sm w-75" />
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden"
+                       id="idea-subplatform-slug"
+                       value="@Model.Project.SubPlatform.Slug" />
 
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="idea-contact-opt-in"/>

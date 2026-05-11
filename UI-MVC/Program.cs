@@ -11,11 +11,10 @@ using IntegratieProject.DAL.Ef;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
+using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
 
@@ -33,6 +32,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
     .AddEntityFrameworkStores<TreeDbContext>();
 
 builder.Services.AddSession();
+
+//dit is voor buckets
+builder.Services.AddScoped<IGoogleCloudStorageService, GoogleCloudStorageService>();
 
 // Cookie policy: werkt ook over HTTP (GCP deploy zonder HTTPS)
 builder.Services.ConfigureApplicationCookie(options =>
@@ -119,6 +121,7 @@ builder.Services.AddScoped<IAiPromptService, AiPromptService>();
 builder.Services.AddScoped<IAiModerationService, AiModerationService>();
 builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService>();
 builder.Services.AddScoped<IAiUsageManager, AiUsageManager>();
+builder.Services.AddScoped<IAiSummaryIdeas, AiSummaryIdeas>();
 
 builder.Services.AddScoped<IAiRepository, AiRepository>();
 builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
@@ -144,6 +147,7 @@ builder.Services.AddScoped<ISurveyManager, SurveyManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<ISubplatformManager, SubplatformManager>();
 builder.Services.AddScoped<ITopicManager, TopicManager>();
+builder.Services.AddScoped<IProjectStatisticsManager, StatisticsManager>();
 builder.Services.AddViteServices();
 builder.Services.AddHealthChecks();
 //150722
@@ -177,7 +181,10 @@ using (var scope = app.Services.CreateScope())
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         SeedIdentity(userManager, roleManager);
-        DataSeeder.Seed(context);
+
+        var adminUser = userManager.FindByEmailAsync("admin@gmail.com").Result;
+
+        DataSeeder.Seed(context, adminUser?.Id);
     }
 }
 
@@ -287,6 +294,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     userManager.AddToRoleAsync(kdg, CustomIdentityConstants.SubAdminRoleName).Wait();
     userManager.AddToRoleAsync(ap, CustomIdentityConstants.SubAdminRoleName).Wait();
 }
+
 
 public partial class Program
 {

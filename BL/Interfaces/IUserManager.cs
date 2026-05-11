@@ -7,4 +7,6 @@ public interface IUserManager
     User GetUser(string cookieId);
     void AddUser(User user);
     void UpdateUser(User user);
+    IEnumerable<SubAdmin> GetAllSubAdmins();    
+    GeneralAdmin GetGeneralAdmin();
 }
