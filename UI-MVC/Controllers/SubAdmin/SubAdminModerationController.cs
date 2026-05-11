@@ -24,7 +24,14 @@ public class SubAdminModerationController : Controller
         _ideaManager = ideaManager;
     }
 
-    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+    private string Subplatform
+    {
+        get
+        {
+            var fromRoute = RouteData.Values["subplatform"]?.ToString();
+            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+        }
+    }
 
     [HttpGet]
     public async Task<IActionResult> Index(string filter, string selectedType, int? selectedId)

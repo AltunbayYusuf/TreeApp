@@ -27,7 +27,14 @@ public class SubAdminController : Controller
         _projectManager = projectManager;
     }
 
-    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+    private string Subplatform
+    {
+        get
+        {
+            var fromRoute = RouteData.Values["subplatform"]?.ToString();
+            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+        }
+    }
 
     [HttpGet]
     public async Task<IActionResult> Index()

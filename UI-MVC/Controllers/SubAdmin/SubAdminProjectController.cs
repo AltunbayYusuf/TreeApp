@@ -55,7 +55,14 @@ public class SubAdminProjectsController : Controller
         _googleCloudStorageService=googleCloudStorageService;
     }
 
-    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+    private string Subplatform
+    {
+        get
+        {
+            var fromRoute = RouteData.Values["subplatform"]?.ToString();
+            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+        }
+    }
 
     private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
     {
