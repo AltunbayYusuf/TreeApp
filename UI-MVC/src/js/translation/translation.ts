@@ -115,6 +115,8 @@ function applyLanguageChange(langCode: string, displayLabel: string, attempt = 1
     selectField.value = langCode;
     dispatchLanguageChange(selectField);
     updateDropdownLabel(displayLabel);
+
+    window.setTimeout(() => updateDropdownLabel(displayLabel), 800);
 }
 
 function retryLanguageChange(langCode: string, displayLabel: string, attempt: number): void {
