@@ -20,8 +20,10 @@ declare global {
 const translateElementId = 'google_translate_element';
 const translateScriptId = 'google-translate-script';
 const dropdownButtonId = 'languageDropdown';
+const selectedLanguageStorageKey = 'selectedLanguage';
 const maxLanguageChangeAttempts = 10;
 const defaultLanguageLabel = 'NL';
+const englishLanguageLabel = 'EN';
 
 function ensureTranslateElement(): void {
     if (document.getElementById(translateElementId)) {
@@ -59,6 +61,14 @@ function updateDropdownLabel(label: string): void {
     dropdownButton.textContent = label;
 }
 
+function getSelectedLanguage(): string {
+    return localStorage.getItem(selectedLanguageStorageKey) ?? 'nl';
+}
+
+function setSelectedLanguage(langCode: string): void {
+    localStorage.setItem(selectedLanguageStorageKey, langCode);
+}
+
 function dispatchLanguageChange(selectField: HTMLSelectElement): void {
     selectField.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }));
 
@@ -79,6 +89,10 @@ window.googleTranslateElementInit = function (): void {
         includedLanguages: 'nl,en',
         autoDisplay: false
     }, translateElementId);
+
+    if (getSelectedLanguage() === 'en') {
+        applyLanguageChange('en', englishLanguageLabel);
+    }
 };
 
 window.changeLanguage = function (langCode: string, displayLabel: string): void {
@@ -93,6 +107,7 @@ window.changeLanguage = function (langCode: string, displayLabel: string): void 
 };
 
 function resetToDutch(): void {
+    setSelectedLanguage('nl');
     clearGoogleTranslateCookie();
     updateDropdownLabel(defaultLanguageLabel);
 
@@ -114,6 +129,7 @@ function applyLanguageChange(langCode: string, displayLabel: string, attempt = 1
 
     selectField.value = langCode;
     dispatchLanguageChange(selectField);
+    setSelectedLanguage(langCode);
     updateDropdownLabel(displayLabel);
 
     window.setTimeout(() => updateDropdownLabel(displayLabel), 800);
@@ -121,7 +137,7 @@ function applyLanguageChange(langCode: string, displayLabel: string, attempt = 1
 
 function retryLanguageChange(langCode: string, displayLabel: string, attempt: number): void {
     if (attempt >= maxLanguageChangeAttempts) {
-        updateDropdownLabel(defaultLanguageLabel);
+        updateDropdownLabel(displayLabel);
         return;
     }
 
@@ -156,9 +172,14 @@ function setupLanguageOptions(): void {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    clearGoogleTranslateCookie();
+    const selectedLanguage = getSelectedLanguage();
+
+    if (selectedLanguage === 'nl') {
+        clearGoogleTranslateCookie();
+    }
+
     ensureTranslateElement();
-    updateDropdownLabel(defaultLanguageLabel);
+    updateDropdownLabel(selectedLanguage === 'en' ? englishLanguageLabel : defaultLanguageLabel);
     setupLanguageOptions();
     loadGoogleTranslateScript();
 });
