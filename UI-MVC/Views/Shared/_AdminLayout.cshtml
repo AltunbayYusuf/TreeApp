@@ -1,0 +1,225 @@
+@using IntegratieProject.BL.interfaces
+@using IntegratieProject.DAL.Identity
+@using IntegratieProject.UI.MVC
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IProjectManager ProjectManager
+
+@{
+    var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
+    if (string.IsNullOrWhiteSpace(currentSubplatform))
+        currentSubplatform = Context.Request.Query["subplatform"].ToString();
+    if (string.IsNullOrWhiteSpace(currentSubplatform))
+        currentSubplatform = "kdg-hogeschool";
+
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    var userName = UserManager.GetUserName(User) ?? "";
+    var userInitial = userName.Length > 0 ? userName[0].ToString().ToUpper() : "A";
+    var isSubAdmin = User.IsInRole(CustomIdentityConstants.SubAdminRoleName);
+    var isGeneralAdmin = User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName);
+
+    var logoutProjectId = "";
+    if (!string.IsNullOrWhiteSpace(currentSubplatform))
+    {
+        var firstProject = ProjectManager.GetFirstProjectBySubPlatform(currentSubplatform);
+        if (firstProject != null)
+            logoutProjectId = firstProject.Id.ToString();
+    }
+}
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Echo Admin</title>
+    <style>
+        body { visibility: hidden; }
+        body.css-loaded { visibility: visible; }
+    </style>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+    {
+        <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
+        <script type="module" vite-src="~/main.ts"></script>
+    }
+    else
+    {
+        <link rel="stylesheet" asp-href-include="~/dist/main*.css" />
+        <script type="module" src="~/dist/main.js"></script>
+    }
+</head>
+<body class="admin-body">
+
+<div class="admin-overlay" id="adminOverlay"></div>
+
+<div class="admin-shell">
+
+    <aside class="admin-sidebar" id="adminSidebar">
+
+        <div class="admin-sidebar-brand">
+            <span class="brand-name">Echo</span>
+            <span class="brand-dot"></span>
+            <span class="brand-role">Admin</span>
+        </div>
+
+        <nav class="admin-sidebar-nav">
+
+            @if (isSubAdmin)
+            {
+                <span class="sidebar-section-label">Beheer</span>
+
+                <a class="sidebar-link @(ctrl == "SubAdmin" ? "active" : "")"
+                   asp-controller="SubAdmin"
+                   asp-action="Index"
+                   asp-route-subplatform="@currentSubplatform">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="7" rx="1"/>
+                            <rect x="14" y="3" width="7" height="7" rx="1"/>
+                            <rect x="3" y="14" width="7" height="7" rx="1"/>
+                            <rect x="14" y="14" width="7" height="7" rx="1"/>
+                        </svg>
+                    </span>
+                    Dashboard
+                </a>
+
+                <a class="sidebar-link @(ctrl == "SubAdminProjects" ? "active" : "")"
+                   asp-controller="SubAdminProjects"
+                   asp-action="ProjectInfo"
+                   asp-route-subplatform="@currentSubplatform">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 17H7A5 5 0 017 7h2M15 7h2a5 5 0 010 10h-2M8 12h8"/>
+                        </svg>
+                    </span>
+                    Projecten
+                </a>
+
+                <a class="sidebar-link @(ctrl == "SubAdminModeration" ? "active" : "")"
+                   asp-controller="SubAdminModeration"
+                   asp-action="Index"
+                   asp-route-subplatform="@currentSubplatform">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </span>
+                    Moderatie
+                </a>
+
+                <a class="sidebar-link @(ctrl == "SubAdminIdeas" ? "active" : "")"
+                   asp-controller="SubAdminIdeas"
+                   asp-action="Index"
+                   asp-route-subplatform="@currentSubplatform">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/>
+                        </svg>
+                    </span>
+                    Ideeën
+                </a>
+            }
+            else if (isGeneralAdmin)
+            {
+                <span class="sidebar-section-label">Platformbeheer</span>
+
+                <a class="sidebar-link @(ctrl == "Platform" ? "active" : "")"
+                   asp-controller="Platform"
+                   asp-action="Index">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <rect x="2" y="3" width="20" height="14" rx="2"/>
+                            <path d="M8 21h8M12 17v4"/>
+                        </svg>
+                    </span>
+                    Platform
+                </a>
+
+                <a class="sidebar-link @(ctrl == "Subplatform" ? "active" : "")"
+                   asp-controller="Subplatform"
+                   asp-action="Index">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                        </svg>
+                    </span>
+                    Subplatforms
+                </a>
+            }
+
+        </nav>
+
+        <div class="admin-sidebar-footer">
+            <div class="sidebar-user-row">
+                <div class="sidebar-avatar">@userInitial</div>
+                <div>
+                    <div class="sidebar-user-name">@userName</div>
+                    <div class="sidebar-user-role">@(isSubAdmin ? "Sub Admin" : "Generaal Admin")</div>
+                </div>
+            </div>
+            <form asp-area="Identity"
+                  asp-page="/Account/Logout"
+                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
+                  method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="sidebar-logout-btn">&#8617; Uitloggen</button>
+            </form>
+        </div>
+
+    </aside>
+
+    <div class="admin-main">
+
+        <div class="admin-topbar">
+            <button class="admin-topbar-toggle" id="adminSidebarToggle" aria-label="Menu openen">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            <span class="admin-topbar-brand">Echo</span>
+            <span class="admin-topbar-user">@userName</span>
+        </div>
+
+        <div class="admin-content">
+            @RenderBody()
+        </div>
+
+    </div>
+</div>
+
+@await RenderSectionAsync("Scripts", required: false)
+
+<script>
+(function () {
+    var toggle = document.getElementById('adminSidebarToggle');
+    var sidebar = document.getElementById('adminSidebar');
+    var overlay = document.getElementById('adminOverlay');
+
+    function openSidebar() {
+        sidebar.classList.add('is-open');
+        overlay.classList.add('is-visible');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeSidebar() {
+        sidebar.classList.remove('is-open');
+        overlay.classList.remove('is-visible');
+        document.body.style.overflow = '';
+    }
+
+    if (toggle) toggle.addEventListener('click', function () {
+        sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
+    });
+    if (overlay) overlay.addEventListener('click', closeSidebar);
+})();
+
+window.addEventListener('load', function () {
+    document.body.classList.add('css-loaded');
+});
+</script>
+</body>
+</html>

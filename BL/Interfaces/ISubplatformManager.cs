@@ -6,4 +6,7 @@ public interface ISubplatformManager
 {
     SubPlatform GetSubPlatformBySlug(string slug);
     SubPlatform GetSubPlatform(int subPlatformId);
+    void CreateSubPlatform(SubPlatform subPlatform);
+    
+    Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail);
 }

@@ -5,9 +5,9 @@
     ViewData["Title"] = "Project";
 }
 
-<div class="container mt-4" style="max-width: 700px;" xmlns="http://www.w3.org/1999/html">
+<div class="project-landing">
 
-    <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-4 home-topbar">
+    <div class="home-topbar mb-4">
         <div>
             @if (!string.IsNullOrWhiteSpace(@Model.Logo?.Uri))
             {
@@ -15,7 +15,7 @@
             }
             else
             {
-                <div class="border px-4 py-2 text-muted">[LOGO]</div>
+                <span class="fw-bold text-muted">[LOGO]</span>
             }
         </div>
 
@@ -24,34 +24,34 @@
         </div>
     </div>
 
-    <div class="border rounded mb-4 bg-light text-center home-image-box">
+    <div class="project-image-box">
         @if (!string.IsNullOrWhiteSpace(@Model.Photo?.Uri))
         {
-            <img src="@Model.Photo.Uri" alt="Project afbeelding" class="img-fluid rounded" />
+            <img src="@Model.Photo.Uri" alt="Project afbeelding" />
         }
         else
         {
-            <span class="text-muted">[PROJECT IMAGE]</span>
+            <span class="placeholder-icon">🖼️</span>
         }
     </div>
 
-    <div class="mb-3">
-        <div class="border rounded px-3 py-2 bg-light fw-bold">
-            Welkom bij de bevraging
-        </div>
-        <p class="mt-2 mb-0 text-muted">@Model.SubPlatform.CompanyName</p>
+    <div class="project-info-card mb-3">
+        <div class="project-welcome-label">Welkom bij de bevraging</div>
+        <p class="project-company-name">@Model.SubPlatform.CompanyName</p>
     </div>
 
-    <div class="border rounded p-4 mb-3 home-card">
-        <p class="mb-0">@Model.Introduction</p>
+    <div class="project-info-card mb-3">
+        <p class="mb-0" style="font-size:0.95rem; line-height:1.65;">@Model.Introduction</p>
     </div>
 
-    <div class="border rounded p-3 mb-3 home-card">
-        ⏱️ Duurt ongeveer @Model.Duration minuten
+    <div class="project-meta-card">
+        <span class="meta-icon">⏱️</span>
+        <span>Duurt ongeveer <strong>@Model.Duration minuten</strong></span>
     </div>
 
-    <div class="border rounded p-3 mb-4 home-card">
-        🔒 Anoniem & Vertrouwelijk
+    <div class="project-meta-card">
+        <span class="meta-icon">🔒</span>
+        <span><strong>Anoniem</strong> &amp; Vertrouwelijk</span>
     </div>
 
     @if (Model.Type == ProjectType.Chat)
@@ -59,8 +59,8 @@
         <a asp-controller="Survey"
            asp-action="Chat"
            asp-route-projectId="@Model.Id"
-           class="btn btn-dark home-start-btn">
-            Start bevraging
+           class="project-start-btn mt-3">
+            Start bevraging →
         </a>
     }
     else
@@ -68,12 +68,13 @@
         <a asp-controller="Survey"
            asp-action="Index"
            asp-route-projectId="@Model.Id"
-           class="btn btn-dark home-start-btn">
-            Start bevraging
+           class="project-start-btn mt-3">
+            Start bevraging →
         </a>
     }
 
-    <div class="mt-4">
-        <div class="border rounded p-3 text-muted"><a asp-controller="Home" asp-action="Privacy">→ Privacy policy </a> </div>
-    </div>
+    <a asp-controller="Home" asp-action="Privacy" class="project-privacy-link">
+        → Privacybeleid
+    </a>
+
 </div>

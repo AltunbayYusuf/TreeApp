@@ -374,42 +374,21 @@ export class SubAdminIdeas {
         const title = document.getElementById('deleteIdeaTitle');
         if (title) title.textContent = idea.title || 'Zonder titel';
 
-        const modal = document.getElementById('deleteIdeaModal');
-        if (!modal) return;
-
-        modal.style.display = 'block';
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
+        DomUtils.openModal('deleteIdeaModal');
     }
 
     private closeDeleteModal(): void {
-        const modal = document.getElementById('deleteIdeaModal');
-        if (!modal) return;
-
-        modal.style.display = 'none';
-        modal.classList.remove('show');
-        document.body.classList.remove('modal-open');
+        DomUtils.closeModal('deleteIdeaModal');
         this.ideaToDelete = null;
     }
 
     private openDeleteReactionModal(ideaId: number, reactionId: number): void {
         this.reactionToDelete = { ideaId, reactionId };
-
-        const modal = document.getElementById('deleteReactionModal');
-        if (!modal) return;
-
-        modal.style.display = 'block';
-        modal.classList.add('show');
-        document.body.classList.add('modal-open');
+        DomUtils.openModal('deleteReactionModal');
     }
 
     private closeDeleteReactionModal(): void {
-        const modal = document.getElementById('deleteReactionModal');
-        if (!modal) return;
-
-        modal.style.display = 'none';
-        modal.classList.remove('show');
-        document.body.classList.remove('modal-open');
+        DomUtils.closeModal('deleteReactionModal');
         this.reactionToDelete = null;
     }
 
@@ -549,18 +528,11 @@ export class SubAdminIdeas {
             this.openDeleteModal(e as MouseEvent, idea);
         });
 
-        modalEl.style.display = 'block';
-        modalEl.classList.add('show');
-        document.body.classList.add('modal-open');
+        DomUtils.openModal('ideaDetailModal');
     }
 
     private closeDetailModal(): void {
-        const modalEl = document.getElementById('ideaDetailModal');
-        if (!modalEl) return;
-
-        modalEl.style.display = 'none';
-        modalEl.classList.remove('show');
-        document.body.classList.remove('modal-open');
+        DomUtils.closeModal('ideaDetailModal');
     }
 
 

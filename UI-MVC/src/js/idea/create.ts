@@ -1,5 +1,5 @@
 ﻿// ideas/create.ts
-import { DomUtils } from "../helpers/utils";
+import {DomUtils} from "../helpers/utils";
 
 type IdeaResponse = {
     ok?: boolean;

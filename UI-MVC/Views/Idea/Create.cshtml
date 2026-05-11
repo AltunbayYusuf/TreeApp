@@ -1,151 +1,150 @@
-﻿@model IntegratieProject.UI.MVC.Models.IdeasOverviewViewModel
+@model IntegratieProject.UI.MVC.Models.IdeasOverviewViewModel
 
 @{
     ViewData["Title"] = "Deel jouw idee";
 }
 
-<h1 class="text-center">Deel jouw idee</h1>
+<div class="create-idea-wrapper">
+    <div class="create-idea-card">
 
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card mb-4">
-            <div class="card-body">
-                <p class="text-muted">
-                    We willen graag jouw ideeën horen om het mentaal welzijn te verbeteren. Deel je suggestie hieronder.
-                </p>
+        <div class="create-idea-header">
+            <h1>Deel jouw idee</h1>
+            <p>We willen graag jouw ideeën horen. Deel je suggestie hieronder.</p>
+        </div>
 
-                <div class="mb-3">
-                    <label for="idea-title" class="form-label">Titel van je idee</label>
-                    <input id="idea-title" class="form-control" type="text"
-                           placeholder="Geef je idee een korte titel..." maxlength="100"/>
-                </div>
+        <div class="create-idea-body">
 
-                <div class="mb-3">
-                    <label for="idea-topic" class="form-label">Kies een topic</label>
-                    <select id="idea-topic" class="form-select">
-                        <option value="0">Waar gaat je idee over?</option>
-                        @foreach (var topic in Model.Topics)
-                        {
-                            <option value="@topic.Id">@topic.Theme</option>
-                        }
-                    </select>
-                </div>
+            <div class="mb-3">
+                <label for="idea-title" class="form-label">Titel van je idee</label>
+                <input id="idea-title" class="form-control" type="text"
+                       placeholder="Geef je idee een korte titel..." maxlength="100" />
+            </div>
 
-                <div class="mb-3">
-                    <label for="idea-text" class="form-label">Beschrijf je idee</label>
+            <div class="mb-3">
+                <label for="idea-topic" class="form-label">Kies een topic</label>
+                <select id="idea-topic" class="form-select">
+                    <option value="0">Waar gaat je idee over?</option>
+                    @foreach (var topic in Model.Topics)
+                    {
+                        <option value="@topic.Id">@topic.Theme</option>
+                    }
+                </select>
+            </div>
 
-                    <textarea id="idea-text"
-              class="form-control"
-              rows="6"
-              maxlength="1000"
-              placeholder="Beschrijf hier je idee zo gedetailleerd mogelijk. Wat wil je verbeteren? Hoe zou het werken? Wie zou het helpen?"></textarea>
+            <div class="mb-3">
+                <label for="idea-text" class="form-label">Beschrijf je idee</label>
 
-                    <div class="d-flex flex-wrap gap-2 mt-2">
-                        <button type="button"
-                                id="speech-to-text-btn"
-                                class="btn btn-outline-primary btn-sm">
-                            🎤 Spreek je idee in
-                        </button>
+                <textarea id="idea-text"
+                          class="form-control"
+                          rows="6"
+                          maxlength="1000"
+                          placeholder="Beschrijf hier je idee zo gedetailleerd mogelijk. Wat wil je verbeteren? Hoe zou het werken? Wie zou het helpen?"></textarea>
 
-                        <button type="button"
-                                id="stop-speech-btn"
-                                class="btn btn-outline-danger btn-sm"
-                                style="display:none;">
-                            Stop opname
-                        </button>
+                <div class="d-flex flex-wrap gap-2 mt-2">
+                    <button type="button"
+                            id="speech-to-text-btn"
+                            class="btn btn-outline-primary btn-sm">
+                        🎤 Spreek je idee in
+                    </button>
 
-                        <button type="button"
-                                id="ai-improve-create-btn"
-                                class="btn btn-outline-secondary btn-sm">
-                            ✨ Herschrijf met AI
-                        </button>
-                    </div>
+                    <button type="button"
+                            id="stop-speech-btn"
+                            class="btn btn-outline-danger btn-sm"
+                            style="display:none;">
+                        Stop opname
+                    </button>
 
-                    <small id="speech-status" class="text-muted d-block mt-2" style="display:none;">
-                        Luisteren...
-                    </small>
-
-                    <div id="ai-improve-result" class="mt-3" style="display:none;">
-                        <div class="alert alert-success mb-0">
-                            <strong>AI alternatief:</strong>
-                            <p id="ai-improve-text" class="mt-2 mb-2" style="white-space: pre-line;"></p>
-
-                            <button type="button"
-                                    id="use-ai-improvement-btn"
-                                    class="btn btn-success btn-sm">
-                                Gebruik alternatief
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label for="idea-image" class="form-label fw-semibold">
-                        Afbeelding toevoegen
-                    </label>
-
-                    <div class="border rounded-3 p-3 bg-light">
-                        <div class="d-flex align-items-center gap-3 flex-wrap">
-                            <div class="fs-2">
-                                📷
-                            </div>
-
-                            <div class="flex-grow-1">
-                                <input id="idea-image"
-                                       name="imageUpload"
-                                       class="form-control"
-                                       type="file"
-                                       accept="image/png,image/jpeg,image/jpg,image/webp" />
-
-                                <small class="text-muted d-block mt-2">
-                                    Voeg eventueel een afbeelding toe om je idee duidelijker te maken.
-                                    Toegestaan: JPG, PNG of WEBP.
-                                </small>
-                            </div>
-                        </div>
-
-                        <div class="mt-3 text-center" id="idea-image-preview-wrapper" style="display:none;">
-                            <p class="small text-muted mb-2">Voorbeeld van je afbeelding:</p>
-
-                            <img id="idea-image-preview"
-                                 src=""
-                                 alt="Voorbeeld afbeelding"
-                                 class="img-fluid rounded-3 border shadow-sm w-75" />
-                        </div>
-                    </div>
-                </div>
-
-                <input type="hidden"
-                       id="idea-subplatform-slug"
-                       value="@Model.Project.SubPlatform.Slug" />
-
-                <div class="form-check mb-3">
-                    <input class="form-check-input" type="checkbox" id="idea-contact-opt-in"/>
-                    <label class="form-check-label" for="idea-contact-opt-in">
-                        Ik wil gecontacteerd kunnen worden over dit idee
-                    </label>
-                </div>
-
-                <div id="idea-contact-email-wrapper" class="mb-3" style="display:none;">
-                    <label for="idea-contact-email" class="form-label">Jouw e-mail</label>
-                    <input id="idea-contact-email" class="form-control" type="email" placeholder="jouw@email.be"/>
-                </div>
-
-                <div id="idea-ai-message" class="mb-3" style="display:none;"></div>
-
-                <div class="d-grid">
-                    <button type="button" id="submit-idea-btn" class="btn btn-primary">
-                        Verstuur idee
+                    <button type="button"
+                            id="ai-improve-create-btn"
+                            class="btn btn-outline-secondary btn-sm">
+                        ✨ Herschrijf met AI
                     </button>
                 </div>
 
-                <div class="mt-3">
-                    <a asp-controller="Idea"
-                       asp-action="Index"
-                       asp-route-projectId="@Model.Project.Id"
-                       class="btn btn-link ps-0">
-                        ← Terug naar ideeën
-                    </a>
+                <small id="speech-status" class="text-muted d-block mt-2" style="display:none;">
+                    Luisteren...
+                </small>
+
+                <div id="ai-improve-result" class="mt-3" style="display:none;">
+                    <div class="alert alert-success mb-0">
+                        <strong>AI alternatief:</strong>
+                        <p id="ai-improve-text" class="mt-2 mb-2" style="white-space: pre-line;"></p>
+
+                        <button type="button"
+                                id="use-ai-improvement-btn"
+                                class="btn btn-success btn-sm">
+                            Gebruik alternatief
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="idea-image" class="form-label fw-semibold">
+                    Afbeelding toevoegen
+                </label>
+
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                        <div class="fs-2">
+                            📷
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <input id="idea-image"
+                                   name="imageUpload"
+                                   class="form-control"
+                                   type="file"
+                                   accept="image/png,image/jpeg,image/jpg,image/webp" />
+
+                            <small class="text-muted d-block mt-2">
+                                Voeg eventueel een afbeelding toe om je idee duidelijker te maken.
+                                Toegestaan: JPG, PNG of WEBP.
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="mt-3 text-center" id="idea-image-preview-wrapper" style="display:none;">
+                        <p class="small text-muted mb-2">Voorbeeld van je afbeelding:</p>
+
+                        <img id="idea-image-preview"
+                             src=""
+                             alt="Voorbeeld afbeelding"
+                             class="img-fluid rounded-3 border shadow-sm w-75" />
+                    </div>
+                </div>
+            </div>
+
+            <input type="hidden"
+                   id="idea-subplatform-slug"
+                   value="@Model.Project.SubPlatform.Slug" />
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="idea-contact-opt-in" />
+                <label class="form-check-label fw-normal" for="idea-contact-opt-in">
+                    Ik wil gecontacteerd kunnen worden over dit idee
+                </label>
+            </div>
+
+            <div id="idea-contact-email-wrapper" class="mb-3" style="display:none;">
+                <label for="idea-contact-email" class="form-label">Jouw e-mail</label>
+                <input id="idea-contact-email" class="form-control" type="email" placeholder="jouw@email.be" />
+            </div>
+
+            <div id="idea-ai-message" class="mb-3" style="display:none;"></div>
+
+            <div class="d-grid mb-3">
+                <button type="button" id="submit-idea-btn" class="btn btn-primary btn-lg">
+                    Verstuur idee
+                </button>
+            </div>
+            <div class="mt-3">
+                <a asp-controller="Idea"
+                   asp-action="Index"
+                   asp-route-projectId="@Model.Project.Id"
+                   class="btn btn-link ps-0">
+                    ← Terug naar ideeën
+                </a>
             </div>
         </div>
     </div>

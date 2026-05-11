@@ -1,5 +1,6 @@
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models;
+using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,5 +26,27 @@ public class PlatformController : Controller
         if (subPlatform == null) return NotFound();
 
         return View(subPlatform);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> CreateSubPlatform([FromBody] CreateSubPlatformDto dto)
+    {
+        if (dto == null)
+            return BadRequest("DTO is null - JSON binding failed");
+
+        try 
+        {
+            var generatedPassword = await _subplatformManager.CreateSubPlatformAsync(
+                dto.CompanyName,
+                dto.Slug,
+                dto.AdminEmail
+            );
+
+            return Ok(new { password = generatedPassword });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message); 
+        }
     }
 }
