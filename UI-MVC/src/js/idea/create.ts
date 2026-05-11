@@ -248,6 +248,10 @@ export class IdeaCreator {
             contactEmailWrapper.style.display = isChecked ? "block" : "none";
         }
 
+        if (contactEmail) {
+            contactEmail.required = isChecked;
+        }
+
         if (!isChecked && contactEmail) {
             contactEmail.value = "";
         }
@@ -276,6 +280,8 @@ export class IdeaCreator {
         const ideaTopic = document.getElementById("idea-topic") as HTMLSelectElement | null;
         const ideaTitle = document.getElementById("idea-title") as HTMLInputElement | null;
         const ideaText = document.getElementById("idea-text") as HTMLTextAreaElement | null;
+        const contactOptIn = document.getElementById("idea-contact-opt-in") as HTMLInputElement | null;
+        const contactEmail = document.getElementById("idea-contact-email") as HTMLInputElement | null;
 
         this.topicId = ideaTopic?.value ?? "";
         this.title = ideaTitle?.value.trim() ?? "";
@@ -295,6 +301,18 @@ export class IdeaCreator {
 
         if (!this.text) {
             this.showError("Beschrijf eerst je idee.");
+            return;
+        }
+
+        if (contactOptIn?.checked && !contactEmail?.value.trim()) {
+            this.showError("Geef je e-mailadres in als je gecontacteerd wil worden.");
+            contactEmail?.focus();
+            return;
+        }
+
+        if (contactOptIn?.checked && contactEmail && !contactEmail.checkValidity()) {
+            this.showError("Geef een geldig e-mailadres in.");
+            contactEmail.focus();
             return;
         }
 
