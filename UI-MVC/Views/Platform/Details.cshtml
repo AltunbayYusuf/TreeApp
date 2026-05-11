@@ -1,8 +1,21 @@
+@using IntegratieProject.BL.Domain.questions
 @model IntegratieProject.BL.Domain.project.SubPlatform
 
 @{
     ViewBag.Title = "title";
     Layout = "_Layout";
+
+    var allResponses = Model.Projects
+        .SelectMany(p => p.SurveyResponses ?? new List<SurveyResponse>())
+        .ToList();
+
+
+    var avgSeconds = allResponses.Any()
+        ? (int)Math.Round(allResponses.Average(r => r.DurationInSeconds))
+        : 0;
+
+    var avgMinutes = avgSeconds / 60;
+    var remainingSeconds = avgSeconds % 60;
 }
 <a asp-action="Index" asp-controller="Admin" class="btn btn-light mb-3">
     ← Terug naar overzicht
@@ -43,13 +56,14 @@
     <div class="col">
         <div class="card p-3 text-center">
             <div>
+                @avgMinutes min @remainingSeconds sec
             </div>
-            <em>gem. minuten</em>
+            <em>gem. tijd</em>
 
         </div>
     </div>
     <div class="col">
-        <div class="card p-3 text-center" >
+        <div class="card p-3 text-center">
             <div>
             </div>
             <em>Totale kosten</em>

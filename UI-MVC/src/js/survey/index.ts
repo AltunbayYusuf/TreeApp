@@ -1,9 +1,18 @@
 ﻿// survey/index.ts
-import { DomUtils } from "../helpers/utils";
+import {DomUtils} from "../helpers/utils";
 
 export class SurveySubmitter {
     init(): void {
-        document.getElementById("verzendbtn")?.addEventListener("click", this.handleSubmit.bind(this));
+        // start timer zodra survey opent
+        sessionStorage.setItem(
+            "surveyStartTime",
+            Date.now().toString()
+        );
+
+        document.getElementById("verzendbtn")?.addEventListener(
+            "click",
+            this.handleSubmit.bind(this)
+        );
 
         document.querySelectorAll<HTMLButtonElement>(".range-box").forEach(btn => {
             btn.addEventListener("click", (e) => this.handleRangeClick(e));
@@ -37,7 +46,7 @@ export class SurveySubmitter {
         const input = rangeBox.querySelector<HTMLInputElement>('input[type="radio"]');
         if (input) {
             input.checked = true;
-            input.dispatchEvent(new Event("change", { bubbles: true }));
+            input.dispatchEvent(new Event("change", {bubbles: true}));
         }
 
         this.updateConditionalQuestions();
@@ -46,58 +55,64 @@ export class SurveySubmitter {
     private handleSubmit(e: MouseEvent): void {
         e.preventDefault();
 
-        this.updateConditionalQuestions();
+        const startTime = Number(
+            sessionStorage.getItem("surveyStartTime")
+        );
 
-        const formData = new URLSearchParams();
-        const questions = document.querySelectorAll<HTMLElement>(".survey-question");
-        let allFilled = true;
-        let answerIndex = 0;
+        const durationInSeconds = Math.floor(
+            (Date.now() - startTime) / 1000
+        );
 
-        questions.forEach(block => {
-            if (block.classList.contains("d-none")) {
-                return;
-            }
+        const answers: any[] = [];
 
-            const questionId = block.getAttribute("data-question-id");
-            const type = block.getAttribute("data-type");
-            const isRequired = block.dataset.required !== "false";
+        document.querySelectorAll<HTMLElement>(".survey-question").forEach(block => {
+            if (block.classList.contains("d-none")) return;
 
-            const { value, answered } = this.extractAnswer(block, type);
+            const questionId = block.dataset.questionId;
+            const type = block.dataset.type ?? null;
 
-            if (isRequired && !answered) {
-                block.style.border = "2px solid red";
-                allFilled = false;
-            } else {
-                block.style.border = "";
-            }
+            const result = this.extractAnswer(block, type);
 
-            if (questionId && answered) {
-                formData.append(`answers[${answerIndex}].QuestionId`, questionId);
-                formData.append(`answers[${answerIndex}].Value`, value);
-                answerIndex++;
+            if (questionId && result.answered) {
+                answers.push({
+                    questionId: Number(questionId),
+                    value: result.value
+                });
             }
         });
 
-        if (!allFilled) {
-            alert("Niet alle verplichte vragen zijn beantwoord!");
-            return;
-        }
+        const projectId =
+            Number(
+                new URLSearchParams(window.location.search)
+                    .get("projectId")
+            ) ||
+            Number(
+                (document.querySelector("#surveyForm") as HTMLFormElement)
+                    ?.dataset.projectId
+            );
+
+        const payload = {
+            projectId,
+            durationInSeconds,
+            answers
+        };
 
         const submitUrl = DomUtils.getProjectRedirectUrl("Survey/Submit");
 
         fetch(submitUrl, {
             method: "POST",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: formData.toString()
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
         })
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error("Netwerk response was niet ok");
-            })
-            .then((data: { redirectUrl?: string }) => {
-                if (data.redirectUrl) window.location.href = data.redirectUrl;
-            })
-            .catch(error => console.error("Fout bij verzenden:", error));
+            .then(r => r.json())
+            .then(data => {
+                if (data.redirectUrl) {
+                    sessionStorage.removeItem("surveyStartTime");
+                    window.location.href = data.redirectUrl;
+                }
+            });
     }
 
     private extractAnswer(block: HTMLElement, type: string | null): { value: string; answered: boolean } {
@@ -124,7 +139,7 @@ export class SurveySubmitter {
             }
         }
 
-        return { value, answered };
+        return {value, answered};
     }
 
     private updateConditionalQuestions(): void {
@@ -141,7 +156,7 @@ export class SurveySubmitter {
             const parentBlock = allQuestions.find(q => q.dataset.questionId === parentQuestionId);
             if (!parentBlock) return;
 
-            const parentType = parentBlock.getAttribute("data-type");
+            const parentType = parentBlock.dataset.type ?? null;
             const { value: parentAnswer } = this.extractAnswer(parentBlock, parentType);
 
             const shouldShow = this.triggerMatches(parentAnswer, triggerType, triggerValue);

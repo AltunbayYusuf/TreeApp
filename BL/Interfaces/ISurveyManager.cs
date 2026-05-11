@@ -5,5 +5,11 @@ namespace IntegratieProject.BL.interfaces;
 public interface ISurveyManager
 {
     SurveyResponse GetSurveyResponse(int userId, int projectId);
-    void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
+
+    void SaveSurveyResponse(
+        int userId,
+        int projectId,
+        List<Answer> answers,
+        int durationInSeconds
+    );
 }

@@ -15,14 +15,15 @@ public class SurveyController : Controller
     private readonly ISurveyManager _surveyManager;
 
 
-    public SurveyController(IProjectManager projectManager,IQuestionManager questionManager,IUserManager userManager,ISurveyManager surveyManager)
+    public SurveyController(IProjectManager projectManager, IQuestionManager questionManager, IUserManager userManager,
+        ISurveyManager surveyManager)
     {
         _projectManager = projectManager;
         _questionManager = questionManager;
         _userManager = userManager;
         _surveyManager = surveyManager;
     }
-    
+
 
     [HttpGet]
     public IActionResult Index(string subplatform, int projectId)
@@ -32,13 +33,13 @@ public class SurveyController : Controller
         if (project == null)
         {
             return NotFound();
-        } 
-        if (project.Status != Status.Active)
-        {
-            return NotFound(); 
         }
 
-        
+        if (project.Status != Status.Active)
+        {
+            return NotFound();
+        }
+
 
         var user = GetOrCreateUser();
 
@@ -54,11 +55,12 @@ public class SurveyController : Controller
         ViewBag.SubPlatformSlug = subplatform;
 
         var questions = _questionManager.GetQuestionListByProject(project);
-        
+
         if (questions == null)
         {
             return NotFound();
         }
+
         return View(questions);
     }
 
@@ -71,6 +73,7 @@ public class SurveyController : Controller
         {
             return NotFound();
         }
+
         if (project.Status != Status.Active)
         {
             return NotFound();
@@ -90,65 +93,73 @@ public class SurveyController : Controller
         ViewBag.SubPlatformSlug = subplatform;
 
         var questions = _questionManager.GetQuestionListByProject(project);
-        
+
         if (questions == null)
             return NotFound("Dit project heeft geen bevraging.");
 
         if (questions.Sections == null)
             questions.Sections = new List<Section>();
-        
+
         return View(questions);
     }
 
     [HttpPost]
-    public IActionResult Submit(string subplatform,List<AnswerDto> answers, int projectId)
+    public IActionResult Submit(string subplatform, [FromBody] SubmitSurveyDto request)
     {
-        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(
+            subplatform,
+            request.ProjectId
+        );
+
         if (project == null)
-        {
             return NotFound();
-        }
+
         if (project.Status != Status.Active)
-        {
-            return NotFound(); 
-        }
-        if (answers == null || !answers.Any())
-        {
+            return NotFound();
+
+        if (request.Answers == null || !request.Answers.Any())
             return BadRequest("Geen antwoorden ontvangen");
-        }
 
         var user = GetOrCreateUser();
 
-        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, projectId);
+        var existingResponse = _surveyManager.GetSurveyResponse(
+            user.Id,
+            request.ProjectId
+        );
+
         if (existingResponse != null)
-        {
-            return BadRequest("Deze survey is al ingevuld voor dit project.");
-        }
+            return BadRequest("Survey al ingevuld.");
 
         var answersList = new List<Answer>();
 
-        foreach (var dto in answers)
+        foreach (var dto in request.Answers)
         {
             var question = _questionManager.GetQuestion(dto.QuestionId);
-            if (question == null)
-            {
-                return BadRequest("Ongeldige vraag.");
-            }
 
-            var newAnswer = new Answer
+            if (question == null)
+                return BadRequest("Ongeldige vraag.");
+
+            answersList.Add(new Answer
             {
                 QuestionId = question.Id,
-                Text = dto.Value ?? string.Empty
-            };
-
-            answersList.Add(newAnswer);
+                Text = dto.Value ?? ""
+            });
         }
 
-        _surveyManager.SaveSurveyResponse(user.Id, projectId, answersList);
+        _surveyManager.SaveSurveyResponse(
+            user.Id,
+            request.ProjectId,
+            answersList,
+            request.DurationInSeconds
+        );
 
         return Ok(new
         {
-            redirectUrl = Url.Action("Index", "Survey", new { subplatform, projectId })
+            redirectUrl = Url.Action(
+                "Index",
+                "Survey",
+                new { subplatform, projectId = request.ProjectId }
+            )
         });
     }
 

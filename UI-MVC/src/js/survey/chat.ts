@@ -22,7 +22,7 @@ interface CollectedAnswer {
 
 const chatMessages = document.getElementById('chatMessages') as HTMLDivElement | null;
 const chatInputArea = document.getElementById('chatInputArea') as HTMLDivElement | null;
-const chatWindow    = document.getElementById('chatWindow') as HTMLDivElement | null;
+const chatWindow = document.getElementById('chatWindow') as HTMLDivElement | null;
 
 if (!chatMessages || !chatInputArea || !chatWindow) {
     // Niet op de chatbot-pagina, niets te doen
@@ -34,6 +34,10 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     let currentIndex = 0;
     const answers: CollectedAnswer[] = [];
+    sessionStorage.setItem(
+        "surveyStartTime",
+        Date.now().toString()
+    );
 
     // ── helpers ──────────────────────────────────────────────────────────
 
@@ -77,7 +81,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
     // ── record + advance ──────────────────────────────────────────────────
 
     function recordAnswer(questionId: number, value: string, displayText: string): void {
-        answers.push({ questionId, value });
+        answers.push({questionId, value});
         clearInput();
         addUserMessage(displayText);
         currentIndex++;
@@ -216,10 +220,18 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
         setTimeout(() => {
             switch (q.questionType) {
-                case 'SingleChoice':   renderSingleChoice(q); break;
-                case 'MultipleChoice': renderMultiChoice(q);  break;
-                case 'Range':          renderRange(q);         break;
-                case 'OpenQuestion':   renderOpen(q);          break;
+                case 'SingleChoice':
+                    renderSingleChoice(q);
+                    break;
+                case 'MultipleChoice':
+                    renderMultiChoice(q);
+                    break;
+                case 'Range':
+                    renderRange(q);
+                    break;
+                case 'OpenQuestion':
+                    renderOpen(q);
+                    break;
             }
         }, 900);
     }
@@ -236,36 +248,56 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
     }
 
     function submitSurvey(): void {
-        const formData = new URLSearchParams();
-        answers.forEach((a, i) => {
-            formData.append(`answers[${i}].QuestionId`, String(a.questionId));
-            formData.append(`answers[${i}].Value`, a.value);
-        });
+        const startTime = Number(
+            sessionStorage.getItem("surveyStartTime")
+        );
+
+        const durationInSeconds = Math.floor(
+            (Date.now() - startTime) / 1000
+        );
 
         const params = new URLSearchParams(window.location.search);
-        const projectId = params.get('projectId');
+        const projectId = Number(params.get("projectId"));
+
         const subplatformInput =
-            document.getElementById('subplatformSlug') as HTMLInputElement | null;
+            document.getElementById(
+                "subplatformSlug"
+            ) as HTMLInputElement | null;
+
         const subplatform = subplatformInput?.value;
 
         const submitUrl =
             projectId && subplatform
-                ? `/${subplatform}/Survey/Submit?projectId=${projectId}`
-                : '/Survey/Submit';
+                ? `/${subplatform}/Survey/Submit`
+                : "/Survey/Submit";
+
+        const payload = {
+            projectId,
+            durationInSeconds,
+            answers
+        };
 
         fetch(submitUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
         })
             .then(res => {
                 if (res.ok) return res.json();
-                throw new Error('Netwerk fout');
+                throw new Error("Netwerk fout");
             })
             .then((data: { redirectUrl?: string }) => {
-                if (data.redirectUrl) window.location.href = data.redirectUrl;
+                sessionStorage.removeItem("surveyStartTime");
+
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                }
             })
-            .catch(err => console.error('Fout bij verzenden:', err));
+            .catch(err =>
+                console.error("Fout bij verzenden:", err)
+            );
     }
 
     // ── boot ──────────────────────────────────────────────────────────────
