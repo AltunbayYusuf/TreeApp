@@ -8,6 +8,15 @@
     int questionNumber = 1;
 }
 
+<a asp-controller="Project"
+   asp-action="Index"
+   asp-route-subplatform="@ViewBag.SubPlatformSlug"
+   asp-route-id="@Model.Project.Id"
+   class="survey-back-link"
+   aria-label="Terug naar project">
+    ←
+</a>
+
 <h2 class="text-center mt-4">
     @if (Model.Project?.Logo != null)
     {
