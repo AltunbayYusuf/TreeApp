@@ -20,6 +20,8 @@ declare global {
 const translateElementId = 'google_translate_element';
 const translateScriptId = 'google-translate-script';
 const dropdownButtonId = 'languageDropdown';
+const maxLanguageChangeAttempts = 10;
+const defaultLanguageLabel = 'NL';
 
 function ensureTranslateElement(): void {
     if (document.getElementById(translateElementId)) {
@@ -32,20 +34,29 @@ function ensureTranslateElement(): void {
     document.body.appendChild(translateElement);
 }
 
-function getCookie(name: string): string | null {
-    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
-    return match ? match[2] : null;
+function expireCookie(name: string, path = '/', domain?: string): void {
+    const domainPart = domain ? `;domain=${domain}` : '';
+    document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=${path}${domainPart}`;
 }
 
-function updateDropdownLabel(): void {
-    const googtransCookie = getCookie('googtrans');
+function clearGoogleTranslateCookie(): void {
+    expireCookie('googtrans');
+    expireCookie('googtrans', window.location.pathname);
+
+    if (window.location.hostname) {
+        expireCookie('googtrans', '/', window.location.hostname);
+        expireCookie('googtrans', '/', `.${window.location.hostname}`);
+    }
+}
+
+function updateDropdownLabel(label: string): void {
     const dropdownButton = document.getElementById(dropdownButtonId);
 
     if (!dropdownButton) {
         return;
     }
 
-    dropdownButton.innerHTML = googtransCookie?.endsWith('/en') ? 'EN' : 'NL';
+    dropdownButton.textContent = label;
 }
 
 function dispatchLanguageChange(selectField: HTMLSelectElement): void {
@@ -71,23 +82,49 @@ window.googleTranslateElementInit = function (): void {
 };
 
 window.changeLanguage = function (langCode: string, displayLabel: string): void {
-    const dropdownButton = document.getElementById(dropdownButtonId);
+    const normalizedLangCode = langCode.toLowerCase();
 
-    if (dropdownButton && dropdownButton.innerHTML.trim() === displayLabel) {
+    if (normalizedLangCode === 'nl') {
+        resetToDutch();
         return;
     }
 
+    applyLanguageChange(normalizedLangCode, displayLabel);
+};
+
+function resetToDutch(): void {
+    clearGoogleTranslateCookie();
+    updateDropdownLabel(defaultLanguageLabel);
+
+    const selectField = document.querySelector<HTMLSelectElement>('.goog-te-combo');
+    if (selectField) {
+        selectField.value = '';
+    }
+
+    window.location.reload();
+}
+
+function applyLanguageChange(langCode: string, displayLabel: string, attempt = 1): void {
     const selectField = document.querySelector<HTMLSelectElement>('.goog-te-combo');
 
-    if (selectField) {
-        selectField.value = langCode;
-        dispatchLanguageChange(selectField);
+    if (!selectField) {
+        retryLanguageChange(langCode, displayLabel, attempt);
+        return;
     }
 
-    if (dropdownButton) {
-        dropdownButton.innerHTML = displayLabel;
+    selectField.value = langCode;
+    dispatchLanguageChange(selectField);
+    updateDropdownLabel(displayLabel);
+}
+
+function retryLanguageChange(langCode: string, displayLabel: string, attempt: number): void {
+    if (attempt >= maxLanguageChangeAttempts) {
+        updateDropdownLabel(defaultLanguageLabel);
+        return;
     }
-};
+
+    window.setTimeout(() => applyLanguageChange(langCode, displayLabel, attempt + 1), 300);
+}
 
 function loadGoogleTranslateScript(): void {
     if (document.getElementById(translateScriptId)) {
@@ -117,8 +154,9 @@ function setupLanguageOptions(): void {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    clearGoogleTranslateCookie();
     ensureTranslateElement();
-    updateDropdownLabel();
+    updateDropdownLabel(defaultLanguageLabel);
     setupLanguageOptions();
     loadGoogleTranslateScript();
 });
