@@ -133,7 +133,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
                     !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
                 {
                     ModelState.AddModelError(string.Empty,
-                        $"Je account hoort bij '{user.SubPlatformSlug}', maar je probeert in te loggen via '{requestedSubplatform}'. Navigeer eerst naar jouw eigen platform URL om in te loggen.");
+                        $"Je account hoort bij '{user.SubPlatformSlug}', Log daarom in via het {user.SubPlatformSlug}, niet via '{requestedSubplatform}'.");
                     return Page();
                 }
             }
