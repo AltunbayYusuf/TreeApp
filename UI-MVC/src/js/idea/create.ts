@@ -191,7 +191,8 @@ export class IdeaCreator {
                 },
                 body: JSON.stringify({
                     title: ideaTitle.value,
-                    text: ideaText.value
+                    text: ideaText.value,
+                    language: localStorage.getItem("selectedLanguage") ?? "nl"
                 })
             });
 

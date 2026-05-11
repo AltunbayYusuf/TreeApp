@@ -296,7 +296,7 @@ public class IdeasController : ControllerBase
 
         try
         {
-            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text);
+            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text, vm.Language);
 
             using var document = JsonDocument.Parse(improvedJson);
             var root = document.RootElement;
