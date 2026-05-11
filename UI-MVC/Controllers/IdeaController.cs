@@ -3,6 +3,7 @@ using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
+using IntegratieProject.UI.MVC.Services;
 
 namespace IntegratieProject.UI.MVC.Controllers;
 
@@ -14,7 +15,6 @@ public class IdeaController : Controller
     private readonly IUserManager _userManager;
     private readonly IAiProvider _aiProvider;
     private readonly IAiPromptService _aiPromptService;
-
 
 
     public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager,IAiProvider aiProvider,

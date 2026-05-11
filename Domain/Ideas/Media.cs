@@ -7,6 +7,6 @@ public class Media
     public int Id { get; set; }
 
     [Required(ErrorMessage = "Image must have a uri")]
-    [MaxLength(200)]
+    [MaxLength(500)]
     public string Uri { get; set; }
 }

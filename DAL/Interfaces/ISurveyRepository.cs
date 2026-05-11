@@ -6,4 +6,6 @@ public interface ISurveyRepository
 {
     SurveyResponse ReadSurveyResponse(int userId, int projectId);
     void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
+    IEnumerable<SurveyResponse> ReadSurveyResponsesByProjectId(int projectId);
+
 }

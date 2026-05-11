@@ -13,4 +13,5 @@ public interface IIdeaRepository
     IEnumerable<Idea> ReadIdeasBySubPlatform(int subPlatformId, int? projectId = null);
     void UpdateIdea(Idea idea);
     void DeleteIdea(int ideaId);
+    IEnumerable<Idea> ReadAcceptedIdeasWithReactionsByProjectId(int projectId);
 }
