@@ -865,7 +865,7 @@ public class DataSeeder
 
                          - Behoud altijd de betekenis
                          - Geen lege suggestedTitle of suggestedText
-                         - Antwoord in het Nederlands
+                         - Behoud de taal van de gebruiker
                          """,
             IsActive = true
         };
@@ -1029,7 +1029,7 @@ public class DataSeeder
                          Regels:
                          - Behoud de originele betekenis.
                          - Voeg geen volledig nieuwe feiten toe.
-                         - Schrijf in het Nederlands.
+                         - Behoud de taal van de gebruiker.
                          - Geef ALLEEN geldige JSON terug.
                          - Geen markdown.
                          - Geen uitleg.

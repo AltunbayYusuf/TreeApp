@@ -26,6 +26,9 @@ public class AiPromptService : IAiPromptService
 
                 TEXT:
                 {text}
+
+                OVERRIDE:
+                Behoud exact de taal van de titel en tekst. Vertaal niet naar Nederlands.
                 """;
     }
 
@@ -72,9 +75,14 @@ public class AiPromptService : IAiPromptService
         var prompt = _aiRepository.ReadAiPromptByKey("idea_improvement")
                      ?? throw new InvalidOperationException("Prompt 'idea_improvement' niet gevonden.");
 
-        return prompt.PromptText
-            .Replace("{title}", title)
-            .Replace("{text}", text);
+        return $"""
+                {prompt.PromptText
+                    .Replace("{title}", title)
+                    .Replace("{text}", text)}
+
+                OVERRIDE:
+                Behoud exact de taal van de titel en tekst. Vertaal niet naar Nederlands.
+                """;
     }
     
     public string BuildProjectTrendSummaryPrompt(string projectData)
