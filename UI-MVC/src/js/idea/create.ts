@@ -208,7 +208,13 @@ export class IdeaCreator {
             this.aiAlternativeTitle = data.improvedTitle ?? "";
             this.aiAlternativeText = data.improvedText ?? "";
 
-            resultText.textContent = `${this.aiAlternativeTitle}\n\n${this.aiAlternativeText}`;
+            resultText.innerHTML = `
+                <strong>Titel:</strong>
+                ${DomUtils.escapeHtml(this.aiAlternativeTitle)}
+                
+                <strong>Inhoud:</strong>
+                ${DomUtils.escapeHtml(this.aiAlternativeText)}
+            `;
             useButton.style.display = "inline-block";
         } catch {
             resultBox.style.display = "block";
@@ -389,7 +395,9 @@ export class IdeaCreator {
             ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
             <div class="mt-2">
                 <strong>Alternatief:</strong><br>
-                <strong>${DomUtils.escapeHtml(suggestedTitle)}</strong><br>
+                <strong>Titel:</strong><br>
+                ${DomUtils.escapeHtml(suggestedTitle)}<br><br>
+                <strong>Inhoud:</strong><br>
                 ${DomUtils.escapeHtml(suggestedText)}
             </div>
             <div class="mt-3 d-flex gap-2 flex-wrap">
