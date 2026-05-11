@@ -6,8 +6,8 @@ namespace IntegratieProject.BL.interfaces;
 
 public interface IIdeaManager
 {
-    Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId);
-    Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId);
+    Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId,string imageUri=null);
+    Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId,string imageUri=null);
     public IEnumerable<Idea> GetIdeasByProject(Project project, int? topicId = null);
     IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId);
     IEnumerable<Idea> GetIdeasBySubPlatform(int subPlatformId, int? projectId = null);

@@ -834,40 +834,38 @@ public class DataSeeder
             Key = "idea_moderation",
             Name = "Idea moderation",
             PromptText = """
-                         Je bent een moderator voor een jongerenplatform.
+                         Je bent een moderator voor een studentenplatform.
 
-                         Controleer de titel en inhoud van een idee.
+                         Controleer en herschrijf een idee.
 
-                         Titel:
-                         {title}
+                         Titel: {title}
+                         Inhoud: {text}
 
-                         Inhoud:
-                         {text}
+                         Geef ALLEEN JSON terug:
 
-                         Geef ALLEEN geldig JSON terug.
-                         Geen markdown.
-                         Geen codeblokken.
-
-                         JSON schema:
                          {
                            "isToxic": true/false,
                            "needsMoreDetail": true/false,
-                           "explanation": "korte uitleg in het Nederlands",
-                           "suggestedTitle": "verbeterde titel in het Nederlands",
-                           "suggestedText": "verbeterde inhoud in het Nederlands"
+                           "explanation": "korte uitleg",
+                           "suggestedTitle": "verbeterde titel",
+                           "suggestedText": "verbeterde tekst"
                          }
 
                          Regels:
-                         - isToxic is alleen true bij beledigende, haatdragende, bedreigende, discriminerende of respectloze taal.
-                         - Zet isToxic NIET op true als het idee gewoon te kort, vaag of onduidelijk is.
-                         - needsMoreDetail is true als het idee te kort, vaag of onvoldoende concreet is.
-                         - Als needsMoreDetail true is, maak suggestedTitle Ã©n suggestedText concreter.
-                         - suggestedTitle moet een titel zijn, geen volledige tekst.
-                         - suggestedText moet een duidelijke uitwerking van het idee zijn.
-                         - Behoud de oorspronkelijke betekenis.
-                         - Voeg geen onrealistische of compleet nieuwe feiten toe.
-                         - Als de tekst goed is: isToxic = false, needsMoreDetail = false, suggestedTitle = "", suggestedText = "".
-                         - Antwoord alles in het Nederlands.
+                         - isToxic = true bij scheldwoorden of beledigingen
+                         - needsMoreDetail = true als het idee te kort of vaag is
+
+                         - Als isToxic = true:
+                           → herschrijf titel en tekst op een respectvolle manier
+                           → voorbeeld:
+                             "ik vind jou een klootzak" → "ik ben het niet eens met deze persoon"
+
+                         - Als needsMoreDetail = true:
+                           → maak het idee concreter
+
+                         - Behoud altijd de betekenis
+                         - Geen lege suggestedTitle of suggestedText
+                         - Antwoord in het Nederlands
                          """,
             IsActive = true
         };
@@ -877,30 +875,42 @@ public class DataSeeder
             Key = "reaction_moderation",
             Name = "Reaction moderation",
             PromptText = """
-                         Je bent een moderator voor een jongerenplatform.
+                         Je bent een moderator voor een studentenplatform.
 
-                         Controleer de volgende tekst:
-                         Titel: {title}
-                         Inhoud: {text}
+                         Controleer en herschrijf de volgende tekst zodat deze respectvol is.
 
-                         Beoordeel:
-                         1. Is de tekst toxisch (beledigend, haatdragend, bedreigend)?
-                         2. Is de tekst te vaag of onvoldoende uitgewerkt?
+                         Originele tekst:
+                         {text}
 
-                         Geef ALTIJD een antwoord in geldig JSON formaat, zonder extra tekst:
+                         Geef ALLEEN JSON terug:
 
                          {
                            "isToxic": true/false,
-                           "needsMoreDetail": true/false,
-                           "explanation": "korte uitleg in het Nederlands",
-                           "suggestedText": "herschreven versie van de tekst in het Nederlands"
+                           "needsMoreDetail": false,
+                           "explanation": "korte uitleg",
+                           "suggestedText": "minder agressieve versie"
                          }
 
                          Regels:
-                         - Antwoord ALLES in het Nederlands
-                         - explanation moet duidelijk zijn voor een student
-                         - suggestedText moet een verbeterde versie zijn van de input
-                         - Geef GEEN tekst buiten de JSON
+                         - isToxic = true als er scheldwoorden of beledigingen in staan
+                         - needsMoreDetail = altijd false
+
+                         - Als isToxic = true:
+                           → herschrijf de tekst op een respectvolle manier
+                           → voorbeeld:
+                             "je bent een klootzak" → "ik vind dit niet oké"
+
+                         - Als isToxic = false:
+                           → suggestedText = ""
+
+                         - Behoud de betekenis, maar maak het beleefd
+                         - Gebruik geen scheldwoorden in de herschreven versie
+                         - Maak de tekst geschikt voor een schoolomgeving
+                         - Antwoord in het Nederlands
+
+                         BELANGRIJK:
+                         - Geef enkel JSON terug
+                         - Geen extra tekst buiten JSON
                          """,
             IsActive = true
         };
@@ -1032,6 +1042,244 @@ public class DataSeeder
                          """,
             IsActive = true
         };
+        
+        var projectTrendSummaryPrompt = new AiPrompt
+        {
+            Key = "project_trend_summary",
+            Name = "Project trend summary",
+            PromptText = """
+                         Je bent een AI-analist voor een participatieplatform.
+
+                         Analyseer de data van één project. Je krijgt:
+                         - topics
+                         - ideeën
+                         - reacties
+                         - ingevulde enquêtes met vragen en antwoorden
+
+                         Doel:
+                         De subadmin moet snel en overzichtelijk begrijpen:
+                         - welke trends terugkomen
+                         - hoe deelnemers denken over het project
+                         - welke bezorgdheden vaak terugkomen
+                         - welke ideeën steun krijgen
+                         - wat uit de enquêtes blijkt
+                         - welke acties de organisatie best kan nemen
+
+                         Geef een duidelijke analyse in het Nederlands.
+
+                         Structuur:
+                         1. Algemene indruk
+                         2. Belangrijkste trends
+                         3. Wat blijkt uit de ideeën
+                         4. Wat blijkt uit de reacties
+                         5. Wat blijkt uit de enquêtes
+                         6. Sentiment van de deelnemers
+                         7. Veel voorkomende bezorgdheden
+                         8. Populaire of sterke ideeën
+                         9. Aanbevelingen voor de subadmin
+
+                         Regels:
+                         - Gebruik alleen de meegegeven data.
+                         - Verzin geen cijfers.
+                         - Als er weinig data is, zeg dat duidelijk.
+                         - Maak het overzichtelijk met korte titels.
+                         - Schrijf professioneel maar begrijpelijk.
+                         - Geef geen JSON terug.
+                         - Geef geen markdown codeblok terug.
+                         - Geef concrete aanbevelingen, maar overdrijf niet.
+
+                         DATA:
+                         {{projectData}}
+                         """,
+            IsActive = true
+        };
+        
+        var openQuestionSummaryPrompt = new AiPrompt
+        {
+            Key = "open_question_summary",
+            PromptText = """
+                         Vat de open antwoorden kort samen voor een subadmin.
+
+                         Regels:
+                         - Schrijf maximaal 5 korte bullets.
+                         - Gebruik geen Markdown-opmaak zoals **vetgedrukt**.
+                         - Gebruik geen lange alinea's.
+                         - Maak geen personen herkenbaar.
+                         - Schrijf concreet en duidelijk Nederlands.
+
+                         Geef exact deze structuur:
+
+                         Belangrijkste inzichten:
+                         - ...
+                         - ...
+                         - ...
+
+                         Korte conclusie:
+                         ...
+
+                         Vraag:
+                         {{question}}
+
+                         Antwoorden:
+                         {{answers}}
+                         """,
+            IsActive = true
+        };
+        
+        var surveyUsers = Enumerable.Range(1, 10).Select(i => new User
+    {
+        CookieIdentifier = $"seed-survey-user-{i}"
+    })
+    .ToList();
+
+var surveyResponses = new List<SurveyResponse>
+{
+    new()
+    {
+        Project = project,
+        User = surveyUsers[0],
+        SubmittedAt = DateTime.UtcNow.AddDays(-10),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+            new() { Question = stressSourcesQuestion, Text = "Studies / examens;Toekomstzorgen" },
+            new() { Question = studyStressQuestion, Text = "4" },
+            new() { Question = stressFollowUpQuestion, Text = "Een betere spreiding van deadlines zou helpen." },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Sporten/bewegen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[1],
+        SubmittedAt = DateTime.UtcNow.AddDays(-9),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Financiële zorgen;Combinatie studie-werk" },
+            new() { Question = studyStressQuestion, Text = "5" },
+            new() { Question = stressFollowUpQuestion, Text = "Meer begrip voor studenten die werken naast hun studies." },
+            new() { Question = pressureQuestion, Text = "Eerder niet" },
+            new() { Question = copingQuestion, Text = "Afleiding zoeken;Studietaken uitstellen/vermijden" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[2],
+        SubmittedAt = DateTime.UtcNow.AddDays(-8),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
+            new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[3],
+        SubmittedAt = DateTime.UtcNow.AddDays(-7),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Studies / examens;Fysieke of mentale gezondheid" },
+            new() { Question = studyStressQuestion, Text = "4" },
+            new() { Question = stressFollowUpQuestion, Text = "Duidelijkere planning en minder taken tegelijk." },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[4],
+        SubmittedAt = DateTime.UtcNow.AddDays(-6),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+            new() { Question = stressSourcesQuestion, Text = "Toekomstzorgen" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+            new() { Question = copingQuestion, Text = "Sporten/bewegen;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[5],
+        SubmittedAt = DateTime.UtcNow.AddDays(-5),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Zeer goed" },
+            new() { Question = stressSourcesQuestion, Text = "Studies / examens" },
+            new() { Question = studyStressQuestion, Text = "2" },
+            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+            new() { Question = copingQuestion, Text = "Erover praten met ouders/familie/partner;Sporten/bewegen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[6],
+        SubmittedAt = DateTime.UtcNow.AddDays(-4),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Thuissituatie;Financiële zorgen" },
+            new() { Question = studyStressQuestion, Text = "5" },
+            new() { Question = stressFollowUpQuestion, Text = "Meer flexibele deadlines bij persoonlijke problemen." },
+            new() { Question = pressureQuestion, Text = "Helemaal niet" },
+            new() { Question = copingQuestion, Text = "Ik weet niet goed wat ik kan of moet doen;Afleiding zoeken" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[7],
+        SubmittedAt = DateTime.UtcNow.AddDays(-3),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+            new() { Question = stressSourcesQuestion, Text = "Combinatie studie-werk" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Afleiding zoeken" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[8],
+        SubmittedAt = DateTime.UtcNow.AddDays(-2),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
+            new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties;Toekomstzorgen" },
+            new() { Question = studyStressQuestion, Text = "3" },
+            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+            new() { Question = copingQuestion, Text = "Afleiding zoeken;Bewust rust inplannen" }
+        }
+    },
+    new()
+    {
+        Project = project,
+        User = surveyUsers[9],
+        SubmittedAt = DateTime.UtcNow.AddDays(-1),
+        Answers = new List<Answer>
+        {
+            new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
+            new() { Question = stressSourcesQuestion, Text = "Fysieke of mentale gezondheid;Studies / examens" },
+            new() { Question = studyStressQuestion, Text = "5" },
+            new() { Question = stressFollowUpQuestion, Text = "Sneller toegang tot begeleiding en minder druk in examenperiodes." },
+            new() { Question = pressureQuestion, Text = "Eerder niet" },
+            new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Afleiding zoeken" }
+        }
+    }
+};
 
 
         /* =========================
@@ -1045,6 +1293,8 @@ public class DataSeeder
         dbContext.AiPrompts.Add(projectIntroPrompt);
         dbContext.AiPrompts.Add(surveyGeneraration);
         dbContext.AiPrompts.Add(ideaImprovementPrompt);
+        dbContext.AiPrompts.Add(projectTrendSummaryPrompt);
+        dbContext.AiPrompts.Add(openQuestionSummaryPrompt);
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.SubPlatforms.Add(apSubPlatform);
@@ -1069,6 +1319,7 @@ public class DataSeeder
         dbContext.GeneralAdmins.Add(generalAdmin);
         dbContext.SubAdmins.Add(kdgAdmin);
         dbContext.SubAdmins.Add(apAdmin);
+
 
 
         /* =========================
@@ -1096,6 +1347,9 @@ public class DataSeeder
         dbContext.Ideas.AddRange(apIdeas2);
         dbContext.Reactions.AddRange(apReactions2);
 
+        dbContext.Users.AddRange(surveyUsers);
+        dbContext.SurveyResponses.AddRange(surveyResponses);
+        
         dbContext.SaveChanges();
     }
 }

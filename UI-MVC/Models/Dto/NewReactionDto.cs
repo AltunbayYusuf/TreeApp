@@ -9,6 +9,5 @@ public class NewReactionDto
     public string Emoji { get; set; }
     public string Text { get; set; }
     public bool SkipAiModeration { get; set; }
-
-
+    
 }

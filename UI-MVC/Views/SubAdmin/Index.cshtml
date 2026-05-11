@@ -8,7 +8,7 @@
             <h1 class="fs-2 fw-bold mb-1">Projecten</h1>
             <p class="text-muted mb-0">Beheer je participatieprojecten</p>
         </div>
-        
+
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
            asp-route-subplatform="@Model.Slug"
@@ -98,9 +98,9 @@
                             @if (p.Status == nameof(Status.Draft))
                             {
                                 <form asp-action="UpdateStatus" method="post">
-                                    <input type="hidden" name="projectId" value="@p.Id" />
-                                    <input type="hidden" name="status" value="Active" />
-                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
+                                    <input type="hidden" name="projectId" value="@p.Id"/>
+                                    <input type="hidden" name="status" value="Active"/>
+                                    <input type="hidden" name="subplatform" value="@Model.Slug"/>
 
                                     <button class="btn btn-sm border bg-success bg-opacity-10 text-success">
                                         Actief
@@ -119,9 +119,9 @@
                             @if (p.Status == nameof(Status.Active))
                             {
                                 <form asp-action="UpdateStatus" method="post">
-                                    <input type="hidden" name="projectId" value="@p.Id" />
-                                    <input type="hidden" name="status" value="Archived" />
-                                    <input type="hidden" name="subplatform" value="@Model.Slug" />
+                                    <input type="hidden" name="projectId" value="@p.Id"/>
+                                    <input type="hidden" name="status" value="Archived"/>
+                                    <input type="hidden" name="subplatform" value="@Model.Slug"/>
 
                                     <button class="btn btn-sm border bg-warning bg-opacity-10 text-warning">
                                         Archief
@@ -135,6 +135,13 @@
                                class="btn btn-sm btn-outline-primary"
                                title="Project Kopiëren">
                                 ⧉
+                            </a>  
+                            <a asp-controller="SubAdminProjects"
+                                     asp-action="Statistics"
+                                     asp-route-subplatform="@Model.Slug"
+                                     asp-route-projectId="@p.Id"
+                                     class="btn btn-sm btn-outline-dark">
+                                Statistieken
                             </a>
                             <button type="button"
                                     class="btn btn-sm btn-outline-danger"
@@ -196,6 +203,7 @@
                                             </button>
                                         </form>
                                     </div>
+
                                 </div>
                             </div>
                         </div>
@@ -205,4 +213,5 @@
             </tbody>
         </table>
     </div>
+
 </div>
