@@ -1,6 +1,8 @@
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.DAL.Identity;
 using IntegratieProject.DAL.interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace IntegratieProject.BL;
 
@@ -38,5 +40,14 @@ public class UserManager : IUserManager
     public GeneralAdmin GetGeneralAdmin()
     {
         return _userRepository.GetGeneralAdmin();
+    }
+    public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password)
+    {
+        return await _userRepository.CreateUserAsync(user, password);
+    }
+
+    public async Task<IdentityResult> AddUserToRoleAsync(ApplicationUser user, string role)
+    {
+        return await _userRepository.AddUserToRoleAsync(user, role);
     }
 }
