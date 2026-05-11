@@ -39,7 +39,7 @@ public class SubdomainMiddleware
             return null;
 
         var parts = host.Split('.');
-        if (parts.Length < 2)
+        if (parts.Length < 4)
             return null;
 
         return parts[0].NullIfWhitespace();
