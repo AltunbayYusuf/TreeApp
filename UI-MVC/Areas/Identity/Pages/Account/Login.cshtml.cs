@@ -107,73 +107,81 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-{
-    returnUrl ??= Url.Content("~/");
-
-    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-    if (!ModelState.IsValid)
-    {
-        return Page();
-    }
-
-    var user = await _userManager.FindByEmailAsync(Input.Email);
-
-    if (user == null)
-    {
-        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        return Page();
-    }
-
-    // OPMERKING: De strenge blokkade op requestedSubplatform is hier weggehaald!
-    // We laten de gebruiker gewoon inloggen als het wachtwoord klopt.
-
-    var result = await _signInManager.PasswordSignInAsync(
-        Input.Email,
-        Input.Password,
-        Input.RememberMe,
-        lockoutOnFailure: false);
-
-    if (result.Succeeded)
-    {
-        _logger.LogInformation("User logged in.");
-
-        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
         {
-            if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
+            returnUrl ??= Url.Content("~/");
+
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            if (!ModelState.IsValid)
             {
-                // Hier wordt de subadmin ALTIJD naar zijn eigen dashboard gestuurd,
-                // ongeacht via welke pagina hij probeerde in te loggen. Probleem opgelost!
-                return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
+                return Page();
+            }
+
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
+            var requestedSubplatform = GetSubplatformFromReturnUrl(returnUrl);
+
+            if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+            {
+                if (!string.IsNullOrWhiteSpace(requestedSubplatform) &&
+                    !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(string.Empty,
+                        $"Je account hoort bij '{user.SubPlatformSlug}', maar je probeert in te loggen via '{requestedSubplatform}'. Navigeer eerst naar jouw eigen platform URL om in te loggen.");
+                    return Page();
+                }
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                Input.Email,
+                Input.Password,
+                Input.RememberMe,
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User logged in.");
+
+                if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+                {
+                    if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
+                    {
+                        return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
+                    }
+
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    await _signInManager.SignOutAsync();
+                    return Page();
+                }
+
+                if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
+                {
+                    return Redirect("/admin");
+                }
+
+                return LocalRedirect(returnUrl);
+            }
+
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+            }
+
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("User account locked out.");
+                return RedirectToPage("./Lockout");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            await _signInManager.SignOutAsync();
             return Page();
         }
-
-        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
-        {
-            return Redirect("/admin");
-        }
-
-        return LocalRedirect(returnUrl);
-    }
-
-    if (result.RequiresTwoFactor)
-    {
-        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-    }
-
-    if (result.IsLockedOut)
-    {
-        _logger.LogWarning("User account locked out.");
-        return RedirectToPage("./Lockout");
-    }
-
-    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-    return Page();
-}
 
         private string GetSubplatformFromReturnUrl(string returnUrl)
         {
