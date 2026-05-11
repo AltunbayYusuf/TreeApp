@@ -3,8 +3,7 @@
 
 <div class="container-fluid p-4 p-md-5">
 
-    <div
-        class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 mb-4">
         <div>
             <h1 class="fs-2 fw-bold mb-1">Projecten</h1>
             <p class="text-muted mb-0">Beheer je participatieprojecten</p>
@@ -114,6 +113,7 @@
                                    class="btn btn-sm btn-outline-primary">
                                     Bewerken
                                 </a>
+                            
                             }
 
                             @if (p.Status == nameof(Status.Active))
@@ -128,28 +128,28 @@
                                     </button>
                                 </form>
                             }
-
-                            <a asp-controller="SubAdminProjects"
-                               asp-action="Statistics"
-                               asp-route-subplatform="@Model.Slug"
-                               asp-route-projectId="@p.Id"
-                               class="btn btn-sm btn-outline-dark">
-                                Statistieken
-                            </a>
-
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteProjectModal-@p.Id">
-                                🗑️
-                            </button>
                             <a asp-controller="SubAdminProjects"
                                asp-action="CopyAsStartPoint"
                                asp-route-subplatform="@Model.Slug"
                                asp-route-projectId="@p.Id"
-                               class="btn btn-sm btn-outline-primary">
-                                Startpunt Project
+                               class="btn btn-sm btn-outline-primary"
+                               title="Project Kopiëren">
+                                ⧉
+                            </a>  
+                            <a asp-controller="SubAdminProjects"
+                                     asp-action="Statistics"
+                                     asp-route-subplatform="@Model.Slug"
+                                     asp-route-projectId="@p.Id"
+                                     class="btn btn-sm btn-outline-dark">
+                                Statistieken
                             </a>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-danger"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#deleteProjectModal-@p.Id"
+                                    title="Project Verwijderen">
+                                🗑️
+                            </button>
                         </div>
 
                         <div class="modal fade"
@@ -175,7 +175,7 @@
                                         Ben je zeker dat je het project
                                         <strong class="text-break">@p.Name</strong>
                                         wilt verwijderen?
-                                        <br/>
+                                        <br />
                                         <span class="text-danger">
                                             Deze actie kan niet ongedaan gemaakt worden.
                                         </span>
@@ -196,7 +196,7 @@
 
                                             @Html.AntiForgeryToken()
 
-                                            <input type="hidden" name="projectId" value="@p.Id"/>
+                                            <input type="hidden" name="projectId" value="@p.Id" />
 
                                             <button type="submit" class="btn btn-danger w-100">
                                                 Ja, verwijderen

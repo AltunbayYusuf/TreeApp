@@ -75,7 +75,7 @@
     }
 
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="nl">
     <head>
         <meta charset="utf-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -202,24 +202,44 @@
                     <div class="d-flex align-items-center gap-3">
                     @if (User.Identity?.IsAuthenticated != true)
                     {
-                        <div class="font-size-control" role="group" aria-label="Tekstgrootte aanpassen">
+                        <div class="font-size-control" role="group" aria-label="Zoom aanpassen">
                             <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
                                 -
                             </button>
+
+                            <span class="font-size-value" data-font-size-value>100%</span>
 
                             <button type="button" class="font-size-button" data-font-size="up" aria-label="Tekst vergroten">
                                 +
                             </button>
                         </div>
                     }
-                    <div id="google_translate_element" style="display:none;"></div>
                     <div class="dropdown">
-                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle notranslate"
+                                type="button"
+                                id="languageDropdown"
+                                translate="no"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
                             NL
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('nl', 'NL')">Nederlands</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="changeLanguage('en', 'EN')">English</a></li>
+                            <li>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        data-language-option="nl"
+                                        data-language-label="NL">
+                                    Nederlands
+                                </button>
+                            </li>
+                            <li>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        data-language-option="en"
+                                        data-language-label="EN">
+                                    Engels
+                                </button>
+                            </li>
                         </ul>
                     </div>
                     <partial name="_LoginPartial"/>
