@@ -266,7 +266,8 @@ export class IdeaCreator {
         if (!aiMessage) return;
 
         aiMessage.style.display = "block";
-        aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${DomUtils.escapeHtml(message)}</div>`;
+        aiMessage.className = "mb-3 idea-message idea-message-danger";
+        aiMessage.textContent = message;
     }
 
     private async handleSubmit(e: Event): Promise<void> {
@@ -364,19 +365,18 @@ export class IdeaCreator {
         const suggestedText = data.suggestedText || "";
 
         aiMessage.style.display = "block";
+        aiMessage.className = "mb-3 idea-message idea-message-warning";
         aiMessage.innerHTML = `
-            <div class="alert alert-warning mb-0">
-                <strong>${DomUtils.escapeHtml(data.warning || "AI: je tekst bevat mogelijk toxische inhoud.")}</strong>
-                ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
-                <div class="mt-2">
-                    <strong>Alternatief:</strong><br>
-                    <strong>${DomUtils.escapeHtml(suggestedTitle)}</strong><br>
-                    ${DomUtils.escapeHtml(suggestedText)}
-                </div>
-                <div class="mt-3 d-flex gap-2 flex-wrap">
-                    <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">Toch versturen</button>
-                    <button type="button" id="use-alternative-btn" class="btn btn-outline-primary btn-sm">Alternatief gebruiken</button>
-                </div>
+            <strong>${DomUtils.escapeHtml(data.warning || "AI: je tekst bevat mogelijk toxische inhoud.")}</strong>
+            ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
+            <div class="mt-2">
+                <strong>Alternatief:</strong><br>
+                <strong>${DomUtils.escapeHtml(suggestedTitle)}</strong><br>
+                ${DomUtils.escapeHtml(suggestedText)}
+            </div>
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">Toch versturen</button>
+                <button type="button" id="use-alternative-btn" class="btn btn-outline-primary btn-sm">Alternatief gebruiken</button>
             </div>
         `;
 

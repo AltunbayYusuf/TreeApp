@@ -78,6 +78,23 @@
   }
 }
 
+.idea-item-own {
+  background: #eff6ff;
+  border-color: #3b82f6;
+  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.16);
+}
+
+.idea-item-own-badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.55rem;
+}
+
 // ── Reacties sectie ───────────────────────────────────────────────────────────
 .reactions-wrapper {
   border-top: 1px solid #f1f5f9;
@@ -102,6 +119,7 @@
   li {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 0.4rem;
     padding: 0.35rem 0.5rem;
     background: #f8fafc;
@@ -110,6 +128,23 @@
     color: var(--echo-muted);
     margin-bottom: 0.3rem;
   }
+}
+
+.reaction-text {
+  display: inline-flex;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.reaction-own-badge {
+  flex: 0 0 auto;
+  margin-left: auto;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
 }
 
 .no-reactions-message {
@@ -136,6 +171,24 @@
   background: rgba(16,185,129,0.08);
   color: #065f46;
   border-left: 3px solid var(--echo-success);
+}
+
+.reaction-result-danger {
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  border-left-color: #dc2626;
+}
+
+.reaction-result-info {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  border-left-color: #2563eb;
+}
+
+.reaction-result-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #92400e;
+  border-left-color: #f59e0b;
 }
 
 // ── Idee aanmaken pagina ──────────────────────────────────────────────────────
@@ -174,4 +227,23 @@
 
 .create-idea-body {
   padding: 2rem;
+}
+
+.idea-message {
+  padding: 0.75rem 1rem;
+  border-radius: 0.4rem;
+  border-left: 3px solid;
+  font-size: 0.9rem;
+}
+
+.idea-message-danger {
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  border-left-color: #dc2626;
+}
+
+.idea-message-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #92400e;
+  border-left-color: #f59e0b;
 }
