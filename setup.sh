@@ -50,7 +50,7 @@ STATIC_IP="treeapp-ip"
 HEALTH_CHECK="treeapp-health-check"
 BACKEND_SERVICE="treeapp-backend"
 URL_MAP="treeapp-url-map"
-SSL_CERT="treeapp-ssl-cert"
+SSL_CERT="treeapp-ssl-cert-v2"
 TARGET_HTTPS_PROXY="treeapp-https-proxy"
 FORWARDING_RULE="treeapp-https-rule"
 HTTP_URL_MAP="treeapp-http-redirect"
@@ -257,7 +257,7 @@ if [ -n "$DOMAIN" ]; then
     echo "    SSL certificaat bestaat al, overgeslagen"
   else
     gcloud compute ssl-certificates create "$SSL_CERT" \
-      --domains="$DOMAIN" \
+      --domains="echo20.com,$DOMAIN" \
       --global \
       --project="$PROJECT_ID"
     echo "   SSL certificaat aangemaakt — Google provisioneert dit binnen 15-60 min"
