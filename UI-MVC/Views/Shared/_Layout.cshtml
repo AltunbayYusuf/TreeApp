@@ -81,13 +81,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>@ViewData["Title"] - Echo</title>
         <style>
-        body {
-            visibility: hidden;
-        }
-
-        body.css-loaded {
-            visibility: visible;
-        }
+        body { visibility: hidden; }
+        body.css-loaded { visibility: visible; }
     </style>
         
         <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
@@ -105,8 +100,8 @@
     </head>
     <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+        <nav class="navbar navbar-expand-sm navbar-dark">
+            <div class="container-fluid px-4">
                 @if (User.Identity?.IsAuthenticated == false)
                 {
                     <a class="navbar-brand"
@@ -124,81 +119,89 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav">
-                        @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="SubAdmin"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
-                                    Dashboard
-                                </a>
-                            </li>
+                   <ul class="navbar-nav">
+    @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
+    {
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-controller="SubAdmin"
+               asp-action="Index"
+               asp-route-subplatform="@currentSubplatform">
+                Dashboard
+            </a>
+        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="SubAdminModeration"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
-                                    Moderatie
-                                </a>
-                            </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-controller="SubAdminModeration"
+               asp-action="Index"
+               asp-route-subplatform="@currentSubplatform">
+                Moderatie
+            </a>
+        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="SubAdminIdeas"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform">
-                                    Ideeën
-                                </a>
-                            </li>
-                        }
-                        else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Index"> Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-controller="AdminStats"
-                                   asp-action="Index">
-                                    Overview
-                                </a>
-                                
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Project"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform"
-                                   asp-route-id="@currentProjectId">
-                                    Project
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark"
-                                   asp-area=""
-                                   asp-controller="Idea"
-                                   asp-action="Index"
-                                   asp-route-subplatform="@currentSubplatform"
-                                   asp-route-projectId="@currentProjectId">
-                                    Ideeën
-                                </a>
-                            </li>
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-controller="SubAdminIdeas"
+               asp-action="Index"
+               asp-route-subplatform="@currentSubplatform">
+                Ideeën
+            </a>
+        </li>
+    }
+    else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+    {
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-area=""
+               asp-controller="Admin"
+               asp-action="Index">
+                Dashboard
+            </a>
+        </li>
 
-                       
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-controller="AdminStats"
+               asp-action="Index">
+                Overview
+            </a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-area=""
+               asp-controller="Project"
+               asp-action="Index"
+               asp-route-subplatform="@currentSubplatform"
+               asp-route-id="@currentProjectId">
+                Project
+            </a>
+        </li>
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home"
-                                   asp-action="Privacy">Privacy</a>
-                            </li>
-                        }
-                    </ul>
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-area=""
+               asp-controller="Idea"
+               asp-action="Index"
+               asp-route-subplatform="@currentSubplatform"
+               asp-route-projectId="@currentProjectId">
+                Ideeën
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link"
+               asp-area=""
+               asp-controller="Home"
+               asp-action="Privacy">
+                Privacy
+            </a>
+        </li>
+    }
+</ul>
                     <div class="d-flex align-items-center gap-3">
                     @if (User.Identity?.IsAuthenticated != true)
                     {
@@ -249,16 +252,17 @@
         </nav>
     </header>
 
-    <div class="container">
+    <div class="container py-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Echo - <a asp-area="" asp-controller="Home" asp-action="Privacy"
-                                    asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
+    <footer class="footer">
+        <div class="container px-4">
+            &copy; 2026 Echo &mdash;
+            <a asp-area="" asp-controller="Home" asp-action="Privacy"
+               asp-route-subplatform="@currentSubplatform" asp-route-projectId="@currentProjectId">Privacy</a>
         </div>
     </footer>
 

@@ -1,11 +1,14 @@
-﻿@tailwind components;
+@tailwind components;
 @tailwind utilities;
 
-@import "./styles/survey";
-@import "./styles/chat";
 @import "./styles/base";
 @import "./styles/layout";
 @import "./styles/home";
+@import "./styles/ideas";
+@import "./styles/admin";
+@import "./styles/auth";
+@import "./styles/survey";
+@import "./styles/chat";
 @import "./styles/reaction";
 
 .skiptranslate {
@@ -16,6 +19,7 @@
 body {
   top: 0 !important;
 }
+
 
 //.home-container {
 //  max-width: 700px;
