@@ -36,4 +36,15 @@ public class SurveyRepository : ISurveyRepository
         _context.SurveyResponses.Add(surveyResponse);
         _context.SaveChanges();
     }
+    
+    public IEnumerable<SurveyResponse> ReadSurveyResponsesByProjectId(int projectId)
+    {
+        return _context.SurveyResponses
+            .Include(sr => sr.Answers)
+            .ThenInclude(a => a.Question)
+            .Include(sr => sr.Project)
+            .Where(sr => sr.ProjectId == projectId)
+            .OrderByDescending(sr => sr.SubmittedAt)
+            .ToList();
+    }
 }

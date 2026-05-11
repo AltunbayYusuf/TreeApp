@@ -23,6 +23,12 @@ export class IdeaCreator {
     private topicId = "";
     private title = "";
     private text = "";
+    
+    private recognition: SpeechRecognition | null = null;
+
+    // Toegevoegd: gekozen afbeelding bijhouden
+    private imageFile: File | null = null;
+
     private aiAlternativeTitle = "";
     private aiAlternativeText = "";
 
@@ -31,7 +37,129 @@ export class IdeaCreator {
         document.getElementById("submit-idea-btn")?.addEventListener("click", this.handleSubmit.bind(this));
         document.getElementById("ai-improve-create-btn")?.addEventListener("click", this.handleImproveWithAi.bind(this));
         document.getElementById("use-ai-improvement-btn")?.addEventListener("click", this.useAiImprovement.bind(this));
+        document.getElementById("speech-to-text-btn")?.addEventListener("click", this.startSpeechToText.bind(this));
+        document.getElementById("stop-speech-btn")?.addEventListener("click", this.stopSpeechToText.bind(this));
+        // Toegevoegd: afbeelding preview
+        document.getElementById("idea-image")?.addEventListener("change", this.handleImagePreview.bind(this));
+
         this.toggleContactEmail();
+    }
+
+    private handleImagePreview(): void {
+        const imageInput = document.getElementById("idea-image") as HTMLInputElement | null;
+        const previewWrapper = document.getElementById("idea-image-preview-wrapper") as HTMLDivElement | null;
+        const previewImage = document.getElementById("idea-image-preview") as HTMLImageElement | null;
+
+        if (!imageInput) {
+            return;
+        }
+
+        const file = imageInput.files?.[0] ?? null;
+        this.imageFile = file;
+
+        if (!file || !previewWrapper || !previewImage) {
+            if (previewWrapper) {
+                previewWrapper.style.display = "none";
+            }
+            return;
+        }
+
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+        if (!allowedTypes.includes(file.type)) {
+            this.showError("Alleen jpg, jpeg, png of webp is toegestaan.");
+            imageInput.value = "";
+            this.imageFile = null;
+            previewWrapper.style.display = "none";
+            return;
+        }
+
+        previewImage.src = URL.createObjectURL(file);
+        previewWrapper.style.display = "block";
+    }
+    private startSpeechToText(): void {
+        const SpeechRecognitionConstructor =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        const ideaText = document.getElementById("idea-text") as HTMLTextAreaElement | null;
+        const startButton = document.getElementById("speech-to-text-btn") as HTMLButtonElement | null;
+        const stopButton = document.getElementById("stop-speech-btn") as HTMLButtonElement | null;
+        const speechStatus = document.getElementById("speech-status") as HTMLElement | null;
+
+        if (!ideaText) {
+            return;
+        }
+
+        if (!SpeechRecognitionConstructor) {
+            this.showError("Spraak naar tekst wordt niet ondersteund door deze browser. Probeer Google Chrome.");
+            return;
+        }
+
+        this.recognition = new SpeechRecognitionConstructor();
+        this.recognition.lang = "nl-BE";
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+
+        let finalTranscript = ideaText.value.trim();
+
+        this.recognition.onstart = () => {
+            if (startButton) startButton.style.display = "none";
+            if (stopButton) stopButton.style.display = "inline-block";
+            if (speechStatus) {
+                speechStatus.style.display = "block";
+                speechStatus.textContent = "🎤 Ik luister... spreek je idee rustig in.";
+            }
+        };
+
+        this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+            let interimTranscript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+
+                if (event.results[i].isFinal) {
+                    finalTranscript += finalTranscript ? ` ${transcript}` : transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            ideaText.value = `${finalTranscript} ${interimTranscript}`.trim();
+        };
+
+        this.recognition.onerror = () => {
+            this.showError("Er ging iets mis met de spraakherkenning. Probeer opnieuw.");
+            this.resetSpeechButtons();
+        };
+
+        this.recognition.onend = () => {
+            this.resetSpeechButtons();
+        };
+
+        this.recognition.start();
+    }
+
+    private stopSpeechToText(): void {
+        if (this.recognition) {
+            this.recognition.stop();
+            this.recognition = null;
+        }
+
+        this.resetSpeechButtons();
+    }
+
+    private resetSpeechButtons(): void {
+        const startButton = document.getElementById("speech-to-text-btn") as HTMLButtonElement | null;
+        const stopButton = document.getElementById("stop-speech-btn") as HTMLButtonElement | null;
+        const speechStatus = document.getElementById("speech-status") as HTMLElement | null;
+
+        if (startButton) startButton.style.display = "inline-block";
+        if (stopButton) stopButton.style.display = "none";
+
+        if (speechStatus) {
+            speechStatus.style.display = "none";
+            speechStatus.textContent = "";
+        }
     }
 
     private async handleImproveWithAi(): Promise<void> {
@@ -101,7 +229,6 @@ export class IdeaCreator {
 
         ideaTitle.value = this.aiAlternativeTitle;
         ideaText.value = this.aiAlternativeText;
-
 
         if (resultBox) {
             resultBox.style.display = "none";
@@ -195,18 +322,25 @@ export class IdeaCreator {
     private async postIdea(url: string, skipAiModeration: boolean): Promise<IdeaResponse> {
         const contactOptIn = document.getElementById("idea-contact-opt-in") as HTMLInputElement | null;
         const contactEmail = document.getElementById("idea-contact-email") as HTMLInputElement | null;
+        const subplatformSlug = document.getElementById("idea-subplatform-slug") as HTMLInputElement | null;
+
+        const formData = new FormData();
+
+        formData.append("topicId", String(Number(this.topicId)));
+        formData.append("title", this.title);
+        formData.append("text", this.text);
+        formData.append("contactOptIn", String(contactOptIn?.checked ?? false));
+        formData.append("email", contactEmail?.value.trim() ?? "");
+        formData.append("subplatformSlug", subplatformSlug?.value ?? "");
+        formData.append("skipAiModeration", String(skipAiModeration));
+
+        if (this.imageFile) {
+            formData.append("imageUpload", this.imageFile);
+        }
 
         const response = await fetch(url, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({
-                topicId: Number(this.topicId),
-                title: this.title,
-                text: this.text,
-                contactOptIn: contactOptIn?.checked ?? false,
-                email: contactEmail?.value.trim() ?? "",
-                skipAiModeration: skipAiModeration
-            })
+            body: formData
         });
 
         const data = await response.json() as IdeaResponse;
@@ -264,7 +398,7 @@ export class IdeaCreator {
                 ideaText.focus();
             }
 
-                this.clearAiMessage();
+            this.clearAiMessage();
         });
     }
 

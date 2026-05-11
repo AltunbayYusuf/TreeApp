@@ -13,7 +13,11 @@
         <ProjectReference Include="..\DAL\DAL.csproj" />
         <ProjectReference Include="..\Domain\Domain.csproj" />
     </ItemGroup>
-
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="9.0.4" />
+    </ItemGroup>
+    
     <ItemGroup>
         <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0" />
         <PackageReference Include="Google.Cloud.AIPlatform.V1" Version="3.70.0" />
@@ -26,6 +30,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Google.Cloud.Storage.V1" Version="4.14.0" />
         <PackageReference Include="Microsoft.Extensions.AI" Version="10.5.0" />
         <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="10.5.0" />
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="10.5.0" />
@@ -47,9 +52,11 @@
         <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewImports.cshtml" />
         <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
         <_ContentIncludedByDefault Remove="Views\SubPlatform\Index.cshtml" />
+        <_ContentIncludedByDefault Remove="Views\Platform\Overview.cshtml" />
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="src\js\admin\" />
         <Folder Include="wwwroot\js\" />
     </ItemGroup>
 

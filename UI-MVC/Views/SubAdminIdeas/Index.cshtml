@@ -7,6 +7,11 @@
             <h1 class="admin-title">Ideeën</h1>
             <p class="admin-subtitle">Overzicht van alle ingediende ideeën</p>
         </div>
+        <a asp-action="ExportCsv"
+           asp-route-subplatform="@Model.Slug"
+           class="btn btn-success btn-sm">
+            Exporteer CSV
+        </a>
     </div>
 
     <span id="subplatformIdData" data-id="@Model.SubPlatformId" class="d-none"></span>

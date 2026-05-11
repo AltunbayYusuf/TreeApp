@@ -15,10 +15,14 @@ public class SubAdminProjectsController : ControllerBase
 {
     
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
+    private readonly IAiSummaryIdeas _aiSummaryIdeas;
+    
 
-    public SubAdminProjectsController(IAiSurveyGenerationService aiSurveyGenerationService)
+    public SubAdminProjectsController(IAiSurveyGenerationService aiSurveyGenerationService, IAiSummaryIdeas aiSummaryIdeas)
     {
         _aiSurveyGenerationService = aiSurveyGenerationService;
+        _aiSummaryIdeas = aiSummaryIdeas;
+        
     }
     
     private const string SurveyKey = "CreateProject_Survey";
@@ -96,6 +100,29 @@ public class SubAdminProjectsController : ControllerBase
             ok = true,
             survey,
             message = "Vragenlijst gegenereerd."
+        });
+    }
+    
+    [HttpPost("summary")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateProjectSummary(
+        string subplatform, [FromBody] GenerateProjectSummaryDto dto)
+    {
+        if (dto == null || dto.ProjectId <= 0)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Ongeldig project."
+            });
+        }
+
+        var summary = await _aiSummaryIdeas.GenerateProjectTrendSummaryAsync(dto.ProjectId);
+
+        return Ok(new
+        {
+            ok = true,
+            summary
         });
     }
     

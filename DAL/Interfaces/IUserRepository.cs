@@ -7,5 +7,7 @@ public interface IUserRepository
     User ReadUser(string cookieId);
     void CreateUser(User user);
     void UpdateUser(User user);
+    IEnumerable<SubAdmin> ReadAllSubAdminsWithPlatformsAndProjects();
+    GeneralAdmin GetGeneralAdmin();
 
 }

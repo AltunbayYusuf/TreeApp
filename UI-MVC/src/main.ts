@@ -15,3 +15,5 @@ import './js/createSurvey/createSurvey.ts';
 import './js/ideation/create-project-ideation'
 import './js/subadmin/ideas.ts'
 import './js/createSurvey/project-info';
+import './js/translation/translation';
+import './js/fontSize/font-size';

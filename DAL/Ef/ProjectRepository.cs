@@ -1,4 +1,5 @@
 using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -34,6 +35,28 @@ public class ProjectRepository : IProjectRepository
             .ThenInclude(t => t.Ideas)
             .Include(p => p.SurveyResponses)
             .FirstOrDefault(p => p.Id == projectId);
+    }
+
+    public IEnumerable<Project> ReadAllProjects()
+    {
+        return _context.Projects
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.Options)
+
+            .Include(p => p.QuestionList)
+            .ThenInclude(ql => ql.Sections)
+            .ThenInclude(s => s.Questions)
+            .ThenInclude(q => q.ConditionalQuestions)
+            .ThenInclude(cq => cq.FollowUpQuestion)
+
+            .Include(p => p.SubPlatform)
+            .Include(p => p.Photo)
+            .Include(p => p.Logo)
+            .Include(p => p.Topics)
+            .ThenInclude(t => t.Ideas)
+            .Include(p => p.SurveyResponses);
     }
 
     public Project ReadProjectBySubPlatformAndProjectId(string subplatformSlug, int projectId)
@@ -83,4 +106,6 @@ public class ProjectRepository : IProjectRepository
         _context.Projects.Remove(deletedProject);
         _context.SaveChanges();
     }
+
+
 }

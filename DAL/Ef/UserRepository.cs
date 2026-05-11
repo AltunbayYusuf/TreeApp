@@ -33,4 +33,24 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         _context.SaveChanges();
     }
+
+    public IEnumerable<SubAdmin> ReadAllSubAdminsWithPlatformsAndProjects()
+    {
+        return _context.SubAdmins
+            .Include(sa => sa.SubPlatform)
+            .ThenInclude(p => p.Projects)
+            .ToList();
+    }
+    public GeneralAdmin GetGeneralAdmin()
+    {
+        return _context.GeneralAdmins
+            .Include(g => g.Platform)
+            .ThenInclude(p => p.SubPlatforms)
+            .ThenInclude(sp => sp.Projects)
+            .Include(g => g.SubAdmins)
+            .ThenInclude(sa => sa.SubPlatform)
+            .ThenInclude(sp => sp.Projects)
+            .ThenInclude(p => p.SurveyResponses)
+            .FirstOrDefault();
+    }
 }

@@ -8,6 +8,7 @@
             <h1 class="admin-title">Projecten</h1>
             <p class="admin-subtitle">Beheer je participatieprojecten</p>
         </div>
+
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
            asp-route-subplatform="@Model.Slug"
@@ -23,18 +24,21 @@
                 <p class="stat-value">@Model.TotalProjects</p>
             </div>
         </div>
+
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="stat-card stat-success">
                 <div class="stat-label">Actief</div>
                 <p class="stat-value">@Model.ActiveProjects</p>
             </div>
         </div>
+
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="stat-card stat-primary">
                 <div class="stat-label">Totaal deelnemers</div>
                 <p class="stat-value">@Model.ParticipantsCount</p>
             </div>
         </div>
+
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="stat-card stat-secondary">
                 <div class="stat-label">Totaal ideeën</div>
@@ -57,6 +61,7 @@
                         <th>Acties</th>
                     </tr>
                 </thead>
+
                 <tbody>
                 @foreach (var p in Model.Projects)
                 {
@@ -78,13 +83,16 @@
                                 @p.Name
                             </a>
                         </td>
+
                         <td>
                             <span class="status-badge @statusBadgeClass">@p.Status</span>
                         </td>
+
                         <td class="text-muted small">@p.Form</td>
                         <td>@p.ParticipantsCount</td>
                         <td>@p.IdeasCount</td>
                         <td class="text-muted small">@p.ReleaseDate.ToString("d MMM yyyy")</td>
+
                         <td>
                             <div class="d-flex flex-wrap gap-1">
                                 @if (p.Status == nameof(Status.Draft))
@@ -95,6 +103,7 @@
                                         <input type="hidden" name="subplatform" value="@Model.Slug" />
                                         <button class="btn btn-sm btn-outline-success">Activeer</button>
                                     </form>
+
                                     <a asp-controller="SubAdminProjects"
                                        asp-action="EditDraft"
                                        asp-route-subplatform="@Model.Slug"
@@ -103,6 +112,7 @@
                                         Bewerken
                                     </a>
                                 }
+
                                 @if (p.Status == nameof(Status.Active))
                                 {
                                     <form asp-action="UpdateStatus" method="post">
@@ -112,12 +122,7 @@
                                         <button class="btn btn-sm btn-outline-warning">Archiveer</button>
                                     </form>
                                 }
-                                <button type="button"
-                                        class="btn btn-sm btn-outline-danger"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#deleteProjectModal-@p.Id">
-                                    🗑️
-                                </button>
+
                                 <a asp-controller="SubAdminProjects"
                                    asp-action="CopyAsStartPoint"
                                    asp-route-subplatform="@Model.Slug"
@@ -125,6 +130,22 @@
                                    class="btn btn-sm btn-outline-secondary">
                                     Kopieer
                                 </a>
+
+                                <a asp-controller="SubAdminProjects"
+                                   asp-action="Statistics"
+                                   asp-route-subplatform="@Model.Slug"
+                                   asp-route-projectId="@p.Id"
+                                   class="btn btn-sm btn-outline-dark">
+                                    Statistieken
+                                </a>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteProjectModal-@p.Id"
+                                        title="Project verwijderen">
+                                    🗑️
+                                </button>
                             </div>
 
                             <div class="modal fade"
@@ -132,31 +153,53 @@
                                  tabindex="-1"
                                  aria-labelledby="deleteProjectModalLabel-@p.Id"
                                  aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable mx-3 mx-sm-auto">
                                     <div class="modal-content">
+
                                         <div class="modal-header">
                                             <h5 class="modal-title" id="deleteProjectModalLabel-@p.Id">
                                                 Project verwijderen
                                             </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            <button type="button"
+                                                    class="btn-close"
+                                                    data-bs-dismiss="modal"
+                                                    aria-label="Sluiten">
+                                            </button>
                                         </div>
+
                                         <div class="modal-body">
                                             Ben je zeker dat je het project
-                                            <strong>@p.Name</strong> wilt verwijderen?
-                                            <br/>
-                                            <span class="text-danger small">Deze actie kan niet ongedaan gemaakt worden.</span>
+                                            <strong class="text-break">@p.Name</strong>
+                                            wilt verwijderen?
+                                            <br />
+                                            <span class="text-danger small">
+                                                Deze actie kan niet ongedaan gemaakt worden.
+                                            </span>
                                         </div>
-                                        <div class="modal-footer gap-2">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuleer</button>
+
+                                        <div class="modal-footer d-flex flex-column flex-sm-row gap-2">
+                                            <button type="button"
+                                                    class="btn btn-secondary w-100 w-sm-auto"
+                                                    data-bs-dismiss="modal">
+                                                Annuleer
+                                            </button>
+
                                             <form asp-controller="SubAdmin"
                                                   asp-action="Delete"
                                                   asp-route-subplatform="@Model.Slug"
-                                                  method="post">
+                                                  method="post"
+                                                  class="w-100 w-sm-auto">
+
                                                 @Html.AntiForgeryToken()
+
                                                 <input type="hidden" name="projectId" value="@p.Id" />
-                                                <button type="submit" class="btn btn-danger">Ja, verwijderen</button>
+
+                                                <button type="submit" class="btn btn-danger w-100">
+                                                    Ja, verwijderen
+                                                </button>
                                             </form>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

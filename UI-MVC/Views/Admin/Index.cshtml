@@ -1,0 +1,57 @@
+@model IntegratieProject.BL.Domain.users.GeneralAdmin
+
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1>Admin Dashboard</h1>
+<p>Welkom beheerder.</p>
+
+
+
+<div id="overviewSection" style=" margin-top:20px;">
+    <h2>Deelplatformen (@Model.Platform.SubPlatforms.Count())</h2>
+
+    @foreach (var subPlatform in @Model.Platform.SubPlatforms)
+    {
+        var subAdminsCount = Model.SubAdmins
+            .Count(sa => sa.SubPlatform.Id == subPlatform.Id);
+
+
+        <div class="card p-3 mb-3 ">
+            <h3>@subPlatform.CompanyName</h3>
+
+            <div class="row mt-2">
+
+                <div class="col-md-4">
+                    <p>
+                        <strong>Aantal subadmins:</strong><br />
+                        @subAdminsCount
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <p>
+                        <strong>Aantal projecten:</strong><br />
+                        @(subPlatform.Projects?.Count() ?? 0)
+                    </p>
+                </div>
+
+                <div class="col-md-4">
+                    <p>
+                        <strong>Totaal deelnemers:</strong><br />
+                        @(subPlatform.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0)
+                    </p>
+                </div>
+
+            </div>
+            <a class="text-center d-block mt-2 p-2 border rounded text-decoration-none text-dark bg-light"
+               asp-action="Details"
+               asp-controller="Platform"
+               asp-route-id="@subPlatform.Id">
+                Details bekijken →
+            </a>
+        </div>
+    }
+</div>
+

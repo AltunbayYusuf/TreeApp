@@ -15,7 +15,6 @@ export class ProjectIdeationBuilder {
     init(): void {
         document.getElementById("addTopicButton")?.addEventListener("click", this.handleAddTopic.bind(this));
         document.getElementById("ideationForm")?.addEventListener("submit", this.handleSubmit.bind(this));
-        document.getElementById("emojiGroups")?.addEventListener("click", this.handleEmojiGroupClick.bind(this));
 
         this.topicsContainer?.addEventListener("click", this.handleTopicContainerClick.bind(this));
         this.topicsContainer?.addEventListener("input", this.handleTopicContainerInput.bind(this));
@@ -30,7 +29,7 @@ export class ProjectIdeationBuilder {
             this.topicsContainer.appendChild(this.createTopicCard(0));
         }
 
-        this.selectDefaultEmojiGroup();
+        this.initializeEmojiGroups();
         this.updateTopicIndexes();
     }
 
@@ -57,6 +56,7 @@ export class ProjectIdeationBuilder {
     private handleTopicContainerInput(event: Event): void {
         const target = event.target as HTMLElement | null;
         const card = target?.closest(".topic-card") as HTMLDivElement | null;
+
         if (!card) return;
 
         if (target instanceof HTMLInputElement && target.classList.contains("topic-title")) {
@@ -64,20 +64,6 @@ export class ProjectIdeationBuilder {
         } else if (target instanceof HTMLTextAreaElement && target.classList.contains("topic-description")) {
             this.clearFieldError(card, "Description");
         }
-    }
-
-    private handleEmojiGroupClick(event: MouseEvent): void {
-        const target = event.target as HTMLElement | null;
-        const selectedGroup = target?.closest(".emoji-group") as HTMLButtonElement | null;
-        const hiddenInput = document.getElementById("SelectedEmojiGroup") as HTMLInputElement | null;
-
-        if (!selectedGroup || !hiddenInput) return;
-
-        document.querySelectorAll<HTMLButtonElement>(".emoji-group").forEach(group => {
-            group.dataset.selected = (group === selectedGroup) ? "true" : "false";
-        });
-
-        hiddenInput.value = selectedGroup.dataset.value || "";
     }
 
     private handleAddTopic(): void {
@@ -89,11 +75,14 @@ export class ProjectIdeationBuilder {
         const newCard = this.createTopicCard(cards.length);
         this.topicsContainer.appendChild(newCard);
         this.updateTopicIndexes();
+
         newCard.querySelector<HTMLInputElement>(".topic-title")?.focus();
     }
 
     private removeTopic(card: HTMLDivElement): void {
-        if (this.getTopicCards().length <= MIN_TOPICS) return;
+        const cards = this.getTopicCards();
+        if (cards.length <= MIN_TOPICS) return;
+
         card.remove();
         this.updateTopicIndexes();
     }
@@ -105,7 +94,7 @@ export class ProjectIdeationBuilder {
         cards.forEach((card, index) => {
             card.dataset.index = index.toString();
 
-            const label = card.querySelector(".topic-number");
+            const label = card.querySelector(".topic-label");
             const titleInput = card.querySelector(".topic-title") as HTMLInputElement | null;
             const descriptionInput = card.querySelector(".topic-description") as HTMLTextAreaElement | null;
             const titleValidation = card.querySelector(".topic-title-validation");
@@ -125,55 +114,48 @@ export class ProjectIdeationBuilder {
             if (descriptionValidation) descriptionValidation.setAttribute("data-valmsg-for", `Topics[${index}].Description`);
 
             if (removeButton) {
-                removeButton.disabled = cards.length <= MIN_TOPICS;
+                const disabled = cards.length <= MIN_TOPICS;
+                removeButton.disabled = disabled;
+                removeButton.classList.toggle("opacity-50", disabled);
+                removeButton.classList.toggle("cursor-not-allowed", disabled);
             }
         });
 
         if (addTopicButton) {
-            addTopicButton.disabled = cards.length >= MAX_TOPICS;
+            const disableAddButton = cards.length >= MAX_TOPICS;
+            addTopicButton.disabled = disableAddButton;
+            addTopicButton.classList.toggle("opacity-50", disableAddButton);
+            addTopicButton.classList.toggle("cursor-not-allowed", disableAddButton);
         }
     }
 
     private createTopicCard(index: number): HTMLDivElement {
         const card = document.createElement("div");
-        card.className = "topic-card";
+        card.className = "topic-card rounded-2xl border border-slate-200 bg-slate-50 p-5";
         card.dataset.index = index.toString();
 
         card.innerHTML = `
-            <div class="d-flex align-items-center justify-content-between mb-3">
-                <div class="topic-number">Topic ${index + 1}</div>
-                <button type="button"
-                        class="remove-topic-btn btn btn-outline-danger btn-sm"
-                        aria-label="Verwijder topic ${index + 1}">
-                    🗑️
-                </button>
+            <div class="flex items-start justify-between mb-3">
+                <h3 class="topic-label text-sm font-semibold text-slate-700">Topic ${index + 1}</h3>
+                <button type="button" class="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition" aria-label="Verwijder topic ${index + 1}">🗑</button>
             </div>
-            <div class="mb-3">
-                <input name="Topics[${index}].Title"
-                       id="Topics_${index}__Title"
-                       class="topic-title form-control"
-                       placeholder="bv. Acties om mentaal welzijn te verbeteren" />
-                <span class="topic-title-validation text-danger small"
-                      data-valmsg-for="Topics[${index}].Title"
-                      data-valmsg-replace="true"></span>
+            <div class="flex gap-3 items-start">
+                <div class="flex-1">
+                    <input name="Topics[${index}].Title" id="Topics_${index}__Title" class="topic-title w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" placeholder="bv. Acties om mentaal welzijn te verbeteren" />
+                    <span class="topic-title-validation mt-1 block text-sm text-red-600 field-validation-valid" data-valmsg-for="Topics[${index}].Title" data-valmsg-replace="true"></span>
+                </div>
             </div>
-            <div>
-                <textarea name="Topics[${index}].Description"
-                          id="Topics_${index}__Description"
-                          rows="3"
-                          class="topic-description form-control"
-                          placeholder="Beschrijving/context voor dit topic (optioneel)..."></textarea>
-                <span class="topic-description-validation text-danger small"
-                      data-valmsg-for="Topics[${index}].Description"
-                      data-valmsg-replace="true"></span>
+            <div class="mt-4">
+                <textarea name="Topics[${index}].Description" id="Topics_${index}__Description" rows="4" class="topic-description w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" placeholder="Beschrijving/context voor dit topic (optioneel)..."></textarea>
+                <span class="topic-description-validation mt-1 block text-sm text-red-600 field-validation-valid" data-valmsg-for="Topics[${index}].Description" data-valmsg-replace="true"></span>
             </div>
         `;
-
         return card;
     }
 
     private getValidationSpan(card: HTMLDivElement, fieldName: TopicFieldName): HTMLSpanElement | null {
-        return card.querySelector(fieldName === "Title" ? ".topic-title-validation" : ".topic-description-validation") as HTMLSpanElement | null;
+        const selector = fieldName === "Title" ? ".topic-title-validation" : ".topic-description-validation";
+        return card.querySelector(selector) as HTMLSpanElement | null;
     }
 
     private setFieldError(card: HTMLDivElement, fieldName: TopicFieldName, message: string): void {
@@ -218,7 +200,10 @@ export class ProjectIdeationBuilder {
         });
 
         input.addEventListener("blur", () => {
-            if (input.value.trim() === "") { input.value = min.toString(); return; }
+            if (input.value.trim() === "") {
+                input.value = min.toString();
+                return;
+            }
             const val = Number(input.value);
             input.value = Number.isNaN(val) ? min.toString() : this.clamp(val, min, max).toString();
         });
@@ -239,15 +224,32 @@ export class ProjectIdeationBuilder {
         return true;
     }
 
-    private selectDefaultEmojiGroup(): void {
+    private initializeEmojiGroups(): void {
+        const buttons = Array.from(document.querySelectorAll(".emoji-group")) as HTMLButtonElement[];
         const hiddenInput = document.getElementById("SelectedEmojiGroup") as HTMLInputElement | null;
-        const groups = Array.from(document.querySelectorAll<HTMLButtonElement>(".emoji-group"));
-        if (!hiddenInput || groups.length === 0) return;
 
-        const defaultGroup = groups.find(g => g.dataset.value === hiddenInput.value) ?? groups[0];
-        defaultGroup.click();
+        if (!hiddenInput || buttons.length === 0) return;
+
+        buttons.forEach((button) => {
+            button.addEventListener("click", function () {
+                buttons.forEach((groupButton) => {
+                    groupButton.dataset.selected = "false";
+                    groupButton.classList.remove("border-indigo-600", "bg-indigo-50", "ring-2", "ring-indigo-100");
+                });
+
+                button.dataset.selected = "true";
+                button.classList.add("border-indigo-600", "bg-indigo-50", "ring-2", "ring-indigo-100");
+
+                hiddenInput.value = button.dataset.value || "";
+            });
+        });
+
+        const defaultButton =
+            buttons.find((button) => button.dataset.value === hiddenInput.value)
+            || buttons[0];
+
+        defaultButton?.click();
     }
-
     private handleSubmit(event: Event): void {
         this.clearSummaryMessage();
 
@@ -259,11 +261,11 @@ export class ProjectIdeationBuilder {
             topicsValid = false;
         }
 
-        cards.forEach(card => {
+        cards.forEach((card) => {
             const titleInput = card.querySelector(".topic-title") as HTMLInputElement | null;
             if (titleInput && !titleInput.value.trim()) {
                 this.setFieldError(card, "Title", "Een topic titel is verplicht.");
-                if (topicsValid) titleInput.focus();
+                if (topicsValid) titleInput.focus(); // Focus first invalid
                 topicsValid = false;
             } else {
                 this.clearFieldError(card, "Title");
@@ -271,7 +273,9 @@ export class ProjectIdeationBuilder {
             this.clearFieldError(card, "Description");
         });
 
-        if (!topicsValid) this.setSummaryMessage("Vul voor elk topic een titel in.");
+        if (!topicsValid) {
+            this.setSummaryMessage("Vul voor elk topic een titel in.");
+        }
 
         const ideasPerBatchInput = document.getElementById("IdeasPerBatch") as HTMLInputElement | null;
         const maxExtraRequestsInput = document.getElementById("MaxExtraRequests") as HTMLInputElement | null;
@@ -279,7 +283,9 @@ export class ProjectIdeationBuilder {
         const ideasValid = this.validateNumberInput(ideasPerBatchInput, MIN_IDEAS_PER_BATCH, MAX_IDEAS_PER_BATCH, `Aantal ideeën per keer moet tussen ${MIN_IDEAS_PER_BATCH} en ${MAX_IDEAS_PER_BATCH} liggen.`);
         const extraValid = this.validateNumberInput(maxExtraRequestsInput, MIN_EXTRA_REQUESTS, MAX_EXTRA_REQUESTS, `Max keer extra opvragen moet tussen ${MIN_EXTRA_REQUESTS} en ${MAX_EXTRA_REQUESTS} liggen.`);
 
-        if (!topicsValid || !ideasValid || !extraValid) event.preventDefault();
+        if (!topicsValid || !ideasValid || !extraValid) {
+            event.preventDefault();
+        }
     }
 }
 
