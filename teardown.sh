@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
 # teardown.sh
-# Verwijdert alle cloud resources van de TreeApp omgeving
+# Verwijdert alle cloud resources van de echo20 omgeving
 # Gebruik: bash teardown.sh
 # ============================================================
 
@@ -12,22 +12,22 @@ REGION="europe-west1"
 ZONE="europe-west1-b"
 
 # Cloud SQL
-INSTANCE="treeapp-db-new"
+INSTANCE="echo20-db"
 
 # MIG resources
-MIG_NAME="treeapp-mig"
+MIG_NAME="echo20-mig"
 
 # Load balancer resources
-BACKEND_SERVICE="treeapp-backend"
-HEALTH_CHECK="treeapp-health-check"
-URL_MAP="treeapp-url-map"
-TARGET_HTTPS_PROXY="treeapp-https-proxy"
-FORWARDING_RULE="treeapp-https-rule"
-SSL_CERT="treeapp-ssl-cert"
-HTTP_URL_MAP="treeapp-http-redirect"
-TARGET_HTTP_PROXY="treeapp-http-proxy"
-HTTP_FORWARDING_RULE="treeapp-http-rule"
-STATIC_IP="treeapp-ip"
+BACKEND_SERVICE="echo20-backend"
+HEALTH_CHECK="echo20-health-check"
+URL_MAP="echo20-url-map"
+TARGET_HTTPS_PROXY="echo20-https-proxy"
+FORWARDING_RULE="echo20-https-rule"
+SSL_CERT="echo20-ssl-cert"
+HTTP_URL_MAP="echo20-http-redirect"
+TARGET_HTTP_PROXY="echo20-http-proxy"
+HTTP_FORWARDING_RULE="echo20-http-rule"
+STATIC_IP="echo20-ip"
 
 echo "  Dit verwijdert ALLE cloud resources voor project: $PROJECT_ID"
 echo "Ben je zeker? (yes/no)"
@@ -54,9 +54,9 @@ gcloud compute health-checks delete "$HEALTH_CHECK" --project="$PROJECT_ID" --qu
 # MIG eerst verwijderen (anders kunnen templates niet weg)
 gcloud compute instance-groups managed delete "$MIG_NAME" --zone="$ZONE" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($MIG_NAME overgeslagen)"
 
-# Alle treeapp-template-* templates verwijderen (er kunnen er meerdere zijn, één per branch)
-echo "    Alle treeapp-template-* verwijderen..."
-TEMPLATES=$(gcloud compute instance-templates list --project="$PROJECT_ID" --filter="name~^treeapp-template-" --format="value(name)" 2>/dev/null || echo "")
+# Alle echo20-template-* templates verwijderen (er kunnen er meerdere zijn, één per branch)
+echo "    Alle echo20-template-* verwijderen..."
+TEMPLATES=$(gcloud compute instance-templates list --project="$PROJECT_ID" --filter="name~^echo20-template-" --format="value(name)" 2>/dev/null || echo "")
 if [ -n "$TEMPLATES" ]; then
   for TEMPLATE in $TEMPLATES; do
     gcloud compute instance-templates delete "$TEMPLATE" --project="$PROJECT_ID" --quiet 2>/dev/null && echo "     $TEMPLATE verwijderd" || echo "      $TEMPLATE overgeslagen"

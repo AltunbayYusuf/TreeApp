@@ -4,14 +4,14 @@
 # Bouwt de volledige cloud omgeving op vanaf nul
 # Gebruik: bash setup.sh [BRANCH] [DOMAIN]
 #   - BRANCH: optioneel, default = main
-#   - DOMAIN: optioneel, bv. treeapp.example.com
+#   - DOMAIN: optioneel, bv. kdg-hogeschool.echo20.com
 #             Als opgegeven: HTTPS load balancer + Google-managed SSL worden aangemaakt
 #             Als weggelaten: alleen HTTP op poort 8080 (directe VM toegang)
 #   - Voorbeelden:
 #       bash setup.sh
 #       bash setup.sh main
-#       bash setup.sh main treeapp.example.com
-#       bash setup.sh feature/nieuwe-feature staging.example.com
+#       bash setup.sh main kdg-hogeschool.echo20.com
+#       bash setup.sh feature/cloud-sql-proxy kdg-hogeschool.echo20.com
 #
 # Vereist: je bent ingelogd met gcloud en hebt rechten op project
 # ============================================================
@@ -20,7 +20,7 @@ set -euo pipefail
 
 # Branch om te deployen (default: main)
 BRANCH="${1:-main}"
-# Optioneel domein voor HTTPS (bv. treeapp.example.com of *.example.com)
+# Optioneel domein voor HTTPS (bv. kdg-hogeschool.echo20.com)
 DOMAIN="${2:-}"
 
 # Veilige naam voor in template-naam: vervang '/' door '-' en lowercase
@@ -31,14 +31,14 @@ REGION="europe-west1"
 ZONE="europe-west1-b"
 
 # Cloud SQL
-DB_INSTANCE="treeapp-db-new"
+DB_INSTANCE="echo20-db"
 DB_TIER="db-f1-micro"
 DB_VERSION="POSTGRES_16"
 DB_NAME="TreeApp"
 
 # MIG — template-naam bevat de branch zodat verschillende branches naast elkaar kunnen
-INSTANCE_TEMPLATE="treeapp-template-${BRANCH_SAFE}"
-MIG_NAME="treeapp-mig"
+INSTANCE_TEMPLATE="echo20-template-${BRANCH_SAFE}"
+MIG_NAME="echo20-mig"
 MACHINE_TYPE="e2-medium"
 MIN_VMS=1
 MAX_VMS=3
@@ -46,16 +46,16 @@ CPU_TARGET=0.6
 COOLDOWN=600
 
 # Load balancer resources
-STATIC_IP="treeapp-ip"
-HEALTH_CHECK="treeapp-health-check"
-BACKEND_SERVICE="treeapp-backend"
-URL_MAP="treeapp-url-map"
-SSL_CERT="treeapp-ssl-cert-v2"
-TARGET_HTTPS_PROXY="treeapp-https-proxy"
-FORWARDING_RULE="treeapp-https-rule"
-HTTP_URL_MAP="treeapp-http-redirect"
-TARGET_HTTP_PROXY="treeapp-http-proxy"
-HTTP_FORWARDING_RULE="treeapp-http-rule"
+STATIC_IP="echo20-ip"
+HEALTH_CHECK="echo20-health-check"
+BACKEND_SERVICE="echo20-backend"
+URL_MAP="echo20-url-map"
+SSL_CERT="echo20-ssl-cert"
+TARGET_HTTPS_PROXY="echo20-https-proxy"
+FORWARDING_RULE="echo20-https-rule"
+HTTP_URL_MAP="echo20-http-redirect"
+TARGET_HTTP_PROXY="echo20-http-proxy"
+HTTP_FORWARDING_RULE="echo20-http-rule"
 
 echo " Setup gestart voor project: $PROJECT_ID"
 echo " Deploying branch: $BRANCH"
@@ -139,7 +139,7 @@ else
     --zone="$ZONE" \
     --template="$INSTANCE_TEMPLATE" \
     --size=1 \
-    --base-instance-name=treeapp
+    --base-instance-name=echo20
 fi
 
 # ============================================================
@@ -257,7 +257,7 @@ if [ -n "$DOMAIN" ]; then
     echo "    SSL certificaat bestaat al, overgeslagen"
   else
     gcloud compute ssl-certificates create "$SSL_CERT" \
-      --domains="echo20.com,$DOMAIN" \
+      --domains="$DOMAIN" \
       --global \
       --project="$PROJECT_ID"
     echo "   SSL certificaat aangemaakt — Google provisioneert dit binnen 15-60 min"
@@ -291,7 +291,7 @@ if [ -n "$DOMAIN" ]; then
     echo "    HTTP redirect URL map bestaat al, overgeslagen"
   else
     cat > /tmp/http-redirect.yaml <<"YAMLEOF"
-name: treeapp-http-redirect
+name: echo20-http-redirect
 defaultUrlRedirect:
   redirectResponseCode: MOVED_PERMANENTLY_DEFAULT
   httpsRedirect: true
@@ -342,4 +342,4 @@ echo " Check status met:"
 echo "   gcloud compute instance-groups managed list-instances $MIG_NAME --zone=$ZONE --project=$PROJECT_ID"
 echo ""
 echo " Vind het externe IP:"
-echo "   gcloud compute instances list --filter=\"name~treeapp\" --format=\"value(name,EXTERNAL_IP)\""
+echo "   gcloud compute instances list --filter=\"name~echo20\" --format=\"value(name,EXTERNAL_IP)\""
