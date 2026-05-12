@@ -80,7 +80,18 @@ public class SubAdminProjectsController : Controller
         var json = HttpContext.Session.GetString(key);
         return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json);
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> NewProject(string subplatform)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
 
+        ClearProjectSessions();
+
+        return RedirectToAction(nameof(ProjectInfo), new { subplatform });
+    }
+    
     [HttpGet]
     public async Task<IActionResult> ProjectInfo(string subplatform)
     {

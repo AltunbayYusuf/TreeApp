@@ -1,4 +1,5 @@
 ﻿using IntegratieProject.BL.Domain.project;
+using IntegratieProject.BL.Domain.users;
 using IntegratieProject.DAL.interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,4 +28,23 @@ public class SubplatformRepository : ISubplatformRepository
             .Include(sp => sp.SubAdmins)
             .FirstOrDefault(sp => sp.Id == subPlatformId);
     }
+
+    public void CreateSubPlatform(SubPlatform subPlatform)
+    {
+        _context.SubPlatforms.Add(subPlatform);
+        _context.SaveChanges();
+    }
+
+    public void CreateSubAdmin(SubAdmin subAdmin)
+    {
+        _context.SubAdmins.Add(subAdmin);
+        _context.SaveChanges();
+    }
+
+    public Platform ReadPlatform()
+    {
+        return _context.Platforms.First();
+    }
+
+ 
 }

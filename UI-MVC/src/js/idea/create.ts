@@ -1,5 +1,5 @@
 ﻿// ideas/create.ts
-import { DomUtils } from "../helpers/utils";
+import {DomUtils} from "../helpers/utils";
 
 type IdeaResponse = {
     ok?: boolean;
@@ -29,6 +29,8 @@ export class IdeaCreator {
     private topicId = "";
     private title = "";
     private text = "";
+    
+    private recognition: SpeechRecognition | null = null;
 
     // Toegevoegd: gekozen afbeelding bijhouden
     private imageFile: File | null = null;
@@ -43,6 +45,8 @@ export class IdeaCreator {
         document.getElementById("submit-idea-btn")?.addEventListener("click", this.handleSubmit.bind(this));
         document.getElementById("ai-improve-create-btn")?.addEventListener("click", this.handleImproveWithAi.bind(this));
         document.getElementById("use-ai-improvement-btn")?.addEventListener("click", this.useAiImprovement.bind(this));
+        document.getElementById("speech-to-text-btn")?.addEventListener("click", this.startSpeechToText.bind(this));
+        document.getElementById("stop-speech-btn")?.addEventListener("click", this.stopSpeechToText.bind(this));
         document.getElementById("submitWithFollowUpsBtn")?.addEventListener("click", this.handleSubmitWithFollowUps.bind(this));
         document.getElementById("skipFollowUpsBtn")?.addEventListener("click", this.handleSkipFollowUps.bind(this));
         // Toegevoegd: afbeelding preview
@@ -90,6 +94,90 @@ export class IdeaCreator {
 
         previewImage.src = URL.createObjectURL(file);
         previewWrapper.style.display = "block";
+    }
+    private startSpeechToText(): void {
+        const SpeechRecognitionConstructor =
+            window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        const ideaText = document.getElementById("idea-text") as HTMLTextAreaElement | null;
+        const startButton = document.getElementById("speech-to-text-btn") as HTMLButtonElement | null;
+        const stopButton = document.getElementById("stop-speech-btn") as HTMLButtonElement | null;
+        const speechStatus = document.getElementById("speech-status") as HTMLElement | null;
+
+        if (!ideaText) {
+            return;
+        }
+
+        if (!SpeechRecognitionConstructor) {
+            this.showError("Spraak naar tekst wordt niet ondersteund door deze browser. Probeer Google Chrome.");
+            return;
+        }
+
+        this.recognition = new SpeechRecognitionConstructor();
+        this.recognition.lang = "nl-BE";
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+
+        let finalTranscript = ideaText.value.trim();
+
+        this.recognition.onstart = () => {
+            if (startButton) startButton.style.display = "none";
+            if (stopButton) stopButton.style.display = "inline-block";
+            if (speechStatus) {
+                speechStatus.style.display = "block";
+                speechStatus.textContent = "🎤 Ik luister... spreek je idee rustig in.";
+            }
+        };
+
+        this.recognition.onresult = (event: SpeechRecognitionEvent) => {
+            let interimTranscript = "";
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+
+                if (event.results[i].isFinal) {
+                    finalTranscript += finalTranscript ? ` ${transcript}` : transcript;
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+
+            ideaText.value = `${finalTranscript} ${interimTranscript}`.trim();
+        };
+
+        this.recognition.onerror = () => {
+            this.showError("Er ging iets mis met de spraakherkenning. Probeer opnieuw.");
+            this.resetSpeechButtons();
+        };
+
+        this.recognition.onend = () => {
+            this.resetSpeechButtons();
+        };
+
+        this.recognition.start();
+    }
+
+    private stopSpeechToText(): void {
+        if (this.recognition) {
+            this.recognition.stop();
+            this.recognition = null;
+        }
+
+        this.resetSpeechButtons();
+    }
+
+    private resetSpeechButtons(): void {
+        const startButton = document.getElementById("speech-to-text-btn") as HTMLButtonElement | null;
+        const stopButton = document.getElementById("stop-speech-btn") as HTMLButtonElement | null;
+        const speechStatus = document.getElementById("speech-status") as HTMLElement | null;
+
+        if (startButton) startButton.style.display = "inline-block";
+        if (stopButton) stopButton.style.display = "none";
+
+        if (speechStatus) {
+            speechStatus.style.display = "none";
+            speechStatus.textContent = "";
+        }
     }
 
     private async handleImproveWithAi(): Promise<void> {
@@ -382,7 +470,7 @@ export class IdeaCreator {
             }
 
             if (followUpBlock) {
-                followUpBlock.classList.add("d-none");
+                followUpBlock.style.display = "none";
             }
 
             this.followUpQuestionsShown = true;
@@ -461,7 +549,7 @@ export class IdeaCreator {
             container.appendChild(wrapper);
         });
 
-        block.classList.remove("d-none");
+        block.style.display = "block";
         this.followUpQuestionsShown = true;
 
         return true;
