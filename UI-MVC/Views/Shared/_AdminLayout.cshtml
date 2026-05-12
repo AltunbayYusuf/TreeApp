@@ -150,6 +150,19 @@
                     </span>
                     Subplatforms
                 </a>
+                <a class="sidebar-link @(ctrl == "AdminAiPrompts" ? "active" : "")"
+                   asp-controller="AdminAiPrompts"
+                   asp-action="Index">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 12h6" />
+                            <path d="M9 16h6" />
+                            <path d="M9 8h6" />
+                            <path d="M5 4h14v16H5z" />
+                        </svg>
+                    </span>
+                    Prompts
+                </a>
             }
 
         </nav>

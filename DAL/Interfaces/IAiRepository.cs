@@ -14,4 +14,7 @@ public interface IAiRepository
         string summary,
         int answerCount,
         int lastAnswerId);
+    IList<AiPrompt> ReadAllAiPrompts();
+    AiPrompt ReadAiPromptById(int id);
+    void UpdateAiPrompt(AiPrompt prompt);
 }

@@ -124,6 +124,7 @@ builder.Services.AddScoped<IAiSummaryIdeas, AiSummaryIdeas>();
 
 builder.Services.AddScoped<IAiRepository, AiRepository>();
 builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
+builder.Services.AddScoped<IAiPromptManager, AiPromptManager>();
 
 builder.Services.AddScoped<IIntroTextService, IntroTextService>();
 builder.Services.AddScoped<IImageGenerationService, DummyImageGenerationService>();

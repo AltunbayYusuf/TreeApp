@@ -959,9 +959,10 @@ public class DataSeeder
             IsActive = true
         };
 
-        var surveyGeneraration = new AiPrompt
+        var surveyGeneration = new AiPrompt
         {
             Key = "survey_generation",
+            Name = "survey generation",
             PromptText = """ 
                          Je bent een AI-assistent die helpt om vragenlijsten te maken voor participatieprojecten.
 
@@ -1102,6 +1103,7 @@ public class DataSeeder
         var openQuestionSummaryPrompt = new AiPrompt
         {
             Key = "open_question_summary",
+            Name = "Open question summary",
             PromptText = """
                          Vat de open antwoorden kort samen voor een subadmin.
 
@@ -1134,6 +1136,7 @@ public class DataSeeder
         var ideaFollowUpPrompt = new AiPrompt
         {
             Key = "idea_follow_up_questions",
+            Name = "idea follow up questions",
             PromptText = """
                          Je beoordeelt of een idee extra verduidelijking nodig heeft.
 
@@ -1380,7 +1383,7 @@ public class DataSeeder
         dbContext.AiPrompts.Add(reactionModerationPrompt);
         dbContext.AiPrompts.Add(projectImagePrompt);
         dbContext.AiPrompts.Add(projectIntroPrompt);
-        dbContext.AiPrompts.Add(surveyGeneraration);
+        dbContext.AiPrompts.Add(surveyGeneration);
         dbContext.AiPrompts.Add(ideaImprovementPrompt);
         dbContext.AiPrompts.Add(projectTrendSummaryPrompt);
         dbContext.AiPrompts.Add(openQuestionSummaryPrompt);

@@ -18,6 +18,7 @@ import './js/createSurvey/project-info';
 import './js/translation/translation';
 import './js/fontSize/font-size';
 import './js/admin/newSubplatform.ts';
+import './js/admin/prompts.ts';
 
 const fontSizeStorageKey = 'echo-font-size';
 const fontSizeStep = 0.1;

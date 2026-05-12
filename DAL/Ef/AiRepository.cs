@@ -50,4 +50,22 @@ public class AiRepository :  IAiRepository
 
         _context.SaveChanges();
     }
+    
+    public IList<AiPrompt> ReadAllAiPrompts()
+    {
+        return _context.AiPrompts
+            .OrderBy(p => p.Name)
+            .ToList();
+    }
+
+    public AiPrompt ReadAiPromptById(int id)
+    {
+        return _context.AiPrompts.FirstOrDefault(p => p.Id == id);
+    }
+
+    public void UpdateAiPrompt(AiPrompt prompt)
+    {
+        _context.AiPrompts.Update(prompt);
+        _context.SaveChanges();
+    }
 }
