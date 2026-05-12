@@ -1,3 +1,4 @@
+using System.Text.Json;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Domain.ideas;
@@ -222,5 +223,71 @@ public class IdeaManager : IIdeaManager
 
         return improvedText.Trim();
     }
+    public async Task<List<string>> GenerateIdeaFollowUpQuestionsAsync(string title, string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            throw new ArgumentException("Idea text is required.");
+        }
+
+        var prompt = _aiPromptService.BuildIdeaFollowUpQuestionsPrompt(title ?? string.Empty, text);
+
+        var aiResponse = await _aiProvider.GenerateAsync(prompt);
+
+        if (string.IsNullOrWhiteSpace(aiResponse))
+        {
+            return new List<string>();
+        }
+
+        try
+        {
+            var questions = JsonSerializer.Deserialize<List<string>>(aiResponse);
+
+            return questions?
+                       .Where(q => !string.IsNullOrWhiteSpace(q))
+                       .Select(q => q.Trim())
+                       .Take(2)
+                       .ToList()
+                   ?? new List<string>();
+        }
+        catch
+        {
+            return new List<string>();
+        }
+    }
     
+    public async Task SubmitIdeaWithoutAiModerationAsync(int topicId, string title, string text, int? userId, string imageUri = null)
+    {
+        var topic = _repository.ReadTopicById(topicId);
+        if (topic == null)
+        {
+            throw new Exception("Topic niet gevonden");
+        }
+
+        var idea = new Idea
+        {
+            Title = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title.Trim(),
+            Text = text?.Trim() ?? "",
+            UserId = userId,
+            Topic = topic,
+            ModerationStatus = ModerationStatus.Accepted,
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
+            {
+                Uri = imageUri
+            }
+        };
+
+        _manager.ValidateEntity(idea);
+        _ideaRepository.AddIdea(idea);
+
+        await Task.CompletedTask;
+    }
+    
+    public async Task<ToxicityResult> ModerateIdeaOnlyAsync(string title, string text)
+    {
+        return await _aiModerationService.ModerateIdeaAsync(
+            title ?? string.Empty,
+            text ?? string.Empty
+        );
+    }
 }

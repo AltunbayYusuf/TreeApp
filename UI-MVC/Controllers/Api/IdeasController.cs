@@ -1,9 +1,10 @@
 using System.Text.Json;
+using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
+using IntegratieProject.UI.MVC.Models.Dto;
 using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -105,13 +106,41 @@ public class IdeasController : ControllerBase
 
         var user = SaveContactPreference(vm);
 
-        var result = await _ideaManager.SubmitIdeaAsync(
-            vm.TopicId,
-            vm.Title,
-            vm.Text,
-            user.Id,
-            imageUri
-        );
+        var finalText = vm.Text;
+
+        if (!string.IsNullOrWhiteSpace(vm.FollowUpAnswers))
+        {
+            finalText += "\n\nExtra verduidelijking:\n" + vm.FollowUpAnswers.Trim();
+        }
+        
+
+        ToxicityResult result;
+
+        if (vm.SkipAiModeration)
+        {
+            await _ideaManager.SubmitIdeaWithoutAiModerationAsync(
+                vm.TopicId,
+                vm.Title,
+                finalText,
+                user.Id,
+                imageUri
+            );
+
+            result = new ToxicityResult
+            {
+                IsToxic = false
+            };
+        }
+        else
+        {
+            result = await _ideaManager.SubmitIdeaAsync(
+                vm.TopicId,
+                vm.Title,
+                finalText,
+                user.Id,
+                imageUri
+            );
+        }
 
         if (result.IsToxic)
         {
@@ -171,10 +200,17 @@ public class IdeasController : ControllerBase
 
         var user = SaveContactPreference(vm);
 
+        var finalText = vm.Text;
+
+        if (!string.IsNullOrWhiteSpace(vm.FollowUpAnswers))
+        {
+            finalText += "\n\nExtra verduidelijking:\n" + vm.FollowUpAnswers.Trim();
+        }
+
         await _ideaManager.ForceSubmitIdeaAsync(
             vm.TopicId,
             vm.Title,
-            vm.Text,
+            finalText,
             user.Id,
             imageUri
         );
@@ -281,5 +317,59 @@ public class IdeasController : ControllerBase
                 message = "AI tijdelijk niet beschikbaar."
             });
         }
+    }
+    
+    [HttpPost("follow-up-questions")]
+    
+    public async Task<ActionResult> GenerateFollowUpQuestions([FromBody] IdeaFollowUpQuestionsDto dto)
+    {
+        if (dto == null || string.IsNullOrWhiteSpace(dto.Text))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Geef eerst een idee in."
+            });
+        }
+
+        var questions = await _ideaManager.GenerateIdeaFollowUpQuestionsAsync(dto.Title, dto.Text);
+
+        return Ok(new
+        {
+            ok = true,
+            questions
+        });
+    }
+    
+    [HttpPost("moderate")]
+    public async Task<IActionResult> ModerateIdea([FromBody] IdeaFollowUpQuestionsDto dto)
+    {
+        if (dto == null || string.IsNullOrWhiteSpace(dto.Text))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Geef eerst een idee in."
+            });
+        }
+
+        var finalText = dto.Text;
+
+        if (!string.IsNullOrWhiteSpace(dto.FollowUpAnswers))
+        {
+            finalText += "\n\nExtra verduidelijking:\n" + dto.FollowUpAnswers.Trim();
+        }
+
+        var result = await _ideaManager.ModerateIdeaOnlyAsync(dto.Title, finalText);
+
+        return Ok(new
+        {
+            ok = true,
+            isToxic = result.IsToxic,
+            warning = "Deze tekst bevat toxische inhoud en werd niet verzonden.",
+            explanation = result.Explanation,
+            suggestedTitle = result.SuggestedTitle,
+            suggestedText = result.SuggestedText
+        });
     }
 }

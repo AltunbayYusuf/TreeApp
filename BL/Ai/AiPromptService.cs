@@ -94,4 +94,14 @@ public class AiPromptService : IAiPromptService
             .Replace("{{question}}", question)
             .Replace("{{answers}}", answers);
     }
+    
+    public string BuildIdeaFollowUpQuestionsPrompt(string title, string text)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("idea_follow_up_questions")
+                     ?? throw new InvalidOperationException("Prompt 'idea_follow_up_questions' niet gevonden.");
+
+        return prompt.PromptText
+            .Replace("{title}", title)
+            .Replace("{text}", text);
+    }
 }

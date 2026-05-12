@@ -10,4 +10,5 @@ public interface IAiPromptService
     string BuildIdeaImprovementPrompt(string title, string text);
     string BuildProjectTrendSummaryPrompt(string projectData);
     string BuildOpenQuestionSummaryPrompt(string question, string answers);
+    string BuildIdeaFollowUpQuestionsPrompt(string title, string text);
 }

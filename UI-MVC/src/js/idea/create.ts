@@ -19,6 +19,12 @@ type ImproveIdeaResponse = {
     message?: string;
 };
 
+type FollowUpQuestionsResponse = {
+    ok?: boolean;
+    questions?: string[];
+    message?: string;
+};
+
 export class IdeaCreator {
     private topicId = "";
     private title = "";
@@ -29,15 +35,26 @@ export class IdeaCreator {
 
     private aiAlternativeTitle = "";
     private aiAlternativeText = "";
+    private followUpQuestionsShown = false;
+    private skipAiModerationForNextSubmit = false;
 
     init(): void {
         document.getElementById("idea-contact-opt-in")?.addEventListener("change", this.toggleContactEmail.bind(this));
         document.getElementById("submit-idea-btn")?.addEventListener("click", this.handleSubmit.bind(this));
         document.getElementById("ai-improve-create-btn")?.addEventListener("click", this.handleImproveWithAi.bind(this));
         document.getElementById("use-ai-improvement-btn")?.addEventListener("click", this.useAiImprovement.bind(this));
-
+        document.getElementById("submitWithFollowUpsBtn")?.addEventListener("click", this.handleSubmitWithFollowUps.bind(this));
+        document.getElementById("skipFollowUpsBtn")?.addEventListener("click", this.handleSkipFollowUps.bind(this));
         // Toegevoegd: afbeelding preview
         document.getElementById("idea-image")?.addEventListener("change", this.handleImagePreview.bind(this));
+
+        document.getElementById("idea-title")?.addEventListener("input", () => {
+            this.skipAiModerationForNextSubmit = false;
+        });
+
+        document.getElementById("idea-text")?.addEventListener("input", () => {
+            this.skipAiModerationForNextSubmit = false;
+        });
 
         this.toggleContactEmail();
     }
@@ -210,15 +227,37 @@ export class IdeaCreator {
             return;
         }
 
-        const data = await this.postIdea("/api/ideas", false);
+
+        const followUpAnswers = (
+            document.getElementById("followUpAnswers") as HTMLInputElement | null
+        )?.value?.trim() ?? "";
+
+        if (!this.skipAiModerationForNextSubmit) {
+            const moderationData = await this.moderateIdea(followUpAnswers);
+
+            if (!moderationData.ok) {
+                this.showError(moderationData.message || "AI-moderatie is tijdelijk niet beschikbaar.");
+                return;
+            }
+
+            if (moderationData.isToxic) {
+                this.showAiWarning(moderationData);
+                return;
+            }
+        }
+
+        if (!this.followUpQuestionsShown && !followUpAnswers) {
+            const hasQuestions = await this.loadFollowUpQuestions();
+
+            if (hasQuestions) {
+                return;
+            }
+        }
+
+        const data = await this.postIdea("/api/ideas", true);
 
         if (!data.ok) {
             this.showError(data.message || "Er ging iets mis.");
-            return;
-        }
-
-        if (data.isToxic) {
-            this.showAiWarning(data);
             return;
         }
 
@@ -232,6 +271,23 @@ export class IdeaCreator {
         window.location.href = DomUtils.getProjectRedirectUrl("Idea");
     }
 
+    private async moderateIdea(followUpAnswers: string): Promise<IdeaResponse> {
+        const response = await fetch("/api/ideas/moderate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                title: this.title,
+                text: this.text,
+                followUpAnswers
+            })
+        });
+
+        return await response.json() as IdeaResponse;
+    }
+
     private async postIdea(url: string, skipAiModeration: boolean): Promise<IdeaResponse> {
         const contactOptIn = document.getElementById("idea-contact-opt-in") as HTMLInputElement | null;
         const contactEmail = document.getElementById("idea-contact-email") as HTMLInputElement | null;
@@ -242,6 +298,8 @@ export class IdeaCreator {
         formData.append("topicId", String(Number(this.topicId)));
         formData.append("title", this.title);
         formData.append("text", this.text);
+        const followUpAnswers = document.getElementById("followUpAnswers") as HTMLInputElement | null;
+        formData.append("followUpAnswers", followUpAnswers?.value ?? "");
         formData.append("contactOptIn", String(contactOptIn?.checked ?? false));
         formData.append("email", contactEmail?.value.trim() ?? "");
         formData.append("subplatformSlug", subplatformSlug?.value ?? "");
@@ -311,6 +369,25 @@ export class IdeaCreator {
                 ideaText.focus();
             }
 
+            const followUpAnswersInput = document.getElementById("followUpAnswers") as HTMLInputElement | null;
+            const followUpBlock = document.getElementById("followUpQuestionsBlock") as HTMLDivElement | null;
+            const followUpContainer = document.getElementById("followUpQuestionsContainer") as HTMLDivElement | null;
+
+            if (followUpAnswersInput) {
+                followUpAnswersInput.value = "";
+            }
+
+            if (followUpContainer) {
+                followUpContainer.innerHTML = "";
+            }
+
+            if (followUpBlock) {
+                followUpBlock.classList.add("d-none");
+            }
+
+            this.followUpQuestionsShown = true;
+            
+            this.skipAiModerationForNextSubmit = true;
             this.clearAiMessage();
         });
     }
@@ -326,6 +403,103 @@ export class IdeaCreator {
         this.clearAiMessage();
         alert("Idee doorgestuurd voor moderatie.");
         window.location.href = DomUtils.getProjectRedirectUrl("Idea");
+    }
+
+    private async loadFollowUpQuestions(): Promise<boolean> {
+        const title = (document.getElementById("idea-title") as HTMLInputElement)?.value.trim() ?? "";
+        const text = (document.getElementById("idea-text") as HTMLTextAreaElement)?.value.trim() ?? "";
+
+        const token = document.querySelector<HTMLInputElement>('input[name="__RequestVerificationToken"]')?.value ?? "";
+
+        const response = await fetch("/api/ideas/follow-up-questions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": token
+            },
+            body: JSON.stringify({
+                title,
+                text
+            })
+        });
+
+        const data = await response.json() as FollowUpQuestionsResponse;
+
+        const validQuestions = (data.questions ?? [])
+            .map(q => q.trim())
+            .filter(q => q.length > 0)
+            .slice(0, 2);
+
+        if (!response.ok || !data.ok || validQuestions.length === 0) {
+            return false;
+        }
+
+        const block = document.getElementById("followUpQuestionsBlock");
+        const container = document.getElementById("followUpQuestionsContainer");
+
+        if (!block || !container) {
+            return false;
+        }
+
+        container.innerHTML = "";
+
+        validQuestions.forEach((question, index) => {
+            const wrapper = document.createElement("div");
+
+            wrapper.innerHTML = `
+            <label class="form-label fw-semibold" for="follow-up-answer-${index}">
+                ${question}
+            </label>
+            <textarea
+                id="follow-up-answer-${index}"
+                class="form-control follow-up-answer"
+                rows="3"
+                maxlength="500"
+                placeholder="Typ hier je antwoord..."></textarea>
+        `;
+
+            container.appendChild(wrapper);
+        });
+
+        block.classList.remove("d-none");
+        this.followUpQuestionsShown = true;
+
+        return true;
+    }
+
+    private handleSubmitWithFollowUps(): void {
+        const answers = Array.from(document.querySelectorAll<HTMLTextAreaElement>(".follow-up-answer"))
+            .map((textarea, index) => {
+                const questionLabel = document.querySelector<HTMLLabelElement>(`label[for="follow-up-answer-${index}"]`);
+                const question = questionLabel?.textContent?.trim() ?? `Vraag ${index + 1}`;
+                const answer = textarea.value.trim();
+
+                if (!answer) {
+                    return "";
+                }
+
+                return `${question}\n${answer}`;
+            })
+            .filter(Boolean)
+            .join("\n\n");
+
+        const hiddenInput = document.getElementById("followUpAnswers") as HTMLInputElement | null;
+
+        if (hiddenInput) {
+            hiddenInput.value = answers;
+        }
+
+        this.handleSubmit(new Event("submit"));
+    }
+
+    private handleSkipFollowUps(): void {
+        const hiddenInput = document.getElementById("followUpAnswers") as HTMLInputElement | null;
+
+        if (hiddenInput) {
+            hiddenInput.value = "";
+        }
+
+        this.handleSubmit(new Event("submit"));
     }
 }
 

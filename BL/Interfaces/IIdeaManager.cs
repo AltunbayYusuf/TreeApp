@@ -16,5 +16,7 @@ public interface IIdeaManager
     void RejectIdea(int ideaId);
     Task<string> ImproveIdeaTextAsync(string title, string text);
     Task<string> ImproveIdeaTextAsync(int ideaId);
-
+    Task<List<string>> GenerateIdeaFollowUpQuestionsAsync(string title, string text);
+    Task SubmitIdeaWithoutAiModerationAsync(int topicId, string title, string text, int? userId, string imageUri = null);
+    Task<ToxicityResult> ModerateIdeaOnlyAsync(string title, string text);
 }
