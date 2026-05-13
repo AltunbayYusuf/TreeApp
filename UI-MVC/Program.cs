@@ -1,4 +1,5 @@
 using System.Threading.RateLimiting;
+using IntegratieProject.UI.MVC.Middleware;
 using Google.Cloud.AIPlatform.V1;
 using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
@@ -12,10 +13,8 @@ using IntegratieProject.DAL.Interfaces;
 using IntegratieProject.UI.MVC;
 using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
 
@@ -177,12 +176,10 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider
         .GetRequiredService<TreeDbContext>();
-
     if (context.CreateDatabase(dropDatabase: true))
     {
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
         SeedIdentity(userManager, roleManager);
 
         var adminUser = userManager.FindByEmailAsync("admin@gmail.com").Result;
@@ -208,6 +205,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
+app.UseMiddleware<SubdomainMiddleware>();
 app.UseAuthentication();
 app.UseRateLimiter();
 app.UseAuthorization();
@@ -216,30 +214,38 @@ app.MapStaticAssets();
 
 app.MapHealthChecks("/health").AllowAnonymous();
 
-app.MapGet("/", () => Results.Redirect("/kdg-hogeschool"));
+app.MapControllerRoute(
+    name: "platform_admin",
+    pattern: "Platform/{action=Index}/{id?}",
+    defaults: new { controller = "Platform" });
 
 app.MapControllerRoute(
-    name: "subplatform_root",
-    pattern: "{subplatform}",
+    name: "slug_root",
+    pattern: "{subplatform:regex([a-z][a-z0-9-]*-[a-z0-9-]+)}",
     defaults: new { controller = "Project", action = "RedirectToFirstProject" });
 
 app.MapControllerRoute(
-    name: "subplatform_short",
-    pattern: "{subplatform}/{controller=Project}/{id:int}",
+    name: "slug_short",
+    pattern: "{subplatform:regex([a-z][a-z0-9-]*-[a-z0-9-]+)}/{controller=Project}/{id:int}",
     defaults: new { action = "Index" });
-//  kdg-hogeschool/Project -> standaard een /1 achter de schermen 
-app.MapControllerRoute(
-    name: "subplatform_default",
-    pattern: "{subplatform}/{controller=Project}",
-    defaults: new { action = "Index", id = 1 });
 
 app.MapControllerRoute(
-    name: "subplatform_action",
-    pattern: "{subplatform}/{controller=Project}/{action=Index}/{id?}");
+    name: "slug_default",
+    pattern: "{subplatform:regex([a-z][a-z0-9-]*-[a-z0-9-]+)}/{controller=Project}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "root",
+    pattern: "",
+    defaults: new { controller = "Project", action = "RedirectToFirstProject" });
+
+app.MapControllerRoute(
+    name: "short",
+    pattern: "{controller=Project}/{id:int}",
+    defaults: new { action = "Index" });
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Project}/{action=Index}/{id=1}");
+    pattern: "{controller=Project}/{action=Index}/{id?}");
 
 
 app.MapRazorPages();
@@ -251,9 +257,7 @@ void SeedIdentity(UserManager<ApplicationUser> userManager, RoleManager<Identity
     var adminuser = new ApplicationUser
     {
         UserName = "admin@gmail.com",
-        Email = "admin@gmail.com",
-        SubPlatformSlug = "admin"
-
+        Email = "admin@gmail.com"
     };
     userManager.CreateAsync(adminuser, "Test123!").Wait();
 

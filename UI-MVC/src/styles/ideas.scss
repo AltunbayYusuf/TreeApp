@@ -1,0 +1,177 @@
+// ── Ideas pagina's ────────────────────────────────────────────────────────────
+.ideas-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem 0.75rem 3rem;
+}
+
+.ideas-page-header {
+  margin-bottom: 1.5rem;
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--echo-text);
+    margin-bottom: 0.25rem;
+  }
+}
+
+.ideas-filter-bar {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: flex-end;
+  box-shadow: var(--echo-shadow);
+}
+
+// ── Idee kaart ────────────────────────────────────────────────────────────────
+.idea-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--echo-shadow);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+
+  &:hover {
+    box-shadow: var(--echo-shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .idea-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--echo-text);
+    margin-bottom: 0.45rem;
+  }
+
+  .idea-body {
+    color: var(--echo-muted);
+    font-size: 0.92rem;
+    line-height: 1.65;
+    margin-bottom: 0.75rem;
+  }
+
+  .idea-topic-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(99,102,241,0.08);
+    color: var(--echo-primary);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    margin-bottom: 0.875rem;
+
+    &::before {
+      content: '#';
+      opacity: 0.6;
+    }
+  }
+}
+
+// ── Reacties sectie ───────────────────────────────────────────────────────────
+.reactions-wrapper {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1rem;
+  margin-top: 0.75rem;
+
+  .reactions-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--echo-muted);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.reactions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.75rem;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    background: #f8fafc;
+    border-radius: 0.4rem;
+    font-size: 0.87rem;
+    color: var(--echo-muted);
+    margin-bottom: 0.3rem;
+  }
+}
+
+.no-reactions-message {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+// Reactie form
+.reaction-form .form-control {
+  border-color: var(--echo-border);
+  resize: none;
+
+  &:focus {
+    border-color: var(--echo-primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+}
+
+.reaction-result {
+  font-size: 0.87rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.4rem;
+  background: rgba(16,185,129,0.08);
+  color: #065f46;
+  border-left: 3px solid var(--echo-success);
+}
+
+// ── Idee aanmaken pagina ──────────────────────────────────────────────────────
+.create-idea-wrapper {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem 0.75rem 3rem;
+}
+
+.create-idea-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius-lg);
+  box-shadow: var(--echo-shadow-md);
+  overflow: hidden;
+}
+
+.create-idea-header {
+  background: linear-gradient(135deg, var(--echo-primary) 0%, var(--echo-secondary) 100%);
+  padding: 1.75rem 2rem;
+  color: #fff;
+
+  h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin: 0 0 0.3rem;
+  }
+
+  p {
+    margin: 0;
+    opacity: 0.85;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+}
+
+.create-idea-body {
+  padding: 2rem;
+}

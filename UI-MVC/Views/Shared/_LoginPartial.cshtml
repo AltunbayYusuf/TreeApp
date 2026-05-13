@@ -11,27 +11,21 @@
     @if (SignInManager.IsSignedIn(User))
     {
         <li class="nav-item">
-            <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index"
-               title="Manage">Hello @UserManager.GetUserName(User)!</a>
+            <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
+               title="Beheer account">👤 @UserManager.GetUserName(User)</a>
         </li>
         @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
         {
             <li class="nav-item">
-                <a class="nav-link text-dark" id="register" asp-area="Identity"
+                <a class="nav-link" id="register" asp-area="Identity"
                    asp-page="/Account/Register">Register</a>
             </li>
         }
 
         <li class="nav-item">
             @{
-                var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
-
-                if (string.IsNullOrWhiteSpace(currentSubplatform))
-                {
-                    currentSubplatform = Context.Request.Query["subplatform"].ToString();
-                }
-
-                var logoutReturnUrl = "/";
+                var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
+                var logoutProjectId = "";
 
                 if (!string.IsNullOrWhiteSpace(currentSubplatform))
                 {
@@ -39,7 +33,7 @@
 
                     if (firstProject != null)
                     {
-                        logoutReturnUrl = $"/{currentSubplatform}/Project/{firstProject.Id}";
+                        logoutProjectId = firstProject.Id.ToString();
                     }
                 }
             }
@@ -47,17 +41,15 @@
             <form class="form-inline"
                   asp-area="Identity"
                   asp-page="/Account/Logout"
-                  asp-route-returnUrl="@logoutReturnUrl"
+                  asp-route-returnUrl="@($"/{currentSubplatform}/Project/{logoutProjectId}")"
                   method="post">
-                <button type="submit" class="nav-link btn btn-link text-dark">
-                    Click here to Logout
-                </button>
+                <button type="submit" class="nav-link btn btn-link">Uitloggen</button>
             </form>
         </li>
     }
     else
     {
-        <a class="nav-link text-dark"
+        <a class="nav-link"
            id="login"
            asp-area="Identity"
            asp-page="/Account/Login"

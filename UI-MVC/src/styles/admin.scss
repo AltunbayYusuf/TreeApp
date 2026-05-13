@@ -1,0 +1,524 @@
+// ── Admin Dashboard (SubAdmin) ────────────────────────────────────────────────
+// admin-content in de layout voorziet de horizontale padding
+.admin-page {
+  padding: 2rem 0 3rem;
+}
+
+.admin-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .admin-title {
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--echo-text);
+    margin: 0;
+  }
+
+  .admin-subtitle {
+    color: var(--echo-muted);
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+  }
+}
+
+// ── Stat cards ────────────────────────────────────────────────────────────────
+.stat-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  padding: 1.5rem;
+  height: 100%;
+  box-shadow: var(--echo-shadow);
+  transition: box-shadow 0.2s, transform 0.15s;
+  border-top: 3px solid var(--echo-border);
+
+  &:hover {
+    box-shadow: var(--echo-shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .stat-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--echo-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .stat-value {
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    margin: 0;
+    color: var(--echo-text);
+  }
+
+  &.stat-neutral  { border-top-color: var(--echo-border);     }
+  &.stat-success  { border-top-color: var(--echo-success);  .stat-value { color: var(--echo-success);  } }
+  &.stat-primary  { border-top-color: var(--echo-primary);  .stat-value { color: var(--echo-primary);  } }
+  &.stat-secondary{ border-top-color: var(--echo-secondary);.stat-value { color: var(--echo-secondary);} }
+}
+
+// ── Admin table ───────────────────────────────────────────────────────────────
+.admin-table-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  box-shadow: var(--echo-shadow);
+  overflow: hidden;
+}
+
+.admin-filter-bar {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--echo-border);
+  background: #fafbfc;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+// Status badges (project tabel)
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  &.status-active   { background: rgba(16,185,129,0.1);  color: #059669; }
+  &.status-draft    { background: rgba(100,116,139,0.1); color: #475569; }
+  &.status-archived { background: rgba(245,158,11,0.1);  color: #b45309; }
+}
+
+// ── Admin tabbladen (project aanmaken) ────────────────────────────────────────
+.admin-tabs {
+  border-bottom: 2px solid var(--echo-border);
+  margin-bottom: 1.75rem;
+  display: flex;
+  gap: 0;
+
+  .admin-tab-link {
+    color: var(--echo-muted);
+    font-weight: 500;
+    font-size: 0.9rem;
+    padding: 0.7rem 1.2rem;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    background: none;
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer;
+    border-radius: 0.4rem 0.4rem 0 0;
+
+    &:hover {
+      color: var(--echo-primary);
+      background: rgba(99,102,241,0.05);
+      text-decoration: none;
+    }
+
+    &.active {
+      color: var(--echo-primary);
+      border-bottom-color: var(--echo-primary);
+      font-weight: 700;
+      background: rgba(99,102,241,0.05);
+    }
+  }
+}
+
+// ── Admin form cards ──────────────────────────────────────────────────────────
+.admin-form-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius-lg);
+  padding: 2rem;
+  box-shadow: var(--echo-shadow);
+  margin-bottom: 1.5rem;
+
+  .admin-form-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--echo-text);
+    margin-bottom: 0.3rem;
+  }
+
+  .admin-form-subtitle {
+    font-size: 0.87rem;
+    color: var(--echo-muted);
+    margin-bottom: 1.5rem;
+  }
+}
+
+// ── Upload zone ───────────────────────────────────────────────────────────────
+.upload-zone {
+  border: 2px dashed var(--echo-border);
+  border-radius: var(--echo-radius-lg);
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background: #fafbfc;
+  transition: border-color 0.2s, background 0.2s;
+
+  &:hover {
+    border-color: var(--echo-primary);
+    background: rgba(99,102,241,0.03);
+  }
+
+  .upload-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.875rem;
+    color: #cbd5e1;
+    display: block;
+  }
+}
+
+// ── Project type kaarten ──────────────────────────────────────────────────────
+.type-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.project-type-label {
+  cursor: pointer;
+  display: block;
+
+  input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .project-type-card {
+    border: 2px solid var(--echo-border);
+    border-radius: var(--echo-radius-lg);
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.2s ease;
+    background: #fff;
+
+    &:hover {
+      border-color: var(--echo-primary);
+      box-shadow: 0 0 0 4px rgba(99,102,241,0.1);
+    }
+
+    .type-icon {
+      width: 44px;
+      height: 44px;
+      background: rgba(99,102,241,0.08);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      margin-bottom: 0.875rem;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--echo-text);
+      margin-bottom: 0.35rem;
+    }
+
+    p {
+      font-size: 0.85rem;
+      color: var(--echo-muted);
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  input[type="radio"]:checked + .project-type-card {
+    border-color: var(--echo-primary);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.12);
+    background: rgba(99,102,241,0.03);
+  }
+}
+
+// ── AI assistent kaart ────────────────────────────────────────────────────────
+.ai-assistant-card {
+  background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%);
+  border: 2px solid #c4b5fd;
+  border-radius: var(--echo-radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  .ai-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #5b21b6;
+    margin-bottom: 0.3rem;
+  }
+
+  .ai-card-subtitle {
+    font-size: 0.87rem;
+    color: #7c3aed;
+    opacity: 0.85;
+    margin-bottom: 1rem;
+  }
+
+  .btn-ai {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1.1rem;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(109,40,217,0.35);
+      color: #fff;
+    }
+  }
+
+  .ai-message {
+    font-size: 0.87rem;
+    color: #7c3aed;
+    margin-left: 0.5rem;
+  }
+}
+
+// ── Topic kaarten (ideation) ──────────────────────────────────────────────────
+.topic-card {
+  background: #fafbfc;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  padding: 1.25rem;
+  margin-bottom: 0.875rem;
+  transition: box-shadow 0.2s;
+
+  &:hover { box-shadow: var(--echo-shadow); }
+
+  .topic-number {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--echo-primary);
+    margin-bottom: 0.75rem;
+  }
+}
+
+// ── Emoji group selector ──────────────────────────────────────────────────────
+.emoji-group {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  border: 2px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  padding: 0.75rem 1.25rem;
+  background: #fff;
+  cursor: pointer;
+  font-size: 1.75rem;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: var(--echo-primary);
+    background: rgba(99,102,241,0.04);
+  }
+
+  &[data-selected="true"] {
+    border-color: var(--echo-primary);
+    background: rgba(99,102,241,0.07);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+}
+
+// ── Survey builder section (createSurvey) ─────────────────────────────────────
+.survey-builder-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius-lg);
+  padding: 1.75rem;
+  box-shadow: var(--echo-shadow);
+}
+
+.question-counter-badge {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--echo-muted);
+  background: #f1f5f9;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+}
+
+// ── Moderatie pagina ──────────────────────────────────────────────────────────
+.moderation-page {
+  padding: 2rem 0 3rem;
+}
+
+.moderation-list-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  overflow: hidden;
+  box-shadow: var(--echo-shadow);
+
+  .mod-list-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--echo-border);
+    background: #fafbfc;
+
+    h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--echo-text);
+      margin: 0 0 0.2rem;
+    }
+
+    p {
+      font-size: 0.82rem;
+      color: var(--echo-muted);
+      margin: 0;
+    }
+  }
+}
+
+.moderation-item {
+  display: block;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid transparent;
+  border-bottom: 1px solid #f1f5f9;
+  transition: all 0.15s;
+  text-decoration: none;
+  color: var(--echo-text);
+
+  &:last-child { border-bottom: none; }
+
+  &:hover {
+    background: rgba(99,102,241,0.03);
+    color: var(--echo-text);
+    text-decoration: none;
+  }
+
+  &.is-selected {
+    border-left-color: var(--echo-primary);
+    background: rgba(99,102,241,0.05);
+  }
+
+  .mod-item-title {
+    font-size: 0.93rem;
+    font-weight: 600;
+    color: var(--echo-text);
+    margin-bottom: 0.3rem;
+  }
+
+  .mod-item-preview {
+    font-size: 0.84rem;
+    color: var(--echo-muted);
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .mod-item-project {
+    font-size: 0.78rem;
+    color: #94a3b8;
+  }
+}
+
+.moderation-detail-card {
+  background: #fff;
+  border: 1px solid var(--echo-border);
+  border-radius: var(--echo-radius);
+  box-shadow: var(--echo-shadow);
+  overflow: hidden;
+  height: 100%;
+  min-height: 400px;
+}
+
+.mod-detail-header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--echo-border);
+  background: #fafbfc;
+}
+
+.mod-detail-body {
+  padding: 1.5rem;
+}
+
+.mod-content-box {
+  background: #f8fafc;
+  border: 1px solid var(--echo-border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 0.92rem;
+  color: var(--echo-muted);
+  line-height: 1.6;
+}
+
+.mod-reason-box {
+  background: #fff7ed;
+  border: 1px solid #fcd34d;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  font-size: 0.92rem;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+.mod-type-badge {
+  display: inline-block;
+  font-size: 0.73rem;
+  font-weight: 700;
+  padding: 0.25rem 0.625rem;
+  border-radius: 999px;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+
+  &.type-idea     { background: rgba(59,130,246,0.1);  color: #1d4ed8; }
+  &.type-reaction { background: rgba(139,92,246,0.1);  color: #5b21b6; }
+}
+
+.mod-filter-btn {
+  font-size: 0.87rem;
+  font-weight: 500;
+  padding: 0.45rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--echo-border);
+  background: #fff;
+  color: var(--echo-muted);
+  text-decoration: none;
+  transition: all 0.15s;
+
+  &:hover {
+    color: var(--echo-primary);
+    border-color: var(--echo-primary);
+    text-decoration: none;
+  }
+
+  &.active {
+    background: var(--echo-primary);
+    color: #fff;
+    border-color: var(--echo-primary);
+  }
+}

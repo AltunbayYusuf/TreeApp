@@ -25,7 +25,8 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
+            ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -105,112 +106,113 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
-       public async Task<IActionResult> OnPostAsync(string returnUrl = null)
-{
-    returnUrl ??= Url.Content("~/");
-
-    ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-    if (!ModelState.IsValid)
-    {
-        return Page();
-    }
-
-    var user = await _userManager.FindByEmailAsync(Input.Email);
-
-    if (user == null)
-    {
-        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-        return Page();
-    }
-
-    var requestedSubplatform = GetSubplatformFromReturnUrl(returnUrl);
-
-    if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
-    {
-        if (!string.IsNullOrWhiteSpace(requestedSubplatform) &&
-            !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
+        public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return Page();
-        }
-    }
+            returnUrl ??= Url.Content("~/");
 
-    var result = await _signInManager.PasswordSignInAsync(
-        Input.Email,
-        Input.Password,
-        Input.RememberMe,
-        lockoutOnFailure: false);
+            ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-    if (result.Succeeded)
-    {
-        _logger.LogInformation("User logged in.");
-
-        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
-        {
-            if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
+            if (!ModelState.IsValid)
             {
-                return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
+                return Page();
+            }
+
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
+            var requestedSubplatform = GetSubplatformFromReturnUrl(returnUrl);
+
+            if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+            {
+                if (!string.IsNullOrWhiteSpace(requestedSubplatform) &&
+                    !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(string.Empty,
+                        $"Je account hoort bij '{user.SubPlatformSlug}'. Log daarom in via het {user.SubPlatformSlug}, niet via '{requestedSubplatform}'.");
+                    return Page();
+                }
+            }
+
+            var result = await _signInManager.PasswordSignInAsync(
+                Input.Email,
+                Input.Password,
+                Input.RememberMe,
+                lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User logged in.");
+
+                if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.SubAdminRoleName))
+                {
+                    if (!string.IsNullOrWhiteSpace(user.SubPlatformSlug))
+                    {
+                        return Redirect($"/{user.SubPlatformSlug}/SubAdmin");
+                    }
+
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    await _signInManager.SignOutAsync();
+                    return Page();
+                }
+
+                if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
+                {
+                    return Redirect("/admin");
+                }
+
+                return LocalRedirect(returnUrl);
+            }
+
+            if (result.RequiresTwoFactor)
+            {
+                return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+            }
+
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("User account locked out.");
+                return RedirectToPage("./Lockout");
             }
 
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            await _signInManager.SignOutAsync();
             return Page();
         }
 
-        if (await _userManager.IsInRoleAsync(user, CustomIdentityConstants.GeneralAdminRoleName))
+        private string GetSubplatformFromReturnUrl(string returnUrl)
         {
-            return Redirect("/admin");
+            if (string.IsNullOrWhiteSpace(returnUrl))
+            {
+                return null;
+            }
+
+            var cleanUrl = returnUrl.Split('?', '#')[0].Trim('/');
+
+            if (string.IsNullOrWhiteSpace(cleanUrl))
+            {
+                return null;
+            }
+
+            var segments = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+            if (segments.Length == 0)
+            {
+                return null;
+            }
+
+            var firstSegment = segments[0];
+
+            if (string.Equals(firstSegment, "Identity", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(firstSegment, "Platform", StringComparison.OrdinalIgnoreCase))
+            {
+                return null;
+            }
+
+            return firstSegment;
         }
-
-        return LocalRedirect(returnUrl);
-    }
-
-    if (result.RequiresTwoFactor)
-    {
-        return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-    }
-
-    if (result.IsLockedOut)
-    {
-        _logger.LogWarning("User account locked out.");
-        return RedirectToPage("./Lockout");
-    }
-
-    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-    return Page();
-}
-
-private string? GetSubplatformFromReturnUrl(string? returnUrl)
-{
-    if (string.IsNullOrWhiteSpace(returnUrl))
-    {
-        return null;
-    }
-
-    var cleanUrl = returnUrl.Split('?', '#')[0].Trim('/');
-
-    if (string.IsNullOrWhiteSpace(cleanUrl))
-    {
-        return null;
-    }
-
-    var segments = cleanUrl.Split('/', StringSplitOptions.RemoveEmptyEntries);
-
-    if (segments.Length == 0)
-    {
-        return null;
-    }
-
-    var firstSegment = segments[0];
-
-    if (string.Equals(firstSegment, "Identity", StringComparison.OrdinalIgnoreCase) ||
-        string.Equals(firstSegment, "Platform", StringComparison.OrdinalIgnoreCase))
-    {
-        return null;
-    }
-
-    return firstSegment;
-}
     }
 }

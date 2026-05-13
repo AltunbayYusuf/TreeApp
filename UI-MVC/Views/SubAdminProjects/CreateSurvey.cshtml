@@ -3,7 +3,7 @@
 
 @{
     ViewBag.Title = "Nieuw project aanmaken";
-    Layout = "_Layout";
+    Layout = "_AdminLayout";
 
     var initialSurveyData = Model.Sections.Select(s => new
     {
@@ -31,156 +31,104 @@
     });
 }
 
-<div class="bg-slate-50 min-h-screen">
-    <div class="max-w-6xl mx-auto px-5 py-6">
+<div class="admin-page">
 
-        <div class="flex items-start justify-between border-b border-slate-200 pb-5 mb-6">
-            <div class="flex items-start gap-4">
-                <a asp-controller="SubAdmin"
-                   asp-action="Index"
-                   asp-route-subplatform="@Model.SubplatformSlug"
-                   class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 transition">
-                    ←
-                </a>
-
-                <div>
-                    <h1 class="text-2xl font-semibold text-slate-900">Nieuw project aanmaken</h1>
-                    <p class="text-sm text-slate-500 mt-1">Status: Draft</p>
-                </div>
-            </div>
-
-            <div class="flex gap-3">
-                <button type="button"
-                        class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition">
-                    Preview
-                </button>
-
-                <button type="submit"
-                        form="surveyForm"
-                        class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition shadow-sm">
-                    Opslaan
-                </button>
+    <div class="admin-header">
+        <div class="d-flex align-items-center gap-3">
+            <a asp-controller="SubAdmin"
+               asp-action="Index"
+               class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
+               style="width:38px;height:38px;border-radius:8px;">
+                ←
+            </a>
+            <div>
+                <h1 class="admin-title">Nieuw project aanmaken</h1>
+                <span class="badge bg-secondary">Draft</span>
             </div>
         </div>
-
-        <div class="mb-6 border-b border-slate-200">
-            <div class="flex gap-2">
-                <a asp-controller="SubAdminProjects"
-                   asp-action="ProjectInfo"
-                   asp-route-subplatform="@Model.SubplatformSlug"
-                   class="rounded-t-lg border border-b-0 border-transparent bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
-                    Project Info
-                </a>
-
-                <button type="button"
-                        class="rounded-t-lg border border-b-0 border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-900 shadow-sm">
-                    Bevraging
-                </button>
-
-                <a asp-controller="SubAdminProjects"
-                   asp-action="CreateIdeation"
-                   asp-route-subplatform="@Model.SubplatformSlug"
-                   class="rounded-t-lg border border-b-0 border-transparent bg-slate-100 px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-200 transition">
-                    Ideation
-                </a>
-            </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-secondary">Preview</button>
+            <button type="submit" form="surveyForm" class="btn btn-primary">Opslaan</button>
         </div>
+    </div>
+
+    <nav class="admin-tabs mb-4">
+        <a asp-controller="SubAdminProjects"
+           asp-action="ProjectInfo"
+           class="admin-tab-link">Project Info</a>
+        <button type="button" class="admin-tab-link active">Bevraging</button>
+        <a asp-controller="SubAdminProjects"
+           asp-action="CreateIdeation"
+           class="admin-tab-link">Ideation</a>
+    </nav>
 
         <form id="surveyForm"
-              data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey"
-              data-ai-url="/@Model.SubplatformSlug/api/subadmin-projects/survey/ai"
+              data-save-url="/api/subadmin-projects/survey"
+              data-ai-url="/api/subadmin-projects/survey/ai"
               class="space-y-6">
 
-            @Html.AntiForgeryToken()
+        @Html.AntiForgeryToken()
 
-            <div id="surveyError"
-                 class="hidden rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            </div>
+        <div id="surveyError" class="alert alert-danger d-none"></div>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-            <div asp-validation-summary="ModelOnly"
-                 class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            </div>
-
-            <div class="max-w-4xl mx-auto">
-
-                <div class="rounded-2xl border-2 border-purple-300 bg-purple-50 p-6 mb-6 shadow-sm">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <h2 class="text-lg font-semibold text-slate-900 mb-2">
-                                AI Vragenlijst Assistent
-                            </h2>
-
-                            <p class="text-sm text-slate-600 mb-3">
-                                Beschrijf wat je wil weten van jongeren. De AI maakt gewone vragen aan,
-                                zonder conditionele bijvragen. Bijvragen voeg je daarna zelf toe.
-                            </p>
-                        </div>
-
-                        <div class="min-w-28">
-                            <label for="questionAmount"
-                                   class="block text-xs font-medium text-slate-600 mb-1">
-                                Aantal vragen
-                            </label>
-
-                            <input id="questionAmount"
-                                   type="number"
-                                   min="1"
-                                   max="20"
-                                   value="5"
-                                   class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500"/>
-                        </div>
-                    </div>
-
-                    <textarea id="aiPrompt"
-                              rows="4"
-                              class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-200 focus:border-purple-500"
-                              placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren en welke ondersteuning ze verwachten van de school..."></textarea>
-
-                    <div class="mt-3 flex items-center gap-3">
-                        <button type="button"
-                                id="generateSurveyWithAiBtn"
-                                class="inline-flex items-center rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white hover:bg-purple-700 transition">
-                            Genereer vragenlijst
-                        </button>
-
-                        <span id="surveyAiMessage"
-                              class="text-sm text-slate-600">
-                        </span>
-                    </div>
-
-                    <div id="surveyAiError"
-                         class="hidden mt-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div class="ai-assistant-card mb-4">
+            <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div class="flex-grow-1">
+                    <div class="ai-card-title">✨ AI Vragenlijst Assistent</div>
+                    <div class="ai-card-subtitle">
+                        Beschrijf wat je wil weten van jongeren. De AI maakt gewone vragen aan,
+                        zonder conditionele bijvragen. Bijvragen voeg je daarna zelf toe.
                     </div>
                 </div>
-
-                <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="flex gap-2">
-                            <button type="button"
-                                    onclick="addSection()"
-                                    class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition">
-                                + Sectie toevoegen
-                            </button>
-                        </div>
-
-                        <span id="questionCounter" class="text-sm text-slate-600 font-medium">
-                            0 / 20 vragen
-                        </span>
-                    </div>
-
-                    <div id="sections" class="space-y-4"></div>
+                <div style="min-width:120px;">
+                    <label for="questionAmount" class="form-label small fw-semibold">Aantal vragen</label>
+                    <input id="questionAmount"
+                           type="number"
+                           min="1"
+                           max="20"
+                           value="5"
+                           class="form-control form-control-sm"/>
                 </div>
             </div>
-        </form>
-    </div>
+
+            <textarea id="aiPrompt"
+                      rows="4"
+                      class="form-control mt-3"
+                      placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren en welke ondersteuning ze verwachten van de school..."></textarea>
+
+            <div class="d-flex align-items-center gap-3 mt-3">
+                <button type="button"
+                        id="generateSurveyWithAiBtn"
+                        class="btn-ai btn">
+                    Genereer vragenlijst
+                </button>
+                <span id="surveyAiMessage" class="ai-message"></span>
+            </div>
+
+            <div id="surveyAiError" class="alert alert-danger d-none mt-3"></div>
+        </div>
+
+        <div class="survey-builder-card">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <button type="button"
+                        onclick="addSection()"
+                        class="btn btn-outline-secondary btn-sm">
+                    + Sectie toevoegen
+                </button>
+                <span id="questionCounter" class="question-counter-badge">0 / 20 vragen</span>
+            </div>
+
+            <div id="sections"></div>
+        </div>
+
+    </form>
 </div>
 
 <script id="initialSurveyData" type="application/json">
     @Html.Raw(System.Text.Json.JsonSerializer.Serialize(initialSurveyData))
-
 </script>
 
-@section Scripts
-{
+@section Scripts {
     <partial name="_ValidationScriptsPartial"/>
 }

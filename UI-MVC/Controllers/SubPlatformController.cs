@@ -18,8 +18,11 @@ public class SubPlatformController : Controller
         _userManager = userManager;
     }
 
-    public async Task<IActionResult> Index(string subplatform)
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+
+    public async Task<IActionResult> Index()
     {
+        var subplatform = Subplatform;
         if (string.IsNullOrWhiteSpace(subplatform)) return Content("subplatform is NULL");
 
         var currentSubPlatform = _subplatformManager.GetSubPlatformBySlug(subplatform);

@@ -1,24 +1,5 @@
-// createsurvey/createSurvey.ts
-
-type ConditionalData = {
-    trigger: string;
-    ai: boolean;
-    question: string;
-};
-
-type QuestionData = {
-    title: string;
-    type: string;
-    answers: string[];
-    min: string;
-    max: string;
-    conditionals: ConditionalData[];
-};
-
-type SectionData = {
-    title: string;
-    questions: QuestionData[];
-};
+import { DomUtils } from "../helpers/utils";
+import type { ConditionalData, QuestionData, SectionData } from "../helpers/types";
 
 export class SurveyBuilder {
     private questionCount: number = 0;
@@ -30,65 +11,23 @@ export class SurveyBuilder {
     init(): void {
         this.updateCounter();
         this.bindWindowMethods();
-        const generateSurveyButton = document.getElementById("generateSurveyWithAiBtn");
 
-        generateSurveyButton?.addEventListener("click", async () => {
+        document.getElementById("generateSurveyWithAiBtn")?.addEventListener("click", async () => {
             await this.generateSurveyWithAi();
         });
 
         const form = document.getElementById("surveyForm") as HTMLFormElement | null;
-
         form?.addEventListener("submit", async (event) => {
             event.preventDefault();
-
-            //die haal je op bij form (data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey")
-            const url = form.dataset.saveUrl;
-            const token = form.querySelector('input[name="__RequestVerificationToken"]') as HTMLInputElement | null;
-            const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
-
-            if (!url) return;
-
-            if (errorBox) {
-                errorBox.textContent = "";
-                errorBox.classList.add("hidden");
-            }
-
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken": token?.value ?? ""
-                },
-                body: JSON.stringify({
-                    sections: this.getSurveyData()
-                })
-            });
-
-            const result = await response.json();
-
-            if (!response.ok || !result.ok) {
-                if (errorBox) {
-                    errorBox.textContent = result.message ?? "Er is iets fout gegaan.";
-                    errorBox.classList.remove("hidden");
-                } else {
-                    alert(result.message ?? "Er is iets fout gegaan.");
-                }
-
-                return;
-            }
-
-            window.location.href = result.redirectUrl;
+            await this.handleSave(form);
         });
 
         document.addEventListener("input", this.handleInputDebounce.bind(this));
 
         const initialDataElement = document.getElementById("initialSurveyData");
-
         if (initialDataElement?.textContent?.trim()) {
             const serverData = JSON.parse(initialDataElement.textContent) as SectionData[];
-            const hasServerQuestions = serverData.some(s => s.questions?.length > 0);
-
-            if (hasServerQuestions) {
+            if (serverData.some(s => s.questions?.length > 0)) {
                 sessionStorage.setItem("surveyDraft", JSON.stringify(serverData));
                 this.loadFromLocalStorage(serverData);
                 return;
@@ -103,14 +42,43 @@ export class SurveyBuilder {
         }
 
         const parsed = JSON.parse(data) as SectionData[];
-        const hasQuestions = parsed.some(s => s.questions?.length > 0);
-
-        if (hasQuestions) {
+        if (parsed.some(s => s.questions?.length > 0)) {
             this.loadFromLocalStorage(parsed);
         } else {
             sessionStorage.removeItem("surveyDraft");
             this.createInitialSurvey();
         }
+    }
+
+    private async handleSave(form: HTMLFormElement): Promise<void> {
+        const url = form.dataset.saveUrl;
+        const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
+        if (!url) return;
+
+        if (errorBox) { errorBox.textContent = ""; errorBox.classList.add("d-none"); }
+
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": DomUtils.getAntiForgeryToken()
+            },
+            body: JSON.stringify({ sections: this.getSurveyData() })
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || !result.ok) {
+            if (errorBox) {
+                errorBox.textContent = result.message ?? "Er is iets fout gegaan.";
+                errorBox.classList.remove("d-none");
+            } else {
+                alert(result.message ?? "Er is iets fout gegaan.");
+            }
+            return;
+        }
+
+        window.location.href = result.redirectUrl;
     }
 
     private bindWindowMethods(): void {
@@ -121,25 +89,18 @@ export class SurveyBuilder {
         (window as any).removeSection = this.removeSection.bind(this);
         (window as any).changeType = this.changeType.bind(this);
         (window as any).addConditional = this.addConditional.bind(this);
-        (window as any).removeConditional = this.removeConditional.bind(this); // NIEUW
+        (window as any).removeConditional = this.removeConditional.bind(this);
         (window as any).toggleAI = this.toggleAI.bind(this);
     }
 
     private handleInputDebounce(): void {
-        if (this.saveTimeout !== undefined) {
-            clearTimeout(this.saveTimeout);
-        }
-
-        this.saveTimeout = window.setTimeout(() => {
-            this.saveToLocalStorage();
-        }, 300);
+        if (this.saveTimeout !== undefined) clearTimeout(this.saveTimeout);
+        this.saveTimeout = window.setTimeout(() => this.saveToLocalStorage(), 300);
     }
 
     private updateCounter(): void {
         const counter = document.getElementById("questionCounter");
-        if (counter) {
-            counter.innerText = `${this.questionCount} / ${this.maxQuestions} vragen`;
-        }
+        if (counter) counter.innerText = `${this.questionCount} / ${this.maxQuestions} vragen`;
     }
 
     addSection(): void {
@@ -149,27 +110,26 @@ export class SurveyBuilder {
         this.sectionCount++;
 
         const section = document.createElement("div");
-        section.className = "section bg-white p-5 rounded-xl shadow-sm border border-slate-200";
+        section.className = "section card mb-3";
         section.innerHTML = `
-            <div class="flex justify-between items-center gap-3 mb-3">
-                <input type="text"
-                       class="section-title w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
-                       placeholder="Sectie ${this.sectionCount} titel..." />
-
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+                    <input type="text"
+                           class="section-title form-control form-control-sm"
+                           placeholder="Sectie ${this.sectionCount} titel..." />
+                    <button type="button"
+                            onclick="removeSection(this)"
+                            class="btn btn-outline-danger btn-sm flex-shrink-0">
+                        🗑
+                    </button>
+                </div>
+                <div class="questions d-flex flex-column gap-3"></div>
                 <button type="button"
-                        onclick="removeSection(this)"
-                        class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition">
-                    🗑
+                        onclick="addQuestion(this)"
+                        class="add-question-btn btn btn-outline-primary btn-sm mt-3">
+                    + Vraag toevoegen
                 </button>
             </div>
-
-            <div class="questions space-y-3"></div>
-
-            <button type="button"
-                    onclick="addQuestion(this)"
-                    class="add-question-btn mt-4 rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-700 transition">
-                + Vraag toevoegen
-            </button>
         `;
 
         container.appendChild(section);
@@ -207,38 +167,33 @@ export class SurveyBuilder {
         this.updateCounter();
 
         const question = document.createElement("div");
-        question.className = "question rounded-lg border border-slate-200 bg-white p-4";
+        question.className = "question border rounded p-3";
         question.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-slate-500">Vraag</span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-muted small">Vraag</span>
                 <button type="button"
                         onclick="removeQuestion(this)"
-                        class="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition">
+                        class="btn btn-outline-danger btn-sm">
                     🗑
                 </button>
             </div>
-
             <input type="text"
-                   class="question-title mb-3 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                   class="question-title form-control form-control-sm mb-3"
                    placeholder="Vraag titel..." />
-
             <select onchange="changeType(this)"
-                    class="mb-3 w-full rounded-lg border border-slate-300 bg-gray-100 px-4 py-3 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100">
+                    class="form-select form-select-sm mb-3">
                 <option value="" disabled selected>Kies type vraag...</option>
                 <option value="single">Enkelkeuze</option>
                 <option value="multiple">Meerkeuze</option>
                 <option value="range">Range</option>
                 <option value="open">Open vraag</option>
             </select>
-
-            <div class="answers space-y-2"></div>
-
+            <div class="answers d-flex flex-column gap-2"></div>
             <button type="button"
                     onclick="addConditional(this)"
-                    class="add-conditional-btn mt-3 text-sm text-indigo-600 hover:underline">
+                    class="add-conditional-btn btn btn-link btn-sm mt-2 p-0 text-decoration-none">
                 + Conditionele vraag
             </button>
-
             <div class="conditional-container"></div>
         `;
 
@@ -270,7 +225,7 @@ export class SurveyBuilder {
 
         if (select.value === "single" || select.value === "multiple") {
             const wrapper = document.createElement("div");
-            wrapper.className = "answers-list space-y-2";
+            wrapper.className = "answers-list d-flex flex-column gap-2";
 
             this.addAnswer(wrapper);
             this.addAnswer(wrapper);
@@ -278,7 +233,7 @@ export class SurveyBuilder {
             const button = document.createElement("button");
             button.type = "button";
             button.innerText = "+ Antwoord";
-            button.className = "mt-2 text-sm text-indigo-600 hover:underline";
+            button.className = "btn btn-link btn-sm mt-2 p-0 text-decoration-none";
             button.onclick = () => this.addAnswer(wrapper);
 
             container.appendChild(wrapper);
@@ -287,11 +242,9 @@ export class SurveyBuilder {
 
         if (select.value === "range") {
             container.innerHTML = `
-                <div class="flex gap-3">
-                    <input type="number" placeholder="Min"
-                           class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
-                    <input type="number" placeholder="Max"
-                           class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" />
+                <div class="d-flex gap-2">
+                    <input type="number" placeholder="Min" class="form-control form-control-sm" />
+                    <input type="number" placeholder="Max" class="form-control form-control-sm" />
                 </div>
             `;
         }
@@ -301,15 +254,11 @@ export class SurveyBuilder {
 
     private createInitialSurvey(): void {
         this.isLoading = true;
-
         this.addSection();
 
         const firstSection = document.querySelector(".section");
         const addQuestionBtn = firstSection?.querySelector(".add-question-btn") as HTMLElement | null;
-
-        if (addQuestionBtn) {
-            this.addQuestion(addQuestionBtn);
-        }
+        if (addQuestionBtn) this.addQuestion(addQuestionBtn);
 
         this.isLoading = false;
         this.saveToLocalStorage();
@@ -317,23 +266,21 @@ export class SurveyBuilder {
 
     private addAnswer(container: Element): void {
         const wrapper = document.createElement("div");
-        wrapper.className = "flex items-center gap-2";
+        wrapper.className = "d-flex align-items-center gap-2";
 
         const input = document.createElement("input");
         input.placeholder = "Antwoord...";
-        input.className = "w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100";
+        input.className = "form-control form-control-sm";
 
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.innerText = "🗑";
-        removeBtn.className = "inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition";
-
+        removeBtn.className = "btn btn-outline-danger btn-sm flex-shrink-0";
         removeBtn.onclick = () => {
             if (container.children.length <= 2) {
                 alert("Minstens 2 antwoorden vereist");
                 return;
             }
-
             wrapper.remove();
             this.saveToLocalStorage();
         };
@@ -350,30 +297,24 @@ export class SurveyBuilder {
         if (!container) return;
 
         const conditional = document.createElement("div");
-        // We voegen een extra class "conditional-block" toe om hem makkelijk te vinden bij het verwijderen
-        conditional.className = "conditional-block mt-3 rounded-lg border bg-indigo-50 p-3";
-
-        // Let op de nieuwe header-div bovenaan de template
+        conditional.className = "conditional-block border rounded p-3 mt-3 bg-light";
         conditional.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-xs font-semibold uppercase tracking-wide text-indigo-500">Conditionele Vraag</span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-primary small fw-semibold text-uppercase">Conditionele Vraag</span>
                 <button type="button"
                         onclick="removeConditional(this)"
-                        class="inline-flex h-8 w-8 items-center justify-center rounded-md border border-red-200 bg-white text-red-500 hover:bg-red-50 transition"
+                        class="btn btn-outline-danger btn-sm"
                         title="Verwijder conditionele vraag">
                     🗑
                 </button>
             </div>
-
             <input placeholder="Trigger antwoord"
-                   class="mb-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm" />
-
-            <label class="mb-2 flex gap-2 text-sm">
+                   class="form-control form-control-sm mb-2" />
+            <label class="mb-2 d-flex gap-2 small align-items-center">
                 <input type="checkbox" onchange="toggleAI(this)" />
                 AI laten genereren
             </label>
-
-            <input class="conditional-input w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+            <input class="conditional-input form-control form-control-sm"
                    placeholder="Conditionele vraag..." />
         `;
 
@@ -384,7 +325,6 @@ export class SurveyBuilder {
     removeConditional(btn: HTMLElement): void {
         const conditionalBlock = btn.closest(".conditional-block");
         if (!conditionalBlock) return;
-
         conditionalBlock.remove();
         this.saveToLocalStorage();
     }
@@ -395,9 +335,7 @@ export class SurveyBuilder {
         if (!input) return;
 
         input.disabled = checkbox.checked;
-        if (checkbox.checked) {
-            input.value = "";
-        }
+        if (checkbox.checked) input.value = "";
 
         this.saveToLocalStorage();
     }
@@ -426,14 +364,13 @@ export class SurveyBuilder {
                     const trigger = (c.querySelector("input") as HTMLInputElement | null)?.value ?? "";
                     const ai = (c.querySelector("input[type='checkbox']") as HTMLInputElement | null)?.checked ?? false;
                     const conditionalQuestion = (c.querySelector(".conditional-input") as HTMLInputElement | null)?.value ?? "";
-
-                    conditionals.push({trigger, ai, question: conditionalQuestion});
+                    conditionals.push({ trigger, ai, question: conditionalQuestion });
                 });
 
-                questions.push({title: qTitle, type, answers, min, max, conditionals});
+                questions.push({ title: qTitle, type, answers, min, max, conditionals });
             });
 
-            sections.push({title, questions});
+            sections.push({ title, questions });
         });
 
         return sections;
@@ -460,9 +397,7 @@ export class SurveyBuilder {
             const section = sections[sections.length - 1] as HTMLElement;
 
             const sectionTitle = section.querySelector(".section-title") as HTMLInputElement | null;
-            if (sectionTitle) {
-                sectionTitle.value = sectionData.title ?? "";
-            }
+            if (sectionTitle) sectionTitle.value = sectionData.title ?? "";
 
             sectionData.questions.forEach(q => {
                 const addQuestionBtn = section.querySelector(".add-question-btn") as HTMLElement | null;
@@ -491,9 +426,7 @@ export class SurveyBuilder {
                             this.addAnswer(answersList);
                             const inputs = answersList.querySelectorAll("input");
                             const input = inputs[inputs.length - 1] as HTMLInputElement | null;
-                            if (input) {
-                                input.value = answer;
-                            }
+                            if (input) input.value = answer;
                         });
                     }
                 }
@@ -501,7 +434,6 @@ export class SurveyBuilder {
                 if (q.type === "range") {
                     const minInput = question.querySelector('input[placeholder="Min"]') as HTMLInputElement | null;
                     const maxInput = question.querySelector('input[placeholder="Max"]') as HTMLInputElement | null;
-
                     if (minInput) minInput.value = q.min ?? "";
                     if (maxInput) maxInput.value = q.max ?? "";
                 }
@@ -522,7 +454,6 @@ export class SurveyBuilder {
 
                     if (triggerInput) triggerInput.value = cond.trigger ?? "";
                     if (aiCheckbox) aiCheckbox.checked = cond.ai;
-
                     if (conditionalInput) {
                         conditionalInput.value = cond.question ?? "";
                         conditionalInput.disabled = cond.ai;
@@ -537,105 +468,57 @@ export class SurveyBuilder {
 
     private async generateSurveyWithAi(): Promise<void> {
         const promptInput = document.getElementById("aiPrompt") as HTMLTextAreaElement | null;
-        const tokenInput = document.querySelector("input[name='__RequestVerificationToken']") as HTMLInputElement | null;
         const questionAmountInput = document.getElementById("questionAmount") as HTMLInputElement | null;
-
         const messageBox = document.getElementById("surveyAiMessage") as HTMLSpanElement | null;
         const errorBox = document.getElementById("surveyAiError") as HTMLDivElement | null;
+        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
 
-        if (!promptInput || !tokenInput) {
-            console.error("AI survey init faalt: promptInput of tokenInput ontbreekt.", {
-                promptInput,
-                tokenInput
-            });
-            return;
-        }
+        if (!promptInput) return;
 
         const description = promptInput.value.trim();
         const questionAmount = Number(questionAmountInput?.value ?? 5);
-        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
         const aiUrl = form?.dataset.aiUrl;
 
-        if (!aiUrl) {
-            alert("AI-url ontbreekt.");
-            return;
-        }
+        if (!aiUrl) { alert("AI-url ontbreekt."); return; }
 
-        if (errorBox) {
-            errorBox.textContent = "";
-            errorBox.classList.add("hidden");
-        }
+        if (errorBox) { errorBox.textContent = ""; errorBox.classList.add("d-none"); }
 
-        if (!description) {
-            alert("Geef eerst een beschrijving in.");
-            return;
-        }
+        if (!description) { alert("Geef eerst een beschrijving in."); return; }
+        if (description.length < 50) { alert("Beschrijving moet minstens 50 tekens bevatten."); return; }
 
-        if (description.length < 50) {
-            alert("Beschrijving moet minstens 50 tekens bevatten.");
-            return;
-        }
-
-        if (messageBox) {
-            messageBox.textContent = "AI maakt je vragenlijst...";
-        }
+        if (messageBox) messageBox.textContent = "AI maakt je vragenlijst...";
 
         const response = await fetch(aiUrl, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "RequestVerificationToken": tokenInput.value
+                "RequestVerificationToken": DomUtils.getAntiForgeryToken()
             },
-            body: JSON.stringify({
-                description,
-                questionAmount
-            })
+            body: JSON.stringify({ description, questionAmount })
         });
 
         const responseText = await response.text();
-
         let data: any;
 
         try {
             data = JSON.parse(responseText);
-        }catch {
+        } catch {
             console.error("Server gaf geen JSON terug:", responseText);
-
-            if (errorBox) {
-                errorBox.textContent = responseText;
-                errorBox.classList.remove("hidden");
-            }
-
-            if (messageBox) {
-                messageBox.textContent = "";
-            }
-
+            if (errorBox) { errorBox.textContent = responseText; errorBox.classList.remove("d-none"); }
+            if (messageBox) messageBox.textContent = "";
             return;
         }
 
         if (!response.ok || !data.ok) {
-            if (errorBox) {
-                errorBox.textContent = data.message ?? "AI kon geen vragenlijst genereren.";
-                errorBox.classList.remove("hidden");
-            }
-
-            if (messageBox) {
-                messageBox.textContent = "";
-            }
-
+            if (errorBox) { errorBox.textContent = data.message ?? "AI kon geen vragenlijst genereren."; errorBox.classList.remove("d-none"); }
+            if (messageBox) messageBox.textContent = "";
             return;
         }
 
         this.loadFromLocalStorage(data.survey.sections);
         sessionStorage.setItem("surveyDraft", JSON.stringify(data.survey.sections));
-
-        if (messageBox) {
-            messageBox.textContent = "Vragenlijst gegenereerd.";
-        }
+        if (messageBox) messageBox.textContent = "Vragenlijst gegenereerd.";
     }
 }
 
-// Initialisatie wanneer het document geladen is
-document.addEventListener("DOMContentLoaded", () => {
-    new SurveyBuilder().init();
-});
+document.addEventListener("DOMContentLoaded", () => new SurveyBuilder().init());

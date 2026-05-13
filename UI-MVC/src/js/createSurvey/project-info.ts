@@ -1,3 +1,5 @@
+import { DomUtils } from "../helpers/utils";
+
 type GenerateImageResponse = {
     ok: boolean;
     imageUrl?: string;
@@ -10,42 +12,17 @@ type GenerateIntroResponse = {
     message?: string;
 };
 
-function getAntiForgeryToken(): string {
-    const tokenInput = document.querySelector<HTMLInputElement>(
-        "input[name='__RequestVerificationToken']"
-    );
-
-    return tokenInput?.value ?? "";
-}
-
 function getProjectInfoElements() {
-    const form = document.getElementById("createProjectForm") as HTMLFormElement | null;
-    const nameInput = document.getElementById("Name") as HTMLInputElement | null;
-    const introductionInput = document.getElementById("Introduction") as HTMLTextAreaElement | null;
-
-    const generateImageButton = document.getElementById("generateProjectImageButton") as HTMLButtonElement | null;
-    const imagePreview = document.getElementById("projectImagePreview") as HTMLImageElement | null;
-    const imageStatus = document.getElementById("projectImageStatus") as HTMLDivElement | null;
-    const generatedPhotoUrlInput = document.getElementById("GeneratedPhotoUrl") as HTMLInputElement | null;
-
-    const generateIntroductionButton = document.getElementById("generateIntroductionButton") as HTMLButtonElement | null;
-
     return {
-        form,
-        nameInput,
-        introductionInput,
-        generateImageButton,
-        imagePreview,
-        imageStatus,
-        generatedPhotoUrlInput,
-        generateIntroductionButton
+        form: document.getElementById("createProjectForm") as HTMLFormElement | null,
+        nameInput: document.getElementById("Name") as HTMLInputElement | null,
+        introductionInput: document.getElementById("Introduction") as HTMLTextAreaElement | null,
+        generateImageButton: document.getElementById("generateProjectImageButton") as HTMLButtonElement | null,
+        imagePreview: document.getElementById("projectImagePreview") as HTMLImageElement | null,
+        imageStatus: document.getElementById("projectImageStatus") as HTMLDivElement | null,
+        generatedPhotoUrlInput: document.getElementById("GeneratedPhotoUrl") as HTMLInputElement | null,
+        generateIntroductionButton: document.getElementById("generateIntroductionButton") as HTMLButtonElement | null,
     };
-}
-
-function setStatus(element: HTMLElement | null, message: string): void {
-    if (element) {
-        element.textContent = message;
-    }
 }
 
 async function readJsonResponse<T>(response: Response): Promise<T | null> {
@@ -57,35 +34,27 @@ async function readJsonResponse<T>(response: Response): Promise<T | null> {
 }
 
 async function generateProjectImage(): Promise<void> {
-    const {
-        form,
-        nameInput,
-        generateImageButton,
-        imagePreview,
-        imageStatus,
-        generatedPhotoUrlInput
-    } = getProjectInfoElements();
+    const { form, nameInput, generateImageButton, imagePreview, imageStatus, generatedPhotoUrlInput } = getProjectInfoElements();
 
     if (!form || !nameInput || !generateImageButton) return;
 
-    const subplatform = form.dataset.subplatform;
     const projectName = nameInput.value.trim();
 
-    if (!subplatform || !projectName) {
-        setStatus(imageStatus, "Geef eerst een projectnaam in.");
+    if (!projectName) {
+        if (imageStatus) imageStatus.textContent = "Geef eerst een projectnaam in.";
         return;
     }
 
     generateImageButton.disabled = true;
     generateImageButton.textContent = "Afbeelding genereren...";
-    setStatus(imageStatus, "AI maakt een afbeelding op basis van de projectnaam.");
+    if (imageStatus) imageStatus.textContent = "AI maakt een afbeelding op basis van de projectnaam.";
 
     try {
-        const response = await fetch(`/${subplatform}/SubAdminProjects/GenerateProjectImage`, {
+        const response = await fetch(`/SubAdminProjects/GenerateProjectImage`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "RequestVerificationToken": getAntiForgeryToken()
+                "RequestVerificationToken": DomUtils.getAntiForgeryToken()
             },
             body: JSON.stringify({ projectName })
         });
@@ -93,7 +62,7 @@ async function generateProjectImage(): Promise<void> {
         const data = await readJsonResponse<GenerateImageResponse>(response);
 
         if (!response.ok || !data?.ok || !data.imageUrl) {
-            setStatus(imageStatus, data?.message ?? "Afbeelding genereren is mislukt.");
+            if (imageStatus) imageStatus.textContent = data?.message ?? "Afbeelding genereren is mislukt.";
             return;
         }
 
@@ -102,14 +71,11 @@ async function generateProjectImage(): Promise<void> {
             imagePreview.classList.remove("hidden");
         }
 
-        if (generatedPhotoUrlInput) {
-            generatedPhotoUrlInput.value = data.imageUrl;
-        }
-
-        setStatus(imageStatus, data.message ?? "Afbeelding gegenereerd.");
+        if (generatedPhotoUrlInput) generatedPhotoUrlInput.value = data.imageUrl;
+        if (imageStatus) imageStatus.textContent = data.message ?? "Afbeelding gegenereerd.";
     } catch (error) {
         console.error("Fout bij genereren afbeelding:", error);
-        setStatus(imageStatus, "Er ging iets mis bij het genereren van de afbeelding.");
+        if (imageStatus) imageStatus.textContent = "Er ging iets mis bij het genereren van de afbeelding.";
     } finally {
         generateImageButton.disabled = false;
         generateImageButton.textContent = "Genereer met AI";
@@ -117,19 +83,13 @@ async function generateProjectImage(): Promise<void> {
 }
 
 async function generateIntroduction(): Promise<void> {
-    const {
-        form,
-        nameInput,
-        introductionInput,
-        generateIntroductionButton
-    } = getProjectInfoElements();
+    const { form, nameInput, introductionInput, generateIntroductionButton } = getProjectInfoElements();
 
     if (!form || !nameInput || !introductionInput || !generateIntroductionButton) return;
 
-    const subplatform = form.dataset.subplatform;
     const projectName = nameInput.value.trim();
 
-    if (!subplatform || !projectName) {
+    if (!projectName) {
         introductionInput.value = "Geef eerst een projectnaam in.";
         introductionInput.focus();
         return;
@@ -139,11 +99,11 @@ async function generateIntroduction(): Promise<void> {
     generateIntroductionButton.textContent = "AI schrijft...";
 
     try {
-        const response = await fetch(`/${subplatform}/SubAdminProjects/GenerateIntroduction`, {
+        const response = await fetch(`/SubAdminProjects/GenerateIntroduction`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "RequestVerificationToken": getAntiForgeryToken()
+                "RequestVerificationToken": DomUtils.getAntiForgeryToken()
             },
             body: JSON.stringify({ projectName })
         });
@@ -166,11 +126,8 @@ async function generateIntroduction(): Promise<void> {
     }
 }
 
-function initializeProjectInfo(): void {
+document.addEventListener("DOMContentLoaded", () => {
     const { generateImageButton, generateIntroductionButton } = getProjectInfoElements();
-
     generateImageButton?.addEventListener("click", generateProjectImage);
     generateIntroductionButton?.addEventListener("click", generateIntroduction);
-}
-
-document.addEventListener("DOMContentLoaded", initializeProjectInfo);
+});
