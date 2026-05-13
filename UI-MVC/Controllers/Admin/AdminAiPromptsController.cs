@@ -33,7 +33,7 @@ public class AdminAiPromptsController : Controller
         return View(prompts);
     }
 
-    [HttpPost("{id:int}")]
+    [HttpPost("{id}")]
     [ValidateAntiForgeryToken]
     public IActionResult Update(int id, string promptText)
     {

@@ -113,6 +113,19 @@ var chatModelResource = EndpointName.FormatProjectLocationPublisherModel(
     moderationModel);
 var chatClient = await predictionBuilder.BuildIChatClientAsync(chatModelResource);
 
+var imageModel = builder.Configuration["Google:ImageModel"]
+                 ?? "imagen-3.0-generate-002";
+
+var imageModelResource = EndpointName.FormatProjectLocationPublisherModel(
+    projectId,
+    location,
+    "google",
+    imageModel);
+
+var imageGenerator = await predictionBuilder.BuildIImageGeneratorAsync(imageModelResource);
+
+builder.Services.AddImageGenerator(imageGenerator);
+
 
 builder.Services.AddChatClient(chatClient);
 builder.Services.AddScoped<IAiProvider, VertexAiProvider>();
@@ -127,7 +140,7 @@ builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
 builder.Services.AddScoped<IAiPromptManager, AiPromptManager>();
 
 builder.Services.AddScoped<IIntroTextService, IntroTextService>();
-builder.Services.AddScoped<IImageGenerationService, DummyImageGenerationService>();
+builder.Services.AddScoped<IImageGenerationService, ImageGenerationService>();
 builder.Services.AddScoped<IRepository, Repository>();
 builder.Services.AddScoped<IIdeaRepository, IdeaRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();

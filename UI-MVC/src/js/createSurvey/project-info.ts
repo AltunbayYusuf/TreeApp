@@ -1,4 +1,4 @@
-import { DomUtils } from "../helpers/utils";
+import {DomUtils} from "../helpers/utils";
 
 type GenerateImageResponse = {
     ok: boolean;
@@ -20,7 +20,7 @@ function getProjectInfoElements() {
         generateImageButton: document.getElementById("generateProjectImageButton") as HTMLButtonElement | null,
         imagePreview: document.getElementById("projectImagePreview") as HTMLImageElement | null,
         imageStatus: document.getElementById("projectImageStatus") as HTMLDivElement | null,
-        generatedPhotoUrlInput: document.getElementById("GeneratedPhotoUrl") as HTMLInputElement | null,
+        generatedPhotoUrlInput: document.getElementById("PhotoUri") as HTMLInputElement | null,
         generateIntroductionButton: document.getElementById("generateIntroductionButton") as HTMLButtonElement | null,
     };
 }
@@ -34,12 +34,20 @@ async function readJsonResponse<T>(response: Response): Promise<T | null> {
 }
 
 async function generateProjectImage(): Promise<void> {
-    const { form, nameInput, generateImageButton, imagePreview, imageStatus, generatedPhotoUrlInput } = getProjectInfoElements();
-
+    const {
+        form,
+        nameInput,
+        introductionInput,
+        generateImageButton,
+        imagePreview,
+        imageStatus,
+        generatedPhotoUrlInput
+    } = getProjectInfoElements();
     if (!form || !nameInput || !generateImageButton) return;
 
     const subplatform = form.dataset.subplatform;
     const projectName = nameInput.value.trim();
+    const description = introductionInput?.value.trim() ?? "";
 
     if (!subplatform || !projectName) {
         if (imageStatus) imageStatus.textContent = "Geef eerst een projectnaam in.";
@@ -48,8 +56,7 @@ async function generateProjectImage(): Promise<void> {
 
     generateImageButton.disabled = true;
     generateImageButton.textContent = "Afbeelding genereren...";
-    if (imageStatus) imageStatus.textContent = "AI maakt een afbeelding op basis van de projectnaam.";
-
+    if (imageStatus) imageStatus.textContent = "AI maakt een afbeelding op basis van titel en beschrijving.";
     try {
         const response = await fetch(`/${subplatform}/SubAdminProjects/GenerateProjectImage`, {
             method: "POST",
@@ -57,7 +64,10 @@ async function generateProjectImage(): Promise<void> {
                 "Content-Type": "application/json",
                 "RequestVerificationToken": DomUtils.getAntiForgeryToken()
             },
-            body: JSON.stringify({ projectName })
+            body: JSON.stringify({
+                projectName,
+                introduction: description
+            })
         });
 
         const data = await readJsonResponse<GenerateImageResponse>(response);
@@ -69,7 +79,7 @@ async function generateProjectImage(): Promise<void> {
 
         if (imagePreview) {
             imagePreview.src = data.imageUrl;
-            imagePreview.classList.remove("hidden");
+            imagePreview.classList.remove("d-none");
         }
 
         if (generatedPhotoUrlInput) generatedPhotoUrlInput.value = data.imageUrl;
@@ -84,7 +94,7 @@ async function generateProjectImage(): Promise<void> {
 }
 
 async function generateIntroduction(): Promise<void> {
-    const { form, nameInput, introductionInput, generateIntroductionButton } = getProjectInfoElements();
+    const {form, nameInput, introductionInput, generateIntroductionButton} = getProjectInfoElements();
 
     if (!form || !nameInput || !introductionInput || !generateIntroductionButton) return;
 
@@ -107,7 +117,7 @@ async function generateIntroduction(): Promise<void> {
                 "Content-Type": "application/json",
                 "RequestVerificationToken": DomUtils.getAntiForgeryToken()
             },
-            body: JSON.stringify({ projectName })
+            body: JSON.stringify({projectName})
         });
 
         const data = await readJsonResponse<GenerateIntroResponse>(response);
@@ -129,7 +139,7 @@ async function generateIntroduction(): Promise<void> {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const { generateImageButton, generateIntroductionButton } = getProjectInfoElements();
+    const {generateImageButton, generateIntroductionButton} = getProjectInfoElements();
     generateImageButton?.addEventListener("click", generateProjectImage);
     generateIntroductionButton?.addEventListener("click", generateIntroduction);
 });

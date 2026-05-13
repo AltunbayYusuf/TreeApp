@@ -920,25 +920,7 @@ public class DataSeeder
             IsActive = true
         };
 
-        var projectImagePrompt = new AiPrompt
-        {
-            Key = "project_image_generation",
-            Name = "Project image generation",
-            PromptText = """
-                         Maak een visueel aantrekkelijke, moderne afbeelding voor een jongerenproject.
-
-                         Projectnaam:
-                         {projectName}
-
-                         Regels:
-                         - De afbeelding moet passen bij een digitaal participatieplatform voor jongeren.
-                         - Gebruik een frisse, moderne en toegankelijke stijl.
-                         - Toon geen tekst in de afbeelding.
-                         - De afbeelding moet bruikbaar zijn als project cover.
-                         """,
-            IsActive = true
-        };
-
+        
         var projectIntroPrompt = new AiPrompt
         {
             Key = "project_intro_generation",
@@ -1173,6 +1155,30 @@ public class DataSeeder
                          - Maximum 2 vragen
                          - Bij twijfel: geef []
                          """,
+        };
+        var projectImagePrompt = new AiPrompt
+        {
+            Key = "project_image_generation",
+            Name = "Project image generation",
+            PromptText = """
+                         Maak een moderne illustratie zonder tekst.
+
+                         Thema van het project:
+                         {projectName}
+
+                         Context:
+                         {introduction}
+
+                         Beeldregels:
+                         - Maak één visuele illustratie die past bij het thema.
+                         - Geen poster, geen flyer, geen document, geen scherm en geen titelkaart.
+                         - Geen tekst, geen letters, geen cijfers, geen symbolen, geen logo's en geen watermerken.
+                         - Toon geen herkenbare echte personen.
+                         - Gebruik een frisse, moderne, toegankelijke stijl.
+                         - De afbeelding is bedoeld als sfeerbeeld voor een jongerenparticipatieplatform.
+                         - Maak een brede horizontale cover-afbeelding voor een projectkaart.
+                         """,
+            IsActive = true
         };
 
 

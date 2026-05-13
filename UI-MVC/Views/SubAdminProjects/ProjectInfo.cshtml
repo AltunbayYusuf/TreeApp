@@ -66,17 +66,48 @@
             </div>
 
             <div class="mb-4">
-                <label asp-for="PhotoUpload" class="form-label">Project afbeelding</label>
-                <div class="upload-zone">
-                    <span class="upload-icon">🖼️</span>
-                    <label for="PhotoUpload" class="btn btn-primary btn-sm mb-2">Upload afbeelding</label>
-                    <input asp-for="PhotoUpload" type="file" class="d-none"/>
-                    <div class="text-muted small mb-2">of</div>
-                    <button type="button" class="btn btn-outline-primary btn-sm">✨ Genereer met AI</button>
-                    <p class="text-muted small mt-3 mb-0">
-                        Als geen afbeelding wordt geüpload, genereert AI automatisch een afbeelding.
+                <label asp-for="PhotoUpload" class="form-label fw-semibold">
+                    Project afbeelding
+                </label>
+
+                <input asp-for="PhotoUri" type="hidden" id="PhotoUri" />
+
+                <div class="border rounded-3 p-4 bg-light">
+
+                    <div class="mb-3">
+                        <label asp-for="PhotoUpload" class="btn btn-primary btn-sm mb-0">
+                            Upload afbeelding
+                        </label>
+
+                        <input asp-for="PhotoUpload"
+                               type="file"
+                               class="d-none"
+                               accept="image/*" />
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <span class="text-muted small">of</span>
+
+                        <button type="button"
+                                id="generateProjectImageButton"
+                                class="btn btn-outline-primary btn-sm">
+                            ✨ Genereer met AI
+                        </button>
+                    </div>
+
+                    <p id="projectImageStatus" class="text-muted small mb-3">
+                        Als je geen afbeelding uploadt, kan AI automatisch een afbeelding genereren.
                     </p>
+
+                    <img id="projectImagePreview"
+                         src="@Model.PhotoUri"
+                         alt="Project afbeelding preview"
+                         class="img-fluid rounded border @(string.IsNullOrWhiteSpace(Model.PhotoUri) ? "d-none" : "")"
+                         style="max-height: 220px; object-fit: cover;" />
+
                 </div>
+
+                <span asp-validation-for="PhotoUpload" class="text-danger small"></span>
             </div>
 
             <div class="mb-4">
