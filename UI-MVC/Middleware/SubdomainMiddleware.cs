@@ -6,9 +6,9 @@ namespace IntegratieProject.UI.MVC.Middleware;
 public class SubdomainMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly string? _defaultSubplatform;
-    private readonly string? _rootDomain;
-    private readonly string? _appSubdomain;
+    private readonly string _defaultSubplatform;
+    private readonly string _rootDomain;
+    private readonly string _appSubdomain;
 
     public SubdomainMiddleware(RequestDelegate next, IConfiguration configuration)
     {
@@ -37,7 +37,7 @@ public class SubdomainMiddleware
         await _next(context);
     }
 
-    private static string? ExtractSubdomain(string host, string? rootDomain, string? appSubdomain)
+    private static string ExtractSubdomain(string host, string rootDomain, string appSubdomain)
     {
         if (IPAddress.TryParse(host, out _))
             return null;
@@ -61,6 +61,6 @@ public class SubdomainMiddleware
 
 internal static class StringExtensions
 {
-    public static string? NullIfWhitespace(this string? s) =>
+    public static string NullIfWhitespace(this string s) =>
         string.IsNullOrWhiteSpace(s) ? null : s;
 }
