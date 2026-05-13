@@ -24,9 +24,19 @@ public class SubAdminModerationController : Controller
         _ideaManager = ideaManager;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index(string subplatform, string filter, string selectedType, int? selectedId)
+    private string Subplatform
     {
+        get
+        {
+            var fromRoute = RouteData.Values["subplatform"]?.ToString();
+            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index(string filter, string selectedType, int? selectedId)
+    {
+        var subplatform = Subplatform;
         if (string.IsNullOrWhiteSpace(subplatform))
         {
             return NotFound();
@@ -129,30 +139,30 @@ public class SubAdminModerationController : Controller
     }
 
     [HttpPost]
-    public IActionResult ApproveIdea(int ideaId, string subplatform)
+    public IActionResult ApproveIdea(int ideaId)
     {
         _ideaManager.ApproveIdea(ideaId);
-        return RedirectToAction(nameof(Index), new { subplatform });
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
-    public IActionResult RejectIdea(int ideaId, string subplatform)
+    public IActionResult RejectIdea(int ideaId)
     {
         _ideaManager.RejectIdea(ideaId);
-        return RedirectToAction(nameof(Index), new { subplatform });
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
-    public IActionResult ApproveReaction(int reactionId, string subplatform)
+    public IActionResult ApproveReaction(int reactionId)
     {
         _reactionManager.ApproveReaction(reactionId);
-        return RedirectToAction(nameof(Index), new { subplatform });
+        return RedirectToAction(nameof(Index));
     }
 
     [HttpPost]
-    public IActionResult RejectReaction(int reactionId, string subplatform)
+    public IActionResult RejectReaction(int reactionId)
     {
         _reactionManager.RejectReaction(reactionId);
-        return RedirectToAction(nameof(Index), new { subplatform });
+        return RedirectToAction(nameof(Index));
     }
 }

@@ -19,12 +19,15 @@ public class IdeasController : ControllerBase
     private readonly IUserManager _userManager;
     private readonly ISubplatformManager _subplatformManager;
     private readonly IGoogleCloudStorageService _googleCloudStorageService;
-    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager,IGoogleCloudStorageService googleCloudStorageService)
+    private readonly ILogger<IdeasController> _logger;
+
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager, IGoogleCloudStorageService googleCloudStorageService, ILogger<IdeasController> logger)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
         _subplatformManager = subplatformManager;
         _googleCloudStorageService = googleCloudStorageService;
+        _logger = logger;
     }
 
 
@@ -273,8 +276,9 @@ public class IdeasController : ControllerBase
                 improvedText
             });
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "ImproveIdea mislukt");
             return StatusCode(503, new
             {
                 ok = false,

@@ -8,7 +8,7 @@
 set -euo pipefail
 
 PROJECT_ID="integratieproject-mvp"
-INSTANCE="treeapp-db-new"
+INSTANCE="echo20-db"
 
 echo " Beschikbare backups:"
 gcloud sql backups list \
