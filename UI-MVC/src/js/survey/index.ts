@@ -1,5 +1,10 @@
 ﻿// survey/index.ts
 import { DomUtils } from "../helpers/utils";
+import { SurveyNavigation } from "./navigation";
+
+document.addEventListener("DOMContentLoaded", () => {
+    new SurveyNavigation().init();
+});
 
 export class SurveySubmitter {
     init(): void {
