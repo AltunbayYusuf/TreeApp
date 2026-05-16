@@ -100,6 +100,18 @@
                 <span asp-validation-for="Introduction" class="text-danger small"></span>
             </div>
 
+            <div class="mb-4">
+                <label asp-for="Duration" class="form-label">
+                    Tijdsduur in minuten <span class="text-danger">*</span>
+                </label>
+                <input asp-for="Duration"
+                       type="number"
+                       min="1"
+                       class="form-control"
+                       placeholder="bijv. 10"/>
+                <span asp-validation-for="Duration" class="text-danger small"></span>
+            </div>
+
             <div>
                 <h3 class="admin-form-title mb-1">Vorm van het project</h3>
                 <p class="admin-form-subtitle">Kies hoe deelnemers de vragen beantwoorden.</p>

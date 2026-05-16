@@ -233,6 +233,7 @@ public class SubAdminProjectsController : Controller
             SubplatformSlug = subplatform,
             Name = project.Name,
             Introduction = project.Introduction,
+            Duration = project.Duration,
             Type = project.Type,
             PhotoUri = project.Photo?.Uri
         });
@@ -272,6 +273,7 @@ public class SubAdminProjectsController : Controller
             SubplatformSlug = subplatform,
             Name = project.Name + " - kopie",
             Introduction = project.Introduction,
+            Duration = project.Duration,
             Type = project.Type,
             PhotoUri = project.Photo?.Uri
         });
@@ -404,7 +406,7 @@ public class SubAdminProjectsController : Controller
             ReactionEmojiGroup = ideation.SelectedEmojiGroup,
             SubPlatformId = subPlatformId,
             ReleaseDate = DateTime.UtcNow,
-            Duration = 10,
+            Duration = info.Duration,
             Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
                 ? new Media { Uri = info.PhotoUri }
                 : null,
@@ -502,6 +504,7 @@ public class SubAdminProjectsController : Controller
 
         existingProject.Name = info.Name;
         existingProject.Introduction = info.Introduction;
+        existingProject.Duration = info.Duration;
         existingProject.Type = info.Type;
         existingProject.ReactionEmojiGroup = ideation.SelectedEmojiGroup;
         existingProject.Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
