@@ -30,14 +30,16 @@
 
     <nav class="admin-tabs mb-4">
         <button type="button" class="admin-tab-link active">Project Info</button>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateSurvey"
-           asp-route-subplatform="@Model.SubplatformSlug"
-           class="admin-tab-link">Bevraging</a>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateIdeation"
-           asp-route-subplatform="@Model.SubplatformSlug"
-           class="admin-tab-link">Ideation</a>
+        <button type="submit"
+                form="createProjectForm"
+                class="admin-tab-link">
+            Bevraging
+        </button>
+        <button type="submit"
+                form="createProjectForm"
+                class="admin-tab-link">
+            Ideation
+        </button>
     </nav>
 
     <form id="createProjectForm"
