@@ -45,11 +45,10 @@ async function generateProjectImage(): Promise<void> {
     } = getProjectInfoElements();
     if (!form || !nameInput || !generateImageButton) return;
 
-    const subplatform = form.dataset.subplatform;
     const projectName = nameInput.value.trim();
     const description = introductionInput?.value.trim() ?? "";
 
-    if (!subplatform || !projectName) {
+    if (!projectName) {
         if (imageStatus) imageStatus.textContent = "Geef eerst een projectnaam in.";
         return;
     }
@@ -58,7 +57,7 @@ async function generateProjectImage(): Promise<void> {
     generateImageButton.textContent = "Afbeelding genereren...";
     if (imageStatus) imageStatus.textContent = "AI maakt een afbeelding op basis van titel en beschrijving.";
     try {
-        const response = await fetch(`/${subplatform}/SubAdminProjects/GenerateProjectImage`, {
+        const response = await fetch(`/SubAdminProjects/GenerateProjectImage`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -98,10 +97,9 @@ async function generateIntroduction(): Promise<void> {
 
     if (!form || !nameInput || !introductionInput || !generateIntroductionButton) return;
 
-    const subplatform = form.dataset.subplatform;
     const projectName = nameInput.value.trim();
 
-    if (!subplatform || !projectName) {
+    if (!projectName) {
         introductionInput.value = "Geef eerst een projectnaam in.";
         introductionInput.focus();
         return;
@@ -111,7 +109,7 @@ async function generateIntroduction(): Promise<void> {
     generateIntroductionButton.textContent = "AI schrijft...";
 
     try {
-        const response = await fetch(`/${subplatform}/SubAdminProjects/GenerateIntroduction`, {
+        const response = await fetch(`/SubAdminProjects/GenerateIntroduction`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

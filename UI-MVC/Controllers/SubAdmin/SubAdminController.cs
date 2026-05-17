@@ -27,9 +27,19 @@ public class SubAdminController : Controller
         _projectManager = projectManager;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Index(string subplatform)
+    private string Subplatform
     {
+        get
+        {
+            var fromRoute = RouteData.Values["subplatform"]?.ToString();
+            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Index()
+    {
+        var subplatform = Subplatform;
         if (string.IsNullOrWhiteSpace(subplatform))
         {
             return NotFound();
@@ -88,8 +98,9 @@ public class SubAdminController : Controller
     }
     
     [HttpPost]
-    public IActionResult UpdateStatus(int projectId, string status, string subplatform)
+    public IActionResult UpdateStatus(int projectId, string status)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProject(projectId);
 
         if (project == null)
@@ -107,19 +118,20 @@ public class SubAdminController : Controller
         if (!isValidTransition)
         {
             TempData["Error"] = "Deze statuswijziging is niet toegestaan.";
-            return RedirectToAction("Index", new { subplatform });
+            return RedirectToAction("Index");
         }
 
         project.Status = newStatus;
         _projectManager.UpdateProject(project);
 
-        return RedirectToAction("Index", new { subplatform });
+        return RedirectToAction("Index");
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int projectId, string subplatform)
+    public async Task<IActionResult> Delete(int projectId)
     {
+        var subplatform = Subplatform;
         if (string.IsNullOrWhiteSpace(subplatform))
             return NotFound();
 
@@ -145,6 +157,6 @@ public class SubAdminController : Controller
 
         TempData["Success"] = "Project werd succesvol verwijderd.";
 
-        return RedirectToAction("Index", new { subplatform });
-    }    
+        return RedirectToAction("Index");
+    }
 }

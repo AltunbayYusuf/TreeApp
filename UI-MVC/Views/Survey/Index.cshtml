@@ -17,14 +17,11 @@
 
 <form asp-controller="Survey"
       asp-action="Submit"
-      asp-route-subplatform="@ViewBag.SubPlatformSlug"
       asp-route-projectId="@Model.Project.Id"
       method="post"
       id="surveyForm">
 
     @Html.AntiForgeryToken()
-
-    <input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug"/>
 
     @foreach (var section in Model.Sections.OrderBy(s => s.Order))
     {
@@ -44,7 +41,6 @@
 
                 <div class="d-flex align-items-start gap-3">
 
-                    <!-- nummer -->
                     <div class="question-number-circle">
                         @if (conditional != null)
                         {
@@ -58,12 +54,10 @@
 
                     <div class="flex-grow-1">
 
-                        <!-- titel -->
                         <h4 class="survey-question-title">
                             @question.Description
                         </h4>
 
-                        <!-- type label -->
                         <div class="mb-3">
                             @if (question.QuestionType.ToString() == "SingleChoice")
                             {
@@ -75,10 +69,8 @@
                             }
                         </div>
 
-                        <!-- antwoorden -->
                         <div class="d-flex flex-column gap-2">
 
-                            @* SINGLE *@
                             @if (question.QuestionType.ToString() == "SingleChoice")
                             {
                                 foreach (var option in question.Options)
@@ -93,7 +85,6 @@
                                 }
                             }
 
-                            @* MULTIPLE *@
                             else if (question.QuestionType.ToString() == "MultipleChoice")
                             {
                                 foreach (var option in question.Options)
@@ -108,7 +99,6 @@
                                 }
                             }
 
-                            @* RANGE (FIX!!) *@
                             else if (question.QuestionType.ToString() == "Range")
                             {
                                 <div class="d-flex gap-2">
@@ -151,3 +141,24 @@
         </button>
     </div>
 </form>
+<div class="survey-navigation position-fixed z-3 d-flex flex-column align-items-center gap-2">
+
+    <button type="button"
+            id="prevQuestionBtn"
+            class="btn survey-nav-btn"
+            aria-label="Vorige vraag">
+        <span class="fs-3 lh-1">⌃</span>
+    </button>
+
+    <button type="button"
+            id="nextQuestionBtn"
+            class="btn survey-nav-btn"
+            aria-label="Volgende vraag">
+        <span class="fs-3 lh-1">⌄</span>
+    </button>
+
+    <div id="questionProgress" class="survey-nav-progress">
+        1/1
+    </div>
+
+</div>

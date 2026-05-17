@@ -24,9 +24,12 @@ public class SurveyController : Controller
     }
     
 
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+
     [HttpGet]
-    public IActionResult Index(string subplatform, int projectId)
+    public IActionResult Index(int projectId)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
 
         if (project == null)
@@ -63,8 +66,9 @@ public class SurveyController : Controller
     }
 
     [HttpGet]
-    public IActionResult Chat(string subplatform, int projectId)
+    public IActionResult Chat(int projectId)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
 
         if (project == null)
@@ -101,8 +105,9 @@ public class SurveyController : Controller
     }
 
     [HttpPost]
-    public IActionResult Submit(string subplatform,List<AnswerDto> answers, int projectId)
+    public IActionResult Submit(List<AnswerDto> answers, int projectId)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
         if (project == null)
         {
@@ -148,7 +153,7 @@ public class SurveyController : Controller
 
         return Ok(new
         {
-            redirectUrl = Url.Action("Index", "Survey", new { subplatform, projectId })
+            redirectUrl = Url.Action("Index", "Survey", new { subplatform = Subplatform, projectId })
         });
     }
 

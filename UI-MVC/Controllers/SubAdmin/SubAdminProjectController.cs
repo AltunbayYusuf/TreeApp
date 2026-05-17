@@ -37,6 +37,7 @@ public class SubAdminProjectsController : Controller
         ISubplatformManager subplatformManager,
         IProjectManager projectManager,
         UserManager<ApplicationUser> userManager,
+        IManager manager,
         IImageGenerationService imageGenerationService,
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
@@ -55,7 +56,18 @@ public class SubAdminProjectsController : Controller
         _googleCloudStorageService = googleCloudStorageService;
     }
 
-    private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
+    private string Subplatform
+    {
+        get
+        {
+            var fromRoute = RouteData.Values["subplatform"]?.ToString();
+            return !string.IsNullOrWhiteSpace(fromRoute)
+                ? fromRoute
+                : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+        }
+    }
+
+    private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
 
@@ -81,7 +93,7 @@ public class SubAdminProjectsController : Controller
         var json = HttpContext.Session.GetString(key);
         return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json);
     }
-
+    
     [HttpGet]
     public async Task<IActionResult> NewProject(string subplatform)
     {
@@ -92,10 +104,11 @@ public class SubAdminProjectsController : Controller
 
         return RedirectToAction(nameof(ProjectInfo), new { subplatform });
     }
-
+    
     [HttpGet]
-    public async Task<IActionResult> ProjectInfo(string subplatform)
+    public async Task<IActionResult> ProjectInfo()
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -111,8 +124,9 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(string subplatform, CreateProjectInfoViewModel vm)
+    public async Task<IActionResult> Create(CreateProjectInfoViewModel vm)
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -137,16 +151,17 @@ public class SubAdminProjectsController : Controller
                 subplatform
             );
         }
-
         vm.PhotoUpload = null;
         SaveSession(InfoKey, vm);
-
+      
+        
         return await TryCreateProject(subplatform);
     }
 
     [HttpGet]
-    public async Task<IActionResult> CreateSurvey(string subplatform)
+    public async Task<IActionResult> CreateSurvey()
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -157,8 +172,9 @@ public class SubAdminProjectsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> CreateIdeation(string subplatform)
+    public async Task<IActionResult> CreateIdeation()
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -175,8 +191,9 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveIdeation(string subplatform, CreateProjectIdeationViewModel vm)
+    public async Task<IActionResult> SaveIdeation(CreateProjectIdeationViewModel vm)
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -198,8 +215,9 @@ public class SubAdminProjectsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> EditDraft(string subplatform, int projectId)
+    public async Task<IActionResult> EditDraft(int projectId)
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -235,12 +253,13 @@ public class SubAdminProjectsController : Controller
             }).ToList()
         });
 
-        return RedirectToAction(nameof(ProjectInfo), new { subplatform });
+        return RedirectToAction(nameof(ProjectInfo));
     }
 
     [HttpGet]
-    public async Task<IActionResult> CopyAsStartPoint(string subplatform, int projectId)
+    public async Task<IActionResult> CopyAsStartPoint(int projectId)
     {
+        var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
         if (errorResult != null) return errorResult;
 
@@ -273,7 +292,7 @@ public class SubAdminProjectsController : Controller
             }).ToList()
         });
 
-        return RedirectToAction(nameof(ProjectInfo), new { subplatform });
+        return RedirectToAction(nameof(ProjectInfo));
     }
 
     private CreateProjecSurveyViewModel BuildSurveyViewModelFromProject(Project project, string subplatform)
@@ -326,7 +345,7 @@ public class SubAdminProjectsController : Controller
 
     private async Task<IActionResult> TryCreateProject(string subplatform)
     {
-        var validationResult = ValidateProjectSessions(subplatform);
+        var validationResult = ValidateProjectSessions();
         if (validationResult != null) return validationResult;
 
         var info = GetSession<CreateProjectInfoViewModel>(InfoKey)!;
@@ -347,27 +366,27 @@ public class SubAdminProjectsController : Controller
 
         ClearProjectSessions();
 
-        return RedirectToAction("Index", "SubAdmin", new { subplatform });
+        return RedirectToAction("Index", "SubAdmin");
     }
 
-    private IActionResult ValidateProjectSessions(string subplatform)
+    private IActionResult ValidateProjectSessions()
     {
         if (GetSession<CreateProjectInfoViewModel>(InfoKey) == null)
         {
             TempData["ProjectError"] = "Vul eerst Project Info volledig in.";
-            return RedirectToAction(nameof(ProjectInfo), new { subplatform });
+            return RedirectToAction(nameof(ProjectInfo));
         }
 
         if (GetSession<CreateProjecSurveyViewModel>(SurveyKey) == null)
         {
             TempData["ProjectError"] = "Vul eerst Bevraging volledig in.";
-            return RedirectToAction(nameof(CreateSurvey), new { subplatform });
+            return RedirectToAction(nameof(CreateSurvey));
         }
 
         if (GetSession<CreateProjectIdeationViewModel>(IdeationKey) == null)
         {
             TempData["ProjectError"] = "Vul eerst Ideation volledig in.";
-            return RedirectToAction(nameof(CreateIdeation), new { subplatform });
+            return RedirectToAction(nameof(CreateIdeation));
         }
 
         return null;
@@ -399,8 +418,8 @@ public class SubAdminProjectsController : Controller
             SubPlatformId = subPlatformId,
             ReleaseDate = DateTime.UtcNow,
             Duration = 10,
-            Photo = !string.IsNullOrWhiteSpace(photoUri)
-                ? new Media { Uri = photoUri }
+            Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
+                ? new Media { Uri = info.PhotoUri }
                 : null,
             Topics = BuildTopics(ideation),
             QuestionList = BuildQuestionList(survey)
@@ -518,7 +537,7 @@ public class SubAdminProjectsController : Controller
 
         ClearProjectSessions();
 
-        return RedirectToAction("Index", "SubAdmin", new { subplatform });
+        return RedirectToAction("Index", "SubAdmin");
     }
 
     [HttpPost]
@@ -528,7 +547,7 @@ public class SubAdminProjectsController : Controller
         string subplatform,
         [FromBody] GenerateProjectImageRequest request)
     {
-        var errorResult = await ValidateSubplatformAccess(subplatform);
+        var errorResult = await ValidateSubplatformAccess(Subplatform);
         if (errorResult != null) return errorResult;
 
         if (request == null || string.IsNullOrWhiteSpace(request.ProjectName))
@@ -554,9 +573,9 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> GenerateSurvey(string subplatform, [FromBody] GenerateSurveyRequest request)
+    public async Task<IActionResult> GenerateSurvey([FromBody] GenerateSurveyRequest request)
     {
-        var errorResult = await ValidateSubplatformAccess(subplatform);
+        var errorResult = await ValidateSubplatformAccess(Subplatform);
         if (errorResult != null) return errorResult;
 
         if (request == null || string.IsNullOrWhiteSpace(request.Description))
@@ -580,9 +599,9 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> GenerateIntroduction(string subplatform, [FromBody] GenerateIntroductionRequest request)
+    public async Task<IActionResult> GenerateIntroduction([FromBody] GenerateIntroductionRequest request)
     {
-        var errorResult = await ValidateSubplatformAccess(subplatform);
+        var errorResult = await ValidateSubplatformAccess(Subplatform);
         if (errorResult != null) return errorResult;
 
         if (request == null || string.IsNullOrWhiteSpace(request.ProjectName))
@@ -602,7 +621,7 @@ public class SubAdminProjectsController : Controller
             introduction
         });
     }
-
+    
     [HttpGet]
     public async Task<IActionResult> Statistics(string subplatform, int projectId)
     {
@@ -620,7 +639,7 @@ public class SubAdminProjectsController : Controller
 
         return View(statistics);
     }
-
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateOpenQuestionSummary(

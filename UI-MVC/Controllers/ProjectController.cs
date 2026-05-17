@@ -15,9 +15,12 @@ public class ProjectController : Controller
     }
 
 
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
+
     [HttpGet]
-    public IActionResult Index(string subplatform, int id)
+    public IActionResult Index(int id = 1)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, id);
 
         if (project == null)
@@ -33,8 +36,9 @@ public class ProjectController : Controller
         return View(project);
     }
     
-    public IActionResult RedirectToFirstProject(string subplatform)
+    public IActionResult RedirectToFirstProject()
     {
+        var subplatform = Subplatform;
         if (string.IsNullOrWhiteSpace(subplatform))
         {
             return NotFound();
@@ -52,10 +56,6 @@ public class ProjectController : Controller
             return NotFound(); 
         }
 
-        return RedirectToAction("Index", new
-        {
-            subplatform = subplatform,
-            id = firstProject.Id
-        });
+        return RedirectToAction("Index", new { id = firstProject.Id });
     }
 }

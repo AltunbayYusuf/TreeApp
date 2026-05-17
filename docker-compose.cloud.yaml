@@ -9,7 +9,6 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=cloudsql-proxy;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD}
-      Gemini__ApiKey: ${GEMINI_API_KEY}
     volumes:
       - dataprotection-keys:/root/.aspnet/DataProtection-Keys
     depends_on:
@@ -25,7 +24,7 @@ services:
       - "--health-check"
       - "--http-address=0.0.0.0"
       - "--http-port=9090"
-      - "integratieproject-mvp:europe-west1:treeapp-db-new"
+      - "integratieproject-mvp:europe-west1:echo20-db"
     volumes:
       - /tmp/sa-key.json:/secrets/sa-key.json:ro
     healthcheck:

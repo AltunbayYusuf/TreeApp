@@ -37,7 +37,6 @@
         <div class="d-flex align-items-center gap-3">
             <a asp-controller="SubAdmin"
                asp-action="Index"
-               asp-route-subplatform="@Model.SubplatformSlug"
                class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
                style="width:38px;height:38px;border-radius:8px;">
                 ←
@@ -56,18 +55,17 @@
     <nav class="admin-tabs mb-4">
         <a asp-controller="SubAdminProjects"
            asp-action="ProjectInfo"
-           asp-route-subplatform="@Model.SubplatformSlug"
            class="admin-tab-link">Project Info</a>
         <button type="button" class="admin-tab-link active">Bevraging</button>
         <a asp-controller="SubAdminProjects"
            asp-action="CreateIdeation"
-           asp-route-subplatform="@Model.SubplatformSlug"
            class="admin-tab-link">Ideation</a>
     </nav>
 
-    <form id="surveyForm"
-          data-save-url="/@Model.SubplatformSlug/api/subadmin-projects/survey"
-          data-ai-url="/@Model.SubplatformSlug/api/subadmin-projects/survey/ai">
+        <form id="surveyForm"
+              data-save-url="/api/subadmin-projects/survey"
+              data-ai-url="/api/subadmin-projects/survey/ai"
+              class="space-y-6">
 
         @Html.AntiForgeryToken()
 

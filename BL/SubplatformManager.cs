@@ -47,7 +47,12 @@ public class SubplatformManager : ISubplatformManager
 
         if (result.Succeeded)
         {
-            await _userManager.AddUserToRoleAsync(user, "SubAdmin");
+            var roleResult = await _userManager.AddUserToRoleAsync(user, "SubAdmin");
+            if (!roleResult.Succeeded)
+            {
+                var roleErrors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new Exception($"Kon SubAdmin rol niet toekennen: {roleErrors}");
+            }
 
             var rootPlatform = _subplatformRepository.ReadPlatform();
 
