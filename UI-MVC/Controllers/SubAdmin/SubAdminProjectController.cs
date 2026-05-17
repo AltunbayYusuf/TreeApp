@@ -41,13 +41,8 @@ public class SubAdminProjectsController : Controller
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
         IProjectStatisticsManager projectStatisticsManager,
-<<<<<<< HEAD
         IAiSummaryIdeas aiSummaryIdeas,
         IGoogleCloudStorageService googleCloudStorageService)
-=======
-        IAiSummaryIdeas aiSummaryIdeas,IGoogleCloudStorageService googleCloudStorageService
-        )
->>>>>>> a3e934a97a42648d1334bf1abfca4a0612aea3ab
     {
         _subplatformManager = subplatformManager;
         _projectManager = projectManager;
@@ -57,11 +52,8 @@ public class SubAdminProjectsController : Controller
         _aiSurveyGenerationService = aiSurveyGenerationService;
         _projectStatisticsManager = projectStatisticsManager;
         _aiSummaryIdeas = aiSummaryIdeas;
-<<<<<<< HEAD
+            _googleCloudStorageService = googleCloudStorageService;
         _googleCloudStorageService = googleCloudStorageService;
-=======
-        _googleCloudStorageService=googleCloudStorageService;
->>>>>>> a3e934a97a42648d1334bf1abfca4a0612aea3ab
     }
 
     private string Subplatform
@@ -69,7 +61,9 @@ public class SubAdminProjectsController : Controller
         get
         {
             var fromRoute = RouteData.Values["subplatform"]?.ToString();
-            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+            return !string.IsNullOrWhiteSpace(fromRoute)
+                ? fromRoute
+                : (HttpContext.Items["subplatform"]?.ToString() ?? "");
         }
     }
 
@@ -99,7 +93,7 @@ public class SubAdminProjectsController : Controller
         var json = HttpContext.Session.GetString(key);
         return string.IsNullOrWhiteSpace(json) ? default : JsonSerializer.Deserialize<T>(json);
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> NewProject(string subplatform)
     {
@@ -110,7 +104,7 @@ public class SubAdminProjectsController : Controller
 
         return RedirectToAction(nameof(ProjectInfo), new { subplatform });
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> ProjectInfo()
     {
@@ -157,10 +151,11 @@ public class SubAdminProjectsController : Controller
                 subplatform
             );
         }
+
         vm.PhotoUpload = null;
         SaveSession(InfoKey, vm);
-      
-        
+
+
         return await TryCreateProject(subplatform);
     }
 
@@ -302,52 +297,52 @@ public class SubAdminProjectsController : Controller
     }
 
     private CreateProjecSurveyViewModel BuildSurveyViewModelFromProject(Project project, string subplatform)
-{
-    return new CreateProjecSurveyViewModel
     {
-        SubplatformSlug = subplatform,
-        Sections = project.QuestionList?.Sections
-            .OrderBy(s => s.Order)
-            .Select(s =>
-            {
-                var conditionalFollowUpQuestionIds = s.Questions
-                    .SelectMany(q => q.ConditionalQuestions ?? new List<ConditionalQuestion>())
-                    .Where(cq => cq.FollowUpQuestion != null)
-                    .Select(cq => cq.FollowUpQuestion.Id)
-                    .ToHashSet();
-
-                return new SectionViewModel
+        return new CreateProjecSurveyViewModel
+        {
+            SubplatformSlug = subplatform,
+            Sections = project.QuestionList?.Sections
+                .OrderBy(s => s.Order)
+                .Select(s =>
                 {
-                    Title = s.Title,
-                    Order = s.Order,
-                    Questions = s.Questions
-                        .Where(q => !conditionalFollowUpQuestionIds.Contains(q.Id))
-                        .Select(q => new QuestionViewModel
-                        {
-                            Description = q.Description,
-                            QuestionType = q.QuestionType,
-                            RangeMin = q.RangeMin,
-                            RangeMax = q.RangeMax,
-                            Options = q.Options?
-                                .Select(o => o.Text)
-                                .ToList() ?? new List<string>(),
+                    var conditionalFollowUpQuestionIds = s.Questions
+                        .SelectMany(q => q.ConditionalQuestions ?? new List<ConditionalQuestion>())
+                        .Where(cq => cq.FollowUpQuestion != null)
+                        .Select(cq => cq.FollowUpQuestion.Id)
+                        .ToHashSet();
 
-                            Conditionals = q.ConditionalQuestions?
-                                .Where(cq => cq.FollowUpQuestion != null)
-                                .Select(cq => new ConditionalQuestionViewModel
-                                {
-                                    Trigger = cq.TriggerValue,
-                                    QuestionText = cq.FollowUpQuestion.Description,
-                                    UseAi = false
-                                })
-                                .ToList() ?? new List<ConditionalQuestionViewModel>()
-                        })
-                        .ToList()
-                };
-            })
-            .ToList() ?? new List<SectionViewModel>()
-    };
-}
+                    return new SectionViewModel
+                    {
+                        Title = s.Title,
+                        Order = s.Order,
+                        Questions = s.Questions
+                            .Where(q => !conditionalFollowUpQuestionIds.Contains(q.Id))
+                            .Select(q => new QuestionViewModel
+                            {
+                                Description = q.Description,
+                                QuestionType = q.QuestionType,
+                                RangeMin = q.RangeMin,
+                                RangeMax = q.RangeMax,
+                                Options = q.Options?
+                                    .Select(o => o.Text)
+                                    .ToList() ?? new List<string>(),
+
+                                Conditionals = q.ConditionalQuestions?
+                                    .Where(cq => cq.FollowUpQuestion != null)
+                                    .Select(cq => new ConditionalQuestionViewModel
+                                    {
+                                        Trigger = cq.TriggerValue,
+                                        QuestionText = cq.FollowUpQuestion.Description,
+                                        UseAi = false
+                                    })
+                                    .ToList() ?? new List<ConditionalQuestionViewModel>()
+                            })
+                            .ToList()
+                    };
+                })
+                .ToList() ?? new List<SectionViewModel>()
+        };
+    }
 
     private async Task<IActionResult> TryCreateProject(string subplatform)
     {
@@ -602,7 +597,7 @@ public class SubAdminProjectsController : Controller
             introduction
         });
     }
-    
+
     [HttpGet]
     public async Task<IActionResult> Statistics(string subplatform, int projectId)
     {
@@ -620,7 +615,7 @@ public class SubAdminProjectsController : Controller
 
         return View(statistics);
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateOpenQuestionSummary(
