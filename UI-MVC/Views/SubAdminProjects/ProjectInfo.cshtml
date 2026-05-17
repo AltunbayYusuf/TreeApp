@@ -114,6 +114,19 @@
                 <span asp-validation-for="Duration" class="text-danger small"></span>
             </div>
 
+            <div class="mb-4">
+                <label asp-for="FontFamily" class="form-label">
+                    Lettertype <span class="text-danger">*</span>
+                </label>
+                <select asp-for="FontFamily" class="form-select">
+                    @foreach (var fontFamily in IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.AllowedFontFamilies)
+                    {
+                        <option value="@fontFamily">@fontFamily</option>
+                    }
+                </select>
+                <span asp-validation-for="FontFamily" class="text-danger small"></span>
+            </div>
+
             <div>
                 <h3 class="admin-form-title mb-1">Vorm van het project</h3>
                 <p class="admin-form-subtitle">Kies hoe deelnemers de vragen beantwoorden.</p>

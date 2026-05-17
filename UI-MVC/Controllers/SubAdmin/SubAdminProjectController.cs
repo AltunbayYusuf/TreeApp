@@ -234,6 +234,7 @@ public class SubAdminProjectsController : Controller
             Name = project.Name,
             Introduction = project.Introduction,
             Duration = project.Duration,
+            FontFamily = project.FontFamily,
             Type = project.Type,
             PhotoUri = project.Photo?.Uri
         });
@@ -274,6 +275,7 @@ public class SubAdminProjectsController : Controller
             Name = project.Name + " - kopie",
             Introduction = project.Introduction,
             Duration = project.Duration,
+            FontFamily = project.FontFamily,
             Type = project.Type,
             PhotoUri = project.Photo?.Uri
         });
@@ -407,6 +409,7 @@ public class SubAdminProjectsController : Controller
             SubPlatformId = subPlatformId,
             ReleaseDate = DateTime.UtcNow,
             Duration = info.Duration,
+            FontFamily = info.FontFamily,
             Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
                 ? new Media { Uri = info.PhotoUri }
                 : null,
@@ -505,6 +508,7 @@ public class SubAdminProjectsController : Controller
         existingProject.Name = info.Name;
         existingProject.Introduction = info.Introduction;
         existingProject.Duration = info.Duration;
+        existingProject.FontFamily = info.FontFamily;
         existingProject.Type = info.Type;
         existingProject.ReactionEmojiGroup = ideation.SelectedEmojiGroup;
         existingProject.Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)

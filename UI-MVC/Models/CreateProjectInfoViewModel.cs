@@ -3,8 +3,17 @@ using IntegratieProject.BL.Domain.project;
 
 namespace IntegratieProject.UI.MVC.Models;
 
-public class CreateProjectInfoViewModel
+public class CreateProjectInfoViewModel : IValidatableObject
 {
+    public static readonly string[] AllowedFontFamilies =
+    {
+        "Inter",
+        "Arial",
+        "Georgia",
+        "Verdana",
+        "Trebuchet MS"
+    };
+
     public string SubplatformSlug { get; set; } = "";
 
     [Required(ErrorMessage = "Projectnaam is verplicht.")]
@@ -21,4 +30,20 @@ public class CreateProjectInfoViewModel
     public IFormFile? PhotoUpload { get; set; }
 
     public string? PhotoUri { get; set; }
-    public ProjectType Type { get; set; } = ProjectType.VerticalScroll;}
+
+    [Required(ErrorMessage = "Lettertype is verplicht.")]
+    [MaxLength(50)]
+    public string FontFamily { get; set; } = "Inter";
+
+    public ProjectType Type { get; set; } = ProjectType.VerticalScroll;
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (!AllowedFontFamilies.Contains(FontFamily))
+        {
+            yield return new ValidationResult(
+                "Kies een geldig lettertype.",
+                new[] { nameof(FontFamily) });
+        }
+    }
+}
