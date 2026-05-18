@@ -10,7 +10,7 @@
         </div>
 
         <a asp-controller="SubAdminProjects"
-           asp-action="ProjectInfo"
+           asp-action="NewProject"
            asp-route-subplatform="@Model.Slug"
            class="btn btn-primary">
             + Nieuw project
@@ -100,13 +100,11 @@
                                     <form asp-action="UpdateStatus" method="post">
                                         <input type="hidden" name="projectId" value="@p.Id" />
                                         <input type="hidden" name="status" value="Active" />
-                                        <input type="hidden" name="subplatform" value="@Model.Slug" />
                                         <button class="btn btn-sm btn-outline-success">Activeer</button>
                                     </form>
 
                                     <a asp-controller="SubAdminProjects"
                                        asp-action="EditDraft"
-                                       asp-route-subplatform="@Model.Slug"
                                        asp-route-projectId="@p.Id"
                                        class="btn btn-sm btn-outline-primary">
                                         Bewerken
@@ -118,14 +116,12 @@
                                     <form asp-action="UpdateStatus" method="post">
                                         <input type="hidden" name="projectId" value="@p.Id" />
                                         <input type="hidden" name="status" value="Archived" />
-                                        <input type="hidden" name="subplatform" value="@Model.Slug" />
                                         <button class="btn btn-sm btn-outline-warning">Archiveer</button>
                                     </form>
                                 }
 
                                 <a asp-controller="SubAdminProjects"
                                    asp-action="CopyAsStartPoint"
-                                   asp-route-subplatform="@Model.Slug"
                                    asp-route-projectId="@p.Id"
                                    class="btn btn-sm btn-outline-secondary">
                                     Kopieer
@@ -133,7 +129,6 @@
 
                                 <a asp-controller="SubAdminProjects"
                                    asp-action="Statistics"
-                                   asp-route-subplatform="@Model.Slug"
                                    asp-route-projectId="@p.Id"
                                    class="btn btn-sm btn-outline-dark">
                                     Statistieken
@@ -186,7 +181,6 @@
 
                                             <form asp-controller="SubAdmin"
                                                   asp-action="Delete"
-                                                  asp-route-subplatform="@Model.Slug"
                                                   method="post"
                                                   class="w-100 w-sm-auto">
 

@@ -34,7 +34,10 @@ public class PlatformController : Controller
         if (dto == null)
             return BadRequest("DTO is null - JSON binding failed");
 
-        try 
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Ongeldige invoer");
+
+        try
         {
             var generatedPassword = await _subplatformManager.CreateSubPlatformAsync(
                 dto.CompanyName,

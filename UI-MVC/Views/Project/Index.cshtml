@@ -1,11 +1,12 @@
 @using IntegratieProject.BL.Domain.project
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.project.Project
 
 @{
     ViewData["Title"] = "Project";
 }
 
-<div class="project-landing">
+<div class="project-landing" style="font-family: @ProjectFontFamily.ToCssStack(Model.FontFamily);">
 
     <div class="home-topbar mb-4">
         <div>
@@ -58,7 +59,6 @@
     {
         <a asp-controller="Survey"
            asp-action="Chat"
-           asp-route-subplatform="@Model.SubPlatform.Slug"
            asp-route-projectId="@Model.Id"
            class="project-start-btn mt-3">
             Start bevraging →
@@ -68,15 +68,16 @@
     {
         <a asp-controller="Survey"
            asp-action="Index"
-           asp-route-subplatform="@Model.SubPlatform.Slug"
            asp-route-projectId="@Model.Id"
            class="project-start-btn mt-3">
             Start bevraging →
         </a>
     }
 
-    <a asp-controller="Home" asp-action="Privacy" class="project-privacy-link">
+    <a asp-controller="Home"
+       asp-action="Privacy"
+       asp-route-projectId="@Model.Id"
+       class="project-privacy-link">
         → Privacybeleid
     </a>
-
 </div>

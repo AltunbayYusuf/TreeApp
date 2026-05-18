@@ -10,7 +10,7 @@ namespace IntegratieProject.UI.MVC.Controllers.Api;
 
 [ApiController]
 [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
-[Route("{subplatform}/api/subadmin-projects")]
+[Route("api/subadmin-projects")]
 public class SubAdminProjectsController : ControllerBase
 {
     
@@ -28,8 +28,9 @@ public class SubAdminProjectsController : ControllerBase
     private const string SurveyKey = "CreateProject_Survey";
 
     [HttpPost("survey")]
-    public IActionResult SaveSurvey(string subplatform, [FromBody] SaveSurveyRequestDto request)
+    public IActionResult SaveSurvey([FromBody] SaveSurveyRequestDto request)
     {
+        var subplatform = HttpContext.Items["subplatform"]?.ToString() ?? "";
         var vm = new CreateProjecSurveyViewModel
         {
             SubplatformSlug = subplatform,
@@ -73,13 +74,13 @@ public class SubAdminProjectsController : ControllerBase
         return Ok(new
         {
             ok = true,
-            redirectUrl = $"/{subplatform}/SubAdminProjects/CreateIdeation"
+            redirectUrl = Url.Action("CreateIdeation", "SubAdminProjects", new { subplatform })
         });
     }
     
     [HttpPost("survey/ai")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> GenerateSurvey(string subplatform, [FromBody] GenerateSurveyRequest request)
+    public async Task<IActionResult> GenerateSurvey([FromBody] GenerateSurveyRequest request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Description))
         {

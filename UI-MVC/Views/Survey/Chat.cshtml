@@ -1,4 +1,5 @@
 @using IntegratieProject.BL.Domain.questions
+@using IntegratieProject.UI.MVC.Models
 @using System.Text.Json
 @model QuestionList
 @{
@@ -22,13 +23,11 @@
     var logoUri = Model?.Project?.Logo?.Uri ?? "";
 }
 
-<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
-
 <script id="survey-data" type="application/json">
 @Html.Raw(jsonData)
 </script>
 
-<div class="chatbot-page d-flex flex-column bg-white overflow-hidden">
+<div class="chatbot-page d-flex flex-column bg-white overflow-hidden" style="font-family: @ProjectFontFamily.ToCssStack(Model?.Project?.FontFamily);">
     <div class="chatbot-header d-flex align-items-center gap-3 py-3 px-4 text-white">
         @if (!string.IsNullOrWhiteSpace(logoUri))
         {

@@ -5,7 +5,13 @@ namespace IntegratieProject.DAL.interfaces;
 public interface ISurveyRepository
 {
     SurveyResponse ReadSurveyResponse(int userId, int projectId);
-    void SaveSurveyResponse(int userId, int projectId, List<Answer> answers);
-    IEnumerable<SurveyResponse> ReadSurveyResponsesByProjectId(int projectId);
 
+    void SaveSurveyResponse(
+        int userId,
+        int projectId,
+        List<Answer> answers,
+        int durationInSeconds
+    );
+
+    IEnumerable<SurveyResponse> ReadSurveyResponsesByProjectId(int projectId);
 }

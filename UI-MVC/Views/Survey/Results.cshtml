@@ -1,18 +1,20 @@
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.questions.SurveyResponse
 
 @{
     ViewBag.Title = "Bevraging ingevuld";
     Layout = "_Layout";
+    var minutes = Model.DurationInSeconds / 60;
+    var seconds = Model.DurationInSeconds % 60;
 }
 
-<input type="hidden" id="subplatformSlug" value="@ViewBag.SubPlatformSlug" />
-
-<div class="results-page">
+<div class="results-page" style="font-family: @ProjectFontFamily.ToCssStack(Model.Project?.FontFamily);">
 
     <div class="results-header">
         <div class="results-check">&#10003;</div>
         <h1 class="results-title">Bedankt voor je deelname!</h1>
-        <p class="results-subtitle">Je hebt de vragenlijst succesvol ingevuld. Hieronder vind je een overzicht van jouw antwoorden.</p>
+        <p class="results-subtitle">Je hebt de vragenlijst succesvol in  @minutes min @seconds sec   ingevuld. 
+            Hieronder vind je een overzicht van jouw antwoorden.</p>
     </div>
 
     <div class="results-card">

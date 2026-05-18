@@ -18,8 +18,18 @@ public class SurveyManager : ISurveyManager
         return _surveyRepository.ReadSurveyResponse(userId, projectId);
     }
 
-    public void SaveSurveyResponse(int userId, int projectId, List<Answer> answers)
+    public void SaveSurveyResponse(
+        int userId,
+        int projectId,
+        List<Answer> answers,
+        int durationInSeconds
+    )
     {
-        _surveyRepository.SaveSurveyResponse(userId, projectId, answers);
+        _surveyRepository.SaveSurveyResponse(
+            userId,
+            projectId,
+            answers,
+            durationInSeconds
+        );
     }
 }

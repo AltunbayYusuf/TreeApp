@@ -28,3 +28,10 @@ public class ConditionalQuestionDto
     public bool Ai { get; set; }
     public string Question { get; set; } = "";
 }
+
+public class SubmitSurveyDto
+{
+    public int ProjectId { get; set; }
+    public int DurationInSeconds { get; set; }
+    public List<AnswerDto> Answers { get; set; } = new();
+}

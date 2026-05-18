@@ -26,6 +26,8 @@ public class Project: IValidatableObject
     [MaxLength(50)]
     public string ReactionEmojiGroup { get; set; } = "👍,❤️";
     public int Duration { get; set; }
+    [MaxLength(50)]
+    public string FontFamily { get; set; } = "Inter";
     public DateTime ReleaseDate { get; set; }
 
     public ProjectType Type { get; set; }
@@ -36,7 +38,7 @@ public class Project: IValidatableObject
     public SubPlatform SubPlatform { get; set; }
     public bool HasBeenActive { get; set; }
 
-    public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
+    public IEnumerable<Topic> Topics { get; set; }
     
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }

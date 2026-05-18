@@ -34,6 +34,10 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     let currentIndex = 0;
     const answers: CollectedAnswer[] = [];
+    sessionStorage.setItem(
+        "surveyStartTime",
+        Date.now().toString()
+    );
 
     // ── helpers ──────────────────────────────────────────────────────────
 
@@ -82,6 +86,42 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
         addUserMessage(displayText);
         currentIndex++;
         setTimeout(() => showQuestion(currentIndex), 600);
+    }
+
+    // ── terug naar vorige vraag ───────────────────────────────────────────
+
+    function goBack(): void {
+        if (currentIndex <= 0) return;
+
+        // Verwijder de laatste 2 berichten: huidige vraag (bot) + vorig antwoord (user)
+        const msgs = Array.from(
+            chatMessages!.querySelectorAll<HTMLElement>('.chat-msg:not(.typing-indicator)')
+        );
+        if (msgs.length >= 1) msgs[msgs.length - 1].remove();
+        if (msgs.length >= 2) msgs[msgs.length - 2].remove();
+
+        answers.pop();
+        currentIndex--;
+
+        clearInput();
+        const q = questions[currentIndex];
+        switch (q.questionType) {
+            case 'SingleChoice':   renderSingleChoice(q); break;
+            case 'MultipleChoice': renderMultiChoice(q);  break;
+            case 'Range':          renderRange(q);         break;
+            case 'OpenQuestion':   renderOpen(q);          break;
+        }
+        addBackButton(currentIndex);
+        scrollBottom();
+    }
+
+    function addBackButton(questionIndex: number): void {
+        if (questionIndex <= 0) return;
+        const btn = document.createElement('button');
+        btn.className = 'btn chat-back-btn';
+        btn.innerHTML = '&#8592; Vorige vraag';
+        btn.addEventListener('click', goBack);
+        chatInputArea!.appendChild(btn);
     }
 
     // ── question renderers ────────────────────────────────────────────────
@@ -221,6 +261,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
                 case 'Range':          renderRange(q);         break;
                 case 'OpenQuestion':   renderOpen(q);          break;
             }
+            addBackButton(index);
         }, 900);
     }
 
@@ -232,40 +273,56 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
             btn.textContent = '✓ Bevraging afronden';
             btn.addEventListener('click', submitSurvey);
             chatInputArea!.appendChild(btn);
+            addBackButton(currentIndex);
         }, 900);
     }
 
     function submitSurvey(): void {
-        const formData = new URLSearchParams();
-        answers.forEach((a, i) => {
-            formData.append(`answers[${i}].QuestionId`, String(a.questionId));
-            formData.append(`answers[${i}].Value`, a.value);
-        });
+        const startTime = Number(
+            sessionStorage.getItem("surveyStartTime")
+        );
+
+        const durationInSeconds = Math.floor(
+            (Date.now() - startTime) / 1000
+        );
 
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get('projectId');
-        const subplatformInput =
-            document.getElementById('subplatformSlug') as HTMLInputElement | null;
-        const subplatform = subplatformInput?.value;
 
-        const submitUrl =
-            projectId && subplatform
-                ? `/${subplatform}/Survey/Submit?projectId=${projectId}`
-                : '/Survey/Submit';
+        const subplatform = document.body.getAttribute("data-subplatform") ?? "";
+        const prefix = subplatform ? `/${subplatform}` : "";
+
+        const submitUrl = projectId
+            ? `${prefix}/Survey/Submit?projectId=${projectId}`
+            : `${prefix}/Survey/Submit`;
+
+        const payload = {
+            projectId,
+            durationInSeconds,
+            answers
+        };
 
         fetch(submitUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         })
             .then(res => {
                 if (res.ok) return res.json();
                 throw new Error('Netwerk fout');
             })
             .then((data: { redirectUrl?: string }) => {
-                if (data.redirectUrl) window.location.href = data.redirectUrl;
+                sessionStorage.removeItem("surveyStartTime");
+
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                }
             })
-            .catch(err => console.error('Fout bij verzenden:', err));
+            .catch(err =>
+                console.error('Fout bij verzenden:', err)
+            );
     }
 
     // ── boot ──────────────────────────────────────────────────────────────
