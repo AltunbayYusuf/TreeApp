@@ -63,7 +63,7 @@ public class SubAdminProjectsController : Controller
         }
     }
 
-    private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
+    private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
 
@@ -161,6 +161,7 @@ public class SubAdminProjectsController : Controller
       
         
         return TryCreateProject(subplatform);
+        
     }
 
     [HttpGet]
@@ -377,7 +378,7 @@ public class SubAdminProjectsController : Controller
 
         ClearProjectSessions();
 
-        return RedirectToAction("Index", "SubAdmin");
+        return RedirectToAction("Index", "SubAdmin",new { subplatform});
     }
 
     private IActionResult ValidateProjectSessions()
