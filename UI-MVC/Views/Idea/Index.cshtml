@@ -15,7 +15,9 @@
     }
 }
 
-<div class="ideas-page">
+@using IntegratieProject.UI.MVC.Models
+
+<div class="ideas-page" style="font-family: @ProjectFontFamily.ToCssStack(Model.Project.FontFamily);">
 
     <div class="ideas-page-header d-flex justify-content-between align-items-start flex-wrap gap-2">
         <div>

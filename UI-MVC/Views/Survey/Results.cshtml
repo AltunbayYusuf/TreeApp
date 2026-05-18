@@ -1,3 +1,4 @@
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.questions.SurveyResponse
 
 @{
@@ -5,7 +6,7 @@
     Layout = "_Layout";
 }
 
-<div class="results-page">
+<div class="results-page" style="font-family: @ProjectFontFamily.ToCssStack(Model.Project?.FontFamily);">
 
     <div class="results-header">
         <div class="results-check">&#10003;</div>

@@ -4,7 +4,9 @@
     ViewData["Title"] = "Deel jouw idee";
 }
 
-<div class="create-idea-wrapper">
+@using IntegratieProject.UI.MVC.Models
+
+<div class="create-idea-wrapper" style="font-family: @ProjectFontFamily.ToCssStack(Model.Project.FontFamily);">
     <div class="create-idea-card">
 
         <div class="create-idea-header">
