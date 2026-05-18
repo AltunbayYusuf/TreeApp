@@ -22,7 +22,15 @@
 </a>
 <h1>@Model.CompanyName</h1>
 
-<h3 class="mt-4">Subadmins</h3>
+<div class="d-flex align-items-center justify-content-between mt-4">
+    <h3 class="mb-0">Subadmins</h3>
+    <a asp-action="ExportSubAdminsCsv"
+       asp-controller="Platform"
+       asp-route-id="@Model.Id"
+       class="btn btn-success btn-sm">
+        Exporteer CSV
+    </a>
+</div>
 
 <ul class="list-group">
     @foreach (var subAdmin in Model.SubAdmins)
