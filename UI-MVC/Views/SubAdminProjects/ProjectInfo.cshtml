@@ -30,14 +30,16 @@
 
     <nav class="admin-tabs mb-4">
         <button type="button" class="admin-tab-link active">Project Info</button>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateSurvey"
-           asp-route-subplatform="@Model.SubplatformSlug"
-           class="admin-tab-link">Bevraging</a>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateIdeation"
-           asp-route-subplatform="@Model.SubplatformSlug"
-           class="admin-tab-link">Ideation</a>
+        <button type="submit"
+                form="createProjectForm"
+                class="admin-tab-link">
+            Bevraging
+        </button>
+        <button type="submit"
+                form="createProjectForm"
+                class="admin-tab-link">
+            Ideation
+        </button>
     </nav>
 
     <form id="createProjectForm"
@@ -131,6 +133,19 @@
                 <span asp-validation-for="Introduction" class="text-danger small"></span>
             </div>
 
+            <div class="mb-4">
+                <label asp-for="Duration" class="form-label">
+                    Tijdsduur in minuten <span class="text-danger">*</span>
+                </label>
+                <input asp-for="Duration"
+                       type="number"
+
+                       min="1"
+                       class="form-control"
+                       placeholder="bijv. 10"/>
+                <span asp-validation-for="Duration" class="text-danger small"></span>
+            </div>
+            
             <div>
                 <h3 class="admin-form-title mb-1">Vorm van het project</h3>
                 <p class="admin-form-subtitle">Kies hoe deelnemers de vragen beantwoorden.</p>
