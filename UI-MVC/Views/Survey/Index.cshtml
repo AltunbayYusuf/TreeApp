@@ -9,7 +9,15 @@
     int questionNumber = 1;
 }
 
-<div class="project-survey-page" style="font-family: @ProjectFontFamily.ToCssStack(Model.Project?.FontFamily);">
+<a asp-controller="Project"
+   asp-action="Index"
+   asp-route-subplatform="@ViewBag.SubPlatformSlug"
+   asp-route-id="@Model.Project.Id"
+   class="survey-back-link"
+   aria-label="Terug naar project">
+    ←
+</a>
+
 <h2 class="text-center mt-4">
     @if (Model.Project?.Logo != null)
     {

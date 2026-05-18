@@ -140,15 +140,24 @@
                             <ul id="reactions-list-@idea.Id" class="reactions-list">
                                 @foreach (var reaction in textReactions)
                                 {
-                                    <li>
-                                        @if (!string.IsNullOrWhiteSpace(reaction.Emoji))
-                                        {
-                                            <span>@reaction.Emoji</span>
-                                        }
+                                    var isOwnReaction = Model.CurrentUserId.HasValue && reaction.UserId == Model.CurrentUserId.Value;
 
-                                        @if (!string.IsNullOrWhiteSpace(reaction.Text))
+                                    <li>
+                                        <span class="reaction-text">
+                                            @if (!string.IsNullOrWhiteSpace(reaction.Emoji))
+                                            {
+                                                <span>@reaction.Emoji</span>
+                                            }
+
+                                            @if (!string.IsNullOrWhiteSpace(reaction.Text))
+                                            {
+                                                <span>@reaction.Text</span>
+                                            }
+                                        </span>
+
+                                        @if (isOwnReaction)
                                         {
-                                            <span>@reaction.Text</span>
+                                            <span class="reaction-own-badge">Door jou</span>
                                         }
                                     </li>
                                 }

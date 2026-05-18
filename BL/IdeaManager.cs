@@ -204,14 +204,14 @@ public class IdeaManager : IIdeaManager
     }
    
     
-    public async Task<string> ImproveIdeaTextAsync(string title, string text)
+    public async Task<string> ImproveIdeaTextAsync(string title, string text, string language = "")
     {
         if (string.IsNullOrWhiteSpace(text))
         {
             throw new ArgumentException("Idea text is required.");
         }
 
-        var prompt = _aiPromptService.BuildIdeaImprovementPrompt(title ?? string.Empty, text);
+        var prompt = _aiPromptService.BuildIdeaImprovementPrompt(title ?? string.Empty, text, language);
 
         var improvedText = await _aiProvider.GenerateAsync(prompt);
 

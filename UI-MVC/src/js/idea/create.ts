@@ -191,7 +191,8 @@ export class IdeaCreator {
                 },
                 body: JSON.stringify({
                     title: ideaTitle.value,
-                    text: ideaText.value
+                    text: ideaText.value,
+                    language: localStorage.getItem("selectedLanguage") ?? "nl"
                 })
             });
 
@@ -208,7 +209,13 @@ export class IdeaCreator {
             this.aiAlternativeTitle = data.improvedTitle ?? "";
             this.aiAlternativeText = data.improvedText ?? "";
 
-            resultText.textContent = `${this.aiAlternativeTitle}\n\n${this.aiAlternativeText}`;
+            resultText.innerHTML = `
+                <strong>Titel:</strong>
+                ${DomUtils.escapeHtml(this.aiAlternativeTitle)}
+                
+                <strong>Inhoud:</strong>
+                ${DomUtils.escapeHtml(this.aiAlternativeText)}
+            `;
             useButton.style.display = "inline-block";
         } catch {
             resultBox.style.display = "block";
@@ -248,6 +255,10 @@ export class IdeaCreator {
             contactEmailWrapper.style.display = isChecked ? "block" : "none";
         }
 
+        if (contactEmail) {
+            contactEmail.required = isChecked;
+        }
+
         if (!isChecked && contactEmail) {
             contactEmail.value = "";
         }
@@ -266,7 +277,8 @@ export class IdeaCreator {
         if (!aiMessage) return;
 
         aiMessage.style.display = "block";
-        aiMessage.innerHTML = `<div class="alert alert-danger mb-0">${DomUtils.escapeHtml(message)}</div>`;
+        aiMessage.className = "mb-3 idea-message idea-message-danger";
+        aiMessage.textContent = message;
     }
 
     private async handleSubmit(e: Event): Promise<void> {
@@ -275,6 +287,8 @@ export class IdeaCreator {
         const ideaTopic = document.getElementById("idea-topic") as HTMLSelectElement | null;
         const ideaTitle = document.getElementById("idea-title") as HTMLInputElement | null;
         const ideaText = document.getElementById("idea-text") as HTMLTextAreaElement | null;
+        const contactOptIn = document.getElementById("idea-contact-opt-in") as HTMLInputElement | null;
+        const contactEmail = document.getElementById("idea-contact-email") as HTMLInputElement | null;
 
         this.topicId = ideaTopic?.value ?? "";
         this.title = ideaTitle?.value.trim() ?? "";
@@ -294,6 +308,18 @@ export class IdeaCreator {
 
         if (!this.text) {
             this.showError("Beschrijf eerst je idee.");
+            return;
+        }
+
+        if (contactOptIn?.checked && !contactEmail?.value.trim()) {
+            this.showError("Geef je e-mailadres in als je gecontacteerd wil worden.");
+            contactEmail?.focus();
+            return;
+        }
+
+        if (contactOptIn?.checked && contactEmail && !contactEmail.checkValidity()) {
+            this.showError("Geef een geldig e-mailadres in.");
+            contactEmail.focus();
             return;
         }
 
@@ -364,19 +390,20 @@ export class IdeaCreator {
         const suggestedText = data.suggestedText || "";
 
         aiMessage.style.display = "block";
+        aiMessage.className = "mb-3 idea-message idea-message-warning";
         aiMessage.innerHTML = `
-            <div class="alert alert-warning mb-0">
-                <strong>${DomUtils.escapeHtml(data.warning || "AI: je tekst bevat mogelijk toxische inhoud.")}</strong>
-                ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
-                <div class="mt-2">
-                    <strong>Alternatief:</strong><br>
-                    <strong>${DomUtils.escapeHtml(suggestedTitle)}</strong><br>
-                    ${DomUtils.escapeHtml(suggestedText)}
-                </div>
-                <div class="mt-3 d-flex gap-2 flex-wrap">
-                    <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">Toch versturen</button>
-                    <button type="button" id="use-alternative-btn" class="btn btn-outline-primary btn-sm">Alternatief gebruiken</button>
-                </div>
+            <strong>${DomUtils.escapeHtml(data.warning || "AI: je tekst bevat mogelijk toxische inhoud.")}</strong>
+            ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
+            <div class="mt-2">
+                <strong>Alternatief:</strong><br>
+                <strong>Titel:</strong><br>
+                ${DomUtils.escapeHtml(suggestedTitle)}<br><br>
+                <strong>Inhoud:</strong><br>
+                ${DomUtils.escapeHtml(suggestedText)}
+            </div>
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <button type="button" id="force-submit-btn" class="btn btn-outline-danger btn-sm">Toch versturen</button>
+                <button type="button" id="use-alternative-btn" class="btn btn-outline-primary btn-sm">Alternatief gebruiken</button>
             </div>
         `;
 
