@@ -15,8 +15,8 @@ public class DataSeeder
         {
             CompanyName = "Tree Platform"
         };
-      
-        
+
+
         var kdgLogo = new Media
         {
             Uri = "/images/logos/kdg-logo.png"
@@ -25,7 +25,7 @@ public class DataSeeder
         {
             Uri = "/images/logos/AP-logo.png"
         };
- 
+
         var generalAdmin = new GeneralAdmin
         {
             Name = "Main Admin",
@@ -462,7 +462,7 @@ public class DataSeeder
            SUBPLATFORM 2 - AP HOGESCHOOL
         ========================= */
 
-        ICollection<SubAdmin> apAdmins =  new List<SubAdmin> { apAdmin };
+        ICollection<SubAdmin> apAdmins = new List<SubAdmin> { apAdmin };
         var apSubPlatform = new SubPlatform
         {
             CompanyName = "AP Hogeschool",
@@ -1042,7 +1042,7 @@ public class DataSeeder
                          """,
             IsActive = true
         };
-        
+
         var projectTrendSummaryPrompt = new AiPrompt
         {
             Key = "project_trend_summary",
@@ -1093,7 +1093,7 @@ public class DataSeeder
                          """,
             IsActive = true
         };
-        
+
         var openQuestionSummaryPrompt = new AiPrompt
         {
             Key = "open_question_summary",
@@ -1125,161 +1125,213 @@ public class DataSeeder
                          """,
             IsActive = true
         };
-        
-        var surveyUsers = Enumerable.Range(1, 10).Select(i => new User
-    {
-        CookieIdentifier = $"seed-survey-user-{i}"
-    })
-    .ToList();
 
-var surveyResponses = new List<SurveyResponse>
-{
-    new()
-    {
-        Project = project,
-        User = surveyUsers[0],
-        SubmittedAt = DateTime.UtcNow.AddDays(-10),
-        Answers = new List<Answer>
+        var surveyUsers = Enumerable.Range(1, 10).Select(i => new User
+            {
+                CookieIdentifier = $"seed-survey-user-{i}"
+            })
+            .ToList();
+
+        var surveyResponses = new List<SurveyResponse>
         {
-            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
-            new() { Question = stressSourcesQuestion, Text = "Studies / examens;Toekomstzorgen" },
-            new() { Question = studyStressQuestion, Text = "4" },
-            new() { Question = stressFollowUpQuestion, Text = "Een betere spreiding van deadlines zou helpen." },
-            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
-            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Sporten/bewegen" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[1],
-        SubmittedAt = DateTime.UtcNow.AddDays(-9),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
-            new() { Question = stressSourcesQuestion, Text = "Financiële zorgen;Combinatie studie-werk" },
-            new() { Question = studyStressQuestion, Text = "5" },
-            new() { Question = stressFollowUpQuestion, Text = "Meer begrip voor studenten die werken naast hun studies." },
-            new() { Question = pressureQuestion, Text = "Eerder niet" },
-            new() { Question = copingQuestion, Text = "Afleiding zoeken;Studietaken uitstellen/vermijden" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[2],
-        SubmittedAt = DateTime.UtcNow.AddDays(-8),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
-            new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties" },
-            new() { Question = studyStressQuestion, Text = "3" },
-            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
-            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Bewust rust inplannen" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[3],
-        SubmittedAt = DateTime.UtcNow.AddDays(-7),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
-            new() { Question = stressSourcesQuestion, Text = "Studies / examens;Fysieke of mentale gezondheid" },
-            new() { Question = studyStressQuestion, Text = "4" },
-            new() { Question = stressFollowUpQuestion, Text = "Duidelijkere planning en minder taken tegelijk." },
-            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
-            new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Bewust rust inplannen" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[4],
-        SubmittedAt = DateTime.UtcNow.AddDays(-6),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
-            new() { Question = stressSourcesQuestion, Text = "Toekomstzorgen" },
-            new() { Question = studyStressQuestion, Text = "3" },
-            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
-            new() { Question = copingQuestion, Text = "Sporten/bewegen;Bewust rust inplannen" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[5],
-        SubmittedAt = DateTime.UtcNow.AddDays(-5),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Zeer goed" },
-            new() { Question = stressSourcesQuestion, Text = "Studies / examens" },
-            new() { Question = studyStressQuestion, Text = "2" },
-            new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
-            new() { Question = copingQuestion, Text = "Erover praten met ouders/familie/partner;Sporten/bewegen" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[6],
-        SubmittedAt = DateTime.UtcNow.AddDays(-4),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
-            new() { Question = stressSourcesQuestion, Text = "Thuissituatie;Financiële zorgen" },
-            new() { Question = studyStressQuestion, Text = "5" },
-            new() { Question = stressFollowUpQuestion, Text = "Meer flexibele deadlines bij persoonlijke problemen." },
-            new() { Question = pressureQuestion, Text = "Helemaal niet" },
-            new() { Question = copingQuestion, Text = "Ik weet niet goed wat ik kan of moet doen;Afleiding zoeken" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[7],
-        SubmittedAt = DateTime.UtcNow.AddDays(-3),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Goed" },
-            new() { Question = stressSourcesQuestion, Text = "Combinatie studie-werk" },
-            new() { Question = studyStressQuestion, Text = "3" },
-            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
-            new() { Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Afleiding zoeken" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[8],
-        SubmittedAt = DateTime.UtcNow.AddDays(-2),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
-            new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties;Toekomstzorgen" },
-            new() { Question = studyStressQuestion, Text = "3" },
-            new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
-            new() { Question = copingQuestion, Text = "Afleiding zoeken;Bewust rust inplannen" }
-        }
-    },
-    new()
-    {
-        Project = project,
-        User = surveyUsers[9],
-        SubmittedAt = DateTime.UtcNow.AddDays(-1),
-        Answers = new List<Answer>
-        {
-            new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
-            new() { Question = stressSourcesQuestion, Text = "Fysieke of mentale gezondheid;Studies / examens" },
-            new() { Question = studyStressQuestion, Text = "5" },
-            new() { Question = stressFollowUpQuestion, Text = "Sneller toegang tot begeleiding en minder druk in examenperiodes." },
-            new() { Question = pressureQuestion, Text = "Eerder niet" },
-            new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Afleiding zoeken" }
-        }
-    }
-};
+            new()
+            {
+                Project = project,
+                User = surveyUsers[0],
+                SubmittedAt = DateTime.UtcNow.AddDays(-10),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+                    new() { Question = stressSourcesQuestion, Text = "Studies / examens;Toekomstzorgen" },
+                    new() { Question = studyStressQuestion, Text = "4" },
+                    new()
+                    {
+                        Question = stressFollowUpQuestion, Text = "Een betere spreiding van deadlines zou helpen."
+                    },
+                    new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+                    new()
+                    {
+                        Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Sporten/bewegen"
+                    }
+                },
+                DurationInSeconds = 300
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[1],
+                SubmittedAt = DateTime.UtcNow.AddDays(-9),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
+                    new() { Question = stressSourcesQuestion, Text = "Financiële zorgen;Combinatie studie-werk" },
+                    new() { Question = studyStressQuestion, Text = "5" },
+                    new()
+                    {
+                        Question = stressFollowUpQuestion,
+                        Text = "Meer begrip voor studenten die werken naast hun studies."
+                    },
+                    new() { Question = pressureQuestion, Text = "Eerder niet" },
+                    new() { Question = copingQuestion, Text = "Afleiding zoeken;Studietaken uitstellen/vermijden" }
+                },
+                DurationInSeconds = 240
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[2],
+                SubmittedAt = DateTime.UtcNow.AddDays(-8),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
+                    new() { Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties" },
+                    new() { Question = studyStressQuestion, Text = "3" },
+                    new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+                    new()
+                    {
+                        Question = copingQuestion,
+                        Text = "Erover praten met vrienden/medestudenten;Bewust rust inplannen"
+                    }
+                },
+                DurationInSeconds = 160
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[3],
+                SubmittedAt = DateTime.UtcNow.AddDays(-7),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
+                    new()
+                    {
+                        Question = stressSourcesQuestion, Text = "Studies / examens;Fysieke of mentale gezondheid"
+                    },
+                    new() { Question = studyStressQuestion, Text = "4" },
+                    new()
+                    {
+                        Question = stressFollowUpQuestion, Text = "Duidelijkere planning en minder taken tegelijk."
+                    },
+                    new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+                    new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Bewust rust inplannen" }
+                },
+                DurationInSeconds = 210
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[4],
+                SubmittedAt = DateTime.UtcNow.AddDays(-6),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+                    new() { Question = stressSourcesQuestion, Text = "Toekomstzorgen" },
+                    new() { Question = studyStressQuestion, Text = "3" },
+                    new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+                    new() { Question = copingQuestion, Text = "Sporten/bewegen;Bewust rust inplannen" }
+                },
+                DurationInSeconds = 120
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[5],
+                SubmittedAt = DateTime.UtcNow.AddDays(-5),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Zeer goed" },
+                    new() { Question = stressSourcesQuestion, Text = "Studies / examens" },
+                    new() { Question = studyStressQuestion, Text = "2" },
+                    new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
+                    new()
+                    {
+                        Question = copingQuestion, Text = "Erover praten met ouders/familie/partner;Sporten/bewegen"
+                    }
+                },
+                DurationInSeconds = 305
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[6],
+                SubmittedAt = DateTime.UtcNow.AddDays(-4),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Eerder slecht" },
+                    new() { Question = stressSourcesQuestion, Text = "Thuissituatie;Financiële zorgen" },
+                    new() { Question = studyStressQuestion, Text = "5" },
+                    new()
+                    {
+                        Question = stressFollowUpQuestion, Text = "Meer flexibele deadlines bij persoonlijke problemen."
+                    },
+                    new() { Question = pressureQuestion, Text = "Helemaal niet" },
+                    new()
+                    {
+                        Question = copingQuestion, Text = "Ik weet niet goed wat ik kan of moet doen;Afleiding zoeken"
+                    }
+                },
+                DurationInSeconds = 200
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[7],
+                SubmittedAt = DateTime.UtcNow.AddDays(-3),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Goed" },
+                    new() { Question = stressSourcesQuestion, Text = "Combinatie studie-werk" },
+                    new() { Question = studyStressQuestion, Text = "3" },
+                    new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+                    new()
+                    {
+                        Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Afleiding zoeken"
+                    }
+                },
+                DurationInSeconds = 199
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[8],
+                SubmittedAt = DateTime.UtcNow.AddDays(-2),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Neutraal" },
+                    new()
+                    {
+                        Question = stressSourcesQuestion, Text = "Sociale druk / eenzaamheid / relaties;Toekomstzorgen"
+                    },
+                    new() { Question = studyStressQuestion, Text = "3" },
+                    new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
+                    new() { Question = copingQuestion, Text = "Afleiding zoeken;Bewust rust inplannen" }
+                },
+                DurationInSeconds = 214
+            },
+            new()
+            {
+                Project = project,
+                User = surveyUsers[9],
+                SubmittedAt = DateTime.UtcNow.AddDays(-1),
+                Answers = new List<Answer>
+                {
+                    new() { Question = mentalWellbeingQuestion, Text = "Zeer slecht" },
+                    new()
+                    {
+                        Question = stressSourcesQuestion, Text = "Fysieke of mentale gezondheid;Studies / examens"
+                    },
+                    new() { Question = studyStressQuestion, Text = "5" },
+                    new()
+                    {
+                        Question = stressFollowUpQuestion,
+                        Text = "Sneller toegang tot begeleiding en minder druk in examenperiodes."
+                    },
+                    new() { Question = pressureQuestion, Text = "Eerder niet" },
+                    new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Afleiding zoeken" }
+                },
+                DurationInSeconds = 302
+            }
+        };
 
 
         /* =========================
@@ -1321,7 +1373,6 @@ var surveyResponses = new List<SurveyResponse>
         dbContext.SubAdmins.Add(apAdmin);
 
 
-
         /* =========================
            DATABASE INSERT - AP
         ========================= */
@@ -1349,7 +1400,7 @@ var surveyResponses = new List<SurveyResponse>
 
         dbContext.Users.AddRange(surveyUsers);
         dbContext.SurveyResponses.AddRange(surveyResponses);
-        
+
         dbContext.SaveChanges();
     }
 }

@@ -34,6 +34,10 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
     let currentIndex = 0;
     const answers: CollectedAnswer[] = [];
+    sessionStorage.setItem(
+        "surveyStartTime",
+        Date.now().toString()
+    );
 
     // ── helpers ──────────────────────────────────────────────────────────
 
@@ -274,14 +278,17 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
     }
 
     function submitSurvey(): void {
-        const formData = new URLSearchParams();
-        answers.forEach((a, i) => {
-            formData.append(`answers[${i}].QuestionId`, String(a.questionId));
-            formData.append(`answers[${i}].Value`, a.value);
-        });
+        const startTime = Number(
+            sessionStorage.getItem("surveyStartTime")
+        );
+
+        const durationInSeconds = Math.floor(
+            (Date.now() - startTime) / 1000
+        );
 
         const params = new URLSearchParams(window.location.search);
         const projectId = params.get('projectId');
+
         const subplatform = document.body.getAttribute("data-subplatform") ?? "";
         const prefix = subplatform ? `/${subplatform}` : "";
 
@@ -289,19 +296,33 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
             ? `${prefix}/Survey/Submit?projectId=${projectId}`
             : `${prefix}/Survey/Submit`;
 
+        const payload = {
+            projectId,
+            durationInSeconds,
+            answers
+        };
+
         fetch(submitUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: formData.toString()
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         })
             .then(res => {
                 if (res.ok) return res.json();
                 throw new Error('Netwerk fout');
             })
             .then((data: { redirectUrl?: string }) => {
-                if (data.redirectUrl) window.location.href = data.redirectUrl;
+                sessionStorage.removeItem("surveyStartTime");
+
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                }
             })
-            .catch(err => console.error('Fout bij verzenden:', err));
+            .catch(err =>
+                console.error('Fout bij verzenden:', err)
+            );
     }
 
     // ── boot ──────────────────────────────────────────────────────────────

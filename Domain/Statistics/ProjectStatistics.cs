@@ -24,7 +24,7 @@ public class QuestionStatistics
 
     public double? Average { get; set; }
 
-    public string? AiSummary { get; set; }
+    public string AiSummary { get; set; }
     public DateTime? AiSummaryGeneratedAt { get; set; }
     public bool AiSummaryNeedsRefresh { get; set; }
 }
