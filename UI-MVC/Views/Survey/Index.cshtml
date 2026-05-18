@@ -1,6 +1,4 @@
 @using IntegratieProject.BL.Domain.questions
-@using IntegratieProject.BL.Domain.Questions
-@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.questions.QuestionList
 
 @{
@@ -71,11 +69,11 @@
                         <div class="mb-3">
                             @if (question.QuestionType.ToString() == "SingleChoice")
                             {
-                                <span class="badge bg-light text-dark">[ SINGLE CHOICE ]</span>
+                                <span class="badge text-bg-light">[ SINGLE CHOICE ]</span>
                             }
                             else if (question.QuestionType.ToString() == "MultipleChoice")
                             {
-                                <span class="badge bg-light text-dark">[ MULTIPLE CHOICE ]</span>
+                                <span class="badge text-bg-light">[ MULTIPLE CHOICE ]</span>
                             }
                         </div>
 

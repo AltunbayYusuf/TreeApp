@@ -1,16 +1,24 @@
 // ── Survey page – professionele restyling ──────────────────────────────────
 // Kleurenpalet (Bootstrap CSS-variabelen worden lokaal overschreven)
 :root {
-  --survey-primary:    #2c3e50;
-  --survey-accent:     #3498db;
+  --survey-primary: #2c3e50;
+  --survey-accent: #3498db;
   --survey-accent-rgb: 52, 152, 219;
-  --survey-teal:       #1abc9c;
-  --survey-bg:         #f4f6f8;
-  --survey-card-bg:    #ffffff;
-  --survey-border:     #dde2e8;
-  --survey-text:       #2c3e50;
-  --survey-muted:      #6b7c93;
-  --survey-radius:     10px;
+  --survey-teal: #1abc9c;
+  --survey-bg: #f4f6f8;
+  --survey-card-bg: #ffffff;
+  --survey-border: #dde2e8;
+  --survey-text: #2c3e50;
+  --survey-muted: #6b7c93;
+  --survey-radius: 10px;
+}
+
+[data-bs-theme="dark"] {
+  --survey-bg: var(--echo-bg);
+  --survey-card-bg: var(--echo-card-bg);
+  --survey-border: var(--echo-border);
+  --survey-text: var(--echo-text);
+  --survey-muted: var(--echo-muted);
 }
 
 // Pagina-achtergrond voor de survey
@@ -28,7 +36,7 @@ body:has(.survey-container) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--survey-border);
   color: var(--survey-primary);
   text-decoration: none;
@@ -126,7 +134,7 @@ body:has(.survey-container) {
   padding: 0.85rem 1.1rem;
   margin-bottom: 0.55rem;
   max-width: 560px;
-  background: #fafbfc;
+  background: var(--echo-bg);
   text-decoration: none;
   color: var(--survey-text);
   cursor: pointer;
@@ -168,19 +176,19 @@ body:has(.survey-container) {
 // ── Range-knoppen (Bootstrap btn-outline-primary) ──────────────────────────
 // Override Bootstrap primary kleur enkel binnen de survey
 .survey-container {
-  --bs-btn-color:               var(--survey-accent);
-  --bs-btn-border-color:        var(--survey-accent);
-  --bs-btn-hover-bg:            var(--survey-accent);
-  --bs-btn-hover-border-color:  var(--survey-accent);
-  --bs-btn-active-bg:           #2980b9;
+  --bs-btn-color: var(--survey-accent);
+  --bs-btn-border-color: var(--survey-accent);
+  --bs-btn-hover-bg: var(--survey-accent);
+  --bs-btn-hover-border-color: var(--survey-accent);
+  --bs-btn-active-bg: #2980b9;
   --bs-btn-active-border-color: #2980b9;
-  --bs-btn-checked-bg:          var(--survey-accent);
+  --bs-btn-checked-bg: var(--survey-accent);
   --bs-btn-checked-border-color: var(--survey-accent);
 
   .btn-outline-primary {
     color: var(--survey-accent);
     border-color: var(--survey-border);
-    background: #fafbfc;
+    background: var(--echo-bg);
     font-weight: 600;
     font-size: 1.05rem;
     transition: all 0.15s;
@@ -211,7 +219,7 @@ body:has(.survey-container) {
   padding: 0.9rem 1rem;
   font-size: 1rem;
   color: var(--survey-text);
-  background: #fafbfc;
+  background: var(--echo-bg);
   resize: vertical;
   transition: border-color 0.15s, box-shadow 0.15s;
 
@@ -222,7 +230,7 @@ body:has(.survey-container) {
   &:focus {
     outline: none;
     border-color: var(--survey-accent);
-    background: #fff;
+    background: var(--echo-card-bg);
     box-shadow: 0 0 0 3px rgba(var(--survey-accent-rgb), 0.15);
   }
 }
@@ -256,7 +264,7 @@ body:has(.survey-container) {
   padding: 8px 14px;
   margin: 4px;
   border-radius: 6px;
-  background: #fff;
+  background: var(--echo-card-bg);
   cursor: pointer;
   font-weight: 600;
   transition: background 0.15s, color 0.15s;
@@ -318,7 +326,7 @@ body:has(.results-page) {
 }
 
 .results-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border-radius: 12px;
   border: 1px solid var(--survey-border);
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.07);
@@ -408,7 +416,7 @@ body:has(.results-page) {
 }
 
 .results-btn-secondary {
-  background: #fff;
+  background: var(--echo-card-bg);
   color: var(--survey-accent);
   border: 2px solid var(--survey-border);
   border-radius: 999px;
@@ -424,6 +432,7 @@ body:has(.results-page) {
     color: var(--survey-accent);
   }
 }
+
 .survey-navigation {
   top: 50%;
   right: 1.5rem;
