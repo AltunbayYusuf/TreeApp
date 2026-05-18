@@ -181,7 +181,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
     return Page();
 }
 
-private string? GetSubplatformFromReturnUrl(string? returnUrl)
+private string GetSubplatformFromReturnUrl(string returnUrl)
 {
     if (string.IsNullOrWhiteSpace(returnUrl))
     {

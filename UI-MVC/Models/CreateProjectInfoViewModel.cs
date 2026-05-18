@@ -15,7 +15,7 @@ public class CreateProjectInfoViewModel
     [MaxLength(1000, ErrorMessage = "Introductietekst mag maximaal 1000 tekens bevatten.")]    
     public string Introduction { get; set; } = "";
 
-    public IFormFile? PhotoUpload { get; set; }
+    public IFormFile PhotoUpload { get; set; }
 
-    public string? PhotoUri { get; set; }
+    public string PhotoUri { get; set; }
     public ProjectType Type { get; set; } = ProjectType.VerticalScroll;}
