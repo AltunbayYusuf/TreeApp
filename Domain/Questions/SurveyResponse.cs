@@ -15,6 +15,7 @@ public class SurveyResponse
 
     public int UserId { get; set; }
     public User User { get; set; }
+    public int DurationInSeconds { get; set; }
 
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 
