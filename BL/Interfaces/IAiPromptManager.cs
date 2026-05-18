@@ -6,4 +6,5 @@ public interface IAiPromptManager
 {
     IList<AiPrompt> GetAllPrompts();
     void UpdatePrompt(int id, string promptText);
+    
 }

@@ -16,12 +16,14 @@ public class SubAdminProjectsController : ControllerBase
     
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
+    private readonly IAiIdeaSelectionService _aiIdeaSelectionService;
     
 
-    public SubAdminProjectsController(IAiSurveyGenerationService aiSurveyGenerationService, IAiSummaryIdeas aiSummaryIdeas)
+    public SubAdminProjectsController(IAiSurveyGenerationService aiSurveyGenerationService, IAiSummaryIdeas aiSummaryIdeas,  IAiIdeaSelectionService aiIdeaSelectionService)
     {
         _aiSurveyGenerationService = aiSurveyGenerationService;
         _aiSummaryIdeas = aiSummaryIdeas;
+        _aiIdeaSelectionService = aiIdeaSelectionService;
         
     }
     
@@ -127,6 +129,65 @@ public class SubAdminProjectsController : ControllerBase
         });
     }
     
-    
+    [HttpPost("idea-selection")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateIdeaSelection(
+        string subplatform,
+        [FromBody] GenerateIdeaSelectionDto dto)
+    {
+        if (dto == null || dto.ProjectId <= 0)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Ongeldig project."
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.SelectionMode))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Selectiemodus is verplicht."
+            });
+        }
+
+        var allowedModes = new[] { "similar", "different", "broad" };
+
+        if (!allowedModes.Contains(dto.SelectionMode))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Ongeldige selectiemodus."
+            });
+        }
+
+        var resultJson = await _aiIdeaSelectionService.GenerateIdeaSelectionAsync(
+            dto.ProjectId,
+            dto.SelectionMode
+        );
+
+        try
+        {
+            using var document = JsonDocument.Parse(resultJson);
+
+            return Ok(new
+            {
+                ok = true,
+                selection = document.RootElement.Clone()
+            });
+        }
+        catch (JsonException)
+        {
+            return Ok(new
+            {
+                ok = false,
+                message = "AI gaf geen geldige JSON terug.",
+                rawResult = resultJson
+            });
+        }
+    }
     
 }

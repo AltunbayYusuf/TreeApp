@@ -15,7 +15,7 @@
     </div>
 
     <span id="subplatformIdData" data-id="@Model.SubPlatformId" class="d-none"></span>
-
+    @Html.AntiForgeryToken()
     <div class="admin-table-card">
 
         <div class="admin-filter-bar">
@@ -49,9 +49,10 @@
                  class="d-flex align-items-center gap-2 flex-wrap mt-2">
                 <label class="fw-semibold mb-0 text-nowrap text-muted small">Vergelijking:</label>
                 <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-dark" data-similarity="all" disabled>Alle ideeën</button>
-                    <button type="button" class="btn btn-outline-secondary" data-similarity="common" disabled>Gemeenschappelijk</button>
-                    <button type="button" class="btn btn-outline-secondary" data-similarity="unique" disabled>Verschillend</button>
+                    <button type="button" class="btn btn-dark" data-similarity="all">Alle ideeën</button>
+                    <button type="button" class="btn btn-outline-secondary" data-similarity="similar">Gelijkaardig</button>
+                    <button type="button" class="btn btn-outline-secondary" data-similarity="different">Verschillend</button>
+                    <button type="button" class="btn btn-outline-secondary" data-similarity="broad">Breed</button>
                 </div>
             </div>
         </div>

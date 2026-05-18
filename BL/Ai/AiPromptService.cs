@@ -116,4 +116,14 @@ public class AiPromptService : IAiPromptService
 
         return Task.FromResult(result);
     }
+    
+    public string BuildIdeaSelectionPrompt(string selectionMode, string projectData)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("idea_selection")
+                     ?? throw new InvalidOperationException("Prompt 'idea_selection' niet gevonden.");
+
+        return prompt.PromptText
+            .Replace("{{selectionMode}}", selectionMode)
+            .Replace("{{projectData}}", projectData);
+    }
 }

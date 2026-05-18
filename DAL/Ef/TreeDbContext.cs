@@ -38,6 +38,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
     public DbSet<AiPrompt> AiPrompts { get; set; }
     public DbSet<AiUsage> AiUsages { get; set; }
     public DbSet<AiOpenQuestionSummary> AiOpenQuestionSummaries { get; set; }
+    public DbSet<AiIdeaSelection> AiIdeaSelections { get; set; }
 
 
     public TreeDbContext(DbContextOptions options) : base(options)
@@ -139,6 +140,10 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
             .HasOne(cq => cq.FollowUpQuestion)
             .WithMany()
             .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<AiOpenQuestionSummary>()
+            .HasIndex(s => new { s.ProjectId, s.QuestionId })
+            .IsUnique();
         
         modelBuilder.Entity<AiOpenQuestionSummary>()
             .HasIndex(s => new { s.ProjectId, s.QuestionId })

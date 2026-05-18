@@ -135,10 +135,12 @@ builder.Services.AddScoped<IAiModerationService, AiModerationService>();
 builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService>();
 builder.Services.AddScoped<IAiUsageManager, AiUsageManager>();
 builder.Services.AddScoped<IAiSummaryIdeas, AiSummaryIdeas>();
+builder.Services.AddScoped<IAiIdeaSelectionService, AiIdeaSelectionService>();
 
 builder.Services.AddScoped<IAiRepository, AiRepository>();
 builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
 builder.Services.AddScoped<IAiPromptManager, AiPromptManager>();
+
 
 builder.Services.AddScoped<IIntroTextService, IntroTextService>();
 builder.Services.AddScoped<IImageGenerationService, ImageGenerationService>();
