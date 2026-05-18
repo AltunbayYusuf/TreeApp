@@ -3,8 +3,17 @@ using IntegratieProject.BL.Domain.project;
 
 namespace IntegratieProject.UI.MVC.Models;
 
-public class CreateProjectInfoViewModel
+public class CreateProjectInfoViewModel : IValidatableObject
 {
+    public static readonly string[] AllowedFontFamilies =
+    {
+        "Inter",
+        "Arial",
+        "Georgia",
+        "Verdana",
+        "Trebuchet MS"
+    };
+
     public string SubplatformSlug { get; set; } = "";
 
     [Required(ErrorMessage = "Projectnaam is verplicht.")]
@@ -15,7 +24,26 @@ public class CreateProjectInfoViewModel
     [MaxLength(1000, ErrorMessage = "Introductietekst mag maximaal 1000 tekens bevatten.")]    
     public string Introduction { get; set; } = "";
 
-    public IFormFile PhotoUpload { get; set; }
+    [Range(1, 999, ErrorMessage = "Tijdsduur moet minstens 1 minuut zijn.")]
+    public int Duration { get; set; } = 10;
 
-    public string PhotoUri { get; set; }
-    public ProjectType Type { get; set; } = ProjectType.VerticalScroll;}
+    public IFormFile? PhotoUpload { get; set; }
+
+    public string? PhotoUri { get; set; }
+
+    [Required(ErrorMessage = "Lettertype is verplicht.")]
+    [MaxLength(50)]
+    public string FontFamily { get; set; } = "Inter";
+
+    public ProjectType Type { get; set; } = ProjectType.VerticalScroll;
+
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (!AllowedFontFamilies.Contains(FontFamily))
+        {
+            yield return new ValidationResult(
+                "Kies een geldig lettertype.",
+                new[] { nameof(FontFamily) });
+        }
+    }
+}

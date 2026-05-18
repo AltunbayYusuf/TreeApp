@@ -1,4 +1,6 @@
 @using IntegratieProject.BL.Domain.questions
+@using IntegratieProject.BL.Domain.Questions
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.questions.QuestionList
 
 @{
@@ -7,6 +9,7 @@
     int questionNumber = 1;
 }
 
+<div class="project-survey-page" style="font-family: @ProjectFontFamily.ToCssStack(Model.Project?.FontFamily);">
 <h2 class="text-center mt-4">
     @if (Model.Project?.Logo != null)
     {
@@ -160,4 +163,5 @@
         1/1
     </div>
 
+</div>
 </div>
