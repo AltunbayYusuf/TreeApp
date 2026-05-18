@@ -36,7 +36,7 @@ public class Project: IValidatableObject
     public SubPlatform SubPlatform { get; set; }
     public bool HasBeenActive { get; set; }
 
-    public IEnumerable<Topic> Topics { get; set; } = new List<Topic>();
+    public IEnumerable<Topic> Topics { get; set; }
     
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }

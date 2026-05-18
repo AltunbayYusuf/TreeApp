@@ -1,5 +1,10 @@
 ﻿// survey/index.ts
 import {DomUtils} from "../helpers/utils";
+import {SurveyNavigation} from "./navigation";
+
+document.addEventListener("DOMContentLoaded", () => {
+    new SurveyNavigation().init();
+});
 
 export class SurveySubmitter {
     init(): void {
@@ -55,6 +60,8 @@ export class SurveySubmitter {
     private handleSubmit(e: MouseEvent): void {
         e.preventDefault();
 
+        this.updateConditionalQuestions();
+
         const startTime = Number(
             sessionStorage.getItem("surveyStartTime")
         );
@@ -63,41 +70,53 @@ export class SurveySubmitter {
             (Date.now() - startTime) / 1000
         );
 
-        const answers: any[] = [];
+        const answers: { questionId: number; value: string }[] = [];
 
-        document.querySelectorAll<HTMLElement>(".survey-question").forEach(block => {
-            if (block.classList.contains("d-none")) return;
+        const questions = document.querySelectorAll<HTMLElement>(".survey-question");
 
-            const questionId = block.dataset.questionId;
-            const type = block.dataset.type ?? null;
+        let allFilled = true;
 
-            const result = this.extractAnswer(block, type);
+        questions.forEach(block => {
+            if (block.classList.contains("d-none")) {
+                return;
+            }
 
-            if (questionId && result.answered) {
+            const questionId = block.getAttribute("data-question-id");
+            const type = block.getAttribute("data-type");
+            const isRequired = block.dataset.required !== "false";
+
+            const {value, answered} = this.extractAnswer(block, type);
+
+            if (isRequired && !answered) {
+                block.style.border = "2px solid red";
+                allFilled = false;
+            } else {
+                block.style.border = "";
+            }
+
+            if (questionId && answered) {
                 answers.push({
                     questionId: Number(questionId),
-                    value: result.value
+                    value
                 });
             }
         });
 
-        const projectId =
-            Number(
-                new URLSearchParams(window.location.search)
-                    .get("projectId")
-            ) ||
-            Number(
-                (document.querySelector("#surveyForm") as HTMLFormElement)
-                    ?.dataset.projectId
-            );
+        if (!allFilled) {
+            alert("Niet alle verplichte vragen zijn beantwoord!");
+            return;
+        }
+
+        const submitUrl =
+            DomUtils.getProjectRedirectUrl("Survey/Submit");
 
         const payload = {
-            projectId,
+            projectId: Number(
+                new URLSearchParams(window.location.search).get("projectId")
+            ),
             durationInSeconds,
             answers
         };
-
-        const submitUrl = DomUtils.getProjectRedirectUrl("Survey/Submit");
 
         fetch(submitUrl, {
             method: "POST",
@@ -106,13 +125,19 @@ export class SurveySubmitter {
             },
             body: JSON.stringify(payload)
         })
-            .then(r => r.json())
-            .then(data => {
+            .then(response => {
+                if (response.ok) return response.json();
+                throw new Error("Netwerk response was niet ok");
+            })
+            .then((data: { redirectUrl?: string }) => {
                 if (data.redirectUrl) {
                     sessionStorage.removeItem("surveyStartTime");
                     window.location.href = data.redirectUrl;
                 }
-            });
+            })
+            .catch(error =>
+                console.error("Fout bij verzenden:", error)
+            );
     }
 
     private extractAnswer(block: HTMLElement, type: string | null): { value: string; answered: boolean } {
@@ -156,8 +181,8 @@ export class SurveySubmitter {
             const parentBlock = allQuestions.find(q => q.dataset.questionId === parentQuestionId);
             if (!parentBlock) return;
 
-            const parentType = parentBlock.dataset.type ?? null;
-            const { value: parentAnswer } = this.extractAnswer(parentBlock, parentType);
+            const parentType = parentBlock.getAttribute("data-type");
+            const {value: parentAnswer} = this.extractAnswer(parentBlock, parentType);
 
             const shouldShow = this.triggerMatches(parentAnswer, triggerType, triggerValue);
 

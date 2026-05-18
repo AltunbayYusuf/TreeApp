@@ -35,6 +35,7 @@ export class SurveyBuilder {
         }
 
         const data = sessionStorage.getItem("surveyDraft");
+
         if (!data) {
             this.createInitialSurvey();
             return;
@@ -81,6 +82,7 @@ export class SurveyBuilder {
     }
 
     private bindWindowMethods(): void {
+        // Zorg dat de inline HTML onclick/onchange attributes blijven werken
         (window as any).addSection = this.addSection.bind(this);
         (window as any).addQuestion = this.addQuestion.bind(this);
         (window as any).removeQuestion = this.removeQuestion.bind(this);

@@ -22,7 +22,7 @@ interface CollectedAnswer {
 
 const chatMessages = document.getElementById('chatMessages') as HTMLDivElement | null;
 const chatInputArea = document.getElementById('chatInputArea') as HTMLDivElement | null;
-const chatWindow = document.getElementById('chatWindow') as HTMLDivElement | null;
+const chatWindow    = document.getElementById('chatWindow') as HTMLDivElement | null;
 
 if (!chatMessages || !chatInputArea || !chatWindow) {
     // Niet op de chatbot-pagina, niets te doen
@@ -81,11 +81,47 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
     // ── record + advance ──────────────────────────────────────────────────
 
     function recordAnswer(questionId: number, value: string, displayText: string): void {
-        answers.push({questionId, value});
+        answers.push({ questionId, value });
         clearInput();
         addUserMessage(displayText);
         currentIndex++;
         setTimeout(() => showQuestion(currentIndex), 600);
+    }
+
+    // ── terug naar vorige vraag ───────────────────────────────────────────
+
+    function goBack(): void {
+        if (currentIndex <= 0) return;
+
+        // Verwijder de laatste 2 berichten: huidige vraag (bot) + vorig antwoord (user)
+        const msgs = Array.from(
+            chatMessages!.querySelectorAll<HTMLElement>('.chat-msg:not(.typing-indicator)')
+        );
+        if (msgs.length >= 1) msgs[msgs.length - 1].remove();
+        if (msgs.length >= 2) msgs[msgs.length - 2].remove();
+
+        answers.pop();
+        currentIndex--;
+
+        clearInput();
+        const q = questions[currentIndex];
+        switch (q.questionType) {
+            case 'SingleChoice':   renderSingleChoice(q); break;
+            case 'MultipleChoice': renderMultiChoice(q);  break;
+            case 'Range':          renderRange(q);         break;
+            case 'OpenQuestion':   renderOpen(q);          break;
+        }
+        addBackButton(currentIndex);
+        scrollBottom();
+    }
+
+    function addBackButton(questionIndex: number): void {
+        if (questionIndex <= 0) return;
+        const btn = document.createElement('button');
+        btn.className = 'btn chat-back-btn';
+        btn.innerHTML = '&#8592; Vorige vraag';
+        btn.addEventListener('click', goBack);
+        chatInputArea!.appendChild(btn);
     }
 
     // ── question renderers ────────────────────────────────────────────────
@@ -220,19 +256,12 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
 
         setTimeout(() => {
             switch (q.questionType) {
-                case 'SingleChoice':
-                    renderSingleChoice(q);
-                    break;
-                case 'MultipleChoice':
-                    renderMultiChoice(q);
-                    break;
-                case 'Range':
-                    renderRange(q);
-                    break;
-                case 'OpenQuestion':
-                    renderOpen(q);
-                    break;
+                case 'SingleChoice':   renderSingleChoice(q); break;
+                case 'MultipleChoice': renderMultiChoice(q);  break;
+                case 'Range':          renderRange(q);         break;
+                case 'OpenQuestion':   renderOpen(q);          break;
             }
+            addBackButton(index);
         }, 900);
     }
 
@@ -244,6 +273,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
             btn.textContent = '✓ Bevraging afronden';
             btn.addEventListener('click', submitSurvey);
             chatInputArea!.appendChild(btn);
+            addBackButton(currentIndex);
         }, 900);
     }
 
@@ -257,19 +287,14 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
         );
 
         const params = new URLSearchParams(window.location.search);
-        const projectId = Number(params.get("projectId"));
+        const projectId = params.get('projectId');
 
-        const subplatformInput =
-            document.getElementById(
-                "subplatformSlug"
-            ) as HTMLInputElement | null;
+        const subplatform = document.body.getAttribute("data-subplatform") ?? "";
+        const prefix = subplatform ? `/${subplatform}` : "";
 
-        const subplatform = subplatformInput?.value;
-
-        const submitUrl =
-            projectId && subplatform
-                ? `/${subplatform}/Survey/Submit`
-                : "/Survey/Submit";
+        const submitUrl = projectId
+            ? `${prefix}/Survey/Submit?projectId=${projectId}`
+            : `${prefix}/Survey/Submit`;
 
         const payload = {
             projectId,
@@ -278,15 +303,15 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
         };
 
         fetch(submitUrl, {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(payload)
         })
             .then(res => {
                 if (res.ok) return res.json();
-                throw new Error("Netwerk fout");
+                throw new Error('Netwerk fout');
             })
             .then((data: { redirectUrl?: string }) => {
                 sessionStorage.removeItem("surveyStartTime");
@@ -296,7 +321,7 @@ if (!chatMessages || !chatInputArea || !chatWindow) {
                 }
             })
             .catch(err =>
-                console.error("Fout bij verzenden:", err)
+                console.error('Fout bij verzenden:', err)
             );
     }
 

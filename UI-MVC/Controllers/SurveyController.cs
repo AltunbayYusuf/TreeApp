@@ -15,29 +15,30 @@ public class SurveyController : Controller
     private readonly ISurveyManager _surveyManager;
 
 
-    public SurveyController(IProjectManager projectManager, IQuestionManager questionManager, IUserManager userManager,
-        ISurveyManager surveyManager)
+    public SurveyController(IProjectManager projectManager,IQuestionManager questionManager,IUserManager userManager,ISurveyManager surveyManager)
     {
         _projectManager = projectManager;
         _questionManager = questionManager;
         _userManager = userManager;
         _surveyManager = surveyManager;
     }
+    
 
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
 
     [HttpGet]
-    public IActionResult Index(string subplatform, int projectId)
+    public IActionResult Index(int projectId)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
 
         if (project == null)
         {
             return NotFound();
-        }
-
+        } 
         if (project.Status != Status.Active)
         {
-            return NotFound();
+            return NotFound(); 
         }
 
 
@@ -55,25 +56,24 @@ public class SurveyController : Controller
         ViewBag.SubPlatformSlug = subplatform;
 
         var questions = _questionManager.GetQuestionListByProject(project);
-
+        
         if (questions == null)
         {
             return NotFound();
         }
-
         return View(questions);
     }
 
     [HttpGet]
-    public IActionResult Chat(string subplatform, int projectId)
+    public IActionResult Chat(int projectId)
     {
+        var subplatform = Subplatform;
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
 
         if (project == null)
         {
             return NotFound();
         }
-
         if (project.Status != Status.Active)
         {
             return NotFound();
@@ -93,42 +93,41 @@ public class SurveyController : Controller
         ViewBag.SubPlatformSlug = subplatform;
 
         var questions = _questionManager.GetQuestionListByProject(project);
-
+        
         if (questions == null)
             return NotFound("Dit project heeft geen bevraging.");
 
         if (questions.Sections == null)
             questions.Sections = new List<Section>();
-
+        
         return View(questions);
     }
 
     [HttpPost]
-    public IActionResult Submit(string subplatform, [FromBody] SubmitSurveyDto request)
+    public IActionResult Submit([FromBody] SubmitSurveyDto request)
     {
-        var project = _projectManager.GetProjectBySubPlatformAndProjectId(
-            subplatform,
-            request.ProjectId
-        );
-
+        var subplatform = Subplatform;
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, request.ProjectId);
         if (project == null)
+        {
             return NotFound();
-
+        }
         if (project.Status != Status.Active)
-            return NotFound();
-
+        {
+            return NotFound(); 
+        }
         if (request.Answers == null || !request.Answers.Any())
+        {
             return BadRequest("Geen antwoorden ontvangen");
+        }
 
         var user = GetOrCreateUser();
 
-        var existingResponse = _surveyManager.GetSurveyResponse(
-            user.Id,
-            request.ProjectId
-        );
-
+        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, request.ProjectId);
         if (existingResponse != null)
-            return BadRequest("Survey al ingevuld.");
+        {
+            return BadRequest("Deze survey is al ingevuld voor dit project.");
+        }
 
         var answersList = new List<Answer>();
 
@@ -139,11 +138,13 @@ public class SurveyController : Controller
             if (question == null)
                 return BadRequest("Ongeldige vraag.");
 
-            answersList.Add(new Answer
+            var newAnswer = new Answer
             {
                 QuestionId = question.Id,
-                Text = dto.Value ?? ""
-            });
+                Text = dto.Value ?? string.Empty
+            };
+
+            answersList.Add(newAnswer);
         }
 
         _surveyManager.SaveSurveyResponse(
@@ -155,11 +156,7 @@ public class SurveyController : Controller
 
         return Ok(new
         {
-            redirectUrl = Url.Action(
-                "Index",
-                "Survey",
-                new { subplatform, projectId = request.ProjectId }
-            )
+            redirectUrl = Url.Action("Index", "Survey", new { subplatform = Subplatform, request.ProjectId })
         });
     }
 

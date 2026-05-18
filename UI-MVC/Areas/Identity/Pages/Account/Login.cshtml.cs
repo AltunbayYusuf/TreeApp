@@ -25,8 +25,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -132,7 +131,8 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
                 if (!string.IsNullOrWhiteSpace(requestedSubplatform) &&
                     !string.Equals(user.SubPlatformSlug, requestedSubplatform, StringComparison.OrdinalIgnoreCase))
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    ModelState.AddModelError(string.Empty,
+                        $"Je account hoort bij '{user.SubPlatformSlug}'. Log daarom in via het {user.SubPlatformSlug}, niet via '{requestedSubplatform}'.");
                     return Page();
                 }
             }

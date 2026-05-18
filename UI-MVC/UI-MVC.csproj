@@ -56,12 +56,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="src\js\admin\" />
-        <Folder Include="wwwroot\js\" />
+        <None Include="wwwroot/dist/**" CopyToPublishDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="wwwroot/dist/**" CopyToPublishDirectory="PreserveNewest" />
+      <Folder Include="wwwroot\js\" />
     </ItemGroup>
 
 

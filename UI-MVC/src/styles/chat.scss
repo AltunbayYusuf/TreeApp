@@ -245,6 +245,25 @@
   }
 }
 
+// ── Terug-knop (vorige vraag) ─────────────────────────────────────────────
+.chat-back-btn {
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 0.35rem 1rem;
+  font-size: 0.82rem;
+  color: #6c757d;
+  border: 1.5px solid #d1d9e3;
+  background: transparent;
+  margin-top: 0.5rem;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+
+  &:hover {
+    color: var(--chat-primary-dk);
+    border-color: var(--chat-primary);
+    background: #eef6fd;
+  }
+}
+
 // ── Afsluit-knop (gradient, animatie, volledige breedte) ───────────────────
 .chat-submit-btn {
   border-radius: 999px;
