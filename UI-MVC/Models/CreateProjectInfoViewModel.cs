@@ -27,9 +27,11 @@ public class CreateProjectInfoViewModel : IValidatableObject
     [Range(1, 999, ErrorMessage = "Tijdsduur moet minstens 1 minuut zijn.")]
     public int Duration { get; set; } = 10;
 
-    public IFormFile? PhotoUpload { get; set; }
+    public IFormFile? IntroMediaUpload { get; set; }
 
-    public string? PhotoUri { get; set; }
+    public string? IntroMediaUri { get; set; }
+
+    public ProjectIntroMediaType IntroMediaType { get; set; } = ProjectIntroMediaType.Image;
 
     [Required(ErrorMessage = "Lettertype is verplicht.")]
     [MaxLength(50)]
