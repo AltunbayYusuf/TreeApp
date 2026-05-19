@@ -30,6 +30,7 @@
             + Ik heb een idee!
         </a>
     </div>
+    <div id="ideasPageData" data-project-id="@Model.Project.Id"></div>
 
     <div class="ideas-filter-bar mt-3 d-flex align-items-end justify-content-between flex-wrap gap-3">
         <form method="get"
@@ -82,6 +83,15 @@
                 <button type="button" class="btn btn-outline-secondary" data-idea-filter="mine">
                     Mijn ideeën
                 </button>
+                <button type="button" class="btn btn-outline-secondary" data-idea-filter="similar">
+                    Gelijkaardig
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-idea-filter="different">
+                    Verschillend
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-idea-filter="broad">
+                    Breed
+                </button>
             </div>
         </div>
     </div>
@@ -102,6 +112,7 @@
                                     new List<IntegratieProject.BL.Domain.ideas.Reaction>();
 
                 <div class="idea-card idea-item @(isOwnIdea ? "idea-item-own" : "")"
+                     data-idea-id="@idea.Id"
                      data-own-idea="@(isOwnIdea.ToString().ToLowerInvariant())"
                      style="display:none;">
 

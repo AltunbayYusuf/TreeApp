@@ -3,6 +3,7 @@ using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Models.Dto;
 using IntegratieProject.UI.MVC.Services;
@@ -21,14 +22,16 @@ public class IdeasController : ControllerBase
     private readonly ISubplatformManager _subplatformManager;
     private readonly IGoogleCloudStorageService _googleCloudStorageService;
     private readonly ILogger<IdeasController> _logger;
+    private readonly IAiIdeaSelectionService _aiIdeaSelectionService;
 
-    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager, IGoogleCloudStorageService googleCloudStorageService, ILogger<IdeasController> logger)
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager, IGoogleCloudStorageService googleCloudStorageService, ILogger<IdeasController> logger, IAiIdeaSelectionService aiIdeaSelectionService)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
         _subplatformManager = subplatformManager;
         _googleCloudStorageService = googleCloudStorageService;
         _logger = logger;
+        _aiIdeaSelectionService = aiIdeaSelectionService;
     }
 
 
@@ -375,5 +378,62 @@ public class IdeasController : ControllerBase
             suggestedTitle = result.SuggestedTitle,
             suggestedText = result.SuggestedText
         });
+    }
+    [HttpPost("idea-selection")]
+    public async Task<IActionResult> GenerateIdeaSelection([FromBody] GenerateIdeaSelectionDto dto)
+    {
+        if (dto == null || dto.ProjectId <= 0)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Ongeldig project."
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.SelectionMode))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Selectiemodus is verplicht."
+            });
+        }
+
+        var allowedModes = new[] { "similar", "different", "broad" };
+
+        if (!allowedModes.Contains(dto.SelectionMode))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Ongeldige selectiemodus."
+            });
+        }
+
+        var resultJson = await _aiIdeaSelectionService.GenerateIdeaSelectionAsync(
+            dto.ProjectId,
+            dto.SelectionMode
+        );
+
+        try
+        {
+            using var document = JsonDocument.Parse(resultJson);
+
+            return Ok(new
+            {
+                ok = true,
+                selection = document.RootElement.Clone()
+            });
+        }
+        catch (JsonException)
+        {
+            return Ok(new
+            {
+                ok = false,
+                message = "AI gaf geen geldige JSON terug.",
+                rawResult = resultJson
+            });
+        }
     }
 }

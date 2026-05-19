@@ -53,6 +53,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
             var existingSelection = _aiRepository.ReadIdeaSelection(projectId, selectionMode);
 
             if (existingSelection != null &&
+                existingSelection.GeneratedAt >= DateTime.UtcNow.AddDays(-1) &&
                 existingSelection.IdeaCountAtGeneration == ideaCount &&
                 existingSelection.ReactionCountAtGeneration == reactionCount)
             {
