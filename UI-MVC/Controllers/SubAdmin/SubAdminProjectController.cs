@@ -37,7 +37,6 @@ public class SubAdminProjectsController : Controller
         ISubplatformManager subplatformManager,
         IProjectManager projectManager,
         UserManager<ApplicationUser> userManager,
-        IManager manager,
         IImageGenerationService imageGenerationService,
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
@@ -135,26 +134,35 @@ public class SubAdminProjectsController : Controller
         if (!ModelState.IsValid)
             return View("ProjectInfo", vm);
 
-        if (vm.PhotoUpload != null && vm.PhotoUpload.Length > 0)
+        if (vm.IntroMediaUpload != null && vm.IntroMediaUpload.Length > 0)
         {
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-            var extension = Path.GetExtension(vm.PhotoUpload.FileName).ToLowerInvariant();
+            var allowedImageExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            var allowedVideoExtensions = new[] { ".mp4", ".webm", ".mov" };
 
-            if (!allowedExtensions.Contains(extension))
+            var extension = Path.GetExtension(vm.IntroMediaUpload.FileName).ToLowerInvariant();
+
+            if (vm.IntroMediaType == ProjectIntroMediaType.Image && !allowedImageExtensions.Contains(extension))
             {
-                ModelState.AddModelError(nameof(vm.PhotoUpload), "Alleen jpg, jpeg, png of webp is toegestaan.");
+                ModelState.AddModelError(nameof(vm.IntroMediaUpload), "Upload een geldige afbeelding: jpg, jpeg, png of webp.");
                 return View("ProjectInfo", vm);
             }
 
-            vm.PhotoUri = await _googleCloudStorageService.UploadProjectImageAsync(
-                vm.PhotoUpload,
+            if (vm.IntroMediaType == ProjectIntroMediaType.Video && !allowedVideoExtensions.Contains(extension))
+            {
+                ModelState.AddModelError(nameof(vm.IntroMediaUpload), "Upload een geldige video: mp4, webm of mov.");
+                return View("ProjectInfo", vm);
+            }
+
+            vm.IntroMediaUri = await _googleCloudStorageService.UploadProjectMediaAsync(
+                vm.IntroMediaUpload,
                 subplatform
             );
         }
-        vm.PhotoUpload = null;
+
+        vm.IntroMediaUpload = null;
+
         SaveSession(InfoKey, vm);
-      
-        
+
         return await TryCreateProject(subplatform);
     }
 
@@ -236,9 +244,11 @@ public class SubAdminProjectsController : Controller
             SubplatformSlug = subplatform,
             Name = project.Name,
             Introduction = project.Introduction,
-                Duration = project.Duration,
+            Duration = project.Duration,
+            FontFamily = project.FontFamily,
             Type = project.Type,
-            PhotoUri = project.Photo?.Uri
+            IntroMediaUri = project.Photo?.Uri,
+            IntroMediaType = project.IntroMediaType
         });
 
         SaveSession(SurveyKey, BuildSurveyViewModelFromProject(project, subplatform));
@@ -277,8 +287,10 @@ public class SubAdminProjectsController : Controller
             Name = project.Name + " - kopie",
             Introduction = project.Introduction,
             Duration = project.Duration,
+            FontFamily = project.FontFamily,
             Type = project.Type,
-            PhotoUri = project.Photo?.Uri
+            IntroMediaUri = project.Photo?.Uri,
+            IntroMediaType = project.IntroMediaType
         });
 
         SaveSession(SurveyKey, BuildSurveyViewModelFromProject(project, subplatform));
@@ -298,52 +310,52 @@ public class SubAdminProjectsController : Controller
     }
 
     private CreateProjecSurveyViewModel BuildSurveyViewModelFromProject(Project project, string subplatform)
+{
+    return new CreateProjecSurveyViewModel
     {
-        return new CreateProjecSurveyViewModel
-        {
-            SubplatformSlug = subplatform,
-            Sections = project.QuestionList?.Sections
-                .OrderBy(s => s.Order)
-                .Select(s =>
+        SubplatformSlug = subplatform,
+        Sections = project.QuestionList?.Sections
+            .OrderBy(s => s.Order)
+            .Select(s =>
+            {
+                var conditionalFollowUpQuestionIds = s.Questions
+                    .SelectMany(q => q.ConditionalQuestions ?? new List<ConditionalQuestion>())
+                    .Where(cq => cq.FollowUpQuestion != null)
+                    .Select(cq => cq.FollowUpQuestion.Id)
+                    .ToHashSet();
+
+                return new SectionViewModel
                 {
-                    var conditionalFollowUpQuestionIds = s.Questions
-                        .SelectMany(q => q.ConditionalQuestions ?? new List<ConditionalQuestion>())
-                        .Where(cq => cq.FollowUpQuestion != null)
-                        .Select(cq => cq.FollowUpQuestion.Id)
-                        .ToHashSet();
+                    Title = s.Title,
+                    Order = s.Order,
+                    Questions = s.Questions
+                        .Where(q => !conditionalFollowUpQuestionIds.Contains(q.Id))
+                        .Select(q => new QuestionViewModel
+                        {
+                            Description = q.Description,
+                            QuestionType = q.QuestionType,
+                            RangeMin = q.RangeMin,
+                            RangeMax = q.RangeMax,
+                            Options = q.Options?
+                                .Select(o => o.Text)
+                                .ToList() ?? new List<string>(),
 
-                    return new SectionViewModel
-                    {
-                        Title = s.Title,
-                        Order = s.Order,
-                        Questions = s.Questions
-                            .Where(q => !conditionalFollowUpQuestionIds.Contains(q.Id))
-                            .Select(q => new QuestionViewModel
-                            {
-                                Description = q.Description,
-                                QuestionType = q.QuestionType,
-                                RangeMin = q.RangeMin,
-                                RangeMax = q.RangeMax,
-                                Options = q.Options?
-                                    .Select(o => o.Text)
-                                    .ToList() ?? new List<string>(),
-
-                                Conditionals = q.ConditionalQuestions?
-                                    .Where(cq => cq.FollowUpQuestion != null)
-                                    .Select(cq => new ConditionalQuestionViewModel
-                                    {
-                                        Trigger = cq.TriggerValue,
-                                        QuestionText = cq.FollowUpQuestion.Description,
-                                        UseAi = false
-                                    })
-                                    .ToList() ?? new List<ConditionalQuestionViewModel>()
-                            })
-                            .ToList()
-                    };
-                })
-                .ToList() ?? new List<SectionViewModel>()
-        };
-    }
+                            Conditionals = q.ConditionalQuestions?
+                                .Where(cq => cq.FollowUpQuestion != null)
+                                .Select(cq => new ConditionalQuestionViewModel
+                                {
+                                    Trigger = cq.TriggerValue,
+                                    QuestionText = cq.FollowUpQuestion.Description,
+                                    UseAi = false
+                                })
+                                .ToList() ?? new List<ConditionalQuestionViewModel>()
+                        })
+                        .ToList()
+                };
+            })
+            .ToList() ?? new List<SectionViewModel>()
+    };
+}
 
     private async Task<IActionResult> TryCreateProject(string subplatform)
     {
@@ -360,7 +372,7 @@ public class SubAdminProjectsController : Controller
         var draftProjectId = GetSession<int?>(DraftProjectIdKey);
 
         if (draftProjectId.HasValue)
-            return await UpdateExistingDraft(draftProjectId.Value, info, survey, ideation, subplatform);
+            return await UpdateExistingDraft(draftProjectId.Value, info, survey, ideation);
 
         var project = await BuildProject(info, survey, ideation, subPlatform.Id);
 
@@ -368,7 +380,7 @@ public class SubAdminProjectsController : Controller
 
         ClearProjectSessions();
 
-        return RedirectToAction("Index", "SubAdmin");
+        return RedirectToAction("Index", "SubAdmin", new { subplatform });
     }
 
     private IActionResult ValidateProjectSessions()
@@ -400,7 +412,7 @@ public class SubAdminProjectsController : Controller
         CreateProjectIdeationViewModel ideation,
         int subPlatformId)
     {
-        var photoUri = info.PhotoUri;
+        var photoUri = info.IntroMediaUri;
 
         if (string.IsNullOrWhiteSpace(photoUri))
         {
@@ -420,9 +432,14 @@ public class SubAdminProjectsController : Controller
             SubPlatformId = subPlatformId,
             ReleaseDate = DateTime.UtcNow,
             Duration = info.Duration,
-            Photo = !string.IsNullOrWhiteSpace(info.PhotoUri)
-                ? new Media { Uri = info.PhotoUri }
+            FontFamily = info.FontFamily,
+
+            Photo = !string.IsNullOrWhiteSpace(photoUri)
+                ? new Media { Uri = photoUri }
                 : null,
+
+            IntroMediaType = info.IntroMediaType,
+
             Topics = BuildTopics(ideation),
             QuestionList = BuildQuestionList(survey)
         };
@@ -507,15 +524,14 @@ public class SubAdminProjectsController : Controller
         int draftProjectId,
         CreateProjectInfoViewModel info,
         CreateProjecSurveyViewModel survey,
-        CreateProjectIdeationViewModel ideation,
-        string subplatform)
+        CreateProjectIdeationViewModel ideation)
     {
         var existingProject = _projectManager.GetProject(draftProjectId);
 
         if (existingProject == null)
             return NotFound();
 
-        var photoUri = info.PhotoUri;
+        var photoUri = info.IntroMediaUri;
 
         if (string.IsNullOrWhiteSpace(photoUri))
         {
@@ -528,11 +544,16 @@ public class SubAdminProjectsController : Controller
         existingProject.Name = info.Name;
         existingProject.Introduction = info.Introduction;
         existingProject.Duration = info.Duration;
+        existingProject.FontFamily = info.FontFamily;
         existingProject.Type = info.Type;
         existingProject.ReactionEmojiGroup = ideation.SelectedEmojiGroup;
+
         existingProject.Photo = !string.IsNullOrWhiteSpace(photoUri)
             ? new Media { Uri = photoUri }
             : null;
+
+        existingProject.IntroMediaType = info.IntroMediaType;
+
         existingProject.Topics = BuildTopics(ideation);
         existingProject.QuestionList = BuildQuestionList(survey);
 
@@ -675,8 +696,7 @@ public class SubAdminProjectsController : Controller
         public string Introduction { get; set; } = string.Empty;
     }
 
-    public class GenerateIntroductionRequest
-    {
+    public class GenerateIntroductionRequest {
         public string ProjectName { get; set; } = "";
         public string Description { get; set; } = "";
     }

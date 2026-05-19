@@ -23,20 +23,26 @@ public class SurveyRepository : ISurveyRepository
             .FirstOrDefault(sr => sr.UserId == userId && sr.ProjectId == projectId);
     }
 
-    public void SaveSurveyResponse(int userId, int projectId, List<Answer> answers)
+    public void SaveSurveyResponse(
+        int userId,
+        int projectId,
+        List<Answer> answers,
+        int durationInSeconds
+    )
     {
         var surveyResponse = new SurveyResponse
         {
             UserId = userId,
             ProjectId = projectId,
             SubmittedAt = DateTime.UtcNow,
+            DurationInSeconds = durationInSeconds,
             Answers = answers
         };
 
         _context.SurveyResponses.Add(surveyResponse);
         _context.SaveChanges();
     }
-    
+
     public IEnumerable<SurveyResponse> ReadSurveyResponsesByProjectId(int projectId)
     {
         return _context.SurveyResponses

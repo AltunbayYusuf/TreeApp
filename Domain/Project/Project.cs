@@ -26,10 +26,13 @@ public class Project: IValidatableObject
     [MaxLength(50)]
     public string ReactionEmojiGroup { get; set; } = "👍,❤️";
     public int Duration { get; set; }
+    [MaxLength(50)]
+    public string FontFamily { get; set; } = "Inter";
     public DateTime ReleaseDate { get; set; }
 
     public ProjectType Type { get; set; }
     public Media Photo { get; set; }
+    public ProjectIntroMediaType IntroMediaType { get; set; } = ProjectIntroMediaType.Image;
     public Media Logo { get; set; }
 
     public int SubPlatformId { get; set; }

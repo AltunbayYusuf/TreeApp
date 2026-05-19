@@ -22,10 +22,9 @@ public class IdeaManager : IIdeaManager
     private readonly IRepository _repository;
 
 
-
-
     public IdeaManager(IIdeaRepository ideaRepository, ITopicRepository topicRepository,
-        IReactionRepository reactionRepository,IManager manager, IAiModerationService aiModerationService, IAiProvider aiProvider, IAiPromptService aiPromptService, IRepository repository)
+        IReactionRepository reactionRepository, IManager manager, IAiModerationService aiModerationService,
+        IAiProvider aiProvider, IAiPromptService aiPromptService, IRepository repository)
     {
         _reactionRepository = reactionRepository;
         _topicRepository = topicRepository;
@@ -36,9 +35,9 @@ public class IdeaManager : IIdeaManager
         _aiPromptService = aiPromptService;
         _repository = repository;
     }
-    
 
-    public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId,string imageUri=null)
+
+    public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId, string imageUri = null)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -53,17 +52,20 @@ public class IdeaManager : IIdeaManager
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.InReview,
-            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
-            {
-                Uri = imageUri
-            }
+            Image = string.IsNullOrWhiteSpace(imageUri)
+                ? null
+                : new Media
+                {
+                    Uri = imageUri
+                }
         };
 
         _ideaRepository.AddIdea(idea);
         await Task.CompletedTask;
     }
 
-    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId,string imageUri=null)
+    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId,
+        string imageUri = null)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -85,10 +87,12 @@ public class IdeaManager : IIdeaManager
                 UserId = userId,
                 Topic = topic,
                 ModerationStatus = ModerationStatus.InReview,
-                Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
-                {
-                    Uri = imageUri
-                }
+                Image = string.IsNullOrWhiteSpace(imageUri)
+                    ? null
+                    : new Media
+                    {
+                        Uri = imageUri
+                    }
             };
 
             _manager.ValidateEntity(reviewIdea);
@@ -109,10 +113,12 @@ public class IdeaManager : IIdeaManager
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted,
-            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
-            {
-                Uri = imageUri
-            }
+            Image = string.IsNullOrWhiteSpace(imageUri)
+                ? null
+                : new Media
+                {
+                    Uri = imageUri
+                }
         };
 
         _manager.ValidateEntity(idea);
@@ -182,7 +188,7 @@ public class IdeaManager : IIdeaManager
 
         _ideaRepository.DeleteIdea(ideaId);
     }
-    
+
     public async Task<string> ImproveIdeaTextAsync(int ideaId)
     {
         var idea = _ideaRepository.ReadIdeaById(ideaId);
@@ -203,16 +209,16 @@ public class IdeaManager : IIdeaManager
 
         return improvedText.Trim();
     }
-   
-    
-    public async Task<string> ImproveIdeaTextAsync(string title, string text)
+
+
+    public async Task<string> ImproveIdeaTextAsync(string title, string text, string language = "")
     {
         if (string.IsNullOrWhiteSpace(text))
         {
             throw new ArgumentException("Idea text is required.");
         }
 
-        var prompt = _aiPromptService.BuildIdeaImprovementPrompt(title ?? string.Empty, text);
+        var prompt = _aiPromptService.BuildIdeaImprovementPrompt(title ?? string.Empty, text, language);
 
         var improvedText = await _aiProvider.GenerateAsync(prompt);
 
@@ -223,6 +229,7 @@ public class IdeaManager : IIdeaManager
 
         return improvedText.Trim();
     }
+
     public async Task<List<string>> GenerateIdeaFollowUpQuestionsAsync(string title, string text)
     {
         if (string.IsNullOrWhiteSpace(text))
@@ -255,8 +262,9 @@ public class IdeaManager : IIdeaManager
             return new List<string>();
         }
     }
-    
-    public async Task SubmitIdeaWithoutAiModerationAsync(int topicId, string title, string text, int? userId, string imageUri = null)
+
+    public async Task SubmitIdeaWithoutAiModerationAsync(int topicId, string title, string text, int? userId,
+        string imageUri = null)
     {
         var topic = _repository.ReadTopicById(topicId);
         if (topic == null)
@@ -271,10 +279,12 @@ public class IdeaManager : IIdeaManager
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted,
-            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media
-            {
-                Uri = imageUri
-            }
+            Image = string.IsNullOrWhiteSpace(imageUri)
+                ? null
+                : new Media
+                {
+                    Uri = imageUri
+                }
         };
 
         _manager.ValidateEntity(idea);
@@ -282,7 +292,7 @@ public class IdeaManager : IIdeaManager
 
         await Task.CompletedTask;
     }
-    
+
     public async Task<ToxicityResult> ModerateIdeaOnlyAsync(string title, string text)
     {
         return await _aiModerationService.ModerateIdeaAsync(

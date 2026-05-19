@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
@@ -24,7 +25,9 @@ public class IdeasController : ControllerBase
     private readonly ILogger<IdeasController> _logger;
     private readonly IAiIdeaSelectionService _aiIdeaSelectionService;
 
-    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager, IGoogleCloudStorageService googleCloudStorageService, ILogger<IdeasController> logger, IAiIdeaSelectionService aiIdeaSelectionService)
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager,
+        IGoogleCloudStorageService googleCloudStorageService, ILogger<IdeasController> logger,
+        IAiIdeaSelectionService aiIdeaSelectionService)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
@@ -37,7 +40,8 @@ public class IdeasController : ControllerBase
 
     [HttpGet]
     [Authorize(Roles = CustomIdentityConstants.SubAdminRoleName)]
-    public IActionResult GetIdeas([FromQuery] int subplatformId, [FromQuery] int? projectId = null, [FromQuery] string search = null)
+    public IActionResult GetIdeas([FromQuery] int subplatformId, [FromQuery] int? projectId = null,
+        [FromQuery] string search = null)
     {
         if (subplatformId <= 0)
             return BadRequest(new { message = "Ongeldig subplatformId." });
@@ -47,11 +51,13 @@ public class IdeasController : ControllerBase
         if (!string.IsNullOrWhiteSpace(search))
         {
             var searchLower = search.ToLower();
-            ideas = ideas.Where(i => 
+            ideas = ideas.Where(i =>
                 (!string.IsNullOrWhiteSpace(i.Title) && i.Title.ToLower().Contains(searchLower)) ||
                 (!string.IsNullOrWhiteSpace(i.Text) && i.Text.ToLower().Contains(searchLower)) ||
-                (i.Topic != null && !string.IsNullOrWhiteSpace(i.Topic.Theme) && i.Topic.Theme.ToLower().Contains(searchLower)) ||
-                (i.Topic != null && i.Topic.Project != null && !string.IsNullOrWhiteSpace(i.Topic.Project.Name) && i.Topic.Project.Name.ToLower().Contains(searchLower))
+                (i.Topic != null && !string.IsNullOrWhiteSpace(i.Topic.Theme) &&
+                 i.Topic.Theme.ToLower().Contains(searchLower)) ||
+                (i.Topic != null && i.Topic.Project != null && !string.IsNullOrWhiteSpace(i.Topic.Project.Name) &&
+                 i.Topic.Project.Name.ToLower().Contains(searchLower))
             );
         }
 
@@ -100,11 +106,21 @@ public class IdeasController : ControllerBase
             });
         }
 
+        var contactValidationError = ValidateContactEmail(vm);
+        if (contactValidationError != null)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = contactValidationError
+            });
+        }
+
         string imageUri = null;
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
@@ -118,7 +134,7 @@ public class IdeasController : ControllerBase
         {
             finalText += "\n\nExtra verduidelijking:\n" + vm.FollowUpAnswers.Trim();
         }
-        
+
 
         ToxicityResult result;
 
@@ -194,11 +210,21 @@ public class IdeasController : ControllerBase
             });
         }
 
+        var contactValidationError = ValidateContactEmail(vm);
+        if (contactValidationError != null)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = contactValidationError
+            });
+        }
+
         string imageUri = null;
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
@@ -253,6 +279,23 @@ public class IdeasController : ControllerBase
         return user;
     }
 
+    private static string ValidateContactEmail(SubmitIdeaViewModel vm)
+    {
+        if (!vm.ContactOptIn)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(vm.Email))
+        {
+            return "Geef je e-mailadres in als je gecontacteerd wil worden.";
+        }
+
+        return new EmailAddressAttribute().IsValid(vm.Email.Trim())
+            ? null
+            : "Geef een geldig e-mailadres in.";
+    }
+
     private User GetOrCreateUser()
     {
         var userGuid = Request.Cookies["UserIdentifier"];
@@ -285,7 +328,7 @@ public class IdeasController : ControllerBase
         _userManager.AddUser(user);
         return user;
     }
-    
+
     [HttpPost("improve")]
     public async Task<IActionResult> ImproveIdea([FromBody] ImproveIdeaViewModel vm)
     {
@@ -300,7 +343,7 @@ public class IdeasController : ControllerBase
 
         try
         {
-            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text);
+            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text, vm.Language);
 
             using var document = JsonDocument.Parse(improvedJson);
             var root = document.RootElement;
@@ -325,9 +368,8 @@ public class IdeasController : ControllerBase
             });
         }
     }
-    
+
     [HttpPost("follow-up-questions")]
-    
     public async Task<ActionResult> GenerateFollowUpQuestions([FromBody] IdeaFollowUpQuestionsDto dto)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.Text))
@@ -347,7 +389,7 @@ public class IdeasController : ControllerBase
             questions
         });
     }
-    
+
     [HttpPost("moderate")]
     public async Task<IActionResult> ModerateIdea([FromBody] IdeaFollowUpQuestionsDto dto)
     {
@@ -379,6 +421,7 @@ public class IdeasController : ControllerBase
             suggestedText = result.SuggestedText
         });
     }
+
     [HttpPost("idea-selection")]
     public async Task<IActionResult> GenerateIdeaSelection([FromBody] GenerateIdeaSelectionDto dto)
     {

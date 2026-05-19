@@ -17,8 +17,10 @@ public class AiPromptService : IAiPromptService
         var prompt = _aiRepository.ReadAiPromptByKey("idea_moderation")
                      ?? throw new InvalidOperationException("Prompt 'idea_moderation' niet gevonden.");
 
+        var promptText = RemoveDutchLanguageInstruction(prompt.PromptText);
+
         return $"""
-                {prompt.PromptText}
+                {promptText}
 
                 INPUT:
                 TITLE:
@@ -26,6 +28,11 @@ public class AiPromptService : IAiPromptService
 
                 TEXT:
                 {text}
+
+                OVERRIDE:
+                Detecteer de taal van TITLE en TEXT.
+                Geef suggestedTitle en suggestedText in exact dezelfde taal terug.
+                Vertaal nooit naar Nederlands tenzij TITLE en TEXT Nederlands zijn.
                 """;
     }
 
@@ -67,14 +74,41 @@ public class AiPromptService : IAiPromptService
             .Replace("{{questionAmount}}", questionAmount.ToString());
     }
 
-    public string BuildIdeaImprovementPrompt(string title, string text)
+    public string BuildIdeaImprovementPrompt(string title, string text, string language = "")
     {
         var prompt = _aiRepository.ReadAiPromptByKey("idea_improvement")
                      ?? throw new InvalidOperationException("Prompt 'idea_improvement' niet gevonden.");
 
-        return prompt.PromptText
-            .Replace("{title}", title)
-            .Replace("{text}", text);
+        var promptText = RemoveDutchLanguageInstruction(prompt.PromptText);
+
+        return $"""
+                {promptText
+                    .Replace("{title}", title)
+                    .Replace("{text}", text)}
+
+                OVERRIDE:
+                Detecteer de taal van de originele titel en originele inhoud.
+                Geef "title" en "text" in exact dezelfde taal terug.
+                Vertaal nooit naar Nederlands tenzij de originele titel en inhoud Nederlands zijn.
+                {BuildOutputLanguageInstruction(language)}
+                """;
+    }
+
+    private static string BuildOutputLanguageInstruction(string language)
+    {
+        return language?.Trim().ToLowerInvariant() switch
+        {
+            "en" => "De interface staat op Engels. Geef de JSON waarden verplicht in het Engels terug.",
+            "nl" => "De interface staat op Nederlands. Geef de JSON waarden in het Nederlands terug.",
+            _ => string.Empty
+        };
+    }
+
+    private static string RemoveDutchLanguageInstruction(string promptText)
+    {
+        return promptText
+            .Replace("- Schrijf in het Nederlands.", "- Behoud de taal van de gebruiker.")
+            .Replace("- Antwoord in het Nederlands", "- Behoud de taal van de gebruiker");
     }
 
     public string BuildProjectTrendSummaryPrompt(string projectData)
@@ -94,6 +128,7 @@ public class AiPromptService : IAiPromptService
             .Replace("{{question}}", question)
             .Replace("{{answers}}", answers);
     }
+
 
     public string BuildIdeaFollowUpQuestionsPrompt(string title, string text)
     {
@@ -116,7 +151,7 @@ public class AiPromptService : IAiPromptService
 
         return Task.FromResult(result);
     }
-    
+
     public string BuildIdeaSelectionPrompt(string selectionMode, string projectData)
     {
         var prompt = _aiRepository.ReadAiPromptByKey("idea_selection")

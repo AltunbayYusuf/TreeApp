@@ -9,20 +9,30 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IManager _manager;
+    private readonly IProjectManager _projectManager;
 
-    public HomeController(ILogger<HomeController> logger, IManager manager)
+    public HomeController(ILogger<HomeController> logger, IManager manager, IProjectManager projectManager)
     {
         _logger = logger;
         _manager = manager;
+        _projectManager = projectManager;
     }
+
+    private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
 
     public IActionResult Index()
     {
         return View();
     }
 
-    public IActionResult Privacy()
+    public IActionResult Privacy(int? projectId)
     {
+        if (projectId.HasValue)
+        {
+            var project = _projectManager.GetProjectBySubPlatformAndProjectId(Subplatform, projectId.Value);
+            ViewBag.ProjectFontFamily = project?.FontFamily;
+        }
+
         return View();
     }
 

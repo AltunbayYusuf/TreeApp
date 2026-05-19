@@ -1,11 +1,12 @@
 @using IntegratieProject.BL.Domain.project
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.project.Project
 
 @{
     ViewData["Title"] = "Project";
 }
 
-<div class="project-landing">
+<div class="project-landing" style="font-family: @ProjectFontFamily.ToCssStack(Model.FontFamily);">
 
     <div class="home-topbar mb-4">
         <div>
@@ -25,9 +26,19 @@
     </div>
 
     <div class="project-image-box">
-        @if (!string.IsNullOrWhiteSpace(@Model.Photo?.Uri))
+        @if (!string.IsNullOrWhiteSpace(Model.Photo?.Uri))
         {
-            <img src="@Model.Photo.Uri" alt="Project afbeelding" />
+            if (Model.IntroMediaType == ProjectIntroMediaType.Video)
+            {
+                <video controls playsinline preload="metadata" class="project-intro-video">
+                    <source src="@Model.Photo.Uri" />
+                    Je browser ondersteunt deze video niet.
+                </video>
+            }
+            else
+            {
+                <img src="@Model.Photo.Uri" alt="Project afbeelding" />
+            }
         }
         else
         {
@@ -73,8 +84,10 @@
         </a>
     }
 
-    <a asp-controller="Home" asp-action="Privacy" class="project-privacy-link">
+    <a asp-controller="Home"
+       asp-action="Privacy"
+       asp-route-projectId="@Model.Id"
+       class="project-privacy-link">
         → Privacybeleid
     </a>
-
 </div>

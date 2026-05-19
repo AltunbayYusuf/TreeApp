@@ -41,7 +41,6 @@ public class SurveyController : Controller
             return NotFound(); 
         }
 
-        
 
         var user = GetOrCreateUser();
 
@@ -105,10 +104,10 @@ public class SurveyController : Controller
     }
 
     [HttpPost]
-    public IActionResult Submit(List<AnswerDto> answers, int projectId)
+    public IActionResult Submit([FromBody] SubmitSurveyDto request)
     {
         var subplatform = Subplatform;
-        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+        var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, request.ProjectId);
         if (project == null)
         {
             return NotFound();
@@ -117,14 +116,14 @@ public class SurveyController : Controller
         {
             return NotFound(); 
         }
-        if (answers == null || !answers.Any())
+        if (request.Answers == null || !request.Answers.Any())
         {
             return BadRequest("Geen antwoorden ontvangen");
         }
 
         var user = GetOrCreateUser();
 
-        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, projectId);
+        var existingResponse = _surveyManager.GetSurveyResponse(user.Id, request.ProjectId);
         if (existingResponse != null)
         {
             return BadRequest("Deze survey is al ingevuld voor dit project.");
@@ -132,13 +131,12 @@ public class SurveyController : Controller
 
         var answersList = new List<Answer>();
 
-        foreach (var dto in answers)
+        foreach (var dto in request.Answers)
         {
             var question = _questionManager.GetQuestion(dto.QuestionId);
+
             if (question == null)
-            {
                 return BadRequest("Ongeldige vraag.");
-            }
 
             var newAnswer = new Answer
             {
@@ -149,11 +147,16 @@ public class SurveyController : Controller
             answersList.Add(newAnswer);
         }
 
-        _surveyManager.SaveSurveyResponse(user.Id, projectId, answersList);
+        _surveyManager.SaveSurveyResponse(
+            user.Id,
+            request.ProjectId,
+            answersList,
+            request.DurationInSeconds
+        );
 
         return Ok(new
         {
-            redirectUrl = Url.Action("Index", "Survey", new { subplatform = Subplatform, projectId })
+            redirectUrl = Url.Action("Index", "Survey", new { subplatform = Subplatform, request.ProjectId })
         });
     }
 

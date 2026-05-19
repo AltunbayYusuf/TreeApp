@@ -920,7 +920,7 @@ public class DataSeeder
             IsActive = true
         };
 
-        
+
         var projectIntroPrompt = new AiPrompt
         {
             Key = "project_intro_generation",
@@ -1017,7 +1017,7 @@ public class DataSeeder
                          Regels:
                          - Behoud de originele betekenis.
                          - Voeg geen volledig nieuwe feiten toe.
-                         - Schrijf in het Nederlands.
+                         - Behoud de taal van de gebruiker.
                          - Geef ALLEEN geldige JSON terug.
                          - Geen markdown.
                          - Geen uitleg.
@@ -1115,6 +1115,7 @@ public class DataSeeder
             IsActive = true
         };
 
+
         var ideaFollowUpPrompt = new AiPrompt
         {
             Key = "idea_follow_up_questions",
@@ -1180,62 +1181,61 @@ public class DataSeeder
                          """,
             IsActive = true
         };
-        
+
         var ideaSelectionPrompt = new AiPrompt
-{
-    Key = "idea_selection",
-    Name = "Idea selection",
-    PromptText = """
-                 Je bent een AI-analist voor een jongerenparticipatieplatform.
+        {
+            Key = "idea_selection",
+            Name = "Idea selection",
+            PromptText = """
+                         Je bent een AI-analist voor een jongerenparticipatieplatform.
 
-                 Je krijgt ideeën en reacties van één project.
-                 Analyseer de inhoud en groepeer/selecteer ideeën op basis van de gevraagde selectie-modus.
+                         Je krijgt ideeën en reacties van één project.
+                         Analyseer de inhoud en groepeer/selecteer ideeën op basis van de gevraagde selectie-modus.
 
-                 Selectie-modus:
-                 {{selectionMode}}
+                         Selectie-modus:
+                         {{selectionMode}}
 
-                 Mogelijke selectie-modi:
-                 - similar: groepeer ideeën die inhoudelijk sterk op elkaar lijken.
-                 - different: groepeer ideeën die inhoudelijk sterk van elkaar verschillen.
-                 - broad: maak een brede selectie met verschillende thema's, perspectieven en soorten ideeën.
+                         Mogelijke selectie-modi:
+                         - similar: groepeer ideeën die inhoudelijk sterk op elkaar lijken.
+                         - different: groepeer ideeën die inhoudelijk sterk van elkaar verschillen.
+                         - broad: maak een brede selectie met verschillende thema's, perspectieven en soorten ideeën.
 
-                 Belangrijk:
-                 - Gebruik alleen de meegegeven data.
-                 - Verzin geen nieuwe ideeën.
-                 - Gebruik de IDEA_ID's exact zoals meegegeven.
-                 - Bekijk zowel de ideeën als de reacties.
-                 - Antwoord ALLEEN met geldige JSON.
-                 - Geen markdown.
-                 - Geen extra uitleg buiten JSON.
-                 - Schrijf korte Nederlandstalige groepsnamen en redenen.
+                         Belangrijk:
+                         - Gebruik alleen de meegegeven data.
+                         - Verzin geen nieuwe ideeën.
+                         - Gebruik de IDEA_ID's exact zoals meegegeven.
+                         - Bekijk zowel de ideeën als de reacties.
+                         - Antwoord ALLEEN met geldige JSON.
+                         - Geen markdown.
+                         - Geen extra uitleg buiten JSON.
+                         - Schrijf korte Nederlandstalige groepsnamen en redenen.
 
-                 JSON schema:
-                 {
-                   "mode": "similar | different | broad",
-                   "groups": [
-                     {
-                       "title": "korte groepsnaam",
-                       "reason": "waarom deze ideeën samen horen of geselecteerd zijn",
-                       "ideaIds": [1, 2, 3]
-                     }
-                   ]
-                 }
+                         JSON schema:
+                         {
+                           "mode": "similar | different | broad",
+                           "groups": [
+                             {
+                               "title": "korte groepsnaam",
+                               "reason": "waarom deze ideeën samen horen of geselecteerd zijn",
+                               "ideaIds": [1, 2, 3]
+                             }
+                           ]
+                         }
 
-                 Regels per modus:
-                 - Bij similar: zet gelijkaardige ideeën samen in groepen.
-                 - Bij different: maak groepen/sets van ideeën die net duidelijk andere invalshoeken tonen.
-                 - Bij broad: kies een gebalanceerde selectie over verschillende topics en standpunten.
-                 - Een idee mag maar één keer voorkomen in de JSON.
-                 - Als er te weinig data is, maak dan toch een zo goed mogelijke selectie.
-                 - Als er geen ideeën zijn, geef exact dit terug:
-                   {"mode":"{{selectionMode}}","groups":[]}
+                         Regels per modus:
+                         - Bij similar: zet gelijkaardige ideeën samen in groepen.
+                         - Bij different: maak groepen/sets van ideeën die net duidelijk andere invalshoeken tonen.
+                         - Bij broad: kies een gebalanceerde selectie over verschillende topics en standpunten.
+                         - Een idee mag maar één keer voorkomen in de JSON.
+                         - Als er te weinig data is, maak dan toch een zo goed mogelijke selectie.
+                         - Als er geen ideeën zijn, geef exact dit terug:
+                           {"mode":"{{selectionMode}}","groups":[]}
 
-                 DATA:
-                 {{projectData}}
-                 """,
-    IsActive = true
-};
-
+                         DATA:
+                         {{projectData}}
+                         """,
+            IsActive = true
+        };
 
         var surveyUsers = Enumerable.Range(1, 10).Select(i => new User
             {
@@ -1264,7 +1264,8 @@ public class DataSeeder
                     {
                         Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Sporten/bewegen"
                     }
-                }
+                },
+                DurationInSeconds = 300
             },
             new()
             {
@@ -1283,7 +1284,8 @@ public class DataSeeder
                     },
                     new() { Question = pressureQuestion, Text = "Eerder niet" },
                     new() { Question = copingQuestion, Text = "Afleiding zoeken;Studietaken uitstellen/vermijden" }
-                }
+                },
+                DurationInSeconds = 240
             },
             new()
             {
@@ -1301,7 +1303,8 @@ public class DataSeeder
                         Question = copingQuestion,
                         Text = "Erover praten met vrienden/medestudenten;Bewust rust inplannen"
                     }
-                }
+                },
+                DurationInSeconds = 160
             },
             new()
             {
@@ -1322,7 +1325,8 @@ public class DataSeeder
                     },
                     new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
                     new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Bewust rust inplannen" }
-                }
+                },
+                DurationInSeconds = 210
             },
             new()
             {
@@ -1336,7 +1340,8 @@ public class DataSeeder
                     new() { Question = studyStressQuestion, Text = "3" },
                     new() { Question = pressureQuestion, Text = "Ja, meestal wel" },
                     new() { Question = copingQuestion, Text = "Sporten/bewegen;Bewust rust inplannen" }
-                }
+                },
+                DurationInSeconds = 120
             },
             new()
             {
@@ -1353,7 +1358,8 @@ public class DataSeeder
                     {
                         Question = copingQuestion, Text = "Erover praten met ouders/familie/partner;Sporten/bewegen"
                     }
-                }
+                },
+                DurationInSeconds = 305
             },
             new()
             {
@@ -1374,7 +1380,8 @@ public class DataSeeder
                     {
                         Question = copingQuestion, Text = "Ik weet niet goed wat ik kan of moet doen;Afleiding zoeken"
                     }
-                }
+                },
+                DurationInSeconds = 200
             },
             new()
             {
@@ -1391,7 +1398,8 @@ public class DataSeeder
                     {
                         Question = copingQuestion, Text = "Erover praten met vrienden/medestudenten;Afleiding zoeken"
                     }
-                }
+                },
+                DurationInSeconds = 199
             },
             new()
             {
@@ -1408,7 +1416,8 @@ public class DataSeeder
                     new() { Question = studyStressQuestion, Text = "3" },
                     new() { Question = pressureQuestion, Text = "Soms wel, soms niet" },
                     new() { Question = copingQuestion, Text = "Afleiding zoeken;Bewust rust inplannen" }
-                }
+                },
+                DurationInSeconds = 214
             },
             new()
             {
@@ -1430,7 +1439,8 @@ public class DataSeeder
                     },
                     new() { Question = pressureQuestion, Text = "Eerder niet" },
                     new() { Question = copingQuestion, Text = "Professionele hulp zoeken;Afleiding zoeken" }
-                }
+                },
+                DurationInSeconds = 302
             }
         };
 
@@ -1504,7 +1514,6 @@ public class DataSeeder
 
         dbContext.Users.AddRange(surveyUsers);
         dbContext.SurveyResponses.AddRange(surveyResponses);
-
 
         dbContext.SaveChanges();
     }

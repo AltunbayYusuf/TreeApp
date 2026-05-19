@@ -4,6 +4,7 @@ type SubplatformPayload = {
     adminEmail: string;
 };
 
+
 class SubplatformBuilder {
     private triggerBtn!: HTMLButtonElement;
     private modalEl!: HTMLElement;

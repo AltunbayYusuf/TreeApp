@@ -25,8 +25,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
         private readonly ILogger<LoginModel> _logger;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public LoginModel(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager,
-            ILogger<LoginModel> logger)
+        public LoginModel(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -212,7 +211,17 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account
                 return null;
             }
 
-            return firstSegment;
+            return IsSubplatformSlug(firstSegment) ? firstSegment : null;
+        }
+
+        private static bool IsSubplatformSlug(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value) || !value.Contains('-'))
+            {
+                return false;
+            }
+
+            return value.All(c => char.IsLower(c) || char.IsDigit(c) || c == '-');
         }
     }
 }

@@ -30,16 +30,8 @@
 
     <nav class="admin-tabs mb-4">
         <button type="button" class="admin-tab-link active">Project Info</button>
-        <button type="submit"
-                form="createProjectForm"
-                class="admin-tab-link">
-            Bevraging
-        </button>
-        <button type="submit"
-                form="createProjectForm"
-                class="admin-tab-link">
-            Ideation
-        </button>
+        <button type="submit" form="createProjectForm" class="admin-tab-link">Bevraging</button>
+        <button type="submit" form="createProjectForm" class="admin-tab-link">Ideation</button>
     </nav>
 
     <form id="createProjectForm"
@@ -63,53 +55,56 @@
                 </label>
                 <input asp-for="Name"
                        class="form-control"
-                       placeholder="bijv. Actieplan mentaal welzijn 2026"/>
+                       placeholder="bijv. Actieplan mentaal welzijn 2026" />
                 <span asp-validation-for="Name" class="text-danger small"></span>
             </div>
 
             <div class="mb-4">
-                <label asp-for="PhotoUpload" class="form-label fw-semibold">
-                    Project afbeelding
-                </label>
+                <label asp-for="IntroMediaUpload" class="form-label">Introductie media</label>
 
-                <input asp-for="PhotoUri" type="hidden" id="PhotoUri" />
+                <input asp-for="IntroMediaUri" type="hidden" id="IntroMediaUri" />
 
-                <div class="border rounded-3 p-4 bg-light">
+                <div class="mb-2">
+                    <label class="form-label small text-muted">Kies type media</label>
+                    <select asp-for="IntroMediaType" class="form-select">
+                        <option value="Image">Afbeelding</option>
+                        <option value="Video">Video</option>
+                    </select>
+                </div>
 
-                    <div class="mb-3">
-                        <label asp-for="PhotoUpload" class="btn btn-primary btn-sm mb-0">
-                            Upload afbeelding
-                        </label>
+                <div class="upload-zone">
+                    <span class="upload-icon">🖼️</span>
 
-                        <input asp-for="PhotoUpload"
-                               type="file"
-                               class="d-none"
-                               accept="image/*" />
-                    </div>
+                    <label for="IntroMediaUpload" class="btn btn-primary btn-sm mb-2">
+                        Upload afbeelding of video
+                    </label>
 
-                    <div class="d-flex align-items-center gap-2 mb-3">
-                        <span class="text-muted small">of</span>
+                    <input asp-for="IntroMediaUpload"
+                           type="file"
+                           class="d-none"
+                           accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" />
 
-                        <button type="button"
-                                id="generateProjectImageButton"
-                                class="btn btn-outline-primary btn-sm">
-                            ✨ Genereer met AI
-                        </button>
-                    </div>
+                    <span asp-validation-for="IntroMediaUpload" class="text-danger small"></span>
 
-                    <p id="projectImageStatus" class="text-muted small mb-3">
-                        Als je geen afbeelding uploadt, kan AI automatisch een afbeelding genereren.
+                    <div class="text-muted small mb-2">of</div>
+
+                    <button type="button"
+                            id="generateProjectImageButton"
+                            class="btn btn-outline-primary btn-sm">
+                        ✨ Genereer afbeelding met AI
+                    </button>
+
+                    <p id="projectImageStatus" class="text-muted small mt-3 mb-3">
+                        Je kan hier een afbeelding of video toevoegen. Als je geen afbeelding uploadt,
+                        kan AI automatisch een afbeelding genereren.
                     </p>
 
                     <img id="projectImagePreview"
-                         src="@Model.PhotoUri"
+                         src="@Model.IntroMediaUri"
                          alt="Project afbeelding preview"
-                         class="img-fluid rounded border @(string.IsNullOrWhiteSpace(Model.PhotoUri) ? "d-none" : "")"
+                         class="img-fluid rounded border @(string.IsNullOrWhiteSpace(Model.IntroMediaUri) ? "d-none" : "")"
                          style="max-height: 220px; object-fit: cover;" />
-
                 </div>
-
-                <span asp-validation-for="PhotoUpload" class="text-danger small"></span>
             </div>
 
             <div class="mb-4">
@@ -139,20 +134,32 @@
                 </label>
                 <input asp-for="Duration"
                        type="number"
-
                        min="1"
                        class="form-control"
-                       placeholder="bijv. 10"/>
+                       placeholder="bijv. 10" />
                 <span asp-validation-for="Duration" class="text-danger small"></span>
             </div>
-            
+
+            <div class="mb-4">
+                <label asp-for="FontFamily" class="form-label">
+                    Lettertype <span class="text-danger">*</span>
+                </label>
+                <select asp-for="FontFamily" class="form-select">
+                    @foreach (var fontFamily in IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.AllowedFontFamilies)
+                    {
+                        <option value="@fontFamily">@fontFamily</option>
+                    }
+                </select>
+                <span asp-validation-for="FontFamily" class="text-danger small"></span>
+            </div>
+
             <div>
                 <h3 class="admin-form-title mb-1">Vorm van het project</h3>
                 <p class="admin-form-subtitle">Kies hoe deelnemers de vragen beantwoorden.</p>
 
                 <div class="type-selector-grid">
                     <label class="project-type-label">
-                        <input asp-for="Type" type="radio" value="@ProjectType.Chat"/>
+                        <input asp-for="Type" type="radio" value="@ProjectType.Chat" />
                         <div class="project-type-card">
                             <div class="type-icon">💬</div>
                             <h3>Chat-vorm</h3>
@@ -161,7 +168,7 @@
                     </label>
 
                     <label class="project-type-label">
-                        <input asp-for="Type" type="radio" value="@ProjectType.VerticalScroll"/>
+                        <input asp-for="Type" type="radio" value="@ProjectType.VerticalScroll" />
                         <div class="project-type-card">
                             <div class="type-icon">↕️</div>
                             <h3>Verticale scroll-vorm</h3>
@@ -178,5 +185,5 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial"/>
+    <partial name="_ValidationScriptsPartial" />
 }
