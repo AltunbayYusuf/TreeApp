@@ -111,7 +111,7 @@ public class IdeasController : ControllerBase
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
@@ -187,7 +187,7 @@ public class IdeasController : ControllerBase
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
