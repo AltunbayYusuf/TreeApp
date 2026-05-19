@@ -29,8 +29,8 @@ public class ProjectRepository : IProjectRepository
             .ThenInclude(cq => cq.FollowUpQuestion)
 
             .Include(p => p.SubPlatform)
+            .ThenInclude(sp => sp.Logo)
             .Include(p => p.Photo)
-            .Include(p => p.Logo)
             .Include(p => p.Topics)
             .ThenInclude(t => t.Ideas)
             .Include(p => p.SurveyResponses)
@@ -52,8 +52,8 @@ public class ProjectRepository : IProjectRepository
             .ThenInclude(cq => cq.FollowUpQuestion)
 
             .Include(p => p.SubPlatform)
+            .ThenInclude(sp => sp.Logo)
             .Include(p => p.Photo)
-            .Include(p => p.Logo)
             .Include(p => p.Topics)
             .ThenInclude(t => t.Ideas)
             .Include(p => p.SurveyResponses);
@@ -63,8 +63,8 @@ public class ProjectRepository : IProjectRepository
     {
         return _context.Projects
             .Include(p => p.SubPlatform)
+            .ThenInclude(sp => sp.Logo)
             .Include(p => p.Photo)
-            .Include(p => p.Logo)
             .FirstOrDefault(p => p.Id == projectId && p.SubPlatform.Slug == subplatformSlug);
     }
 
@@ -72,8 +72,8 @@ public class ProjectRepository : IProjectRepository
     {
         return _context.Projects
             .Include(p => p.SubPlatform)
+            .ThenInclude(sp => sp.Logo)
             .Include(p => p.Photo)
-            .Include(p => p.Logo)
             .Include(p => p.SurveyResponses)
             .Include(p => p.Topics)
             .ThenInclude(t => t.Ideas)

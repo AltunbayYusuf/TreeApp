@@ -38,7 +38,6 @@ public class QuestionRepository : IQuestionRepository
     public QuestionList ReadQuestionListByProject(Project project)
     {
         return _context.Projects
-            .Include(p => p.Logo)
             .Include(p => p.QuestionList)
             .ThenInclude(ql => ql.Sections)
             .ThenInclude(s => s.Questions)

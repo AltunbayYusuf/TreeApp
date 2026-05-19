@@ -32,7 +32,6 @@ public class Project: IValidatableObject
 
     public ProjectType Type { get; set; }
     public Media Photo { get; set; }
-    public Media Logo { get; set; }
 
     public int SubPlatformId { get; set; }
     public SubPlatform SubPlatform { get; set; }
