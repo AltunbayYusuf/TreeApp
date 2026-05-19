@@ -5,9 +5,11 @@ namespace IntegratieProject.UI.MVC.Models;
 
 public class CreateProjectInfoViewModel : IValidatableObject
 {
+    public const string DefaultFontFamily = "Inter";
+
     public static readonly string[] AllowedFontFamilies =
     {
-        "Inter",
+        DefaultFontFamily,
         "Arial",
         "Georgia",
         "Verdana",
@@ -33,7 +35,7 @@ public class CreateProjectInfoViewModel : IValidatableObject
 
     [Required(ErrorMessage = "Lettertype is verplicht.")]
     [MaxLength(50)]
-    public string FontFamily { get; set; } = "Inter";
+    public string FontFamily { get; set; } = DefaultFontFamily;
 
     public ProjectType Type { get; set; } = ProjectType.VerticalScroll;
 

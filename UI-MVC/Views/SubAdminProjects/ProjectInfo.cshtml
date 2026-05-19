@@ -121,7 +121,7 @@
                 <select asp-for="FontFamily" class="form-select">
                     @foreach (var fontFamily in IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.AllowedFontFamilies)
                     {
-                        <option value="@fontFamily">@fontFamily</option>
+                        <option value="@fontFamily">@(fontFamily == IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.DefaultFontFamily ? $"{fontFamily} (default)" : fontFamily)</option>
                     }
                 </select>
                 <span asp-validation-for="FontFamily" class="text-danger small"></span>
