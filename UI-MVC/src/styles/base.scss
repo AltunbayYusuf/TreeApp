@@ -1,8 +1,11 @@
 // ── Echo Design Tokens ────────────────────────────────────────────────────────
 :root {
   --font-scale: 1;
-  --echo-primary: #6366f1;
-  --echo-primary-dark: #4f46e5;
+  --echo-font-sans: Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --echo-font-pacifico: 'Pacifico', cursive;
+  --echo-font-bubblegum: 'Bubblegum Sans', cursive;
+  --echo-primary:       #6366f1;
+  --echo-primary-dark:  #4f46e5;
   --echo-primary-light: #a5b4fc;
   --echo-secondary: #8b5cf6;
   --echo-success: #10b981;
@@ -63,6 +66,7 @@ html {
 }
 
 body {
+  font-family: var(--echo-font-sans);
   color: var(--echo-text);
   background-color: var(--echo-bg);
   -webkit-font-smoothing: antialiased;

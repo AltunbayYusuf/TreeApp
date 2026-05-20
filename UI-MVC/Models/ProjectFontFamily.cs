@@ -10,6 +10,8 @@ public static class ProjectFontFamily
             "Georgia" => "Georgia, 'Times New Roman', serif",
             "Verdana" => "Verdana, Geneva, sans-serif",
             "Trebuchet MS" => "'Trebuchet MS', Arial, sans-serif",
+            "Pacifico" => "'Pacifico', cursive",
+            "Bubblegum Sans" => "'Bubblegum Sans', cursive",
             _ => "Inter, system-ui, -apple-system, 'Segoe UI', sans-serif"
         };
     }
