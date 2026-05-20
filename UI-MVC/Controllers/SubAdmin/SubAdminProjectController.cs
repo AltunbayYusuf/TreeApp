@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
@@ -41,8 +42,8 @@ public class SubAdminProjectsController : Controller
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
         IProjectStatisticsManager projectStatisticsManager,
-        IAiSummaryIdeas aiSummaryIdeas,
-        IGoogleCloudStorageService googleCloudStorageService)
+        IAiSummaryIdeas aiSummaryIdeas,IGoogleCloudStorageService googleCloudStorageService
+        )
     {
         _subplatformManager = subplatformManager;
         _projectManager = projectManager;
@@ -52,7 +53,7 @@ public class SubAdminProjectsController : Controller
         _aiSurveyGenerationService = aiSurveyGenerationService;
         _projectStatisticsManager = projectStatisticsManager;
         _aiSummaryIdeas = aiSummaryIdeas;
-        _googleCloudStorageService = googleCloudStorageService;
+        _googleCloudStorageService=googleCloudStorageService;
     }
 
     private string Subplatform
@@ -152,7 +153,8 @@ public class SubAdminProjectsController : Controller
 
             if (vm.IntroMediaType == ProjectIntroMediaType.Image && !allowedImageExtensions.Contains(extension))
             {
-                ModelState.AddModelError(nameof(vm.IntroMediaUpload), "Upload een geldige afbeelding: jpg, jpeg, png of webp.");
+                ModelState.AddModelError(nameof(vm.IntroMediaUpload),
+                    "Upload een geldige afbeelding: jpg, jpeg, png of webp.");
                 return View("ProjectInfo", vm);
             }
 
@@ -169,10 +171,10 @@ public class SubAdminProjectsController : Controller
         }
 
         vm.IntroMediaUpload = null;
-
         SaveSession(InfoKey, vm);
 
         return await TryCreateProject(subplatform);
+
     }
 
     [HttpGet]
@@ -578,7 +580,7 @@ public class SubAdminProjectsController : Controller
             : null;
 
         existingProject.IntroMediaType = info.IntroMediaType;
-
+        
         existingProject.Topics = BuildTopics(ideation);
         existingProject.QuestionList = BuildQuestionList(survey);
 
@@ -703,7 +705,70 @@ public class SubAdminProjectsController : Controller
 
         return View(statistics);
     }
-    
+
+    [HttpGet]
+    public async Task<IActionResult> ExportStatisticsCsv(string subplatform, int projectId)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
+
+        var project = _projectManager.GetProject(projectId);
+
+        if (project == null || project.SubPlatform.Slug != subplatform)
+        {
+            return NotFound();
+        }
+
+        var statistics = _projectStatisticsManager.GetProjectStatistics(projectId);
+
+        var csv = new StringBuilder();
+        csv.AppendLine("sep=;");
+        csv.AppendLine("Projectstatistieken");
+        csv.AppendLine($"Project;{EscapeCsvValue(statistics.ProjectName)}");
+        csv.AppendLine($"Deelnemers;{statistics.ParticipantsCount}");
+        csv.AppendLine($"Ideeen;{statistics.IdeasCount}");
+        csv.AppendLine($"Reacties;{statistics.ReactionsCount}");
+        csv.AppendLine();
+        csv.AppendLine("Vragen");
+        csv.AppendLine("Vraag;Type;Totaal antwoorden;Gemiddelde;Antwoordoptie;Aantal;Percentage;AI samenvatting");
+
+        foreach (var question in statistics.Questions)
+        {
+            if (question.Options.Any())
+            {
+                foreach (var option in question.Options)
+                {
+                    csv.AppendLine(string.Join(";",
+                        EscapeCsvValue(question.Question),
+                        EscapeCsvValue(question.QuestionType),
+                        question.TotalAnswers.ToString(),
+                        question.Average?.ToString() ?? string.Empty,
+                        EscapeCsvValue(option.Answer),
+                        option.Count.ToString(),
+                        option.Percentage.ToString(),
+                        string.Empty));
+                }
+            }
+            else
+            {
+                csv.AppendLine(string.Join(";",
+                    EscapeCsvValue(question.Question),
+                    EscapeCsvValue(question.QuestionType),
+                    question.TotalAnswers.ToString(),
+                    question.Average?.ToString() ?? string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    EscapeCsvValue(question.AiSummary ?? string.Empty)));
+            }
+        }
+
+        var safeProjectName = string.Join("-", statistics.ProjectName.Split(Path.GetInvalidFileNameChars()));
+        var fileName = $"statistieken-{safeProjectName}-{DateTime.UtcNow:yyyyMMdd}.csv";
+
+        return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", fileName);
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateOpenQuestionSummary(
@@ -736,9 +801,20 @@ public class SubAdminProjectsController : Controller
         public string Introduction { get; set; } = string.Empty;
     }
 
-    public class GenerateIntroductionRequest {
+    public class GenerateIntroductionRequest
+    {
         public string ProjectName { get; set; } = "";
         public string Description { get; set; } = "";
+    }
+
+    private static string EscapeCsvValue(string value)
+    {
+        var safeValue = value
+            .Replace("\r\n", " ")
+            .Replace("\n", " ")
+            .Replace("\r", " ");
+
+        return $"\"{safeValue.Replace("\"", "\"\"")}\"";
     }
 
     private void ClearProjectSessions()

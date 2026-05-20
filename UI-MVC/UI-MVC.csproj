@@ -53,6 +53,7 @@
         <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
         <_ContentIncludedByDefault Remove="Views\SubPlatform\Index.cshtml" />
         <_ContentIncludedByDefault Remove="Views\Platform\Overview.cshtml" />
+        <_ContentIncludedByDefault Remove="wwwroot\images\generated-projects\project-f6d5d757aea74aaf97ab11938f274088.png" />
     </ItemGroup>
 
     <ItemGroup>

@@ -11,6 +11,11 @@ interface ReactionDto {
     status: string;
 }
 
+interface EmojiReactionSummary {
+    emoji: string;
+    count: number;
+}
+
 interface IdeaDto {
     id: number;
     title: string;
@@ -400,10 +405,24 @@ export class SubAdminIdeas {
         tr.style.display = 'none';
 
         const reactions = idea.reactions ?? [];
+        const emojiSummary = this.getEmojiReactionSummary(reactions);
+        const emojiSummaryMarkup = emojiSummary.length === 0
+            ? ''
+            : `
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    ${emojiSummary.map(item => `
+                        <span class="badge rounded-pill bg-white text-dark border">
+                            <span>${DomUtils.escapeHtml(item.emoji)}</span>
+                            <span class="ms-1">${item.count}</span>
+                        </span>
+                    `).join('')}
+                </div>`;
 
-        const reactionItems = reactions.length === 0
+        const textReactions = reactions.filter(reaction => reaction.text);
+
+        const reactionItems = textReactions.length === 0
             ? '<li class="text-muted small">Geen reacties.</li>'
-            : reactions.map(r => {
+            : textReactions.map(r => {
                 const parts: string[] = [];
                 if (r.emoji) parts.push(`<span>${DomUtils.escapeHtml(r.emoji)}</span>`);
                 if (r.text)  parts.push(`<span>${DomUtils.escapeHtml(r.text)}</span>`);
@@ -422,12 +441,27 @@ export class SubAdminIdeas {
             <td colspan="8" class="p-0">
                 <div class="px-4 py-2 bg-light border-bottom">
                     <p class="small fw-semibold text-muted mb-1">Reacties</p>
+                    ${emojiSummaryMarkup}
                     <ul class="list-unstyled mb-0">${reactionItems}</ul>
                 </div>
             </td>
         `;
 
         return tr;
+    }
+
+    private getEmojiReactionSummary(reactions: ReactionDto[]): EmojiReactionSummary[] {
+        const counts = new Map<string, number>();
+
+        reactions
+            .filter(reaction => reaction.emoji && !reaction.text)
+            .forEach(reaction => {
+                counts.set(reaction.emoji, (counts.get(reaction.emoji) ?? 0) + 1);
+            });
+
+        return Array.from(counts.entries())
+            .map(([emoji, count]) => ({ emoji, count }))
+            .sort((a, b) => b.count - a.count || a.emoji.localeCompare(b.emoji));
     }
 
     private handleToggleReactions(e: MouseEvent): void {

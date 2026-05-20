@@ -3,6 +3,7 @@ using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 
 namespace IntegratieProject.UI.MVC.Controllers;
 
@@ -28,8 +29,70 @@ public class PlatformController : Controller
         return View(subPlatform);
     }
 
+    [HttpGet]
+    public IActionResult ExportSubAdminsCsv(int id)
+    {
+        var subPlatform = _subplatformManager.GetSubPlatform(id);
+
+        if (subPlatform == null) return NotFound();
+
+        var allResponses = subPlatform.Projects
+            .SelectMany(p => p.SurveyResponses ?? [])
+            .ToList();
+
+        var avgSeconds = allResponses.Any()
+            ? (int)Math.Round(allResponses.Average(r => r.DurationInSeconds))
+            : 0;
+
+        var avgMinutes = avgSeconds / 60;
+        var remainingSeconds = avgSeconds % 60;
+
+        var csv = new StringBuilder();
+        csv.AppendLine("sep=;");
+        csv.AppendLine("Subplatform");
+        csv.AppendLine($"Naam;{EscapeCsvValue(subPlatform.CompanyName)}");
+        csv.AppendLine();
+
+        csv.AppendLine("Subadmins");
+
+        foreach (var subAdmin in subPlatform.SubAdmins)
+        {
+            csv.AppendLine(EscapeCsvValue(subAdmin.Name));
+        }
+
+        csv.AppendLine();
+        csv.AppendLine("Subplatform overzicht");
+        csv.AppendLine($"Projecten;{subPlatform.Projects.Count}");
+        csv.AppendLine($"Deelnemers;{subPlatform.Projects.Sum(p => p.SurveyResponses?.Count ?? 0)}");
+        csv.AppendLine($"Gem. tijd;{avgMinutes} min {remainingSeconds} sec");
+        csv.AppendLine("Totale kosten;");
+
+        csv.AppendLine();
+        csv.AppendLine("Projecten");
+        csv.AppendLine("Naam;Deelnemers");
+
+        foreach (var project in subPlatform.Projects)
+        {
+            csv.AppendLine($"{EscapeCsvValue(project.Name)};{project.SurveyResponses?.Count ?? 0}");
+        }
+
+        var fileName = $"subplatform-{subPlatform.Slug}.csv";
+
+        return File(Encoding.UTF8.GetBytes(csv.ToString()), "text/csv", fileName);
+    }
+
+    private static string EscapeCsvValue(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return string.Empty;
+
+        var escapedValue = value.Replace("\"", "\"\"");
+        return escapedValue.Contains(';') || escapedValue.Contains('"') || escapedValue.Contains('\n') || escapedValue.Contains('\r')
+            ? $"\"{escapedValue}\""
+            : escapedValue;
+    }
+
     [HttpPost]
-    public async Task<IActionResult> CreateSubPlatform([FromForm] CreateSubPlatformDto dto) 
+    public async Task<IActionResult> CreateSubPlatform([FromBody]CreateSubPlatformDto dto) 
     {
         if (!ModelState.IsValid)
             return BadRequest("Ongeldige invoer");

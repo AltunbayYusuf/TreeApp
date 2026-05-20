@@ -15,6 +15,10 @@ namespace IntegratieProject.DAL.Ef;
 
 public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
 {
+    public TreeDbContext(DbContextOptions<TreeDbContext> options) : base(options)
+    {
+    }
+    
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     public DbSet<GeneralAdmin> GeneralAdmins { get; set; }

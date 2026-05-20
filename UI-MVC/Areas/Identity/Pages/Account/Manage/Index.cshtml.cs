@@ -1,13 +1,12 @@
 // Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-
 
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using IntegratieProject.DAL.Identity; 
-using IntegratieProject.BL.interfaces; 
+using IntegratieProject.DAL.Identity;
+using IntegratieProject.BL.interfaces;
+using IntegratieProject.UI.MVC.Services;
 
 namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account.Manage
 {
@@ -15,28 +14,26 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly ISubplatformManager _subplatformManager;
+        private readonly IGoogleCloudStorageService _googleCloudStorageService;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            IWebHostEnvironment webHostEnvironment,
-            ISubplatformManager subplatformManager)
+            ISubplatformManager subplatformManager,
+            IGoogleCloudStorageService googleCloudStorageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _webHostEnvironment = webHostEnvironment;
             _subplatformManager = subplatformManager;
+            _googleCloudStorageService = googleCloudStorageService;
         }
 
         public string Username { get; set; }
 
-        [TempData]
-        public string StatusMessage { get; set; }
+        [TempData] public string StatusMessage { get; set; }
 
-        [BindProperty]
-        public InputModel Input { get; set; }
+        [BindProperty] public InputModel Input { get; set; }
 
         public class InputModel
         {
@@ -44,8 +41,7 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account.Manage
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
 
-            [Display(Name = "Subplatform Logo")]
-            public IFormFile LogoFile { get; set; }
+            [Display(Name = "Subplatform Logo")] public IFormFile LogoFile { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -86,31 +82,42 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account.Manage
                 await LoadAsync(user);
                 return Page();
             }
-            
 
             if (Input.LogoFile != null && Input.LogoFile.Length > 0)
             {
-                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "logos");
-                Directory.CreateDirectory(uploadsFolder); 
-
-                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(Input.LogoFile.FileName);
-                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                // VERDACHTE 1: Is de slug wel ingevuld voor deze gebruiker?
+                if (string.IsNullOrEmpty(user.SubPlatformSlug))
                 {
-                    await Input.LogoFile.CopyToAsync(fileStream);
+                    ModelState.AddModelError(string.Empty,
+                        "Fout: Je account is niet gekoppeld aan een subplatform (SubPlatformSlug is leeg in de database).");
+                    await LoadAsync(user);
+                    return Page();
                 }
 
-                string logoUri = $"/images/logos/{uniqueFileName}";
-        
-                if (!string.IsNullOrEmpty(user.SubPlatformSlug))
+                try
                 {
+                    string logoUri = await _googleCloudStorageService.UploadProjectMediaAsync(
+                        Input.LogoFile,
+                        user.SubPlatformSlug
+                    );
+
                     _subplatformManager.UpdateSubPlatformLogo(user.SubPlatformSlug, logoUri);
+
+                    StatusMessage = "Je profiel en logo zijn succesvol bijgewerkt!";
                 }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, $"GCS Fout: {ex.Message}");
+                    await LoadAsync(user);
+                    return Page();
+                }
+            }
+            else
+            {
+                StatusMessage = "Je profiel is bijgewerkt (geen nieuw logo geselecteerd).";
             }
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
     }
