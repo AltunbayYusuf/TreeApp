@@ -57,7 +57,12 @@ public class ReactionManager : IReactionManager
             };
         }
 
-        var moderation = await _aiModerationService.ModerateReactionAsync(safeText);
+        var subPlatformId = idea.Topic?.Project?.SubPlatformId;
+
+        var moderation = await _aiModerationService.ModerateReactionAsync(
+            safeText,
+            subPlatformId
+        );
 
         if (moderation.AiUnavailable)
         {

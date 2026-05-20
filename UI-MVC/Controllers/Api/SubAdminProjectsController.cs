@@ -1,5 +1,6 @@
 using System.Text.Json;
 using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Models.Dto;
@@ -13,26 +14,30 @@ namespace IntegratieProject.UI.MVC.Controllers.Api;
 [Route("api/subadmin-projects")]
 public class SubAdminProjectsController : ControllerBase
 {
-    
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
     private readonly IAiIdeaSelectionService _aiIdeaSelectionService;
-    
+    private readonly ISubplatformManager _subplatformManager;
 
-    public SubAdminProjectsController(IAiSurveyGenerationService aiSurveyGenerationService, IAiSummaryIdeas aiSummaryIdeas,  IAiIdeaSelectionService aiIdeaSelectionService)
+    public SubAdminProjectsController(
+        IAiSurveyGenerationService aiSurveyGenerationService,
+        IAiSummaryIdeas aiSummaryIdeas,
+        IAiIdeaSelectionService aiIdeaSelectionService,
+        ISubplatformManager subplatformManager)
     {
         _aiSurveyGenerationService = aiSurveyGenerationService;
         _aiSummaryIdeas = aiSummaryIdeas;
         _aiIdeaSelectionService = aiIdeaSelectionService;
-        
+        _subplatformManager = subplatformManager;
     }
-    
+
     private const string SurveyKey = "CreateProject_Survey";
 
     [HttpPost("survey")]
     public IActionResult SaveSurvey([FromBody] SaveSurveyRequestDto request)
     {
         var subplatform = HttpContext.Items["subplatform"]?.ToString() ?? "";
+
         var vm = new CreateProjecSurveyViewModel
         {
             SubplatformSlug = subplatform,
@@ -79,7 +84,7 @@ public class SubAdminProjectsController : ControllerBase
             redirectUrl = Url.Action("CreateIdeation", "SubAdminProjects", new { subplatform })
         });
     }
-    
+
     [HttpPost("survey/ai")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateSurvey([FromBody] GenerateSurveyRequest request)
@@ -93,9 +98,13 @@ public class SubAdminProjectsController : ControllerBase
             });
         }
 
+        var subplatform = HttpContext.Items["subplatform"]?.ToString() ?? "";
+        var subplatformEntity = _subplatformManager.GetSubPlatformBySlug(subplatform);
+
         var survey = await _aiSurveyGenerationService.GenerateSurveyAsync(
             request.Description,
-            request.QuestionAmount
+            request.QuestionAmount,
+            subplatformEntity?.Id
         );
 
         return Ok(new
@@ -105,11 +114,12 @@ public class SubAdminProjectsController : ControllerBase
             message = "Vragenlijst gegenereerd."
         });
     }
-    
+
     [HttpPost("summary")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateProjectSummary(
-        string subplatform, [FromBody] GenerateProjectSummaryDto dto)
+        string subplatform,
+        [FromBody] GenerateProjectSummaryDto dto)
     {
         if (dto == null || dto.ProjectId <= 0)
         {
@@ -128,7 +138,7 @@ public class SubAdminProjectsController : ControllerBase
             summary
         });
     }
-    
+
     [HttpPost("idea-selection")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateIdeaSelection(
@@ -189,5 +199,4 @@ public class SubAdminProjectsController : ControllerBase
             });
         }
     }
-    
 }
