@@ -18,9 +18,12 @@ function getProjectInfoElements() {
         nameInput: document.getElementById("Name") as HTMLInputElement | null,
         introductionInput: document.getElementById("Introduction") as HTMLTextAreaElement | null,
         generateImageButton: document.getElementById("generateProjectImageButton") as HTMLButtonElement | null,
+        introMediaUpload: document.getElementById("IntroMediaUpload") as HTMLInputElement | null,
+        introMediaType: document.getElementById("IntroMediaType") as HTMLSelectElement | null,
+        introMediaUploadStatus: document.getElementById("introMediaUploadStatus") as HTMLElement | null,
         imagePreview: document.getElementById("projectImagePreview") as HTMLImageElement | null,
         imageStatus: document.getElementById("projectImageStatus") as HTMLDivElement | null,
-        generatedPhotoUrlInput: document.getElementById("PhotoUri") as HTMLInputElement | null,
+        generatedPhotoUrlInput: document.getElementById("IntroMediaUri") as HTMLInputElement | null,
         generateIntroductionButton: document.getElementById("generateIntroductionButton") as HTMLButtonElement | null,
     };
 }
@@ -136,8 +139,42 @@ async function generateIntroduction(): Promise<void> {
     }
 }
 
+function updateIntroMediaUploadStatus(): void {
+    const {
+        introMediaUpload,
+        introMediaType,
+        introMediaUploadStatus,
+        imagePreview,
+        imageStatus,
+        generatedPhotoUrlInput
+    } = getProjectInfoElements();
+
+    if (!introMediaUpload || !introMediaUploadStatus) return;
+
+    const file = introMediaUpload.files?.[0] ?? null;
+
+    if (!file) {
+        introMediaUploadStatus.style.display = "none";
+        introMediaUploadStatus.textContent = "";
+        return;
+    }
+
+    const isVideo = file.type.startsWith("video/") || introMediaType?.value === "Video";
+    introMediaUploadStatus.textContent = `${isVideo ? "Video" : "Foto"} gekozen: ${file.name}`;
+    introMediaUploadStatus.style.display = "block";
+
+    if (generatedPhotoUrlInput) generatedPhotoUrlInput.value = "";
+    if (imageStatus) imageStatus.textContent = "Bestand gekozen. Opslaan om te uploaden.";
+
+    if (!isVideo && imagePreview) {
+        imagePreview.src = URL.createObjectURL(file);
+        imagePreview.classList.remove("d-none");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    const {generateImageButton, generateIntroductionButton} = getProjectInfoElements();
+    const {generateImageButton, generateIntroductionButton, introMediaUpload} = getProjectInfoElements();
     generateImageButton?.addEventListener("click", generateProjectImage);
     generateIntroductionButton?.addEventListener("click", generateIntroduction);
+    introMediaUpload?.addEventListener("change", updateIntroMediaUploadStatus);
 });

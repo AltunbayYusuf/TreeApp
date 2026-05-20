@@ -67,6 +67,7 @@ export class IdeaCreator {
         const imageInput = document.getElementById("idea-image") as HTMLInputElement | null;
         const previewWrapper = document.getElementById("idea-image-preview-wrapper") as HTMLDivElement | null;
         const previewImage = document.getElementById("idea-image-preview") as HTMLImageElement | null;
+        const uploadStatus = document.getElementById("idea-image-upload-status") as HTMLElement | null;
 
         if (!imageInput) {
             return;
@@ -79,6 +80,10 @@ export class IdeaCreator {
             if (previewWrapper) {
                 previewWrapper.style.display = "none";
             }
+            if (uploadStatus) {
+                uploadStatus.style.display = "none";
+                uploadStatus.textContent = "";
+            }
             return;
         }
 
@@ -89,11 +94,19 @@ export class IdeaCreator {
             imageInput.value = "";
             this.imageFile = null;
             previewWrapper.style.display = "none";
+            if (uploadStatus) {
+                uploadStatus.style.display = "none";
+                uploadStatus.textContent = "";
+            }
             return;
         }
 
         previewImage.src = URL.createObjectURL(file);
         previewWrapper.style.display = "block";
+        if (uploadStatus) {
+            uploadStatus.textContent = `Foto gekozen: ${file.name}`;
+            uploadStatus.style.display = "block";
+        }
     }
 
     private startSpeechToText(): void {
