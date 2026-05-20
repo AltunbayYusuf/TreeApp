@@ -4,6 +4,7 @@ using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -14,6 +15,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
     private readonly IAiProvider _aiProvider;
     private readonly IAiUsageRepository _aiUsageRepository;
     private readonly IAiRepository _aiRepository;
+    private readonly AiModelSettings _aiModelSettings;
 
     private const int MaxIdeas = 40;
     private const int MaxReactionsPerIdea = 5;
@@ -24,13 +26,15 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
         IAiPromptService promptService,
         IAiProvider aiProvider,
         IAiUsageRepository aiUsageRepository,
-        IAiRepository aiRepository)
+        IAiRepository aiRepository,
+        IOptions<AiModelSettings> aiModelSettings)
     {
         _ideaRepository = ideaRepository;
         _promptService = promptService;
         _aiProvider = aiProvider;
         _aiUsageRepository = aiUsageRepository;
         _aiRepository = aiRepository;
+        _aiModelSettings = aiModelSettings.Value;
     }
 
     public async Task<string> GenerateIdeaSelectionAsync(int projectId, string selectionMode)
@@ -76,7 +80,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
             _aiUsageRepository.AddUsage(new AiUsage
             {
                 Feature = "IdeaSelection",
-                Model = "gemini-2.5-flash-lite",
+                Model = _aiModelSettings.ModerationModel,
                 Success = true
             });
 
@@ -87,7 +91,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
             _aiUsageRepository.AddUsage(new AiUsage
             {
                 Feature = "IdeaSelection",
-                Model = "gemini-2.5-flash-lite",
+                Model = _aiModelSettings.ModerationModel,
                 Success = false,
                 ErrorMessage = ex.Message
             });

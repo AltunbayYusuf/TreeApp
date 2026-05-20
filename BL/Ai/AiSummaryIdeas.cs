@@ -5,6 +5,7 @@ using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -16,7 +17,8 @@ public class AiSummaryIdeas : IAiSummaryIdeas
     private readonly IAiProvider _aiProvider;
     private readonly IAiUsageRepository _aiUsageRepository;
     private readonly IAiRepository _aiRepository;
-
+    private readonly AiModelSettings _aiModelSettings;
+    
     private const int MaxIdeas = 40;
     private const int MaxReactionsPerIdea = 5;
     private const int MaxSurveyResponses = 50;
@@ -29,7 +31,8 @@ public class AiSummaryIdeas : IAiSummaryIdeas
         IAiPromptService promptService,
         IAiProvider aiProvider,
         IAiUsageRepository aiUsageRepository,
-        IAiRepository aiRepository)
+        IAiRepository aiRepository,
+        IOptions<AiModelSettings> aiModelSettings)
     {
         _ideaRepository = ideaRepository;
         _surveyRepository = surveyRepository;
@@ -37,6 +40,7 @@ public class AiSummaryIdeas : IAiSummaryIdeas
         _aiProvider = aiProvider;
         _aiUsageRepository = aiUsageRepository;
         _aiRepository = aiRepository;
+        _aiModelSettings = aiModelSettings.Value;
     }
 
     public async Task<string> GenerateProjectTrendSummaryAsync(int projectId)
@@ -64,7 +68,7 @@ public class AiSummaryIdeas : IAiSummaryIdeas
             _aiUsageRepository.AddUsage(new AiUsage
             {
                 Feature = "ProjectTrendSummary",
-                Model = "gemini-2.5-flash-lite",
+                Model = _aiModelSettings.ModerationModel,
                 Success = true
             });
 
@@ -75,7 +79,7 @@ public class AiSummaryIdeas : IAiSummaryIdeas
             _aiUsageRepository.AddUsage(new AiUsage
             {
                 Feature = "ProjectTrendSummary",
-                Model = "gemini-2.5-flash-lite",
+                Model = _aiModelSettings.ModerationModel,
                 Success = false,
                 ErrorMessage = ex.Message
             });
@@ -187,7 +191,7 @@ public class AiSummaryIdeas : IAiSummaryIdeas
         _aiUsageRepository.AddUsage(new AiUsage
         {
             Feature = "OpenQuestionSummary",
-            Model = "gemini-2.5-flash-lite",
+            Model = _aiModelSettings.ModerationModel,
             Success = true
         });
 

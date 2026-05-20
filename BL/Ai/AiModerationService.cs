@@ -2,6 +2,7 @@
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -10,15 +11,18 @@ public class AiModerationService : IAiModerationService
     private readonly IAiProvider _aiProvider;    
     private readonly IAiPromptService _promptService;
     private readonly IAiUsageRepository _aiUsageRepository;
+    private readonly AiModelSettings _aiModelSettings;
 
     public AiModerationService(
         IAiProvider aiProvider, 
         IAiPromptService promptService, 
-        IAiUsageRepository aiUsageRepository)
+        IAiUsageRepository aiUsageRepository,
+        IOptions<AiModelSettings> aiModelSettings)
     {
         _aiProvider = aiProvider;
         _promptService = promptService;
         _aiUsageRepository = aiUsageRepository;
+        _aiModelSettings = aiModelSettings.Value;
     }
 
     public async Task<ToxicityResult> ModerateIdeaAsync(string title, string text)
@@ -66,7 +70,7 @@ public class AiModerationService : IAiModerationService
             _aiUsageRepository.AddUsage(new AiUsage
             {
                 Feature = "Moderation",
-                Model = "gemini-2.5-flash-lite",
+                Model = _aiModelSettings.ModerationModel,
                 Success = true
             });
 
@@ -88,7 +92,7 @@ public class AiModerationService : IAiModerationService
             _aiUsageRepository.AddUsage(new AiUsage
             {
                 Feature = "Moderation",
-                Model = "gemini-2.5-flash-lite",
+                Model = _aiModelSettings.ModerationModel,
                 Success = false,
                 ErrorMessage = ex.Message
             });
