@@ -443,8 +443,7 @@ public class IdeasController : ControllerBase
             });
         }
 
-        var allowedModes = new[] { "similar", "different", "broad" };
-
+        var allowedModes = new[] { "different" };
         if (!allowedModes.Contains(dto.SelectionMode))
         {
             return BadRequest(new

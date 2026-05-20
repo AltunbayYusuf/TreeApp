@@ -153,7 +153,7 @@ public class SubAdminProjectsController : ControllerBase
             });
         }
 
-        var allowedModes = new[] { "similar", "different", "broad" };
+        var allowedModes = new[] { "different" };
 
         if (!allowedModes.Contains(dto.SelectionMode))
         {

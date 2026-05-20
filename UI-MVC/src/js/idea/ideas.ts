@@ -1,6 +1,6 @@
 // ideas/ideas.ts
 
-type IdeaFilter = "all" | "mine" | "similar" | "different" | "broad";
+type IdeaFilter = "all" | "mine" | "different";
 
 interface IdeaSelectionGroup {
     title: string;
@@ -40,7 +40,7 @@ export class IdeaViewer {
         const button = event.currentTarget as HTMLElement | null;
         const nextFilter = button?.dataset.ideaFilter as IdeaFilter;
 
-        if (!["all", "mine", "similar", "different", "broad"].includes(nextFilter)) {
+        if (!["all", "mine", "different"].includes(nextFilter)) {
             return;
         }
 
@@ -48,7 +48,7 @@ export class IdeaViewer {
         this.visibleCount = 2;
         this.updateFilterButtons();
 
-        if (nextFilter !== "all" && nextFilter !== "mine" && !this.aiSelections.has(nextFilter)) {
+        if (nextFilter === "different" && !this.aiSelections.has(nextFilter)) {
             await this.fetchAiSelection(nextFilter);
         }
 
@@ -56,7 +56,7 @@ export class IdeaViewer {
     }
 
     private async fetchAiSelection(mode: IdeaFilter): Promise<void> {
-        if (this.projectId <= 0) {
+        if (this.projectId <= 0 || mode !== "different") {
             return;
         }
 
@@ -88,7 +88,7 @@ export class IdeaViewer {
             filteredIdeas = ideas.filter((idea) => idea.dataset.ownIdea === "true");
         }
 
-        if (this.activeFilter === "similar" || this.activeFilter === "different" || this.activeFilter === "broad") {
+        if (this.activeFilter === "different") {
             filteredIdeas = this.getAiOrderedIdeas(ideas, this.activeFilter);
         }
 
@@ -116,14 +116,13 @@ export class IdeaViewer {
         const usedIdeaIds = new Set<number>();
 
         selection.groups.forEach((group) => {
-            group.ideaIds.forEach((ideaId) => {
-                const idea = ideas.find((element) => Number(element.dataset.ideaId) === ideaId);
+            const ideaId = group.ideaIds[0];
+            const idea = ideas.find((element) => Number(element.dataset.ideaId) === ideaId);
 
-                if (idea && !usedIdeaIds.has(ideaId)) {
-                    orderedIdeas.push(idea);
-                    usedIdeaIds.add(ideaId);
-                }
-            });
+            if (idea && !usedIdeaIds.has(ideaId)) {
+                orderedIdeas.push(idea);
+                usedIdeaIds.add(ideaId);
+            }
         });
 
         return orderedIdeas;
