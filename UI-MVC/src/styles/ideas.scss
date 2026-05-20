@@ -63,7 +63,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    background: rgba(99,102,241,0.08);
+    background: rgba(99, 102, 241, 0.08);
     color: var(--echo-primary);
     font-size: 0.75rem;
     font-weight: 700;
@@ -160,7 +160,7 @@
 
   &:focus {
     border-color: var(--echo-primary);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
   }
 }
 
@@ -168,7 +168,7 @@
   font-size: 0.87rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.4rem;
-  background: rgba(16,185,129,0.08);
+  background: rgba(16, 185, 129, 0.08);
   color: #065f46;
   border-left: 3px solid var(--echo-success);
 }
@@ -205,6 +205,8 @@
   box-shadow: var(--echo-shadow-md);
   overflow: hidden;
 }
+
+
 
 .create-idea-header {
   background: linear-gradient(135deg, var(--echo-primary) 0%, var(--echo-secondary) 100%);
