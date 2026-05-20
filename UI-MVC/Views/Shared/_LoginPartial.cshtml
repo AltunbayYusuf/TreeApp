@@ -10,10 +10,7 @@
 <ul class="navbar-nav">
     @if (SignInManager.IsSignedIn(User))
     {
-        <li class="nav-item">
-            <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
-               title="Beheer account">👤 @UserManager.GetUserName(User)</a>
-        </li>
+      
         @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
         {
             <li class="nav-item">
@@ -45,6 +42,10 @@
                   method="post">
                 <button type="submit" class="nav-link btn btn-link">Uitloggen</button>
             </form>
+        </li>
+        <li class="nav-item">
+            <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
+               title="Beheer account">👤 @UserManager.GetUserName(User)</a>
         </li>
     }
     else
