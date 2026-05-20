@@ -92,7 +92,7 @@ public class PlatformController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateSubPlatform([FromForm] CreateSubPlatformDto dto) 
+    public async Task<IActionResult> CreateSubPlatform([FromBody]CreateSubPlatformDto dto) 
     {
         if (!ModelState.IsValid)
             return BadRequest("Ongeldige invoer");
