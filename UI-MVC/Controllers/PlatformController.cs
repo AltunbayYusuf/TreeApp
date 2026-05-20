@@ -92,27 +92,25 @@ public class PlatformController : Controller
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateSubPlatform([FromBody] CreateSubPlatformDto dto)
+    public async Task<IActionResult> CreateSubPlatform([FromForm] CreateSubPlatformDto dto) 
     {
-        if (dto == null)
-            return BadRequest("DTO is null - JSON binding failed");
-
         if (!ModelState.IsValid)
-            return BadRequest(ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Ongeldige invoer");
+            return BadRequest("Ongeldige invoer");
 
         try
         {
             var generatedPassword = await _subplatformManager.CreateSubPlatformAsync(
                 dto.CompanyName,
                 dto.Slug,
-                dto.AdminEmail
+                dto.AdminEmail,
+                dto.LogoFile 
             );
 
             return Ok(new { password = generatedPassword });
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message); 
+            return BadRequest(ex.Message);
         }
     }
 }

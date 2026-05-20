@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 
 namespace IntegratieProject.UI.MVC.Models.Dto;
@@ -9,4 +10,5 @@ public class NewSubPlatformDto
     public string CompanyName { get; set; }
     public Platform Platform { get; set; }
     public Language Language { get; set; }
+    Media Logo { get; set; }
 }

@@ -158,9 +158,12 @@
             <div class="sidebar-user-row">
                 <div class="sidebar-avatar">@userInitial</div>
                 <div>
-                    <div class="sidebar-user-name">@userName</div>
+                    <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
+                       title="Beheer account">@userName</a>
                     <div class="sidebar-user-role">@(isSubAdmin ? "Sub Admin" : "Generaal Admin")</div>
                 </div>
+                <a id="manageIcon" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
+                   title="Beheer account">⚙️</a>
             </div>
             <form asp-area="Identity"
                   asp-page="/Account/Logout"
@@ -169,6 +172,7 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="sidebar-logout-btn">&#8617; Uitloggen</button>
             </form>
+          
         </div>
 
     </aside>

@@ -5,13 +5,17 @@ namespace IntegratieProject.UI.MVC.Models;
 
 public class CreateProjectInfoViewModel : IValidatableObject
 {
+    public const string DefaultFontFamily = "Inter";
+
     public static readonly string[] AllowedFontFamilies =
     {
-        "Inter",
+        DefaultFontFamily,
         "Arial",
         "Georgia",
         "Verdana",
-        "Trebuchet MS"
+        "Trebuchet MS",
+        "Pacifico",
+        "Bubblegum Sans"
     };
 
     public string SubplatformSlug { get; set; } = "";
@@ -29,13 +33,13 @@ public class CreateProjectInfoViewModel : IValidatableObject
 
     public IFormFile? IntroMediaUpload { get; set; }
 
-    public string? IntroMediaUri { get; set; }
+    public string IntroMediaUri { get; set; }
 
     public ProjectIntroMediaType IntroMediaType { get; set; } = ProjectIntroMediaType.Image;
 
     [Required(ErrorMessage = "Lettertype is verplicht.")]
     [MaxLength(50)]
-    public string FontFamily { get; set; } = "Inter";
+    public string FontFamily { get; set; } = DefaultFontFamily;
 
     public ProjectType Type { get; set; } = ProjectType.VerticalScroll;
 

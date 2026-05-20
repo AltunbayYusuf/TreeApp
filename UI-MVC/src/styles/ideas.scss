@@ -18,7 +18,7 @@
 }
 
 .ideas-filter-bar {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 1rem 1.25rem;
@@ -32,7 +32,7 @@
 
 // ── Idee kaart ────────────────────────────────────────────────────────────────
 .idea-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 1.25rem 1.5rem;
@@ -63,7 +63,7 @@
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    background: rgba(99,102,241,0.08);
+    background: rgba(99, 102, 241, 0.08);
     color: var(--echo-primary);
     font-size: 0.75rem;
     font-weight: 700;
@@ -160,7 +160,7 @@
 
   &:focus {
     border-color: var(--echo-primary);
-    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
   }
 }
 
@@ -168,7 +168,7 @@
   font-size: 0.87rem;
   padding: 0.5rem 0.75rem;
   border-radius: 0.4rem;
-  background: rgba(16,185,129,0.08);
+  background: rgba(16, 185, 129, 0.08);
   color: #065f46;
   border-left: 3px solid var(--echo-success);
 }
@@ -199,12 +199,14 @@
 }
 
 .create-idea-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius-lg);
   box-shadow: var(--echo-shadow-md);
   overflow: hidden;
 }
+
+
 
 .create-idea-header {
   background: linear-gradient(135deg, var(--echo-primary) 0%, var(--echo-secondary) 100%);
@@ -246,4 +248,23 @@
   background: rgba(245, 158, 11, 0.1);
   color: #92400e;
   border-left-color: #f59e0b;
+}
+
+[data-bs-theme="dark"] {
+
+  .idea-item-own {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.4);
+    box-shadow: none;
+  }
+
+  .reactions-list li {
+    background: var(--echo-bg);
+    color: var(--echo-text);
+  }
+
+  .reaction-own-badge {
+    background: rgba(29, 78, 216, 0.3);
+    color: #93c5fd;
+  }
 }

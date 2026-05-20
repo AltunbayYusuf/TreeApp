@@ -17,10 +17,12 @@
 </a>
 
 <h2 class="text-center mt-4">
-    @if (Model.Project?.Logo != null)
+    
+    @if (Model.Project?.SubPlatform.Logo != null)
     {
-        <img src="@Model.Project.Logo.Uri" alt="Logo" class="w-52 h-40">
+        <img src="@Model.Project.SubPlatform.Logo.Uri" alt="Logo" class="w-52 h-40 bg-light p-2 rounded" data-bs-theme="light">
     }
+   
 </h2>
 
 <form asp-controller="Survey"
@@ -69,11 +71,11 @@
                         <div class="mb-3">
                             @if (question.QuestionType.ToString() == "SingleChoice")
                             {
-                                <span class="badge bg-light text-dark">[ SINGLE CHOICE ]</span>
+                                <span class="badge text-bg-light">[ SINGLE CHOICE ]</span>
                             }
                             else if (question.QuestionType.ToString() == "MultipleChoice")
                             {
-                                <span class="badge bg-light text-dark">[ MULTIPLE CHOICE ]</span>
+                                <span class="badge text-bg-light">[ MULTIPLE CHOICE ]</span>
                             }
                         </div>
 

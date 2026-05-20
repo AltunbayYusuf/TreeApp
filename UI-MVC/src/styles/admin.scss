@@ -29,7 +29,7 @@
 
 // ── Stat cards ────────────────────────────────────────────────────────────────
 .stat-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 1.5rem;
@@ -69,7 +69,7 @@
 
 // ── Admin table ───────────────────────────────────────────────────────────────
 .admin-table-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   box-shadow: var(--echo-shadow);
@@ -79,7 +79,7 @@
 .admin-filter-bar {
   padding: 1rem 1.25rem;
   border-bottom: 1px solid var(--echo-border);
-  background: #fafbfc;
+  background: var(--echo-bg);
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
@@ -149,7 +149,7 @@
 
 // ── Admin form cards ──────────────────────────────────────────────────────────
 .admin-form-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius-lg);
   padding: 2rem;
@@ -176,7 +176,7 @@
   border-radius: var(--echo-radius-lg);
   padding: 2.5rem 1.5rem;
   text-align: center;
-  background: #fafbfc;
+  background: var(--echo-bg);
   transition: border-color 0.2s, background 0.2s;
 
   &:hover {
@@ -215,7 +215,7 @@
     padding: 1.5rem;
     height: 100%;
     transition: all 0.2s ease;
-    background: #fff;
+    background: var(--echo-card-bg);
 
     &:hover {
       border-color: var(--echo-primary);
@@ -304,7 +304,7 @@
 
 // ── Topic kaarten (ideation) ──────────────────────────────────────────────────
 .topic-card {
-  background: #fafbfc;
+  background: var(--echo-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 1.25rem;
@@ -331,7 +331,7 @@
   border: 2px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 0.75rem 1.25rem;
-  background: #fff;
+  background: var(--echo-card-bg);
   cursor: pointer;
   font-size: 1.75rem;
   width: 100%;
@@ -352,7 +352,7 @@
 
 // ── Survey builder section (createSurvey) ─────────────────────────────────────
 .survey-builder-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius-lg);
   padding: 1.75rem;
@@ -374,7 +374,7 @@
 }
 
 .moderation-list-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   overflow: hidden;
@@ -383,7 +383,7 @@
   .mod-list-header {
     padding: 1rem 1.25rem;
     border-bottom: 1px solid var(--echo-border);
-    background: #fafbfc;
+    background: var(--echo-bg);
 
     h2 {
       font-size: 0.95rem;
@@ -446,7 +446,7 @@
 }
 
 .moderation-detail-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   box-shadow: var(--echo-shadow);
@@ -458,7 +458,7 @@
 .mod-detail-header {
   padding: 1.25rem 1.5rem;
   border-bottom: 1px solid var(--echo-border);
-  background: #fafbfc;
+  background: var(--echo-bg);
 }
 
 .mod-detail-body {
@@ -505,7 +505,7 @@
   padding: 0.45rem 1rem;
   border-radius: 0.5rem;
   border: 1px solid var(--echo-border);
-  background: #fff;
+  background: var(--echo-card-bg);
   color: var(--echo-muted);
   text-decoration: none;
   transition: all 0.15s;

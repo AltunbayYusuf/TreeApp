@@ -10,7 +10,7 @@ public interface ISubplatformRepository
     Platform ReadPlatform();
 
     void CreateSubPlatform(SubPlatform subPlatform);
-
     void CreateSubAdmin(SubAdmin subAdmin);
-
+    
+    void UpdateSubPlatform(SubPlatform subPlatform);
 }
