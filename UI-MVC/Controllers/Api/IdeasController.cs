@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.Authorization;

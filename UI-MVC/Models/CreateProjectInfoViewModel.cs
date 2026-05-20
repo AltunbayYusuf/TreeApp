@@ -29,7 +29,7 @@ public class CreateProjectInfoViewModel : IValidatableObject
 
     public IFormFile? IntroMediaUpload { get; set; }
 
-    public string? IntroMediaUri { get; set; }
+    public string IntroMediaUri { get; set; }
 
     public ProjectIntroMediaType IntroMediaType { get; set; } = ProjectIntroMediaType.Image;
 

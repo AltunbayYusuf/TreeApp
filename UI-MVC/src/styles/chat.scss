@@ -1,15 +1,29 @@
 // ── Chatbot survey – custom styles (Bootstrap verzorgt de layout) ──────────
 :root {
-  --chat-primary:     #3498db;
-  --chat-primary-dk:  #2980b9;
+  --chat-primary: #3498db;
+  --chat-primary-dk: #2980b9;
   --chat-primary-rgb: 52, 152, 219;
-  --chat-bot-bg:      #f0f4f8;
-  --chat-user-bg:     #3498db;
-  --chat-user-text:   #ffffff;
-  --chat-page-bg:     #eef2f7;
-  --chat-radius:      18px;
-  --chat-radius-sm:   8px;
-  --chat-shadow:      0 4px 24px rgba(0, 0, 0, 0.10);
+  --chat-bot-bg: #f0f4f8;
+  --chat-user-bg: #3498db;
+  --chat-user-text: #ffffff;
+  --chat-page-bg: #eef2f7;
+  --chat-radius: 18px;
+  --chat-radius-sm: 8px;
+  --chat-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+
+  --chat-input-bg: #ffffff;
+  --chat-btn-bg: #f8fafc;
+  --chat-btn-border: #d1d9e3;
+}
+
+[data-bs-theme="dark"] {
+  --chat-page-bg: var(--echo-bg);
+  --chat-bot-bg: var(--echo-card-bg);
+  --chat-user-text: #ffffff;
+
+  --chat-input-bg: #1e293b; 
+  --chat-btn-bg: #334155;  
+  --chat-btn-border: #475569; 
 }
 
 // ── Pagina-wrapper ─────────────────────────────────────────────────────────
@@ -55,8 +69,12 @@
 }
 
 @keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 // ── Chat venster (custom hoogte, padding, scrollbar en achtergrond) ────────
@@ -70,9 +88,18 @@
   gap: 0.75rem;
   scroll-behavior: smooth;
 
-  &::-webkit-scrollbar        { width: 5px; }
-  &::-webkit-scrollbar-track  { background: transparent; }
-  &::-webkit-scrollbar-thumb  { background: #c8d0da; border-radius: 10px; }
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #c8d0da;
+    border-radius: 10px;
+  }
 }
 
 // ── Berichtjes ─────────────────────────────────────────────────────────────
@@ -84,8 +111,14 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .chat-avatar {
@@ -105,7 +138,7 @@
 
 .bot-bubble {
   background: var(--chat-bot-bg);
-  color: #2c3e50;
+  color: var(--echo-text);
   border-bottom-left-radius: 4px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
@@ -129,29 +162,44 @@
     display: inline-block;
     animation: bounce 1.2s infinite ease-in-out;
 
-    &:nth-child(1) { animation-delay: 0s; }
-    &:nth-child(2) { animation-delay: 0.2s; }
-    &:nth-child(3) { animation-delay: 0.4s; }
+    &:nth-child(1) {
+      animation-delay: 0s;
+    }
+
+    &:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    &:nth-child(3) {
+      animation-delay: 0.4s;
+    }
   }
 }
 
 @keyframes bounce {
-  0%, 80%, 100% { transform: translateY(0); }
-  40%            { transform: translateY(-8px); }
+  0%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
 }
 
-// ── Input gebied (custom padding, border en min-hoogte) ────────────────────
+// ── Input gebied ───────────────────────────────────────────────────────────
 .chatbot-input-area {
   padding: 1rem 1.5rem 1.25rem;
-  border-top: 1px solid #e4e9f0;
+  border-top: 1px solid var(--chat-btn-border); 
+  background: var(--chat-input-bg);             
+  border-bottom-left-radius: 16px;             
+  border-bottom-right-radius: 16px;
   min-height: 72px;
 }
 
-// ── Keuze-knoppen (custom border, achtergrond, hover en selected-staat) ────
+// ── Keuze-knoppen ──────────────────────────────────────────────────────────
 .chat-opt-btn {
-  border: 2px solid #d1d9e3;
-  background: #f8fafc;
-  color: #2c3e50;
+  border: 2px solid var(--chat-btn-border);
+  background: var(--chat-btn-bg);           
+  color: var(--echo-text);
   border-radius: 999px;
   padding: 0.45rem 1.1rem;
   font-size: 0.9rem;
@@ -172,29 +220,16 @@
   }
 }
 
-// ── Bevestig-knop (custom radius, padding en disabled-staat) ───────────────
-.chat-confirm-btn {
-  align-self: flex-start;
-  border-radius: 999px;
-  padding: 0.45rem 1.4rem;
-  font-size: 0.9rem;
-
-  &:disabled {
-    opacity: 0.45;
-    cursor: not-allowed;
-  }
-}
-
-// ── Range-knoppen (vaste grootte, hover met schaal-animatie) ───────────────
+// ── Range-knoppen ──────────────────────────────────────────────────────────
 .chat-range-btn {
   width: 52px;
   height: 52px;
-  border: 2px solid #d1d9e3;
-  background: #f8fafc;
+  border: 2px solid var(--chat-btn-border); 
+  background: var(--chat-btn-bg);          
   border-radius: var(--chat-radius-sm);
   font-weight: 700;
   font-size: 1.05rem;
-  color: #2c3e50;
+  color: var(--echo-text);
   transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.1s;
 
   &:hover {
@@ -205,28 +240,29 @@
   }
 }
 
-// ── Open vraag textarea (custom focus-state met box-shadow) ────────────────
+// ── Open vraag textarea ────────────────────────────────────────────────────
 .chat-textarea {
   width: 100%;
-  border: 2px solid #d1d9e3;
+  border: 2px solid var(--chat-btn-border); 
   border-radius: var(--chat-radius-sm);
   padding: 0.65rem 0.9rem;
   font-size: 0.95rem;
   resize: none;
-  color: #2c3e50;
-  background: #f8fafc;
+  color: var(--echo-text);
+  background: var(--chat-btn-bg);          
   transition: border-color 0.15s, box-shadow 0.15s;
 
-  &::placeholder { color: #b0bac4; }
+  &::placeholder {
+    color: #b0bac4;
+  }
 
   &:focus {
     outline: none;
     border-color: var(--chat-primary);
-    background: #fff;
+    background: var(--echo-card-bg);
     box-shadow: 0 0 0 3px rgba(var(--chat-primary-rgb), 0.12);
   }
 }
-
 // ── Verstuur-knop inline (gradient, animatie) ──────────────────────────────
 .chat-send-btn {
   align-self: flex-end;

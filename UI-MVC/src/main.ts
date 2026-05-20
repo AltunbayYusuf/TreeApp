@@ -5,6 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import './main.scss';
 
+import './js/darkmode/darkmode.ts'
 import './js/survey/index';
 import './js/survey/results';
 import './js/survey/chat';
@@ -18,3 +19,4 @@ import './js/createSurvey/project-info';
 import './js/translation/translation';
 import './js/fontSize/font-size';
 import './js/admin/newSubplatform.ts';
+

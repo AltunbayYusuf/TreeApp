@@ -1,37 +1,52 @@
 // ── Echo Design Tokens ────────────────────────────────────────────────────────
 :root {
   --font-scale: 1;
-  --echo-primary:       #6366f1;
-  --echo-primary-dark:  #4f46e5;
+  --echo-primary: #6366f1;
+  --echo-primary-dark: #4f46e5;
   --echo-primary-light: #a5b4fc;
-  --echo-secondary:     #8b5cf6;
-  --echo-success:       #10b981;
-  --echo-danger:        #ef4444;
-  --echo-warning:       #f59e0b;
-  --echo-navy:          #0f172a;
-  --echo-bg:            #f8fafc;
-  --echo-card-bg:       #ffffff;
-  --echo-border:        #e2e8f0;
-  --echo-text:          #1e293b;
-  --echo-muted:         #64748b;
-  --echo-radius:        0.75rem;
-  --echo-radius-lg:     1rem;
-  --echo-shadow:        0 1px 3px rgba(0,0,0,0.07), 0 2px 8px rgba(0,0,0,0.05);
-  --echo-shadow-md:     0 4px 20px rgba(0,0,0,0.1);
-  --echo-shadow-lg:     0 8px 32px rgba(0,0,0,0.12);
+  --echo-secondary: #8b5cf6;
+  --echo-success: #10b981;
+  --echo-danger: #ef4444;
+  --echo-warning: #f59e0b;
+  --echo-navy: #0f172a;
+  --echo-bg: #f8fafc;
+  --echo-card-bg: #ffffff;
+  --echo-border: #e2e8f0;
+  --echo-text: #29364c;
+  --echo-muted: #64748b;
+  --echo-radius: 0.75rem;
+  --echo-radius-lg: 1rem;
+  --echo-shadow: 0 1px 3px rgba(0, 0, 0, 0.07), 0 2px 8px rgba(0, 0, 0, 0.05);
+  --echo-shadow-md: 0 4px 20px rgba(0, 0, 0, 0.1);
+  --echo-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
 
   // Bootstrap overrides
-  --bs-primary:         #6366f1;
-  --bs-primary-rgb:     99, 102, 241;
-  --bs-link-color:      #6366f1;
-  --bs-link-hover-color:#4f46e5;
-  --bs-body-bg:         #f8fafc;
-  --bs-body-color:      #1e293b;
-  --bs-border-color:    #e2e8f0;
-  --bs-border-radius:   0.5rem;
-  --bs-border-radius-lg:0.75rem;
-  --bs-border-radius-xl:1rem;
+  --bs-primary: #6366f1;
+  --bs-primary-rgb: 99, 102, 241;
+  --bs-link-color: #6366f1;
+  --bs-link-hover-color: #4f46e5;
+  --bs-body-bg: #f8fafc;
+  --bs-body-color: #1e293b;
+  --bs-border-color: #e2e8f0;
+  --bs-border-radius: 0.5rem;
+  --bs-border-radius-lg: 0.75rem;
+  --bs-border-radius-xl: 1rem;
   --bs-card-border-radius: 0.75rem;
+}
+
+[data-bs-theme="dark"] {
+  --echo-bg: #0f172a;
+  --echo-card-bg: #1e293b;
+  --echo-border: #334155;
+  --echo-text: #f8fafc;
+  --echo-muted: #94a3b8;
+
+  --bs-body-bg: var(--echo-bg);
+  --bs-body-color: var(--echo-text);
+  --bs-border-color: var(--echo-border);
+  --bs-card-bg: var(--echo-card-bg);
+
+  --echo-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
 }
 
 html {
@@ -56,7 +71,9 @@ body {
   min-height: 100vh;
 }
 
-body > .container { flex: 1; }
+body > .container {
+  flex: 1;
+}
 
 // ── Buttons ───────────────────────────────────────────────────────────────────
 .btn {
@@ -77,8 +94,14 @@ body > .container { flex: 1; }
     border: none;
   }
 
-  &:active { transform: translateY(0); }
-  &:disabled { transform: none; box-shadow: none; }
+  &:active {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    transform: none;
+    box-shadow: none;
+  }
 }
 
 .btn-outline-primary {
@@ -101,7 +124,7 @@ body > .container { flex: 1; }
     background: #1e293b;
     border-color: #1e293b;
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(15,23,42,0.3);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.3);
   }
 }
 
@@ -124,7 +147,9 @@ body > .container { flex: 1; }
   transition: border-color 0.15s, box-shadow 0.15s;
   color: var(--echo-text);
 
-  &::placeholder { color: #94a3b8; }
+  &::placeholder {
+    color: #94a3b8;
+  }
 }
 
 .form-label {
@@ -193,10 +218,29 @@ body > .container { flex: 1; }
   border-radius: var(--echo-radius);
   border-left: 4px solid;
 
-  &.alert-info    { border-left-color: var(--echo-primary);   background: rgba(99,102,241,0.07); color: #3730a3; }
-  &.alert-success { border-left-color: var(--echo-success);   background: rgba(16,185,129,0.08); color: #065f46; }
-  &.alert-danger  { border-left-color: var(--echo-danger);    background: rgba(239,68,68,0.08);  color: #991b1b; }
-  &.alert-warning { border-left-color: var(--echo-warning);   background: rgba(245,158,11,0.09); color: #92400e; }
+  &.alert-info {
+    border-left-color: var(--echo-primary);
+    background: rgba(99, 102, 241, 0.07);
+    color: #3730a3;
+  }
+
+  &.alert-success {
+    border-left-color: var(--echo-success);
+    background: rgba(16, 185, 129, 0.08);
+    color: #065f46;
+  }
+
+  &.alert-danger {
+    border-left-color: var(--echo-danger);
+    background: rgba(239, 68, 68, 0.08);
+    color: #991b1b;
+  }
+
+  &.alert-warning {
+    border-left-color: var(--echo-warning);
+    background: rgba(245, 158, 11, 0.09);
+    color: #92400e;
+  }
 }
 
 // ── Modals ────────────────────────────────────────────────────────────────────
