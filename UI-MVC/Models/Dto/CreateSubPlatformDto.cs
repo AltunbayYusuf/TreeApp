@@ -8,9 +8,10 @@ public class CreateSubPlatformDto
     public string CompanyName { get; set; }
 
     [Required]
-    [RegularExpression(@"^[a-z][a-z0-9]*-[a-z0-9][a-z0-9-]*$",
-        ErrorMessage = "Slug moet beginnen met een kleine letter...")]
-    public string Slug { get; set; }
+    [RegularExpression(@"^[a-z][a-z0-9-]*$",
+        ErrorMessage = "Slug mag enkel kleine letters, cijfers en koppeltekens bevatten.")]
+    
+    public string Slug { get; set; } = string.Empty;
 
     public string AdminEmail { get; set; }
     
