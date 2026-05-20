@@ -14,7 +14,8 @@ public class GoogleCloudStorageService : IGoogleCloudStorageService
         _storageClient = StorageClient.Create();
     }
 
-    public async Task<string> UploadProjectImageAsync(IFormFile file, string subplatformSlug)
+
+    public async Task<string> UploadProjectMediaAsync(IFormFile file, string subplatformSlug)
     {
         var bucketName = _configuration["GoogleCloudStorage:BucketName"];
         var publicBaseUrl = _configuration["GoogleCloudStorage:PublicBaseUrl"];
@@ -25,15 +26,14 @@ public class GoogleCloudStorageService : IGoogleCloudStorageService
         if (string.IsNullOrWhiteSpace(publicBaseUrl))
             throw new InvalidOperationException("GoogleCloudStorage:PublicBaseUrl ontbreekt in appsettings.json.");
 
-        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".mp4", ".webm", ".mov" };
         var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
 
         if (!allowedExtensions.Contains(extension))
-            throw new InvalidOperationException("Alleen jpg, jpeg, png of webp is toegestaan.");
+            throw new InvalidOperationException("Alleen jpg, jpeg, png, webp, mp4, webm of mov is toegestaan.");
 
         var fileName = $"{Guid.NewGuid()}{extension}";
-
-        var objectName = $"projects/{subplatformSlug}/photos/{fileName}";
+        var objectName = $"projects/{subplatformSlug}/intro-media/{fileName}";
 
         await using var stream = file.OpenReadStream();
 

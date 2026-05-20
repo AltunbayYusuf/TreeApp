@@ -35,7 +35,6 @@ export class SurveyBuilder {
         }
 
         const data = sessionStorage.getItem("surveyDraft");
-
         if (!data) {
             this.createInitialSurvey();
             return;

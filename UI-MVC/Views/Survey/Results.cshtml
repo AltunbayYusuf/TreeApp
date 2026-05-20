@@ -34,8 +34,21 @@
     </div>
 
     <div class="results-actions">
-        <button type="button" class="btn results-btn-primary" id="ideeGeven">Geef een idee</button>
-        <button type="button" class="btn results-btn-secondary" id="ideeenBekijken">Bekijk andere ideeën</button>
+        <a asp-controller="Idea"
+           asp-action="Create"
+           asp-route-subplatform="@ViewBag.SubPlatformSlug"
+           asp-route-projectId="@Model.Project.Id"
+           class="btn results-btn-primary">
+            Geef een idee
+        </a>
+
+        <a asp-controller="Idea"
+           asp-action="Index"
+           asp-route-subplatform="@ViewBag.SubPlatformSlug"
+           asp-route-projectId="@Model.Project.Id"
+           class="btn results-btn-secondary">
+            Bekijk andere ideeën
+        </a>
     </div>
 
 </div>

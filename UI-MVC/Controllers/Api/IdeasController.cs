@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -111,7 +110,7 @@ public class IdeasController : ControllerBase
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
@@ -187,7 +186,7 @@ public class IdeasController : ControllerBase
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );

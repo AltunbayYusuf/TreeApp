@@ -6,7 +6,7 @@ using IntegratieProject.BL.Domain.socialeMedia;
 
 namespace IntegratieProject.BL.Domain.project;
 
-public class Project: IValidatableObject
+public class Project : IValidatableObject
 {
     public int Id { get; set; }
 
@@ -21,24 +21,22 @@ public class Project: IValidatableObject
 
     [Required(ErrorMessage = "Project must have a status")]
     public Status Status { get; set; }
-    [MaxLength(400)]
-    public string Prompt { get; set; }
-    [MaxLength(50)]
-    public string ReactionEmojiGroup { get; set; } = "👍,❤️";
+
+    [MaxLength(400)] public string Prompt { get; set; }
+    [MaxLength(50)] public string ReactionEmojiGroup { get; set; } = "👍,❤️";
     public int Duration { get; set; }
-    [MaxLength(50)]
-    public string FontFamily { get; set; } = "Inter";
+    [MaxLength(50)] public string FontFamily { get; set; } = "Inter";
     public DateTime ReleaseDate { get; set; }
 
     public ProjectType Type { get; set; }
     public Media Photo { get; set; }
-
+    public ProjectIntroMediaType IntroMediaType { get; set; } = ProjectIntroMediaType.Image;
     public int SubPlatformId { get; set; }
     public SubPlatform SubPlatform { get; set; }
     public bool HasBeenActive { get; set; }
 
     public IEnumerable<Topic> Topics { get; set; }
-    
+
     public SocialMediaPost SocialMediaPost { get; set; }
     public AiIntegration AiIntegration { get; set; }
 
@@ -46,7 +44,7 @@ public class Project: IValidatableObject
     public QuestionList QuestionList { get; set; }
 
     public ICollection<SurveyResponse> SurveyResponses { get; set; } = new List<SurveyResponse>();
-    
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (Topics == null || !Topics.Any())
