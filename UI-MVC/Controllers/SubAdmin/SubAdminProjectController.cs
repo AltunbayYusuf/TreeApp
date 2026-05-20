@@ -164,7 +164,7 @@ public class SubAdminProjectsController : Controller
         vm.IntroMediaUpload = null;
         SaveSession(InfoKey, vm);
 
-        return TryCreateProject(subplatform);
+        return await TryCreateProject(subplatform);
 
     }
 
@@ -221,7 +221,7 @@ public class SubAdminProjectsController : Controller
 
         SaveSession(IdeationKey, vm);
 
-        return TryCreateProject(subplatform);
+        return await TryCreateProject(subplatform);
     }
 
     [HttpGet]
@@ -359,7 +359,7 @@ public class SubAdminProjectsController : Controller
     };
 }
 
-    private IActionResult TryCreateProject(string subplatform)
+    private async Task<IActionResult> TryCreateProject(string subplatform)
     {
         var validationResult = ValidateProjectSessions();
         if (validationResult != null) return validationResult;
@@ -374,9 +374,9 @@ public class SubAdminProjectsController : Controller
         var draftProjectId = GetSession<int?>(DraftProjectIdKey);
 
         if (draftProjectId.HasValue)
-            return UpdateExistingDraft(draftProjectId.Value, info, survey, ideation);
+            return await UpdateExistingDraft(draftProjectId.Value, info, survey, ideation);
 
-        var project = BuildProject(info, survey, ideation, subPlatform.Id);
+        var project = await BuildProject(info, survey, ideation, subPlatform.Id);
 
         _projectManager.CreateProject(project);
 
