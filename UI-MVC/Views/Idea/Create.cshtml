@@ -129,7 +129,8 @@
                     Afbeelding toevoegen
                 </label>
 
-                <div class="border rounded-3 p-3 bg-light">
+                <div class="border border-secondary-subtle rounded-3 p-3 bg-body-secondary">
+
                     <div class="d-flex align-items-center gap-3 flex-wrap">
                         <div class="fs-2">
                             📷
@@ -140,7 +141,7 @@
                                    name="imageUpload"
                                    class="form-control"
                                    type="file"
-                                   accept="image/png,image/jpeg,image/jpg,image/webp" />
+                                   accept="image/png,image/jpeg,image/jpg,image/webp"/>
 
                             <small class="text-muted d-block mt-2">
                                 Voeg eventueel een afbeelding toe om je idee duidelijker te maken.
@@ -160,14 +161,14 @@
                         <img id="idea-image-preview"
                              src=""
                              alt="Voorbeeld afbeelding"
-                             class="img-fluid rounded-3 border shadow-sm w-75" />
+                             class="img-fluid rounded-3 border  shadow-sm w-75"/>
                     </div>
                 </div>
             </div>
 
             <input type="hidden"
                    id="idea-subplatform-slug"
-                   value="@Model.Project.SubPlatform.Slug" />
+                   value="@Model.Project.SubPlatform.Slug"/>
 
             <input type="hidden"
                    id="followUpAnswers"
@@ -175,7 +176,7 @@
                    value="" />
 
             <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="idea-contact-opt-in" />
+                <input class="form-check-input" type="checkbox" id="idea-contact-opt-in"/>
                 <label class="form-check-label fw-normal" for="idea-contact-opt-in">
                     Ik wil gecontacteerd kunnen worden over dit idee
                 </label>
@@ -183,7 +184,7 @@
 
             <div id="idea-contact-email-wrapper" class="mb-3" style="display:none;">
                 <label for="idea-contact-email" class="form-label">Jouw e-mail</label>
-                <input id="idea-contact-email" class="form-control" type="email" placeholder="jouw@email.be" />
+                <input id="idea-contact-email" class="form-control" type="email" placeholder="jouw@email.be"/>
             </div>
 
             <div id="idea-ai-message" class="mb-3" style="display:none;"></div>

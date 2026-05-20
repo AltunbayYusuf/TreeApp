@@ -128,7 +128,7 @@
 
 // ── Project topbar (Project/Index) ────────────────────────────────────────────
 .home-topbar {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border) !important;
   border-radius: var(--echo-radius) !important;
   padding: 0.875rem 1.25rem !important;

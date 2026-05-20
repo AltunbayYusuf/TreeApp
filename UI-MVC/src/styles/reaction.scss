@@ -1,6 +1,9 @@
 .reaction-emoji-btn {
-  border: 1px solid #ccc;
-  background: white;
+  /* Variabelen gebruikt in plaats van white en #ccc */
+  border: 1px solid var(--echo-border);
+  background: var(--echo-card-bg);
+  color: var(--echo-text);
+
   border-radius: 999px;
   padding: 8px 14px;
   font-size: 20px;
@@ -9,6 +12,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.reaction-emoji-btn:hover {
+  background: var(--echo-bg);
 }
 
 .reaction-emoji-btn.selected {

@@ -144,12 +144,26 @@
                 <label asp-for="FontFamily" class="form-label">
                     Lettertype <span class="text-danger">*</span>
                 </label>
-                <select asp-for="FontFamily" class="form-select">
-                    @foreach (var fontFamily in IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.AllowedFontFamilies)
-                    {
-                        <option value="@fontFamily">@fontFamily</option>
-                    }
-                </select>
+                <div class="row g-3 align-items-stretch">
+                    <div class="col-12 col-md-6">
+                        <select asp-for="FontFamily" class="form-select" id="FontFamily">
+                            @foreach (var fontFamily in IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.AllowedFontFamilies)
+                            {
+                                <option value="@fontFamily"
+                                        data-font-stack="@IntegratieProject.UI.MVC.Models.ProjectFontFamily.ToCssStack(fontFamily)">
+                                    @(fontFamily == IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.DefaultFontFamily ? $"{fontFamily} (default)" : fontFamily)
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div id="fontPreview"
+                             class="border rounded px-3 py-2 bg-light h-100 d-flex align-items-center"
+                             style="font-family: @IntegratieProject.UI.MVC.Models.ProjectFontFamily.ToCssStack(Model.FontFamily);">
+                            Dit is een Voorbeeldzin
+                        </div>
+                    </div>
+                </div>
                 <span asp-validation-for="FontFamily" class="text-danger small"></span>
             </div>
 
@@ -185,5 +199,23 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const fontSelect = document.getElementById("FontFamily");
+            const fontPreview = document.getElementById("fontPreview");
+
+            if (!fontSelect || !fontPreview) {
+                return;
+            }
+
+            const updateFontPreview = function () {
+                const selectedOption = fontSelect.options[fontSelect.selectedIndex];
+                fontPreview.style.fontFamily = selectedOption.dataset.fontStack;
+            };
+
+            fontSelect.addEventListener("change", updateFontPreview);
+            updateFontPreview();
+        });
+    </script>
 }

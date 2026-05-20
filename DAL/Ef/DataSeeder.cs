@@ -49,7 +49,8 @@ public class DataSeeder
             Slug = "kdg-hogeschool",
             Language = Language.Nl,
             Platform = platform,
-            SubAdmins = kdgAdmins
+            SubAdmins = kdgAdmins,
+            Logo = kdgLogo
         };
 
         var project = new Project
@@ -64,7 +65,7 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-            Logo = kdgLogo,
+           
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -82,7 +83,6 @@ public class DataSeeder
             Duration = 30,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-            Logo = kdgLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -469,6 +469,7 @@ public class DataSeeder
             Slug = "ap-hogeschool",
             Language = Language.Nl,
             Platform = platform,
+            Logo = apLogo,
             SubAdmins = apAdmins
         };
 
@@ -485,7 +486,6 @@ public class DataSeeder
             Duration = 12,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = apSubPlatform,
-            Logo = apLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/ap-photo.jpg"
@@ -504,7 +504,6 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = apSubPlatform,
-            Logo = apLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/ap-photo.jpg"

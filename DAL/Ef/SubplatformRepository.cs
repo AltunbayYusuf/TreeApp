@@ -17,6 +17,7 @@ public class SubplatformRepository : ISubplatformRepository
     public SubPlatform ReadSubPlatformBySlug(string slug)
     {
         return _context.SubPlatforms
+            .Include(sp => sp.Logo) 
             .FirstOrDefault(sp => sp.Slug == slug);
     }
 
@@ -26,6 +27,7 @@ public class SubplatformRepository : ISubplatformRepository
             .Include(sp => sp.Projects)
             .ThenInclude(p => p.SurveyResponses)
             .Include(sp => sp.SubAdmins)
+            .Include(sp => sp.Logo)
             .FirstOrDefault(sp => sp.Id == subPlatformId);
     }
 
@@ -46,5 +48,9 @@ public class SubplatformRepository : ISubplatformRepository
         return _context.Platforms.First();
     }
 
- 
+    public void UpdateSubPlatform(SubPlatform subPlatform)
+    {
+        _context.SubPlatforms.Update(subPlatform);
+        _context.SaveChanges();
+    }
 }

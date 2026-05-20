@@ -1,170 +1,179 @@
-﻿    @using IntegratieProject.DAL.Identity
-    @using IntegratieProject.UI.MVC
-    @using IntegratieProject.BL.interfaces
-    @using Microsoft.AspNetCore.Identity
-    @inject UserManager<ApplicationUser> UserManager
-    @inject IProjectManager ProjectManager
+﻿@using IntegratieProject.UI.MVC
+@using IntegratieProject.BL.interfaces
+@inject IProjectManager ProjectManager
 
-    @{
-        var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
+@{
+    var currentTheme = Context.Request.Cookies["theme"] ?? "light";
+    var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
 
-        var currentProjectId = Context.Request.Query["projectId"].ToString();
+    var currentProjectId = Context.Request.Query["projectId"].ToString();
 
-        if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
-        {
-            currentProjectId = ViewContext.RouteData.Values["projectId"]!.ToString();
-        }
-
-        if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
-        {
-            currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
-        }
-
-        if (string.IsNullOrWhiteSpace(currentProjectId))
-        {
-            if (!string.IsNullOrWhiteSpace(currentSubplatform))
-            {
-                var firstProject = ProjectManager.GetFirstProjectBySubPlatform(currentSubplatform);
-                currentProjectId = firstProject?.Id.ToString() ?? "1";
-            }
-            else
-            {
-                currentProjectId = "1";
-            }
-        }
+    if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
+    {
+        currentProjectId = ViewContext.RouteData.Values["projectId"]!.ToString();
     }
 
-    <!DOCTYPE html>
-    <html lang="nl">
-    <head>
-        <meta charset="utf-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>@ViewData["Title"] - Echo</title>
-        <style>
-        body { visibility: hidden; }
-        body.css-loaded { visibility: visible; }
-    </style>
-        
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-        @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+    if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
+    {
+        currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
+    }
+
+    if (string.IsNullOrWhiteSpace(currentProjectId))
+    {
+        if (!string.IsNullOrWhiteSpace(currentSubplatform))
         {
-            <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
-            <script type="module" vite-src="~/main.ts"></script>
+            var firstProject = ProjectManager.GetFirstProjectBySubPlatform(currentSubplatform);
+            currentProjectId = firstProject?.Id.ToString() ?? "1";
         }
         else
         {
-            <link rel="stylesheet" asp-href-include="~/dist/main*.css" />
-            <script type="module" src="~/dist/main.js"></script>
+            currentProjectId = "1";
         }
-      
-    </head>
-    <body data-subplatform="@currentSubplatform">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-dark">
-            <div class="container-fluid px-4">
-                @if (User.Identity?.IsAuthenticated == false)
-                {
-                    <a class="navbar-brand"
-                       asp-area=""
-                       asp-controller="Project"
-                       asp-action="Index"
-                       asp-route-id="@currentProjectId">
-                        Echo
-                    </a>
-                }
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav">
-                        @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="SubAdmin"
-                                   asp-action="Index">
-                                    Dashboard
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="SubAdminModeration"
-                                   asp-action="Index">
-                                    Moderatie
-                                </a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="SubAdminIdeas"
-                                   asp-action="Index">
-                                    Ideeën
-                                </a>
-                            </li>
-                        }
-                        else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index"> Dashboard</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-controller="AdminStats"
-                                   asp-action="Index">
-                                    Overview
-                                </a>
-                                
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-area=""
-                                   asp-controller="Project"
-                                   asp-action="Index"
-                                   asp-route-id="@currentProjectId">
-                                    Project
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link"
-                                   asp-area=""
-                                   asp-controller="Idea"
-                                   asp-action="Index"
-                                   asp-route-projectId="@currentProjectId">
-                                    Ideeën
-                                </a>
-                            </li>
-
-        <li class="nav-item">
-            <a class="nav-link"
-               asp-area=""
-               asp-controller="Home"
-               asp-action="Privacy">
-                Privacy
-            </a>
-        </li>
     }
-</ul>
-                    <div class="d-flex align-items-center gap-3">
+}
+
+<!DOCTYPE html>
+<html lang="nl" data-bs-theme="light">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - Echo</title>
+    <style>
+        body {
+            visibility: hidden;
+        }
+
+        body.css-loaded {
+            visibility: visible;
+        }
+    </style>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
+    {
+        <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true"/>
+        <script type="module" vite-src="~/main.ts"></script>
+    }
+    else
+    {
+        <link rel="stylesheet" asp-href-include="~/dist/main*.css"/>
+        <script type="module" src="~/dist/main.js"></script>
+    }
+
+</head>
+<body data-subplatform="@currentSubplatform">
+<header>
+    <nav class="navbar navbar-expand-sm navbar-dark">
+        <div class="container-fluid px-4">
+            @if (User.Identity?.IsAuthenticated == false)
+            {
+                <a class="navbar-brand"
+                   asp-area=""
+                   asp-controller="Project"
+                   asp-action="Index"
+                   asp-route-id="@currentProjectId">
+                    Echo
+                </a>
+            }
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <ul class="navbar-nav">
+                    @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="SubAdmin"
+                               asp-action="Index">
+                                Dashboard
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="SubAdminModeration"
+                               asp-action="Index">
+                                Moderatie
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="SubAdminIdeas"
+                               asp-action="Index">
+                                Ideeën
+                            </a>
+                        </li>
+                    }
+                    else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index"> Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-controller="AdminStats"
+                               asp-action="Index">
+                                Overview
+                            </a>
+
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Project"
+                               asp-action="Index"
+                               asp-route-id="@currentProjectId">
+                                Project
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Idea"
+                               asp-action="Index"
+                               asp-route-projectId="@currentProjectId">
+                                Ideeën
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Home"
+                               asp-action="Privacy">
+                                Privacy
+                            </a>
+                        </li>
+                    }
+                </ul>
+                <div class="d-flex align-items-center gap-3">
                     @if (User.Identity?.IsAuthenticated != true)
                     {
                         <div class="font-size-control" role="group" aria-label="Zoom aanpassen">
-                            <button type="button" class="font-size-button" data-font-size="down" aria-label="Tekst verkleinen">
+                            <button type="button" class="font-size-button" data-font-size="down"
+                                    aria-label="Tekst verkleinen">
                                 -
                             </button>
 
                             <span class="font-size-value" data-font-size-value>100%</span>
 
-                            <button type="button" class="font-size-button" data-font-size="up" aria-label="Tekst vergroten">
+                            <button type="button" class="font-size-button" data-font-size="up"
+                                    aria-label="Tekst vergroten">
                                 +
                             </button>
                         </div>
                     }
+                    <button class="btn btn-outline-secondary btn-sm" id="themeToggleBtn" type="button"
+                            aria-label="Wissel thema">
+                        <span id="themeIcon">🌓</span>
+                    </button>
                     <div class="dropdown">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle notranslate"
                                 type="button"
@@ -194,31 +203,31 @@
                         </ul>
                     </div>
                     <partial name="_LoginPartial"/>
-                    </div>
                 </div>
             </div>
-        </nav>
-    </header>
-
-    <div class="container py-4">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="footer">
-        <div class="container px-4">
-            &copy; 2026 Echo &mdash;
-            <a asp-area="" asp-controller="Home" asp-action="Privacy"
-               asp-route-projectId="@currentProjectId">Privacy</a>
         </div>
-    </footer>
+    </nav>
+</header>
 
-    @await RenderSectionAsync("Scripts", required: false)
-    <script>
+<div class="container py-4">
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+</div>
+
+<footer class="footer">
+    <div class="container px-4">
+        &copy; 2026 Echo &mdash;
+        <a asp-area="" asp-controller="Home" asp-action="Privacy"
+           asp-route-projectId="@currentProjectId">Privacy</a>
+    </div>
+</footer>
+
+@await RenderSectionAsync("Scripts", required: false)
+<script>
     window.addEventListener("load", function () {
         document.body.classList.add("css-loaded");
     });
 </script>
-    </body>
-    </html>
+</body>
+</html>

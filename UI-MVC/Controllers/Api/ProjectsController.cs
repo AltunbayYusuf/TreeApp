@@ -35,7 +35,6 @@ public class ProjectsController : ControllerBase
             Introduction = project.Introduction,
             Duration = project.Duration,
             SubPlatform = project.SubPlatform?.CompanyName ?? "",
-            Logo = project.Logo?.Uri ?? "",
             Photo = project.Photo?.Uri ?? ""
         };
 
