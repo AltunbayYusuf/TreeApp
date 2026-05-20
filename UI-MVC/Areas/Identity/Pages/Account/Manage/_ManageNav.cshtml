@@ -1,9 +1,22 @@
+@using IntegratieProject.BL.Domain.users
 @using IntegratieProject.DAL.Identity
+@using IntegratieProject.UI.MVC
 @inject SignInManager<ApplicationUser> SignInManager
 
 <ul class="nav nav-pills flex-column">
-    <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">Profile</a>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="/Account/Manage/Index">Profile</a>
     </li>
-    <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password"
-                            asp-page="./ChangePassword">Password</a></li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password"
+           asp-page="/Account/Manage/ChangePassword">Password</a>
+    </li>
+
+    @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
+    {
+        <li class="nav-item">
+            <a class="nav-link @ManageNavPages.RegisterNavClass(ViewContext)" id="register" asp-area="Identity"
+               asp-page="/Account/Register">Register</a>
+        </li>
+    }
 </ul>
