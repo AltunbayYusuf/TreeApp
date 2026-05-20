@@ -13,7 +13,9 @@ public class CreateProjectInfoViewModel : IValidatableObject
         "Arial",
         "Georgia",
         "Verdana",
-        "Trebuchet MS"
+        "Trebuchet MS",
+        "Pacifico",
+        "Bubblegum Sans"
     };
 
     public string SubplatformSlug { get; set; } = "";
