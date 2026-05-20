@@ -107,16 +107,16 @@ window.changeLanguage = function (langCode: string, displayLabel: string): void 
 };
 
 function resetToDutch(): void {
+    const selectField = document.querySelector<HTMLSelectElement>('.goog-te-combo');
+
+    if (selectField) {
+        selectField.value = 'nl';
+        dispatchLanguageChange(selectField);
+    }
+
     setSelectedLanguage('nl');
     clearGoogleTranslateCookie();
     updateDropdownLabel(defaultLanguageLabel);
-
-    const selectField = document.querySelector<HTMLSelectElement>('.goog-te-combo');
-    if (selectField) {
-        selectField.value = '';
-    }
-
-    window.location.reload();
 }
 
 function applyLanguageChange(langCode: string, displayLabel: string, attempt = 1): void {

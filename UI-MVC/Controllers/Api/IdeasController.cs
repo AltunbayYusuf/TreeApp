@@ -1,8 +1,8 @@
 using System.Text.Json;
+using System.ComponentModel.DataAnnotations;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -96,11 +96,21 @@ public class IdeasController : ControllerBase
             });
         }
 
+        var contactValidationError = ValidateContactEmail(vm);
+        if (contactValidationError != null)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = contactValidationError
+            });
+        }
+
         string imageUri = null;
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
@@ -162,11 +172,21 @@ public class IdeasController : ControllerBase
             });
         }
 
+        var contactValidationError = ValidateContactEmail(vm);
+        if (contactValidationError != null)
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = contactValidationError
+            });
+        }
+
         string imageUri = null;
 
         if (vm.ImageUpload != null && vm.ImageUpload.Length > 0)
         {
-            imageUri = await _googleCloudStorageService.UploadProjectImageAsync(
+            imageUri = await _googleCloudStorageService.UploadProjectMediaAsync(
                 vm.ImageUpload,
                 vm.SubplatformSlug ?? "unknown"
             );
@@ -212,6 +232,23 @@ public class IdeasController : ControllerBase
         user.Email = vm.ContactOptIn && !string.IsNullOrWhiteSpace(vm.Email) ? vm.Email.Trim() : string.Empty;
         _userManager.UpdateUser(user);
         return user;
+    }
+
+    private static string ValidateContactEmail(SubmitIdeaViewModel vm)
+    {
+        if (!vm.ContactOptIn)
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(vm.Email))
+        {
+            return "Geef je e-mailadres in als je gecontacteerd wil worden.";
+        }
+
+        return new EmailAddressAttribute().IsValid(vm.Email.Trim())
+            ? null
+            : "Geef een geldig e-mailadres in.";
     }
 
     private User GetOrCreateUser()
@@ -261,7 +298,7 @@ public class IdeasController : ControllerBase
 
         try
         {
-            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text);
+            var improvedJson = await _ideaManager.ImproveIdeaTextAsync(vm.Title ?? "", vm.Text, vm.Language);
 
             using var document = JsonDocument.Parse(improvedJson);
             var root = document.RootElement;

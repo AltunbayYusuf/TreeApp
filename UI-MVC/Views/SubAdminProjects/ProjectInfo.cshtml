@@ -68,15 +68,38 @@
             </div>
 
             <div class="mb-4">
-                <label asp-for="PhotoUpload" class="form-label">Project afbeelding</label>
+                <label asp-for="IntroMediaUpload" class="form-label">Introductie media</label>
+
+                <div class="mb-2">
+                    <label class="form-label small text-muted">Kies type media</label>
+                    <select asp-for="IntroMediaType" class="form-select">
+                        <option value="Image">Afbeelding</option>
+                        <option value="Video">Video</option>
+                    </select>
+                </div>
+
                 <div class="upload-zone">
                     <span class="upload-icon">🖼️</span>
-                    <label for="PhotoUpload" class="btn btn-primary btn-sm mb-2">Upload afbeelding</label>
-                    <input asp-for="PhotoUpload" type="file" class="d-none"/>
+
+                    <label for="IntroMediaUpload" class="btn btn-primary btn-sm mb-2">
+                        Upload afbeelding of video
+                    </label>
+
+                    <input asp-for="IntroMediaUpload"
+                           type="file"
+                           class="d-none"
+                           accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"/>
+
+                    <span asp-validation-for="IntroMediaUpload" class="text-danger small"></span>
+
                     <div class="text-muted small mb-2">of</div>
-                    <button type="button" class="btn btn-outline-primary btn-sm">✨ Genereer met AI</button>
+
+                    <button type="button" class="btn btn-outline-primary btn-sm">
+                        ✨ Genereer afbeelding met AI
+                    </button>
+
                     <p class="text-muted small mt-3 mb-0">
-                        Als geen afbeelding wordt geüpload, genereert AI automatisch een afbeelding.
+                        Je kan hier een afbeelding of video toevoegen om de introductie aantrekkelijker te maken.
                     </p>
                 </div>
             </div>

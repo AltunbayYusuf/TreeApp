@@ -8,11 +8,12 @@
 
 <div class="project-landing" style="font-family: @ProjectFontFamily.ToCssStack(Model.FontFamily);">
 
-    <div class="home-topbar mb-4">
-        <div>
-            @if (!string.IsNullOrWhiteSpace(@Model.Logo?.Uri))
+    <div class="home-topbar mb-4 " >
+        
+        <div class="bg-light p-2 rounded" data-bs-theme="light">
+            @if (!string.IsNullOrWhiteSpace(@Model.SubPlatform.Logo?.Uri))
             {
-                <img src="@Model.Logo.Uri" alt="Logo" class="home-logo" />
+                <img src="@Model.SubPlatform.Logo.Uri" alt="Logo" class="home-logo"/>
             }
             else
             {
@@ -20,15 +21,22 @@
             }
         </div>
 
-        <div class="border rounded px-3 py-2 home-lang-switch">
-            NL
-        </div>
     </div>
 
     <div class="project-image-box">
-        @if (!string.IsNullOrWhiteSpace(@Model.Photo?.Uri))
+        @if (!string.IsNullOrWhiteSpace(Model.Photo?.Uri))
         {
-            <img src="@Model.Photo.Uri" alt="Project afbeelding" />
+            if (Model.IntroMediaType == ProjectIntroMediaType.Video)
+            {
+                <video controls playsinline preload="metadata" class="project-intro-video">
+                    <source src="@Model.Photo.Uri" />
+                    Je browser ondersteunt deze video niet.
+                </video>
+            }
+            else
+            {
+                <img src="@Model.Photo.Uri" alt="Project afbeelding" />
+            }
         }
         else
         {

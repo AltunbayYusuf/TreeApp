@@ -154,7 +154,9 @@ export class ReactionHandler {
     private showResultMsg(box: HTMLDivElement | null, msg: string, type: "success" | "danger" | "info"): void {
         if (!box) return;
         box.style.display = "block";
-        box.innerHTML = `<div class="alert alert-${type} mb-0">${DomUtils.escapeHtml(msg)}</div>`;
+        box.classList.remove("reaction-result-success", "reaction-result-danger", "reaction-result-info", "reaction-result-warning");
+        box.classList.add(`reaction-result-${type}`);
+        box.textContent = msg;
     }
 
     private resetForm(textArea: HTMLTextAreaElement): void {
@@ -167,7 +169,10 @@ export class ReactionHandler {
 
         if (reactionsList) {
             const li = document.createElement("li");
-            li.innerHTML = `<span>${DomUtils.escapeHtml(text)}</span>`;
+            li.innerHTML = `
+                <span class="reaction-text">${DomUtils.escapeHtml(text)}</span>
+                <span class="reaction-own-badge">Door jou</span>
+            `;
             reactionsList.prepend(li);
             reactionsList.style.display = "block";
         }
@@ -182,15 +187,15 @@ export class ReactionHandler {
         if (!box) return;
 
         box.style.display = "block";
+        box.classList.remove("reaction-result-success", "reaction-result-danger", "reaction-result-info");
+        box.classList.add("reaction-result-warning");
         box.innerHTML = `
-            <div class="alert alert-warning mb-0">
-                <strong>${DomUtils.escapeHtml(data.warning ?? "AI: je reactie bevat mogelijk toxische inhoud.")}</strong>
-                ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
-                ${data.suggestedText ? `<div class="mt-2"><strong>Alternatief:</strong><br>${DomUtils.escapeHtml(data.suggestedText)}</div>` : ""}
-                <div class="mt-3 d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-outline-primary btn-sm use-alternative-btn">Alternatief gebruiken</button>
-                    <button type="button" class="btn btn-outline-danger btn-sm force-submit-btn">Toch versturen</button>
-                </div>
+            <strong>${DomUtils.escapeHtml(data.warning ?? "AI: je reactie bevat mogelijk toxische inhoud.")}</strong>
+            ${data.explanation ? `<div class="mt-2"><em>${DomUtils.escapeHtml(data.explanation)}</em></div>` : ""}
+            ${data.suggestedText ? `<div class="mt-2"><strong>Alternatief:</strong><br>${DomUtils.escapeHtml(data.suggestedText)}</div>` : ""}
+            <div class="mt-3 d-flex gap-2 flex-wrap">
+                <button type="button" class="btn btn-outline-primary btn-sm use-alternative-btn">Alternatief gebruiken</button>
+                <button type="button" class="btn btn-outline-danger btn-sm force-submit-btn">Toch versturen</button>
             </div>
         `;
 
