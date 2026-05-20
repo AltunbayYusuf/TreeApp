@@ -85,6 +85,7 @@
                             type="button"
                             id="languageDropdownMobile"
                             translate="no"
+                            data-language-dropdown
                             data-bs-toggle="dropdown"
                             aria-expanded="false">
                         NL
@@ -195,7 +196,8 @@
                             <a class="nav-link"
                                asp-area=""
                                asp-controller="Home"
-                               asp-action="Privacy">
+                               asp-action="Privacy"
+                               asp-route-projectId="@currentProjectId">
                                 Privacy
                             </a>
                         </li>
@@ -240,6 +242,7 @@
                                 type="button"
                                 id="languageDropdownDesktop"
                                 translate="no"
+                                data-language-dropdown
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false">
                             NL

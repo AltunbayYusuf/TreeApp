@@ -19,7 +19,7 @@ declare global {
 
 const translateElementId = 'google_translate_element';
 const translateScriptId = 'google-translate-script';
-const dropdownButtonId = 'languageDropdown';
+const dropdownButtonSelector = '[data-language-dropdown]';
 const selectedLanguageStorageKey = 'selectedLanguage';
 const maxLanguageChangeAttempts = 10;
 const defaultLanguageLabel = 'NL';
@@ -52,13 +52,9 @@ function clearGoogleTranslateCookie(): void {
 }
 
 function updateDropdownLabel(label: string): void {
-    const dropdownButton = document.getElementById(dropdownButtonId);
-
-    if (!dropdownButton) {
-        return;
-    }
-
-    dropdownButton.textContent = label;
+    document.querySelectorAll<HTMLElement>(dropdownButtonSelector).forEach((dropdownButton) => {
+        dropdownButton.textContent = label;
+    });
 }
 
 function getSelectedLanguage(): string {
