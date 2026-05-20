@@ -217,10 +217,34 @@ export class ReactionHandler {
             this.resetForm(textArea);
         });
 
-        box.querySelector(".use-alternative-btn")?.addEventListener("click", () => {
-            textArea.value = data.suggestedText || "";
-            this.clearResultBox(box);
-            textArea.focus();
+        box.querySelector(".use-alternative-btn")?.addEventListener("click", async () => {
+            const suggestedText = data.suggestedText || "";
+
+            if (!suggestedText.trim()) {
+                this.showResultMsg(box, "Er is geen alternatief beschikbaar.", "danger");
+                return;
+            }
+
+            const alternativeResponse = await fetch("/api/reactions/force", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    ideaId: parseInt(ideaId, 10),
+                    text: suggestedText,
+                    skipAiModeration: true
+                })
+            });
+
+            const alternativeData: ReactionApiResponse = await alternativeResponse.json();
+
+            if (!alternativeResponse.ok || !alternativeData.ok) {
+                this.showResultMsg(box, alternativeData.message ?? "Fout bij opslaan van alternatief.", "danger");
+                return;
+            }
+
+            this.appendReactionToList(ideaId, suggestedText);
+            this.showResultMsg(box, alternativeData.message ?? "Alternatief opgeslagen.", "success");
+            this.resetForm(textArea);
         });
     }
 }

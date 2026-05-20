@@ -9,8 +9,8 @@ public class ToxicityResult
     
     public bool AiUnavailable { get; set; }
     [Required]
-
     public string SuggestedText { get; set; } = string.Empty;
     public string Explanation { get; set; } = string.Empty;
     public string SuggestedTitle { get; set; } = string.Empty;
+    
 }

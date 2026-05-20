@@ -2,7 +2,5 @@
 
 public interface IImageGenerationService
 {
-    Task<string> GenerateProjectImageAsync(string projectName);
-
-
+    Task<string> GenerateProjectImageAsync(string title, string description);
 }
