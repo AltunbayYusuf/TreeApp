@@ -13,11 +13,21 @@
             <p class="text-muted mb-0">@Model.ProjectName</p>
         </div>
 
-        <a asp-controller="SubAdmin"
-           asp-action="Index"
-           class="btn btn-outline-secondary">
-            Terug naar dashboard
-        </a>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-controller="SubAdminProjects"
+               asp-action="ExportStatisticsCsv"
+               asp-route-subplatform="@ViewContext.RouteData.Values["subplatform"]"
+               asp-route-projectId="@Model.ProjectId"
+               class="btn btn-success btn-sm">
+                Exporteer CSV
+            </a>
+
+            <a asp-controller="SubAdmin"
+               asp-action="Index"
+               class="btn btn-outline-secondary">
+                Terug naar dashboard
+            </a>
+        </div>
     </div>
 
     <div class="row g-3 mb-4">
@@ -129,22 +139,23 @@
                                             }
                                         </div>
 
-                                        <form asp-controller="SubAdminProjects"
-                                              asp-action="GenerateOpenQuestionSummary"
-                                              asp-route-subplatform="@ViewContext.RouteData.Values["subplatform"]"
-                                              asp-route-projectId="@Model.ProjectId"
-                                              asp-route-questionId="@question.QuestionId"
-                                              method="post">
-                                            @Html.AntiForgeryToken()
+                                        @if (string.IsNullOrWhiteSpace(question.AiSummary) || question.AiSummaryNeedsRefresh)
+                                        {
+                                            <form asp-controller="SubAdminProjects"
+                                                  asp-action="GenerateOpenQuestionSummary"
+                                                  asp-route-subplatform="@ViewContext.RouteData.Values["subplatform"]"
+                                                  asp-route-projectId="@Model.ProjectId"
+                                                  asp-route-questionId="@question.QuestionId"
+                                                  method="post">
+                                                @Html.AntiForgeryToken()
 
-                                            <button type="submit" class="btn btn-primary btn-sm">
-                                                @(string.IsNullOrWhiteSpace(question.AiSummary)
-                                                    ? "Genereer samenvatting"
-                                                    : question.AiSummaryNeedsRefresh
-                                                        ? "Vernieuw samenvatting"
-                                                        : "Toon opgeslagen samenvatting")
-                                            </button>
-                                        </form>
+                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                    @(string.IsNullOrWhiteSpace(question.AiSummary)
+                                                        ? "Genereer samenvatting"
+                                                        : "Vernieuw samenvatting")
+                                                </button>
+                                            </form>
+                                        }
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(question.AiSummary))
