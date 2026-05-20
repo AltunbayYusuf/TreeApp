@@ -50,10 +50,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
     public DbSet<AiIdeaSelection> AiIdeaSelections { get; set; }
     public DbSet<AiModelConfiguration> AiModelConfigurations { get; set; }
 
-    public TreeDbContext(DbContextOptions<TreeDbContext> options)
-        : base(options)
-    {
-    }
+    
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
