@@ -8,8 +8,41 @@
 @{
     var currentTheme = Context.Request.Cookies["theme"] ?? "light";
     var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
+    var returnUrl = Context.Request.Query["returnUrl"].ToString();
+    var returnUrlPath = "";
+    var returnUrlQuery = "";
+
+    if (!string.IsNullOrWhiteSpace(returnUrl) && returnUrl.StartsWith("/"))
+    {
+        var queryStart = returnUrl.IndexOf('?');
+        returnUrlPath = queryStart >= 0 ? returnUrl[..queryStart] : returnUrl;
+        returnUrlQuery = queryStart >= 0 ? returnUrl[queryStart..] : "";
+
+        if (string.IsNullOrWhiteSpace(currentSubplatform))
+        {
+            var returnUrlSegments = returnUrlPath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var possibleSubplatform = returnUrlSegments.FirstOrDefault();
+
+            if (!string.IsNullOrWhiteSpace(possibleSubplatform) &&
+                possibleSubplatform.Contains('-') &&
+                possibleSubplatform.All(c => char.IsLower(c) || char.IsDigit(c) || c == '-'))
+            {
+                currentSubplatform = possibleSubplatform;
+            }
+        }
+    }
 
     var currentProjectId = Context.Request.Query["projectId"].ToString();
+
+    if (string.IsNullOrWhiteSpace(currentProjectId) && !string.IsNullOrWhiteSpace(returnUrlQuery))
+    {
+        var returnUrlQueryValues = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(returnUrlQuery);
+
+        if (returnUrlQueryValues.TryGetValue("projectId", out var returnProjectId))
+        {
+            currentProjectId = returnProjectId.ToString();
+        }
+    }
 
     if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["projectId"] != null)
     {
@@ -19,6 +52,21 @@
     if (string.IsNullOrWhiteSpace(currentProjectId) && ViewContext.RouteData.Values["id"] != null)
     {
         currentProjectId = ViewContext.RouteData.Values["id"]!.ToString();
+    }
+
+    if (string.IsNullOrWhiteSpace(currentProjectId) && !string.IsNullOrWhiteSpace(returnUrlPath))
+    {
+        var returnUrlSegments = returnUrlPath.Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+        var projectIndex = Array.FindIndex(returnUrlSegments,
+            segment => string.Equals(segment, "Project", StringComparison.OrdinalIgnoreCase));
+
+        if (projectIndex >= 0 &&
+            returnUrlSegments.Length > projectIndex + 2 &&
+            string.Equals(returnUrlSegments[projectIndex + 1], "Index", StringComparison.OrdinalIgnoreCase) &&
+            int.TryParse(returnUrlSegments[projectIndex + 2], out var projectIdFromReturnUrl))
+        {
+            currentProjectId = projectIdFromReturnUrl.ToString();
+        }
     }
 
     if (string.IsNullOrWhiteSpace(currentProjectId))
@@ -33,6 +81,8 @@
             currentProjectId = "1";
         }
     }
+
+    var currentSubplatformRoute = string.IsNullOrWhiteSpace(currentSubplatform) ? null : currentSubplatform;
 }
 
 <!DOCTYPE html>
@@ -73,6 +123,7 @@
                    asp-area=""
                    asp-controller="Project"
                    asp-action="Index"
+                   asp-route-subplatform="@currentSubplatformRoute"
                    asp-route-id="@currentProjectId">
                     Echo
                 </a>
@@ -177,6 +228,7 @@
                                asp-area=""
                                asp-controller="Project"
                                asp-action="Index"
+                               asp-route-subplatform="@currentSubplatformRoute"
                                asp-route-id="@currentProjectId">
                                 Project
                             </a>
@@ -187,6 +239,7 @@
                                asp-area=""
                                asp-controller="Idea"
                                asp-action="Index"
+                               asp-route-subplatform="@currentSubplatformRoute"
                                asp-route-projectId="@currentProjectId">
                                 Ideeën
                             </a>
@@ -197,6 +250,7 @@
                                asp-area=""
                                asp-controller="Home"
                                asp-action="Privacy"
+                               asp-route-subplatform="@currentSubplatformRoute"
                                asp-route-projectId="@currentProjectId">
                                 Privacy
                             </a>
@@ -289,6 +343,7 @@
         <a asp-area=""
            asp-controller="Home"
            asp-action="Privacy"
+           asp-route-subplatform="@currentSubplatformRoute"
            asp-route-projectId="@currentProjectId">
             Privacy
         </a>

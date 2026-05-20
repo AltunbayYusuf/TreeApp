@@ -144,7 +144,6 @@ function updateIntroMediaUploadStatus(): void {
         introMediaUpload,
         introMediaType,
         introMediaUploadStatus,
-        imagePreview,
         imageStatus,
         generatedPhotoUrlInput
     } = getProjectInfoElements();
@@ -165,11 +164,6 @@ function updateIntroMediaUploadStatus(): void {
 
     if (generatedPhotoUrlInput) generatedPhotoUrlInput.value = "";
     if (imageStatus) imageStatus.textContent = "Bestand gekozen. Opslaan om te uploaden.";
-
-    if (!isVideo && imagePreview) {
-        imagePreview.src = URL.createObjectURL(file);
-        imagePreview.classList.remove("d-none");
-    }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
