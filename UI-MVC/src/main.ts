@@ -20,6 +20,7 @@ import './js/translation/translation';
 import './js/fontSize/font-size';
 import './js/admin/newSubplatform.ts';
 import './js/admin/prompts.ts';
+import './js/admin/platform-details.ts';
 
 const fontSizeStorageKey = 'echo-font-size';
 const fontSizeStep = 0.1;

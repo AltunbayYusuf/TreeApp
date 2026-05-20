@@ -94,8 +94,7 @@ builder.Services.AddRateLimiter(options =>
 // builder.Services.AddDataProtection()
 //     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
 //     .SetApplicationName("IntergratieProject");
-builder.Services.Configure<AiModelSettings>(
-    builder.Configuration.GetSection("Google"));
+
 
 var predictionBuilder = new PredictionServiceClientBuilder
 {
@@ -143,11 +142,14 @@ builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService
 builder.Services.AddScoped<IAiUsageManager, AiUsageManager>();
 builder.Services.AddScoped<IAiSummaryIdeas, AiSummaryIdeas>();
 builder.Services.AddScoped<IAiIdeaSelectionService, AiIdeaSelectionService>();
+builder.Services.AddScoped<AiUsageService>();
 
 builder.Services.AddScoped<IAiRepository, AiRepository>();
 builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
 builder.Services.AddScoped<IAiPromptManager, AiPromptManager>();
 
+builder.Services.AddScoped<IAiModelConfigurationRepository, AiModelConfigurationRepository>();
+builder.Services.AddScoped<IAiModelConfigurationManager, AiModelConfigurationManager>();
 
 builder.Services.AddScoped<IIntroTextService, IntroTextService>();
 builder.Services.AddScoped<IImageGenerationService, ImageGenerationService>();

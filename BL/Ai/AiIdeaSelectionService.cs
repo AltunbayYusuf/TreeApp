@@ -1,21 +1,20 @@
 ﻿using System.Text;
-using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
-using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
 public class AiIdeaSelectionService : IAiIdeaSelectionService
 {
-     private readonly IIdeaRepository _ideaRepository;
+    private readonly IIdeaRepository _ideaRepository;
     private readonly IAiPromptService _promptService;
     private readonly IAiProvider _aiProvider;
-    private readonly IAiUsageRepository _aiUsageRepository;
+    private readonly AiUsageService _aiUsageService;
     private readonly IAiRepository _aiRepository;
-    private readonly AiModelSettings _aiModelSettings;
+    private readonly IAiModelConfigurationManager _modelConfigurationManager;
+    private readonly IProjectRepository _projectRepository;
 
     private const int MaxIdeas = 40;
     private const int MaxReactionsPerIdea = 5;
@@ -25,20 +24,28 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
         IIdeaRepository ideaRepository,
         IAiPromptService promptService,
         IAiProvider aiProvider,
-        IAiUsageRepository aiUsageRepository,
+        AiUsageService aiUsageService,
         IAiRepository aiRepository,
-        IOptions<AiModelSettings> aiModelSettings)
+        IAiModelConfigurationManager modelConfigurationManager,
+        IProjectRepository projectRepository)
     {
         _ideaRepository = ideaRepository;
         _promptService = promptService;
         _aiProvider = aiProvider;
-        _aiUsageRepository = aiUsageRepository;
+        _aiUsageService = aiUsageService;
         _aiRepository = aiRepository;
-        _aiModelSettings = aiModelSettings.Value;
+        _modelConfigurationManager = modelConfigurationManager;
+        _projectRepository = projectRepository;
     }
 
     public async Task<string> GenerateIdeaSelectionAsync(int projectId, string selectionMode)
     {
+        var project = _projectRepository.ReadProject(projectId);
+        var subPlatformId = project?.SubPlatformId;
+
+        var config = _modelConfigurationManager.GetActiveConfiguration("IdeaSelection", subPlatformId);
+        string prompt = "";
+
         try
         {
             var ideas = _ideaRepository
@@ -65,7 +72,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
             }
 
             var projectData = BuildCompactIdeaData(ideas);
-            var prompt = _promptService.BuildIdeaSelectionPrompt(selectionMode, projectData);
+            prompt = _promptService.BuildIdeaSelectionPrompt(selectionMode, projectData);
 
             var resultJson = await _aiProvider.GenerateAsync(prompt);
 
@@ -77,24 +84,29 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
                 reactionCount
             );
 
-            _aiUsageRepository.AddUsage(new AiUsage
-            {
-                Feature = "IdeaSelection",
-                Model = _aiModelSettings.ModerationModel,
-                Success = true
-            });
+            _aiUsageService.RegisterTextUsage(
+                "IdeaSelection",
+                config.ModelName,
+                prompt,
+                resultJson,
+                true,
+                null,
+                subPlatformId
+            );
 
             return resultJson;
         }
         catch (Exception ex)
         {
-            _aiUsageRepository.AddUsage(new AiUsage
-            {
-                Feature = "IdeaSelection",
-                Model = _aiModelSettings.ModerationModel,
-                Success = false,
-                ErrorMessage = ex.Message
-            });
+            _aiUsageService.RegisterTextUsage(
+                "IdeaSelection",
+                config.ModelName,
+                prompt,
+                "",
+                false,
+                ex.Message,
+                subPlatformId
+            );
 
             return "[]";
         }
@@ -136,7 +148,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
         return sb.ToString();
     }
 
-    private static string Limit(string value)
+    private static string Limit(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return "";

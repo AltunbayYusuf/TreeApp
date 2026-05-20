@@ -1439,6 +1439,98 @@ public class DataSeeder
                 DurationInSeconds = 302
             }
         };
+        
+        dbContext.AiModelConfigurations.AddRange(
+    new AiModelConfiguration
+    {
+        FeatureKey = "Moderation",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "SurveyGeneration",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "ImageGeneration",
+        Provider = "Google",
+        ModelName = "imagen-3.0-generate-002",
+        ImageCostPerImage = 0.04m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "IntroGeneration",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "IdeaImprovement",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "IdeaFollowUpQuestions",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "ProjectSummary",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "OpenQuestionSummary",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    },
+    new AiModelConfiguration
+    {
+        FeatureKey = "IdeaSelection",
+        Provider = "Google",
+        ModelName = "gemini-2.5-flash-lite",
+        InputCostPerMillionTokens = 0.10m,
+        OutputCostPerMillionTokens = 0.40m,
+        Currency = "USD",
+        IsActive = true
+    }
+);
 
 
         /* =========================

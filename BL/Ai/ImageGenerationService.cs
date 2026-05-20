@@ -1,7 +1,4 @@
 ﻿using IntegratieProject.BL.Interfaces;
-using IntegratieProject.DAL.Ef;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.AI;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -9,22 +6,58 @@ public class ImageGenerationService : IImageGenerationService
 {
     private readonly IAiProvider _aiProvider;
     private readonly IAiPromptService _aiPromptService;
+    private readonly AiUsageService _aiUsageService;
+    private readonly IAiModelConfigurationManager _modelConfigurationManager;
 
     public ImageGenerationService(
         IAiProvider aiProvider,
-        IAiPromptService aiPromptService)
+        IAiPromptService aiPromptService,
+        AiUsageService aiUsageService,
+        IAiModelConfigurationManager modelConfigurationManager)
     {
         _aiProvider = aiProvider;
         _aiPromptService = aiPromptService;
+        _aiUsageService = aiUsageService;
+        _modelConfigurationManager = modelConfigurationManager;
     }
 
-    public async Task<byte[]> GenerateProjectImageAsync(string title, string description)
+    public async Task<byte[]> GenerateProjectImageAsync(
+        string title,
+        string description,
+        int? subPlatformId = null)
     {
+        var config = _modelConfigurationManager.GetActiveConfiguration("ImageGeneration", subPlatformId);
+
         var prompt = await _aiPromptService.BuildProjectImageGenerationPromptAsync(
             title,
             description
         );
 
-        return await _aiProvider.GenerateImageAsync(prompt);
+        try
+        {
+            var imageBytes = await _aiProvider.GenerateImageAsync(prompt);
+
+            _aiUsageService.RegisterImageUsage(
+                "ImageGeneration",
+                config.ModelName,
+                true,
+                null,
+                subPlatformId
+            );
+
+            return imageBytes;
+        }
+        catch (Exception ex)
+        {
+            _aiUsageService.RegisterImageUsage(
+                "ImageGeneration",
+                config.ModelName,
+                false,
+                ex.Message,
+                subPlatformId
+            );
+
+            throw;
+        }
     }
 }

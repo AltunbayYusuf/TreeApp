@@ -65,6 +65,15 @@ public class SubAdminProjectsController : Controller
                 : (HttpContext.Items["subplatform"]?.ToString() ?? "");
         }
     }
+    
+    private int? CurrentSubPlatformId
+    {
+        get
+        {
+            var subPlatform = _subplatformManager.GetSubPlatformBySlug(Subplatform);
+            return subPlatform?.Id;
+        }
+    }
 
     private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
     {
@@ -416,9 +425,17 @@ public class SubAdminProjectsController : Controller
 
         if (string.IsNullOrWhiteSpace(photoUri))
         {
-            photoUri = await _imageGenerationService.GenerateProjectImageAsync(
+            var imageBytes = await _imageGenerationService.GenerateProjectImageAsync(
                 info.Name,
-                info.Introduction
+                info.Introduction,
+                subPlatformId
+            );
+
+            photoUri = await _googleCloudStorageService.UploadProjectMediaAsync(
+                imageBytes,
+                "project-image.png",
+                "image/png",
+                info.SubplatformSlug
             );
         }
 
@@ -535,9 +552,17 @@ public class SubAdminProjectsController : Controller
 
         if (string.IsNullOrWhiteSpace(photoUri))
         {
-            photoUri = await _imageGenerationService.GenerateProjectImageAsync(
+            var imageBytes = await _imageGenerationService.GenerateProjectImageAsync(
                 info.Name,
-                info.Introduction
+                info.Introduction,
+                existingProject.SubPlatformId
+            );
+
+            photoUri = await _googleCloudStorageService.UploadProjectMediaAsync(
+                imageBytes,
+                "project-image.png",
+                "image/png",
+                info.SubplatformSlug
             );
         }
 
@@ -583,9 +608,17 @@ public class SubAdminProjectsController : Controller
             });
         }
 
-        var imageUrl = await _imageGenerationService.GenerateProjectImageAsync(
+        var imageBytes = await _imageGenerationService.GenerateProjectImageAsync(
             request.ProjectName,
-            request.Introduction
+            request.Introduction,
+            CurrentSubPlatformId
+        );
+
+        var imageUrl = await _googleCloudStorageService.UploadProjectMediaAsync(
+            imageBytes,
+            "project-image.png",
+            "image/png",
+            Subplatform
         );
 
         return Ok(new
@@ -611,8 +644,12 @@ public class SubAdminProjectsController : Controller
             });
         }
 
-        var survey = await _aiSurveyGenerationService.GenerateSurveyAsync(request.Description, request.QuestionAmount);
-
+        var survey = await _aiSurveyGenerationService.GenerateSurveyAsync(
+            request.Description,
+            request.QuestionAmount,
+            CurrentSubPlatformId
+        );
+        
         return Ok(new
         {
             ok = true,
@@ -637,8 +674,11 @@ public class SubAdminProjectsController : Controller
             });
         }
 
-        var introduction = await _introTextService.GenerateIntroAsync(request.ProjectName);
-
+        var introduction = await _introTextService.GenerateIntroAsync(
+            request.ProjectName,
+            CurrentSubPlatformId
+        );
+        
         return Ok(new
         {
             ok = true,

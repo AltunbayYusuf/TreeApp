@@ -1,11 +1,9 @@
 ﻿using System.Text;
-using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
-using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -15,10 +13,11 @@ public class AiSummaryIdeas : IAiSummaryIdeas
     private readonly ISurveyRepository _surveyRepository;
     private readonly IAiPromptService _promptService;
     private readonly IAiProvider _aiProvider;
-    private readonly IAiUsageRepository _aiUsageRepository;
+    private readonly AiUsageService _aiUsageService;
     private readonly IAiRepository _aiRepository;
-    private readonly AiModelSettings _aiModelSettings;
-    
+    private readonly IAiModelConfigurationManager _modelConfigurationManager;
+    private readonly IProjectRepository _projectRepository;
+
     private const int MaxIdeas = 40;
     private const int MaxReactionsPerIdea = 5;
     private const int MaxSurveyResponses = 50;
@@ -30,21 +29,29 @@ public class AiSummaryIdeas : IAiSummaryIdeas
         ISurveyRepository surveyRepository,
         IAiPromptService promptService,
         IAiProvider aiProvider,
-        IAiUsageRepository aiUsageRepository,
+        AiUsageService aiUsageService,
         IAiRepository aiRepository,
-        IOptions<AiModelSettings> aiModelSettings)
+        IAiModelConfigurationManager modelConfigurationManager,
+        IProjectRepository projectRepository)
     {
         _ideaRepository = ideaRepository;
         _surveyRepository = surveyRepository;
         _promptService = promptService;
         _aiProvider = aiProvider;
-        _aiUsageRepository = aiUsageRepository;
+        _aiUsageService = aiUsageService;
         _aiRepository = aiRepository;
-        _aiModelSettings = aiModelSettings.Value;
+        _modelConfigurationManager = modelConfigurationManager;
+        _projectRepository = projectRepository;
     }
 
     public async Task<string> GenerateProjectTrendSummaryAsync(int projectId)
     {
+        var project = _projectRepository.ReadProject(projectId);
+        var subPlatformId = project?.SubPlatformId;
+
+        var config = _modelConfigurationManager.GetActiveConfiguration("ProjectSummary", subPlatformId);
+        string prompt = "";
+
         try
         {
             var ideas = _ideaRepository
@@ -61,28 +68,33 @@ public class AiSummaryIdeas : IAiSummaryIdeas
                 return "Er zijn nog geen goedgekeurde ideeën, reacties of ingevulde enquêtes om samen te vatten.";
 
             var projectData = BuildCompactProjectData(ideas, surveyResponses);
-            var prompt = _promptService.BuildProjectTrendSummaryPrompt(projectData);
+            prompt = _promptService.BuildProjectTrendSummaryPrompt(projectData);
 
             var summary = await _aiProvider.GenerateAsync(prompt);
 
-            _aiUsageRepository.AddUsage(new AiUsage
-            {
-                Feature = "ProjectTrendSummary",
-                Model = _aiModelSettings.ModerationModel,
-                Success = true
-            });
+            _aiUsageService.RegisterTextUsage(
+                "ProjectSummary",
+                config.ModelName,
+                prompt,
+                summary,
+                true,
+                null,
+                subPlatformId
+            );
 
             return summary;
         }
         catch (Exception ex)
         {
-            _aiUsageRepository.AddUsage(new AiUsage
-            {
-                Feature = "ProjectTrendSummary",
-                Model = _aiModelSettings.ModerationModel,
-                Success = false,
-                ErrorMessage = ex.Message
-            });
+            _aiUsageService.RegisterTextUsage(
+                "ProjectSummary",
+                config.ModelName,
+                prompt,
+                "",
+                false,
+                ex.Message,
+                subPlatformId
+            );
 
             return "AI-samenvatting tijdelijk niet beschikbaar. Probeer later opnieuw.";
         }
@@ -141,9 +153,14 @@ public class AiSummaryIdeas : IAiSummaryIdeas
 
         return sb.ToString();
     }
-    
+
     public async Task<string> GenerateOpenQuestionSummaryAsync(int projectId, int questionId)
     {
+        var project = _projectRepository.ReadProject(projectId);
+        var subPlatformId = project?.SubPlatformId;
+
+        var config = _modelConfigurationManager.GetActiveConfiguration("OpenQuestionSummary", subPlatformId);
+
         var surveyResponses = _surveyRepository
             .ReadSurveyResponsesByProjectId(projectId)
             .ToList();
@@ -188,17 +205,20 @@ public class AiSummaryIdeas : IAiSummaryIdeas
             lastAnswerId
         );
 
-        _aiUsageRepository.AddUsage(new AiUsage
-        {
-            Feature = "OpenQuestionSummary",
-            Model = _aiModelSettings.ModerationModel,
-            Success = true
-        });
+        _aiUsageService.RegisterTextUsage(
+            "OpenQuestionSummary",
+            config.ModelName,
+            prompt,
+            summary,
+            true,
+            null,
+            subPlatformId
+        );
 
         return summary;
     }
 
-    private static string Limit(string value)
+    private static string Limit(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return "";

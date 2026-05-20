@@ -44,7 +44,13 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
     public DbSet<AiUsage> AiUsages { get; set; }
     public DbSet<AiOpenQuestionSummary> AiOpenQuestionSummaries { get; set; }
     public DbSet<AiIdeaSelection> AiIdeaSelections { get; set; }
+    public DbSet<AiModelConfiguration> AiModelConfigurations { get; set; }
 
+    public TreeDbContext(DbContextOptions<TreeDbContext> options)
+        : base(options)
+    {
+    }
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -147,6 +153,18 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
         modelBuilder.Entity<AiOpenQuestionSummary>()
             .HasIndex(s => new { s.ProjectId, s.QuestionId })
             .IsUnique();
+        
+        modelBuilder.Entity<AiModelConfiguration>()
+            .HasOne(c => c.SubPlatform)
+            .WithMany()
+            .HasForeignKey(c => c.SubPlatformId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<AiUsage>()
+            .HasOne(u => u.SubPlatform)
+            .WithMany()
+            .HasForeignKey(u => u.SubPlatformId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
