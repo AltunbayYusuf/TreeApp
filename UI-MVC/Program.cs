@@ -4,6 +4,7 @@ using Google.Cloud.AIPlatform.V1;
 using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
 using IntegratieProject.BL.Ai;
+using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
@@ -17,6 +18,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -92,6 +94,8 @@ builder.Services.AddRateLimiter(options =>
 // builder.Services.AddDataProtection()
 //     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"))
 //     .SetApplicationName("IntergratieProject");
+
+
 var predictionBuilder = new PredictionServiceClientBuilder
 {
     Endpoint = builder.Configuration["Google:Endpoint"]
@@ -105,7 +109,8 @@ var location = builder.Configuration["Google:Location"]
                ?? throw new InvalidOperationException("Missing configuration: Google:Location");
 
 var moderationModel = builder.Configuration["Google:ModerationModel"]
-                      ?? "gemini-2.5-flash-lite";
+                      ?? throw new InvalidOperationException(
+                          "Google:ModerationModel ontbreekt in appsettings.json");
 
 var chatModelResource = EndpointName.FormatProjectLocationPublisherModel(
     projectId,
@@ -115,7 +120,8 @@ var chatModelResource = EndpointName.FormatProjectLocationPublisherModel(
 var chatClient = await predictionBuilder.BuildIChatClientAsync(chatModelResource);
 
 var imageModel = builder.Configuration["Google:ImageModel"]
-                 ?? "imagen-3.0-generate-002";
+                 ?? throw new InvalidOperationException(
+                     "Google:ImageModel ontbreekt in appsettings.json");
 
 var imageModelResource = EndpointName.FormatProjectLocationPublisherModel(
     projectId,
@@ -136,11 +142,14 @@ builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService
 builder.Services.AddScoped<IAiUsageManager, AiUsageManager>();
 builder.Services.AddScoped<IAiSummaryIdeas, AiSummaryIdeas>();
 builder.Services.AddScoped<IAiIdeaSelectionService, AiIdeaSelectionService>();
+builder.Services.AddScoped<AiUsageService>();
 
 builder.Services.AddScoped<IAiRepository, AiRepository>();
 builder.Services.AddScoped<IAiUsageRepository, AiUsageRepository>();
 builder.Services.AddScoped<IAiPromptManager, AiPromptManager>();
 
+builder.Services.AddScoped<IAiModelConfigurationRepository, AiModelConfigurationRepository>();
+builder.Services.AddScoped<IAiModelConfigurationManager, AiModelConfigurationManager>();
 
 builder.Services.AddScoped<IIntroTextService, IntroTextService>();
 builder.Services.AddScoped<IImageGenerationService, ImageGenerationService>();

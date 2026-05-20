@@ -47,7 +47,9 @@ public class IdeaRepository : IIdeaRepository
 
     public Idea ReadIdeaById(int ideaId)
     {
-        return _context.Ideas.Include(i => i.Topic)
+        return _context.Ideas
+            .Include(i => i.Topic)
+            .ThenInclude(t => t.Project)
             .Include(i => i.Image)
             .Include(i => i.Reactions)
             .FirstOrDefault(i => i.Id == ideaId);

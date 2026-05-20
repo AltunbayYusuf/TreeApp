@@ -17,7 +17,6 @@ public interface IIdeaManager
     void RejectIdea(int ideaId);
 
     Task<string> ImproveIdeaTextAsync(string title, string text, string language = "");
-    Task<string> ImproveIdeaTextAsync(int ideaId);
 
     Task<List<string>> GenerateIdeaFollowUpQuestionsAsync(string title, string text);
 

@@ -22,7 +22,15 @@
 </a>
 <h1>@Model.CompanyName</h1>
 
-<h3 class="mt-4">Subadmins</h3>
+<div class="d-flex align-items-center justify-content-between mt-4">
+    <h3 class="mb-0">Subadmins</h3>
+    <a asp-action="ExportSubAdminsCsv"
+       asp-controller="Platform"
+       asp-route-id="@Model.Id"
+       class="btn btn-success btn-sm d-flex justify-content-center align-items-center">
+        Exporteer CSV
+    </a>
+</div>
 
 <ul class="list-group">
     @foreach (var subAdmin in Model.SubAdmins)
@@ -63,12 +71,12 @@
         </div>
     </div>
     <div class="col">
-        <div class="card p-3 text-center">
-            <div>
-            </div>
-            <em>Totale kosten</em>
-
+        <div id="total-ai-cost"
+             data-subplatform-id="@Model.Id">
+            € 0.0000
         </div>
+
+        <em>Totale kosten</em>
     </div>
 </div>
 

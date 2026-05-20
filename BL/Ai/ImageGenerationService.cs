@@ -1,7 +1,4 @@
 ﻿using IntegratieProject.BL.Interfaces;
-using IntegratieProject.DAL.Ef;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.AI;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -9,41 +6,58 @@ public class ImageGenerationService : IImageGenerationService
 {
     private readonly IAiProvider _aiProvider;
     private readonly IAiPromptService _aiPromptService;
-    private readonly IWebHostEnvironment _webHostEnvironment;
+    private readonly AiUsageService _aiUsageService;
+    private readonly IAiModelConfigurationManager _modelConfigurationManager;
 
     public ImageGenerationService(
         IAiProvider aiProvider,
         IAiPromptService aiPromptService,
-        IWebHostEnvironment webHostEnvironment)
+        AiUsageService aiUsageService,
+        IAiModelConfigurationManager modelConfigurationManager)
     {
         _aiProvider = aiProvider;
         _aiPromptService = aiPromptService;
-        _webHostEnvironment = webHostEnvironment;
+        _aiUsageService = aiUsageService;
+        _modelConfigurationManager = modelConfigurationManager;
     }
 
-    public async Task<string> GenerateProjectImageAsync(string title, string description)
+    public async Task<byte[]> GenerateProjectImageAsync(
+        string title,
+        string description,
+        int? subPlatformId = null)
     {
+        var config = _modelConfigurationManager.GetActiveConfiguration("ImageGeneration", subPlatformId);
+
         var prompt = await _aiPromptService.BuildProjectImageGenerationPromptAsync(
             title,
             description
         );
 
-        var imageBytes = await _aiProvider.GenerateImageAsync(prompt);
+        try
+        {
+            var imageBytes = await _aiProvider.GenerateImageAsync(prompt);
 
-        var folderPath = Path.Combine(
-            _webHostEnvironment.WebRootPath,
-            "images",
-            "generated-projects"
-        );
+            _aiUsageService.RegisterImageUsage(
+                "ImageGeneration",
+                config.ModelName,
+                true,
+                null,
+                subPlatformId
+            );
 
-        Directory.CreateDirectory(folderPath);
+            return imageBytes;
+        }
+        catch (Exception ex)
+        {
+            _aiUsageService.RegisterImageUsage(
+                "ImageGeneration",
+                config.ModelName,
+                false,
+                ex.Message,
+                subPlatformId
+            );
 
-        var fileName = $"project-{Guid.NewGuid():N}.png";
-
-        var filePath = Path.Combine(folderPath, fileName);
-
-        await File.WriteAllBytesAsync(filePath, imageBytes);
-
-        return $"/images/generated-projects/{fileName}";
+            throw;
+        }
     }
 }
