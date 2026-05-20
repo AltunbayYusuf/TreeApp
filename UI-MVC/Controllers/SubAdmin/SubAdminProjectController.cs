@@ -246,6 +246,7 @@ public class SubAdminProjectsController : Controller
             Introduction = project.Introduction,
             Duration = project.Duration,
             FontFamily = project.FontFamily,
+            ColorTheme = project.ColorTheme,
             Type = project.Type,
             IntroMediaUri = project.Photo?.Uri,
             IntroMediaType = project.IntroMediaType
@@ -288,6 +289,7 @@ public class SubAdminProjectsController : Controller
             Introduction = project.Introduction,
             Duration = project.Duration,
             FontFamily = project.FontFamily,
+            ColorTheme = project.ColorTheme,
             Type = project.Type,
             IntroMediaUri = project.Photo?.Uri,
             IntroMediaType = project.IntroMediaType
@@ -433,6 +435,7 @@ public class SubAdminProjectsController : Controller
             ReleaseDate = DateTime.UtcNow,
             Duration = info.Duration,
             FontFamily = info.FontFamily,
+            ColorTheme = info.ColorTheme,
 
             Photo = !string.IsNullOrWhiteSpace(photoUri)
                 ? new Media { Uri = photoUri }
@@ -545,6 +548,7 @@ public class SubAdminProjectsController : Controller
         existingProject.Introduction = info.Introduction;
         existingProject.Duration = info.Duration;
         existingProject.FontFamily = info.FontFamily;
+        existingProject.ColorTheme = info.ColorTheme;
         existingProject.Type = info.Type;
         existingProject.ReactionEmojiGroup = ideation.SelectedEmojiGroup;
 

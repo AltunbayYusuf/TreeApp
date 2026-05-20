@@ -17,6 +17,16 @@ public class CreateProjectInfoViewModel : IValidatableObject
         "Pacifico",
         "Bubblegum Sans"
     };
+    
+    public const string DefaultColorTheme = "Blue";
+
+    public static readonly string[] AllowedColorThemes =
+    {
+        "Blue",
+        "Purple",
+        "Green",
+        "Orange"
+    };
 
     public string SubplatformSlug { get; set; } = "";
 
@@ -40,6 +50,10 @@ public class CreateProjectInfoViewModel : IValidatableObject
     [Required(ErrorMessage = "Lettertype is verplicht.")]
     [MaxLength(50)]
     public string FontFamily { get; set; } = DefaultFontFamily;
+    
+    [Required(ErrorMessage = "Kleurthema is verplicht.")]
+    [MaxLength(50)]
+    public string ColorTheme { get; set; } = DefaultColorTheme;
 
     public ProjectType Type { get; set; } = ProjectType.VerticalScroll;
 
@@ -50,6 +64,12 @@ public class CreateProjectInfoViewModel : IValidatableObject
             yield return new ValidationResult(
                 "Kies een geldig lettertype.",
                 new[] { nameof(FontFamily) });
+        }
+        if (!AllowedColorThemes.Contains(ColorTheme))
+        {
+            yield return new ValidationResult(
+                "Kies een geldig kleurthema.",
+                new[] { nameof(ColorTheme) });
         }
     }
 }

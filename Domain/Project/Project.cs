@@ -26,6 +26,8 @@ public class Project : IValidatableObject
     [MaxLength(50)] public string ReactionEmojiGroup { get; set; } = "👍,❤️";
     public int Duration { get; set; }
     [MaxLength(50)] public string FontFamily { get; set; } = "Inter";
+    [MaxLength(50)]
+    public string ColorTheme { get; set; } = "Blue";
     public DateTime ReleaseDate { get; set; }
 
     public ProjectType Type { get; set; }

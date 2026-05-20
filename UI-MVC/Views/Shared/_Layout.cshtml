@@ -2,6 +2,7 @@
 @using IntegratieProject.UI.MVC
 @using IntegratieProject.BL.interfaces
 @using Microsoft.AspNetCore.Identity
+@using IntegratieProject.UI.MVC.Models
 @inject UserManager<ApplicationUser> UserManager
 @inject IProjectManager ProjectManager
 
@@ -33,6 +34,9 @@
             currentProjectId = "1";
         }
     }
+    
+    var project = int.TryParse(currentProjectId, out var id) ? ProjectManager.GetProject(id) : null;
+    var projectColorTheme = project?.ColorTheme ?? "Blue";
 }
 
 <!DOCTYPE html>
@@ -64,7 +68,7 @@
 <body class="d-flex flex-column min-vh-100" data-subplatform="@currentSubplatform">
 
 <header>
-    <nav class="navbar navbar-expand-sm navbar-dark">
+    <nav class="navbar navbar-expand-sm" style="background-color: @ProjectColorTheme.GetPrimaryColor(projectColorTheme)">
         <div class="container-fluid px-4">
 
             @if (User.Identity?.IsAuthenticated == false)
