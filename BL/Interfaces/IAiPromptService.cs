@@ -10,4 +10,7 @@ public interface IAiPromptService
     string BuildIdeaImprovementPrompt(string title, string text, string language = "");
     string BuildProjectTrendSummaryPrompt(string projectData);
     string BuildOpenQuestionSummaryPrompt(string question, string answers);
+    string BuildIdeaFollowUpQuestionsPrompt(string title, string text);
+    Task<string> BuildProjectImageGenerationPromptAsync(string title, string description);
+    string BuildIdeaSelectionPrompt(string selectionMode, string projectData);
 }

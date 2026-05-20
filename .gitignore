@@ -37,3 +37,5 @@ dist/
 wwwroot/dist/sa-key.json
 
 .claude/
+
+UI-MVC/wwwroot/images/generated-projects/

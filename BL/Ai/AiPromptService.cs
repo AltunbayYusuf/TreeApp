@@ -110,7 +110,7 @@ public class AiPromptService : IAiPromptService
             .Replace("- Schrijf in het Nederlands.", "- Behoud de taal van de gebruiker.")
             .Replace("- Antwoord in het Nederlands", "- Behoud de taal van de gebruiker");
     }
-    
+
     public string BuildProjectTrendSummaryPrompt(string projectData)
     {
         var prompt = _aiRepository.ReadAiPromptByKey("project_trend_summary")
@@ -118,7 +118,7 @@ public class AiPromptService : IAiPromptService
 
         return prompt.PromptText.Replace("{{projectData}}", projectData);
     }
-    
+
     public string BuildOpenQuestionSummaryPrompt(string question, string answers)
     {
         var prompt = _aiRepository.ReadAiPromptByKey("open_question_summary")
@@ -127,5 +127,38 @@ public class AiPromptService : IAiPromptService
         return prompt.PromptText
             .Replace("{{question}}", question)
             .Replace("{{answers}}", answers);
+    }
+
+
+    public string BuildIdeaFollowUpQuestionsPrompt(string title, string text)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("idea_follow_up_questions")
+                     ?? throw new InvalidOperationException("Prompt 'idea_follow_up_questions' niet gevonden.");
+
+        return prompt.PromptText
+            .Replace("{title}", title)
+            .Replace("{text}", text);
+    }
+
+    public Task<string> BuildProjectImageGenerationPromptAsync(string title, string description)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("project_image_generation")
+                     ?? throw new InvalidOperationException("Prompt 'project_image_generation' niet gevonden.");
+
+        var result = prompt.PromptText
+            .Replace("{projectName}", title)
+            .Replace("{introduction}", description);
+
+        return Task.FromResult(result);
+    }
+
+    public string BuildIdeaSelectionPrompt(string selectionMode, string projectData)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("idea_selection")
+                     ?? throw new InvalidOperationException("Prompt 'idea_selection' niet gevonden.");
+
+        return prompt.PromptText
+            .Replace("{{selectionMode}}", selectionMode)
+            .Replace("{{projectData}}", projectData);
     }
 }
