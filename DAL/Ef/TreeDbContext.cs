@@ -15,34 +15,39 @@ namespace IntegratieProject.DAL.Ef;
 
 public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtectionKeyContext
 {
+    public TreeDbContext(DbContextOptions<TreeDbContext> options) : base(options)
+    {
+    }
+    
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+
     public DbSet<GeneralAdmin> GeneralAdmins { get; set; }
     public DbSet<SubAdmin> SubAdmins { get; set; }
     public DbSet<User> Users { get; set; }
+
     public DbSet<Idea> Ideas { get; set; }
     public DbSet<Reaction> Reactions { get; set; }
     public DbSet<Topic> Topics { get; set; }
-    
+
     public DbSet<Media> Media { get; set; }
+
     public DbSet<Platform> Platforms { get; set; }
     public DbSet<SubPlatform> SubPlatforms { get; set; }
     public DbSet<Project> Projects { get; set; }
+
     public DbSet<Answer> Answers { get; set; }
     public DbSet<SurveyResponse> SurveyResponses { get; set; }
     public DbSet<Question> Questions { get; set; }
     public DbSet<QuestionList> QuestionList { get; set; }
     public DbSet<Section> Section { get; set; }
     public DbSet<QuestionOption> QuestionOptions { get; set; }
-    
+
     public DbSet<ConditionalQuestion> ConditionalQuestions { get; set; }
+
     public DbSet<AiPrompt> AiPrompts { get; set; }
     public DbSet<AiUsage> AiUsages { get; set; }
     public DbSet<AiOpenQuestionSummary> AiOpenQuestionSummaries { get; set; }
-
-
-    public TreeDbContext(DbContextOptions options) : base(options)
-    {
-    }
+    public DbSet<AiIdeaSelection> AiIdeaSelections { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,10 +93,13 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
             .WithMany(p => p.SubPlatforms);
 
         modelBuilder.Entity<SubPlatform>()
+            .HasOne(sp => sp.Logo);
+
+        modelBuilder.Entity<SubPlatform>()
             .HasMany(sp => sp.Projects)
             .WithOne(p => p.SubPlatform)
             .HasForeignKey(p => p.SubPlatformId);
-        
+
         modelBuilder.Entity<SubPlatform>()
             .HasIndex(sp => sp.Slug)
             .IsUnique();
@@ -129,7 +137,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
             .HasMany(sr => sr.Answers)
             .WithOne(a => a.SurveyResponse)
             .HasForeignKey(a => a.SurveyResponseId);
-        
+
         modelBuilder.Entity<ConditionalQuestion>()
             .HasOne(cq => cq.ParentQuestion)
             .WithMany(q => q.ConditionalQuestions)
@@ -139,7 +147,7 @@ public class TreeDbContext : IdentityDbContext<ApplicationUser>, IDataProtection
             .HasOne(cq => cq.FollowUpQuestion)
             .WithMany()
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         modelBuilder.Entity<AiOpenQuestionSummary>()
             .HasIndex(s => new { s.ProjectId, s.QuestionId })
             .IsUnique();

@@ -1,4 +1,8 @@
-﻿using IntegratieProject.BL.Domain.project;
+﻿using Microsoft.AspNetCore.Hosting; // Nodig voor IWebHostEnvironment
+using Microsoft.AspNetCore.Http; // Nodig voor IFormFile
+using System.IO;
+using IntegratieProject.BL.Domain.ideas;
+using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.DAL.Identity;
@@ -10,11 +14,16 @@ public class SubplatformManager : ISubplatformManager
 {
     private readonly ISubplatformRepository _subplatformRepository;
     private readonly IUserManager _userManager;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public SubplatformManager(ISubplatformRepository subplatformRepository, IUserManager userManager)
+    public SubplatformManager(
+        ISubplatformRepository subplatformRepository,
+        IUserManager userManager,
+        IWebHostEnvironment webHostEnvironment) // Voeg deze toe
     {
         _subplatformRepository = subplatformRepository;
         _userManager = userManager;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     public SubPlatform GetSubPlatformBySlug(string slug)
@@ -32,10 +41,11 @@ public class SubplatformManager : ISubplatformManager
         _subplatformRepository.CreateSubPlatform(subPlatform);
     }
 
-    public async Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail)
+    public async Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail,
+        IFormFile logoFile = null)
     {
         var generatedPassword = GenerateRandomPassword();
-        
+
         var user = new ApplicationUser
         {
             UserName = adminEmail,
@@ -48,11 +58,7 @@ public class SubplatformManager : ISubplatformManager
         if (result.Succeeded)
         {
             var roleResult = await _userManager.AddUserToRoleAsync(user, "SubAdmin");
-            if (!roleResult.Succeeded)
-            {
-                var roleErrors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                throw new Exception($"Kon SubAdmin rol niet toekennen: {roleErrors}");
-            }
+            if (!roleResult.Succeeded) throw new Exception("...");
 
             var rootPlatform = _subplatformRepository.ReadPlatform();
 
@@ -60,8 +66,28 @@ public class SubplatformManager : ISubplatformManager
             {
                 CompanyName = companyName,
                 Slug = slug,
-                Platform = rootPlatform
+                Platform = rootPlatform,
             };
+
+            if (logoFile != null && logoFile.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "logos");
+
+                Directory.CreateDirectory(uploadsFolder);
+
+                string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(logoFile.FileName);
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await logoFile.CopyToAsync(fileStream);
+                }
+
+                newSubPlatform.Logo = new Media
+                {
+                    Uri = $"/images/logos/{uniqueFileName}"
+                };
+            }
 
             _subplatformRepository.CreateSubPlatform(newSubPlatform);
 
@@ -92,5 +118,17 @@ public class SubplatformManager : ISubplatformManager
     private string GenerateRandomPassword()
     {
         return Guid.NewGuid().ToString("N").Substring(0, 8) + "Aa1!";
+    }
+
+    public void UpdateSubPlatformLogo(string slug, string logoUri)
+    {
+        var subPlatform = _subplatformRepository.ReadSubPlatformBySlug(slug);
+
+        if (subPlatform != null)
+        {
+            subPlatform.Logo = new Media { Uri = logoUri };
+
+            _subplatformRepository.UpdateSubPlatform(subPlatform);
+        }
     }
 }

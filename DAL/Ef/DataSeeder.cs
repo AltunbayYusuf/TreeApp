@@ -49,7 +49,8 @@ public class DataSeeder
             Slug = "kdg-hogeschool",
             Language = Language.Nl,
             Platform = platform,
-            SubAdmins = kdgAdmins
+            SubAdmins = kdgAdmins,
+            Logo = kdgLogo
         };
 
         var project = new Project
@@ -64,7 +65,7 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-            Logo = kdgLogo,
+           
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -82,7 +83,6 @@ public class DataSeeder
             Duration = 30,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-            Logo = kdgLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -469,6 +469,7 @@ public class DataSeeder
             Slug = "ap-hogeschool",
             Language = Language.Nl,
             Platform = platform,
+            Logo = apLogo,
             SubAdmins = apAdmins
         };
 
@@ -485,7 +486,6 @@ public class DataSeeder
             Duration = 12,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = apSubPlatform,
-            Logo = apLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/ap-photo.jpg"
@@ -504,7 +504,6 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = apSubPlatform,
-            Logo = apLogo,
             Photo = new Media
             {
                 Uri = "/images/photos/ap-photo.jpg"
@@ -841,31 +840,36 @@ public class DataSeeder
                          Titel: {title}
                          Inhoud: {text}
 
-                         Geef ALLEEN JSON terug:
+                         Geef ALLEEN geldige JSON terug:
 
                          {
                            "isToxic": true/false,
                            "needsMoreDetail": true/false,
-                           "explanation": "korte uitleg",
+                           "explanation": "Gebruik alleen de delen die fout zijn. Bijvoorbeeld: Titel: ... Tekst: ...",
                            "suggestedTitle": "verbeterde titel",
                            "suggestedText": "verbeterde tekst"
                          }
 
                          Regels:
-                         - isToxic = true bij scheldwoorden of beledigingen
-                         - needsMoreDetail = true als het idee te kort of vaag is
+                         - isToxic = true bij scheldwoorden, beledigingen, haatdragende of agressieve taal
+                         - needsMoreDetail = true als het idee te kort, te vaag of onvoldoende concreet is
+
+                         - Zet in explanation alleen uitleg over de delen die fout zijn
+                         - Als alleen de titel fout is: begin met "Titel: ..."
+                         - Als alleen de tekst fout is: begin met "Tekst: ..."
+                         - Als beide fout zijn: gebruik "Titel: ..." en daarna "Tekst: ..."
+                         - Benoem geen onderdeel dat niet fout is
 
                          - Als isToxic = true:
                            → herschrijf titel en tekst op een respectvolle manier
-                           → voorbeeld:
-                             "ik vind jou een klootzak" → "ik ben het niet eens met deze persoon"
+                           → behoud altijd dezelfde betekenis
 
                          - Als needsMoreDetail = true:
-                           → maak het idee concreter
+                           → maak het idee concreter zonder de bedoeling te veranderen
 
-                         - Behoud altijd de betekenis
-                         - Geen lege suggestedTitle of suggestedText
-                         - Behoud de taal van de gebruiker
+                         - suggestedTitle en suggestedText mogen nooit leeg zijn
+                         - Antwoord altijd in het Nederlands
+                         - Geef geen markdown of extra tekst buiten de JSON
                          """,
             IsActive = true
         };
@@ -915,24 +919,6 @@ public class DataSeeder
             IsActive = true
         };
 
-        var projectImagePrompt = new AiPrompt
-        {
-            Key = "project_image_generation",
-            Name = "Project image generation",
-            PromptText = """
-                         Maak een visueel aantrekkelijke, moderne afbeelding voor een jongerenproject.
-
-                         Projectnaam:
-                         {projectName}
-
-                         Regels:
-                         - De afbeelding moet passen bij een digitaal participatieplatform voor jongeren.
-                         - Gebruik een frisse, moderne en toegankelijke stijl.
-                         - Toon geen tekst in de afbeelding.
-                         - De afbeelding moet bruikbaar zijn als project cover.
-                         """,
-            IsActive = true
-        };
 
         var projectIntroPrompt = new AiPrompt
         {
@@ -954,9 +940,10 @@ public class DataSeeder
             IsActive = true
         };
 
-        var surveyGeneraration = new AiPrompt
+        var surveyGeneration = new AiPrompt
         {
             Key = "survey_generation",
+            Name = "survey generation",
             PromptText = """ 
                          Je bent een AI-assistent die helpt om vragenlijsten te maken voor participatieprojecten.
 
@@ -1097,6 +1084,7 @@ public class DataSeeder
         var openQuestionSummaryPrompt = new AiPrompt
         {
             Key = "open_question_summary",
+            Name = "Open question summary",
             PromptText = """
                          Vat de open antwoorden kort samen voor een subadmin.
 
@@ -1122,6 +1110,125 @@ public class DataSeeder
 
                          Antwoorden:
                          {{answers}}
+                         """,
+            IsActive = true
+        };
+
+
+        var ideaFollowUpPrompt = new AiPrompt
+        {
+            Key = "idea_follow_up_questions",
+            Name = "idea follow up questions",
+            PromptText = """
+                         Je beoordeelt of een idee extra verduidelijking nodig heeft.
+
+                         Titel:
+                         {title}
+
+                         Idee:
+                         {text}
+
+                         Stel ALLEEN bijvragen als het idee echt te vaag is om te begrijpen.
+                         Als het idee al duidelijk genoeg is, geef dan exact dit terug:
+                         []
+
+                         Als het idee onduidelijk is, geef dan maximaal 2 korte vragen terug als JSON-array.
+
+                         Voorbeelden:
+
+                         Duidelijk idee:
+                         Titel: Extra stille studieruimtes
+                         Idee: Ik stel voor om in gebouw B extra stille studieruimtes te voorzien tijdens de examenperiode zodat studenten geconcentreerd kunnen werken.
+                         Antwoord:
+                         []
+
+                         Onduidelijk idee:
+                         Titel: Beter systeem
+                         Idee: Het moet beter.
+                         Antwoord:
+                         ["Wat moet er precies beter?", "Voor wie is dit probleem vooral belangrijk?"]
+
+                         Regels:
+                         - Geef ALLEEN een JSON-array terug
+                         - Geen markdown
+                         - Geen uitleg
+                         - Maximum 2 vragen
+                         - Bij twijfel: geef []
+                         """,
+        };
+        var projectImagePrompt = new AiPrompt
+        {
+            Key = "project_image_generation",
+            Name = "Project image generation",
+            PromptText = """
+                         Maak een moderne illustratie zonder tekst.
+
+                         Thema van het project:
+                         {projectName}
+
+                         Context:
+                         {introduction}
+
+                         Beeldregels:
+                         - Maak één visuele illustratie die past bij het thema.
+                         - Geen poster, geen flyer, geen document, geen scherm en geen titelkaart.
+                         - Geen tekst, geen letters, geen cijfers, geen symbolen, geen logo's en geen watermerken.
+                         - Toon geen herkenbare echte personen.
+                         - Gebruik een frisse, moderne, toegankelijke stijl.
+                         - De afbeelding is bedoeld als sfeerbeeld voor een jongerenparticipatieplatform.
+                         - Maak een brede horizontale cover-afbeelding voor een projectkaart.
+                         """,
+            IsActive = true
+        };
+
+        var ideaSelectionPrompt = new AiPrompt
+        {
+            Key = "idea_selection",
+            Name = "Idea selection",
+            PromptText = """
+                         Je bent een AI-analist voor een jongerenparticipatieplatform.
+
+                         Je krijgt ideeën en reacties van één project.
+                         Selecteer alleen ideeën die inhoudelijk duidelijk van elkaar verschillen.
+
+                         Selectie-modus:
+                         different
+
+                         Belangrijk:
+                         - Gebruik alleen de meegegeven data.
+                         - Verzin geen nieuwe ideeën.
+                         - Gebruik de IDEA_ID's exact zoals meegegeven.
+                         - Bekijk zowel de ideeën als de reacties.
+                         - Antwoord ALLEEN met geldige JSON.
+                         - Geen markdown.
+                         - Geen extra uitleg buiten JSON.
+                         - Schrijf korte Nederlandstalige groepsnamen en redenen.
+
+                         Selectieregels:
+                         - Toon alleen verschillende ideeën.
+                         - Als meerdere ideeën gelijkaardig zijn of over hetzelfde thema gaan, kies dan maar 1 representatief idee.
+                         - Gelijkaardige ideeën mogen dus niet allemaal terugkomen.
+                         - Breed selecteren mag niet.
+                         - Groeperen van gelijkaardige ideeën mag niet.
+                         - Elk group-object bevat exact 1 ideaId.
+                         - Een idee mag maar één keer voorkomen in de JSON.
+                         - Als er geen ideeën zijn, geef exact dit terug:
+                           {"mode":"different","groups":[]}
+
+                         JSON schema:
+                         {
+                           "mode": "different",
+                           "groups": [
+                             {
+                               "title": "korte naam van het unieke thema",
+                               "reason": "waarom dit idee geselecteerd werd als verschillend/representatief",
+                               "ideaIds": [1]
+                             }
+                           ]
+                         }
+
+                         DATA:
+                         {{projectData}}
                          """,
             IsActive = true
         };
@@ -1343,10 +1450,13 @@ public class DataSeeder
         dbContext.AiPrompts.Add(reactionModerationPrompt);
         dbContext.AiPrompts.Add(projectImagePrompt);
         dbContext.AiPrompts.Add(projectIntroPrompt);
-        dbContext.AiPrompts.Add(surveyGeneraration);
+        dbContext.AiPrompts.Add(surveyGeneration);
         dbContext.AiPrompts.Add(ideaImprovementPrompt);
         dbContext.AiPrompts.Add(projectTrendSummaryPrompt);
         dbContext.AiPrompts.Add(openQuestionSummaryPrompt);
+        dbContext.AiPrompts.Add(ideaFollowUpPrompt);
+        dbContext.AiPrompts.Add(ideaSelectionPrompt);
+
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);
         dbContext.SubPlatforms.Add(apSubPlatform);

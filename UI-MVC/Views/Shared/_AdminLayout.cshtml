@@ -129,7 +129,7 @@
                 <span class="sidebar-section-label">Platformbeheer</span>
 
                 <a class="sidebar-link @(ctrl == "Platform" ? "active" : "")"
-                   asp-controller="Platform"
+                   asp-controller="Admin"
                    asp-action="Index">
                     <span class="sidebar-link-icon">
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -141,7 +141,7 @@
                 </a>
 
                 <a class="sidebar-link @(ctrl == "Subplatform" ? "active" : "")"
-                   asp-controller="Subplatform"
+                   asp-controller="AdminStats"
                    asp-action="Index">
                     <span class="sidebar-link-icon">
                         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -149,6 +149,19 @@
                         </svg>
                     </span>
                     Subplatforms
+                </a>
+                <a class="sidebar-link @(ctrl == "AdminAiPrompts" ? "active" : "")"
+                   asp-controller="AdminAiPrompts"
+                   asp-action="Index">
+                    <span class="sidebar-link-icon">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path d="M9 12h6" />
+                            <path d="M9 16h6" />
+                            <path d="M9 8h6" />
+                            <path d="M5 4h14v16H5z" />
+                        </svg>
+                    </span>
+                    Prompts
                 </a>
             }
 
@@ -158,9 +171,12 @@
             <div class="sidebar-user-row">
                 <div class="sidebar-avatar">@userInitial</div>
                 <div>
-                    <div class="sidebar-user-name">@userName</div>
+                    <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
+                       title="Beheer account">@userName</a>
                     <div class="sidebar-user-role">@(isSubAdmin ? "Sub Admin" : "Generaal Admin")</div>
                 </div>
+                <a id="manageIcon" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
+                   title="Beheer account">⚙️</a>
             </div>
             <form asp-area="Identity"
                   asp-page="/Account/Logout"
@@ -169,6 +185,7 @@
                 @Html.AntiForgeryToken()
                 <button type="submit" class="sidebar-logout-btn">&#8617; Uitloggen</button>
             </form>
+          
         </div>
 
     </aside>

@@ -1,4 +1,4 @@
-﻿@using IntegratieProject.DAL.Identity
+@using IntegratieProject.DAL.Identity
 @using IntegratieProject.UI.MVC
 @using IntegratieProject.BL.interfaces
 @using Microsoft.AspNetCore.Identity
@@ -6,6 +6,7 @@
 @inject IProjectManager ProjectManager
 
 @{
+    var currentTheme = Context.Request.Cookies["theme"] ?? "light";
     var currentSubplatform = Context.Items["subplatform"]?.ToString() ?? "";
 
     var currentProjectId = Context.Request.Query["projectId"].ToString();
@@ -35,26 +36,27 @@
 }
 
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="nl" data-bs-theme="@currentTheme">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Echo</title>
+
     <style>
         body { visibility: hidden; }
         body.css-loaded { visibility: visible; }
     </style>
 
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
 
     @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
     {
-        <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true" />
+        <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true"/>
         <script type="module" vite-src="~/main.ts"></script>
     }
     else
     {
-        <link rel="stylesheet" asp-href-include="~/dist/main*.css" />
+        <link rel="stylesheet" asp-href-include="~/dist/main*.css"/>
         <script type="module" src="~/dist/main.js"></script>
     }
 </head>
@@ -121,6 +123,7 @@
 
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav text-center text-sm-start mx-auto mx-sm-0">
+
                     @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
                     {
                         <li class="nav-item">
@@ -224,6 +227,13 @@
                             </button>
                         </div>
                     }
+
+                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex"
+                            id="themeToggleBtn"
+                            type="button"
+                            aria-label="Wissel thema">
+                        <span id="themeIcon">🌓</span>
+                    </button>
 
                     <div class="dropdown d-none d-sm-block">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle notranslate"

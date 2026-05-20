@@ -48,7 +48,6 @@ public class AiModerationService : IAiModerationService
     {
         try
         {
-          
             var rawText = await _aiProvider.GenerateAsync(prompt);
 
             var json = ExtractJson(rawText);

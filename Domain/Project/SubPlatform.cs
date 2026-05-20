@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.users;
 
 namespace IntegratieProject.BL.Domain.project;
@@ -14,6 +15,8 @@ public class SubPlatform
     [Required(ErrorMessage = "Subplatform must have a slug")]
     [MaxLength(50)]
     public string Slug { get; set; }
+
+    public Media Logo { get; set; }
 
     public Platform Platform { get; set; }
     public Language Language { get; set; }

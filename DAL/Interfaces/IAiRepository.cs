@@ -14,4 +14,11 @@ public interface IAiRepository
         string summary,
         int answerCount,
         int lastAnswerId);
+    IList<AiPrompt> ReadAllAiPrompts();
+    AiPrompt ReadAiPromptById(int id);
+    void UpdateAiPrompt(AiPrompt prompt);
+    
+    AiIdeaSelection ReadIdeaSelection(int projectId, string selectionMode);
+
+    void SaveIdeaSelection(int projectId, string selectionMode, string resultJson, int ideaCount, int reactionCount);
 }

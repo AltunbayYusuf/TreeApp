@@ -36,7 +36,7 @@
 }
 
 .project-info-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 1.25rem 1.5rem;
@@ -60,7 +60,7 @@
 }
 
 .project-meta-card {
-  background: #fff;
+  background: var(--echo-card-bg);
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 0.875rem 1.25rem;
@@ -108,7 +108,7 @@
   border: 1px solid var(--echo-border);
   border-radius: var(--echo-radius);
   padding: 0.875rem 1.25rem;
-  background: #fff;
+  background: var(--echo-card-bg);
   color: var(--echo-muted);
   text-decoration: none;
   font-size: 0.88rem;

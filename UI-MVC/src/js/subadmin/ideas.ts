@@ -2,7 +2,7 @@
 import { DomUtils } from '../helpers/utils';
 
 type SortOrder = 'newest' | 'oldest';
-type SimilarityFilter = 'all' | 'common' | 'unique';
+type SimilarityFilter = 'all' | 'similar' | 'different' | 'broad';
 
 interface ReactionDto {
     id: number;
@@ -23,6 +23,17 @@ interface IdeaDto {
     reactions: ReactionDto[];
 }
 
+interface IdeaSelectionGroupDto {
+    title: string;
+    reason: string;
+    ideaIds: number[];
+}
+
+interface IdeaSelectionDto {
+    mode: SimilarityFilter;
+    groups: IdeaSelectionGroupDto[];
+}
+
 export class SubAdminIdeas {
     private subplatformId: number = 0;
     private allIdeas: IdeaDto[] = [];
@@ -33,6 +44,9 @@ export class SubAdminIdeas {
     private statusSort: 'none' | 'Accepted' | 'InReview' | 'Rejected' = 'none';
     private ideaToDelete: IdeaDto | null = null;
     private reactionToDelete: { ideaId: number; reactionId: number } | null = null;
+
+    private selectedProjectId: number | null = null;
+    private aiSelection: IdeaSelectionDto | null = null;
 
     init(): void {
         const mount = document.getElementById('subplatformIdData');
@@ -116,18 +130,35 @@ export class SubAdminIdeas {
         const select = e.currentTarget as HTMLSelectElement;
         const projectId = select.value ? Number(select.value) : null;
 
+        this.selectedProjectId = projectId;
         this.similarityFilter = 'all';
+        this.aiSelection = null;
+
         this.updateSimilarityButtons();
         this.toggleSimilarityGroup(projectId !== null);
 
         this.fetchAndRender(projectId);
     }
 
-    private handleSimilarityClick(e: MouseEvent): void {
+    private async handleSimilarityClick(e: MouseEvent): Promise<void> {
         const btn = e.currentTarget as HTMLButtonElement;
-        this.similarityFilter = (btn.dataset.similarity ?? 'all') as SimilarityFilter;
+        const mode = (btn.dataset.similarity ?? 'all') as SimilarityFilter;
+
+        this.similarityFilter = mode;
         this.updateSimilarityButtons();
-        this.renderRows();
+
+        if (mode === 'all') {
+            this.aiSelection = null;
+            this.renderRows();
+            return;
+        }
+
+        if (!this.selectedProjectId) {
+            this.showError('Kies eerst een project.');
+            return;
+        }
+
+        await this.fetchAiSelection(this.selectedProjectId, mode);
     }
 
     private handleSortClick(e: MouseEvent): void {
@@ -158,6 +189,40 @@ export class SubAdminIdeas {
         } catch (error) {
             console.error('Fout bij ophalen ideeën:', error);
             this.showError('Kon ideeën niet ophalen. Probeer opnieuw.');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+    private async fetchAiSelection(projectId: number, mode: SimilarityFilter): Promise<void> {
+        this.showLoading(true);
+
+        try {
+            const response = await fetch('/api/subadmin-projects/idea-selection', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': DomUtils.getAntiForgeryToken()
+                },
+                body: JSON.stringify({
+                    projectId,
+                    selectionMode: mode
+                })
+            });
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+            const data = await response.json();
+
+            if (!data.ok) {
+                this.showError(data.message ?? 'AI-selectie kon niet opgehaald worden.');
+                return;
+            }
+
+            this.aiSelection = data.selection as IdeaSelectionDto;
+            this.renderRows();
+        } catch (error) {
+            console.error('Fout bij AI-selectie:', error);
+            this.showError('Kon AI-selectie niet ophalen.');
         } finally {
             this.showLoading(false);
         }
@@ -220,14 +285,54 @@ export class SubAdminIdeas {
             if (emptyRow) emptyRow.style.display = '';
             return;
         }
+
         if (emptyRow) emptyRow.style.display = 'none';
 
-        ideas.forEach(idea => {
+        if (this.similarityFilter !== 'all' && this.aiSelection?.groups?.length) {
+            this.renderAiGroups(tbody, ideas);
+        } else {
+            ideas.forEach(idea => {
+                tbody.appendChild(this.buildIdeaRow(idea));
+                tbody.appendChild(this.buildReactionsRow(idea));
+            });
+        }
+
+        this.attachReactionDeleteHandlers();
+    }
+
+    private renderAiGroups(tbody: HTMLElement, ideas: IdeaDto[]): void {
+        const renderedIdeaIds = new Set<number>();
+
+        this.aiSelection?.groups.forEach(group => {
+            const groupIdeas = group.ideaIds
+                .map(id => ideas.find(i => i.id === id))
+                .filter((idea): idea is IdeaDto => idea !== undefined);
+
+            if (groupIdeas.length === 0) return;
+
+            const header = document.createElement('tr');
+            header.className = 'idea-row table-light';
+            header.innerHTML = `
+            <td colspan="8" class="p-3">
+                <div class="fw-bold">${DomUtils.escapeHtml(group.title)}</div>
+                <div class="text-muted small">${DomUtils.escapeHtml(group.reason)}</div>
+            </td>
+        `;
+            tbody.appendChild(header);
+
+            groupIdeas.forEach(idea => {
+                renderedIdeaIds.add(idea.id);
+                tbody.appendChild(this.buildIdeaRow(idea));
+                tbody.appendChild(this.buildReactionsRow(idea));
+            });
+        });
+
+        const remainingIdeas = ideas.filter(i => !renderedIdeaIds.has(i.id));
+
+        remainingIdeas.forEach(idea => {
             tbody.appendChild(this.buildIdeaRow(idea));
             tbody.appendChild(this.buildReactionsRow(idea));
         });
-
-        this.attachReactionDeleteHandlers();
     }
 
     private buildIdeaRow(idea: IdeaDto): HTMLTableRowElement {

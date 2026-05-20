@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Admin Dashboard";
+    Layout = "_AdminLayout";
 }
 
 <h1>Admin Dashboard</h1>
@@ -97,7 +98,7 @@
                     <p><strong>Totaal deelnemers:</strong><br/>@(subPlatform.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0)</p>
                 </div>
             </div>
-            <a class="text-center d-block mt-2 p-2 border rounded text-decoration-none text-dark bg-light"
+            <a class="text-center d-block mt-2 p-2 border rounded text-decoration-none text-bg-light"
                asp-action="Details"
                asp-controller="Platform"
                asp-route-id="@subPlatform.Id">
