@@ -211,32 +211,5 @@
 
 @await RenderSectionAsync("Scripts", required: false)
 
-<script>
-(function () {
-    var toggle = document.getElementById('adminSidebarToggle');
-    var sidebar = document.getElementById('adminSidebar');
-    var overlay = document.getElementById('adminOverlay');
-
-    function openSidebar() {
-        sidebar.classList.add('is-open');
-        overlay.classList.add('is-visible');
-        document.body.style.overflow = 'hidden';
-    }
-    function closeSidebar() {
-        sidebar.classList.remove('is-open');
-        overlay.classList.remove('is-visible');
-        document.body.style.overflow = '';
-    }
-
-    if (toggle) toggle.addEventListener('click', function () {
-        sidebar.classList.contains('is-open') ? closeSidebar() : openSidebar();
-    });
-    if (overlay) overlay.addEventListener('click', closeSidebar);
-})();
-
-window.addEventListener('load', function () {
-    document.body.classList.add('css-loaded');
-});
-</script>
 </body>
 </html>
