@@ -13,6 +13,7 @@ namespace IntegratieProject.UI.MVC.Controllers.Api;
 [Route("api/subadmin-projects")]
 public class SubAdminProjectsController : ControllerBase
 {
+    private const int MaxRangeValue = 10;
     
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
@@ -55,8 +56,8 @@ public class SubAdminProjectsController : ControllerBase
                         Options = q.Answers?
                             .Where(a => !string.IsNullOrWhiteSpace(a))
                             .ToList() ?? new List<string>(),
-                        RangeMin = int.TryParse(q.Min, out var min) ? min : null,
-                        RangeMax = int.TryParse(q.Max, out var max) ? max : null
+                        RangeMin = int.TryParse(q.Min, out var min) ? Math.Min(min, MaxRangeValue) : null,
+                        RangeMax = int.TryParse(q.Max, out var max) ? Math.Min(max, MaxRangeValue) : null
                     })
                     .ToList()
             }).ToList()

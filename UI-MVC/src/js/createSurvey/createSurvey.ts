@@ -4,6 +4,7 @@ import type { ConditionalData, QuestionData, SectionData } from "../helpers/type
 export class SurveyBuilder {
     private questionCount: number = 0;
     private readonly maxQuestions: number = 20;
+    private readonly maxRangeValue: number = 10;
     private sectionCount: number = 0;
     private isLoading: boolean = false;
     private saveTimeout?: number;
@@ -242,9 +243,10 @@ export class SurveyBuilder {
         if (select.value === "range") {
             container.innerHTML = `
                 <div class="d-flex gap-2">
-                    <input type="number" placeholder="Min" class="form-control form-control-sm" />
-                    <input type="number" placeholder="Max" class="form-control form-control-sm" />
+                    <input type="number" placeholder="Min" min="1" max="${this.maxRangeValue}" class="form-control form-control-sm" />
+                    <input type="number" placeholder="Max" min="1" max="${this.maxRangeValue}" aria-describedby="rangeMaxHelp" class="form-control form-control-sm" />
                 </div>
+                <div id="rangeMaxHelp" class="form-text small">Maximumwaarde kan tot ${this.maxRangeValue} gekozen worden.</div>
             `;
         }
 
