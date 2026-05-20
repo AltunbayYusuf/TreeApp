@@ -1,0 +1,83 @@
+﻿@model IList<IntegratieProject.UI.MVC.Models.Admin.AiPromptViewModel>
+
+@{
+    ViewData["Title"] = "Prompts";
+    Layout = "_AdminLayout";
+}
+
+<div class="admin-page admin-prompts-page">
+
+    <div class="admin-header">
+        <div>
+            <h1 class="admin-title">Prompts</h1>
+            <p class="admin-subtitle">Beheer de centrale AI-prompts van het platform.</p>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <div class="prompt-navigation">
+        <button type="button" class="btn btn-outline-secondary prompt-arrow" id="promptPrev">←</button>
+        <button type="button" class="btn btn-outline-secondary prompt-arrow" id="promptNext">→</button>
+    </div>
+
+    <div class="prompts-scroll" id="promptsScroll">
+        @foreach (var prompt in Model)
+        {
+            <form class="prompt-card"
+                  asp-controller="AdminAiPrompts"
+                  asp-action="Update"
+                  asp-route-id="@prompt.Id"
+                  method="post"
+                  data-prompt-card>
+
+                @Html.AntiForgeryToken()
+
+                <button type="button" class="prompt-title" data-focus-prompt>
+                    @prompt.Name
+                </button>
+
+                <textarea class="form-control prompt-text"
+                          name="promptText">@prompt.PromptText</textarea>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    Save
+                </button>
+            </form>
+        }
+    </div>
+</div>
+
+<div class="modal fade" id="unsavedPromptModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Niet-opgeslagen wijzigingen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
+            </div>
+
+            <div class="modal-body">
+                Wil je de vorige prompt opslaan of de wijzigingen verwijderen?
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="cancelSwitchPrompt">
+                    Annuleren
+                </button>
+
+                <button type="button" class="btn btn-outline-danger" id="discardPromptChanges">
+                    Wijzigingen verwijderen
+                </button>
+
+                <button type="button" class="btn btn-primary" id="savePromptChanges">
+                    Opslaan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

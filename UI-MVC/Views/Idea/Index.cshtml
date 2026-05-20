@@ -32,6 +32,7 @@
             + Ik heb een idee!
         </a>
     </div>
+    <div id="ideasPageData" data-project-id="@Model.Project.Id"></div>
 
     <div class="ideas-filter-bar mt-3 d-flex align-items-end justify-content-between flex-wrap gap-3">
         <form method="get"
@@ -65,16 +66,6 @@
             </div>
         </form>
 
-        <div>
-            <a asp-controller="Idea"
-               asp-action="Create"
-               asp-route-projectId="@Model.Project.Id"
-               class="btn btn-primary">
-                Ik heb een idee!
-            </a>
-            
-        </div>
-
         <div class="d-flex align-items-center gap-2">
             <label class="fw-semibold mb-0 text-nowrap">Ideeën:</label>
             <div class="btn-group btn-group-sm" role="group" aria-label="Idee filter">
@@ -83,6 +74,9 @@
                 </button>
                 <button type="button" class="btn btn-outline-secondary" data-idea-filter="mine">
                     Mijn ideeën
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-idea-filter="different">
+                    Verschillend
                 </button>
             </div>
         </div>
@@ -104,6 +98,7 @@
                                     new List<IntegratieProject.BL.Domain.ideas.Reaction>();
 
                 <div class="idea-card idea-item @(isOwnIdea ? "idea-item-own" : "")"
+                     data-idea-id="@idea.Id"
                      data-own-idea="@(isOwnIdea.ToString().ToLowerInvariant())"
                      style="display:none;">
 

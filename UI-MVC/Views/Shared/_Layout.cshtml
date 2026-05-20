@@ -1,5 +1,8 @@
-﻿@using IntegratieProject.UI.MVC
+@using IntegratieProject.DAL.Identity
+@using IntegratieProject.UI.MVC
 @using IntegratieProject.BL.interfaces
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
 @inject IProjectManager ProjectManager
 
 @{
@@ -33,22 +36,19 @@
 }
 
 <!DOCTYPE html>
-<html lang="nl" data-bs-theme="light">
+<html lang="nl" data-bs-theme="@currentTheme">
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] - Echo</title>
-    <style>
-        body {
-            visibility: hidden;
-        }
 
-        body.css-loaded {
-            visibility: visible;
-        }
+    <style>
+        body { visibility: hidden; }
+        body.css-loaded { visibility: visible; }
     </style>
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+
     @if (Context.RequestServices.GetRequiredService<IWebHostEnvironment>().IsDevelopment())
     {
         <link rel="stylesheet" vite-href="~/main.scss" asp-append-version="true"/>
@@ -59,12 +59,14 @@
         <link rel="stylesheet" asp-href-include="~/dist/main*.css"/>
         <script type="module" src="~/dist/main.js"></script>
     }
-
 </head>
-<body data-subplatform="@currentSubplatform">
+
+<body class="d-flex flex-column min-vh-100" data-subplatform="@currentSubplatform">
+
 <header>
     <nav class="navbar navbar-expand-sm navbar-dark">
         <div class="container-fluid px-4">
+
             @if (User.Identity?.IsAuthenticated == false)
             {
                 <a class="navbar-brand"
@@ -75,13 +77,53 @@
                     Echo
                 </a>
             }
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse"
-                    aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+
+            <div class="d-flex align-items-center gap-2 ms-auto">
+
+                <div class="dropdown d-sm-none">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle notranslate"
+                            type="button"
+                            id="languageDropdownMobile"
+                            translate="no"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                        NL
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdownMobile">
+                        <li>
+                            <button class="dropdown-item"
+                                    type="button"
+                                    data-language-option="nl"
+                                    data-language-label="NL">
+                                Nederlands
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item"
+                                    type="button"
+                                    data-language-option="en"
+                                    data-language-label="EN">
+                                Engels
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
+                <button class="navbar-toggler"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target=".navbar-collapse"
+                        aria-controls="navbarSupportedContent"
+                        aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+            </div>
+
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav text-center text-sm-start mx-auto mx-sm-0">
+
                     @if (User.IsInRole(CustomIdentityConstants.SubAdminRoleName))
                     {
                         <li class="nav-item">
@@ -111,15 +153,20 @@
                     else if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))
                     {
                         <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-controller="Admin" asp-action="Index"> Dashboard</a>
+                            <a class="nav-link"
+                               asp-area=""
+                               asp-controller="Admin"
+                               asp-action="Index">
+                                Dashboard
+                            </a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link"
                                asp-controller="AdminStats"
                                asp-action="Index">
                                 Overview
                             </a>
-
                         </li>
                     }
                     else
@@ -133,6 +180,7 @@
                                 Project
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a class="nav-link"
                                asp-area=""
@@ -153,37 +201,50 @@
                         </li>
                     }
                 </ul>
-                <div class="d-flex align-items-center gap-3">
+
+                <div class="d-flex align-items-center gap-3 ms-auto">
+
                     @if (User.Identity?.IsAuthenticated != true)
                     {
-                        <div class="font-size-control" role="group" aria-label="Zoom aanpassen">
-                            <button type="button" class="font-size-button" data-font-size="down"
+                        <div class="font-size-control d-none d-md-inline-flex"
+                             role="group"
+                             aria-label="Zoom aanpassen">
+
+                            <button type="button"
+                                    class="font-size-button"
+                                    data-font-size="down"
                                     aria-label="Tekst verkleinen">
                                 -
                             </button>
 
                             <span class="font-size-value" data-font-size-value>100%</span>
 
-                            <button type="button" class="font-size-button" data-font-size="up"
+                            <button type="button"
+                                    class="font-size-button"
+                                    data-font-size="up"
                                     aria-label="Tekst vergroten">
                                 +
                             </button>
                         </div>
                     }
-                    <button class="btn btn-outline-secondary btn-sm" id="themeToggleBtn" type="button"
+
+                    <button class="btn btn-outline-secondary btn-sm d-none d-sm-inline-flex"
+                            id="themeToggleBtn"
+                            type="button"
                             aria-label="Wissel thema">
                         <span id="themeIcon">🌓</span>
                     </button>
-                    <div class="dropdown">
+
+                    <div class="dropdown d-none d-sm-block">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle notranslate"
                                 type="button"
-                                id="languageDropdown"
+                                id="languageDropdownDesktop"
                                 translate="no"
                                 data-bs-toggle="dropdown"
                                 aria-expanded="false">
                             NL
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdownDesktop">
                             <li>
                                 <button class="dropdown-item"
                                         type="button"
@@ -202,32 +263,42 @@
                             </li>
                         </ul>
                     </div>
-                    <partial name="_LoginPartial"/>
+
+                    <div class="d-none d-md-block">
+                        <partial name="_LoginPartial"/>
+                    </div>
+
                 </div>
             </div>
         </div>
     </nav>
 </header>
 
-<div class="container py-4">
+<div class="container py-4 flex-fill">
     <main role="main" class="pb-3">
         @RenderBody()
     </main>
 </div>
 
-<footer class="footer">
+<footer class="footer mt-auto">
     <div class="container px-4">
         &copy; 2026 Echo &mdash;
-        <a asp-area="" asp-controller="Home" asp-action="Privacy"
-           asp-route-projectId="@currentProjectId">Privacy</a>
+        <a asp-area=""
+           asp-controller="Home"
+           asp-action="Privacy"
+           asp-route-projectId="@currentProjectId">
+            Privacy
+        </a>
     </div>
 </footer>
 
 @await RenderSectionAsync("Scripts", required: false)
+
 <script>
     window.addEventListener("load", function () {
         document.body.classList.add("css-loaded");
     });
 </script>
+
 </body>
 </html>
