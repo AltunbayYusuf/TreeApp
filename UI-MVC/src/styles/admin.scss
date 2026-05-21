@@ -292,8 +292,8 @@
 
 // ── AI assistent kaart ────────────────────────────────────────────────────────
 .ai-assistant-card {
-  background: linear-gradient(135deg, rgba(88, 28, 135, 0.25) 0%, rgba(46, 16, 101, 0.4) 100%);
-  border: 1px solid rgba(139, 92, 246, 0.3); 
+  background: linear-gradient(135deg, var(--echo-primary-light) 0%, var(--echo-primary) 100%);
+  border: 1px solid var(--echo-primary-light);
   border-radius: var(--echo-radius-lg);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -301,19 +301,19 @@
   .ai-card-title {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #ddd6fe;
+    color: #fff;
     margin-bottom: 0.3rem;
   }
 
   .ai-card-subtitle {
     font-size: 0.87rem;
-    color: #a78bfa; 
+    color: #fff;
     opacity: 0.85;
     margin-bottom: 1rem;
   }
 
   .btn-ai {
-    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    background: linear-gradient(135deg, var(--echo-primary) 0%, var(--echo-primary-dark) 100%);
     color: #fff;
     border: none;
     font-weight: 600;
@@ -324,14 +324,14 @@
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(109, 40, 217, 0.4);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
       color: #fff;
     }
   }
 
   .ai-message {
     font-size: 0.87rem;
-    color: #a78bfa; 
+    color: #fff;
     margin-left: 0.5rem;
   }
 }
