@@ -19,7 +19,8 @@ export class SurveyBuilder {
         const form = document.getElementById("surveyForm") as HTMLFormElement | null;
         form?.addEventListener("submit", async (event) => {
             event.preventDefault();
-            await this.handleSave(form);
+            const submitter = (event as SubmitEvent).submitter as HTMLElement | null;
+            await this.handleSave(form,submitter);
         });
 
         document.addEventListener("input", this.handleInputDebounce.bind(this));
@@ -49,7 +50,7 @@ export class SurveyBuilder {
         }
     }
 
-    private async handleSave(form: HTMLFormElement): Promise<void> {
+    private async handleSave(form: HTMLFormElement, submitter: HTMLElement | null): Promise<void> {
         const url = form.dataset.saveUrl;
         const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
         if (!url) return;
@@ -77,7 +78,37 @@ export class SurveyBuilder {
             return;
         }
 
-        window.location.href = result.redirectUrl;
+        if (submitter?.hasAttribute("data-final-save")) {
+            await this.finalizeProject(form);
+            return;
+        }
+
+        const redirectUrl = submitter?.dataset.redirectUrl || result.redirectUrl;
+        if (!redirectUrl) return;
+
+        window.location.href = redirectUrl;
+    }
+    private async finalizeProject(form: HTMLFormElement): Promise<void> {
+        const finalizeUrl = form.dataset.finalizeUrl;
+
+        if (!finalizeUrl) {
+            alert("Finalize-url ontbreekt.");
+            return;
+        }
+
+        const response = await fetch(finalizeUrl, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": DomUtils.getAntiForgeryToken()
+            }
+        });
+
+        if (!response.ok) {
+            alert("Project kon niet opgeslagen worden. Controleer of alle tabs ingevuld zijn.");
+            return;
+        }
+
+        window.location.href = response.url;
     }
 
     private bindWindowMethods(): void {

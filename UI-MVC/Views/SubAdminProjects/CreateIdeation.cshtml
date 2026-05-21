@@ -27,18 +27,28 @@
     </div>
 
     <nav class="admin-tabs mb-4">
-        <a asp-controller="SubAdminProjects"
-           asp-action="ProjectInfo"
-           class="admin-tab-link">Project Info</a>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateSurvey"
-           class="admin-tab-link">Bevraging</a>
+        <button type="submit"
+                form="ideationForm"
+                name="nextAction"
+                value="ProjectInfo"
+                class="admin-tab-link">
+            Project Info
+        </button>
+
+        <button type="submit"
+                form="ideationForm"
+                name="nextAction"
+                value="CreateSurvey"
+                class="admin-tab-link">
+            Bevraging
+        </button>
         <button type="button" class="admin-tab-link active">Ideation</button>
     </nav>
 
     <form id="ideationForm"
           asp-controller="SubAdminProjects"
           asp-action="SaveIdeation"
+          asp-route-subplatform="@Model.SubplatformSlug"
           method="post">
         @Html.AntiForgeryToken()
 

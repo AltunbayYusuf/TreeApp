@@ -30,8 +30,21 @@
 
     <nav class="admin-tabs mb-4">
         <button type="button" class="admin-tab-link active">Project Info</button>
-        <button type="submit" form="createProjectForm" class="admin-tab-link">Bevraging</button>
-        <button type="submit" form="createProjectForm" class="admin-tab-link">Ideation</button>
+        <button type="submit"
+                form="createProjectForm"
+                name="nextAction"
+                value="CreateSurvey"
+                class="admin-tab-link">
+            Bevraging
+        </button>
+
+        <button type="submit"
+                form="createProjectForm"
+                name="nextAction"
+                value="CreateIdeation"
+                class="admin-tab-link">
+            Ideation
+        </button>
     </nav>
 
     <form id="createProjectForm"
