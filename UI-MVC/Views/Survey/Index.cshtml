@@ -1,4 +1,5 @@
 @using IntegratieProject.BL.Domain.questions
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.BL.Domain.questions.QuestionList
 
 @{
@@ -6,7 +7,8 @@
     Layout = "_Layout";
     int questionNumber = 1;
 }
-
+<div class="survey-page"
+     style="font-family: @ProjectFontFamily.ToCssStack(Model.Project?.FontFamily); @ProjectColorTheme.ToCssVariables(Model.Project?.ColorTheme)">
 <a asp-controller="Project"
    asp-action="Index"
    asp-route-subplatform="@ViewBag.SubPlatformSlug"
@@ -20,7 +22,7 @@
     
     @if (Model.Project?.SubPlatform.Logo != null)
     {
-        <img src="@Model.Project.SubPlatform.Logo.Uri" alt="Logo" class="w-52 h-40 bg-light p-2 rounded" data-bs-theme="light">
+        <img src="@Model.Project.SubPlatform.Logo.Uri" alt="Logo" class="img-fluid bg-light p-2 rounded" style="max-height: 70px;" data-bs-theme="light">
     }
    
 </h2>
@@ -172,4 +174,4 @@
     </div>
 
 </div>
-
+</div>
