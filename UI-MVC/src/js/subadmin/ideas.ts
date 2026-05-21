@@ -587,10 +587,10 @@ export class SubAdminIdeas {
         el.innerHTML = `
             <div class="modal fade" id="ideaDetailModal" tabindex="-1" aria-hidden="true" style="display:none">
                 <div class="modal-dialog modal-lg modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content border-secondary" style="background-color: #0f172a; color: #f8fafc;">
+                    <div class="modal-content bg-body text-body-emphasis border-secondary">
                         <div class="modal-header border-bottom border-secondary pb-3">
-                            <h5 class="modal-title fw-bold text-white" id="ideaDetailTitle"></h5>
-                            <button type="button" class="btn-close btn-close-white" aria-label="Sluiten"></button>
+                            <h5 class="modal-title fw-bold text-body-emphasis" id="ideaDetailTitle"></h5>
+                            <button type="button" class="btn-close" aria-label="Sluiten"></button>
                         </div>
                         <div class="modal-body" id="ideaDetailBody"></div>
                     </div>
@@ -618,7 +618,7 @@ export class SubAdminIdeas {
         const emailRow = email
             ? `<tr>
                    <th class="text-body-secondary fw-normal bg-transparent" style="width:140px">Email</th>
-                   <td class="bg-transparent"><a href="mailto:${DomUtils.escapeHtml(email)}" class="text-info">${DomUtils.escapeHtml(email)}</a></td>
+                   <td class="bg-transparent"><a href="mailto:${DomUtils.escapeHtml(email)}">${DomUtils.escapeHtml(email)}</a></td>
                </tr>`
             : `<tr>
                    <th class="text-body-secondary fw-normal bg-transparent" style="width:140px">Email</th>
@@ -632,11 +632,11 @@ export class SubAdminIdeas {
                         <tbody>
                             <tr>
                                 <th class="text-body-secondary fw-normal bg-transparent" style="width:140px">Project</th>
-                                <td class="fw-semibold text-white bg-transparent">${DomUtils.escapeHtml(idea.project)}</td>
+                                <td class="fw-semibold text-body-emphasis bg-transparent">${DomUtils.escapeHtml(idea.project)}</td>
                             </tr>
                             <tr>
                                 <th class="text-body-secondary fw-normal bg-transparent">Topic</th>
-                                <td class="fw-semibold text-white bg-transparent">${DomUtils.escapeHtml(idea.topic)}</td>
+                                <td class="fw-semibold text-body-emphasis bg-transparent">${DomUtils.escapeHtml(idea.topic)}</td>
                             </tr>
                             <tr>
                                 <th class="text-body-secondary fw-normal bg-transparent">Status</th>
@@ -651,7 +651,7 @@ export class SubAdminIdeas {
             <div class="card shadow-sm bg-transparent border border-secondary">
                 <div class="card-body">
                     <h6 class="fw-bold mb-3 text-body-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Inhoud</h6>
-                    <p class="mb-0 text-white" style="white-space:pre-wrap; font-size: 1.05rem;">${DomUtils.escapeHtml(idea.text)}</p>
+                    <p class="mb-0 text-body-emphasis" style="white-space:pre-wrap; font-size: 1.05rem;">${DomUtils.escapeHtml(idea.text)}</p>
                 </div>
             </div>
 
