@@ -3,25 +3,132 @@
 @{
     ViewData["Title"] = "Admin Dashboard";
     Layout = "_AdminLayout";
+
+    var subPlatforms = Model.Platform.SubPlatforms.ToList();
+    var subPlatformCount = subPlatforms.Count;
+    var projectCount = subPlatforms.Sum(sp => sp.Projects?.Count() ?? 0);
+    var participantCount = subPlatforms.Sum(sp => sp.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0);
+    var subAdminCount = Model.SubAdmins.Count();
 }
 
-<h1>Admin Dashboard</h1>
 @Html.AntiForgeryToken()
-<div id="overviewSection" style="margin-top:20px;">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2 class="mb-0">Deelplatformen (@Model.Platform.SubPlatforms.Count())</h2>
-        <button id="newSubplatform" class="btn btn-primary" type="button">
-            Nieuw deelplatform
+
+<section id="overviewSection" class="admin-dashboard-page">
+    <div class="admin-dashboard-hero mb-4">
+        <div>
+            <span class="badge rounded-pill text-bg-light mb-3">Platformbeheer</span>
+            <h1 class="display-6 fw-bold mb-2">Admin Dashboard</h1>
+            <p class="text-white-50 mb-0">Beheer deelplatformen, subadmins en projecten vanuit een overzichtelijke omgeving.</p>
+        </div>
+        <button id="newSubplatform" class="btn btn-light btn-lg fw-semibold shadow-sm" type="button">
+            + Nieuw deelplatform
         </button>
     </div>
 
-  
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-xl-3">
+            <div class="card admin-summary-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small fw-semibold text-uppercase mb-2">Deelplatformen</div>
+                    <div class="h2 fw-bold mb-0">@subPlatformCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card admin-summary-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small fw-semibold text-uppercase mb-2">Subadmins</div>
+                    <div class="h2 fw-bold mb-0">@subAdminCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card admin-summary-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small fw-semibold text-uppercase mb-2">Projecten</div>
+                    <div class="h2 fw-bold mb-0">@projectCount</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-xl-3">
+            <div class="card admin-summary-card h-100 border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="text-muted small fw-semibold text-uppercase mb-2">Deelnemers</div>
+                    <div class="h2 fw-bold mb-0">@participantCount</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <div>
+            <h2 class="h4 fw-bold mb-1">Deelplatformen</h2>
+            <p class="text-muted mb-0">Bekijk snel de activiteit per klant.</p>
+        </div>
+        <span class="badge text-bg-primary rounded-pill px-3 py-2">@subPlatformCount totaal</span>
+    </div>
+
+    <div class="row g-3">
+        @foreach (var subPlatform in subPlatforms)
+        {
+            var subAdminsForPlatform = Model.SubAdmins.Count(sa => sa.SubPlatform.Id == subPlatform.Id);
+            var projectsForPlatform = subPlatform.Projects?.Count() ?? 0;
+            var participantsForPlatform = subPlatform.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0;
+            var platformInitial = string.IsNullOrWhiteSpace(subPlatform.CompanyName)
+                ? "?"
+                : subPlatform.CompanyName.Substring(0, 1).ToUpper();
+
+            <div class="col-12 col-lg-6 col-xxl-4">
+                <div class="card admin-platform-card h-100 border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
+                            <div>
+                                <div class="admin-platform-icon mb-3">@platformInitial</div>
+                                <h3 class="h5 fw-bold mb-1">@subPlatform.CompanyName</h3>
+                                <p class="text-muted mb-0 small">Deelplatform overzicht</p>
+                            </div>
+                            <span class="badge text-bg-light border">Actief</span>
+                        </div>
+
+                        <div class="row g-2 mb-4">
+                            <div class="col-4">
+                                <div class="admin-mini-stat">
+                                    <span>@subAdminsForPlatform</span>
+                                    <small>Subadmins</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="admin-mini-stat">
+                                    <span>@projectsForPlatform</span>
+                                    <small>Projecten</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="admin-mini-stat">
+                                    <span>@participantsForPlatform</span>
+                                    <small>Deelnemers</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <a class="btn btn-outline-primary w-100 fw-semibold"
+                           asp-action="Details"
+                           asp-controller="Platform"
+                           asp-route-id="@subPlatform.Id">
+                            Details bekijken &rarr;
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
     <div class="modal fade" id="createSubplatformModal" tabindex="-1" aria-labelledby="createSubplatformLabel"
          aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
+            <div class="modal-content border-0 shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createSubplatformLabel">Nieuw Deelplatform Aanmaken</h5>
+                    <h5 class="modal-title" id="createSubplatformLabel">Nieuw deelplatform aanmaken</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sluiten"></button>
                 </div>
                 <form id="createSubplatformForm" novalidate>
@@ -39,15 +146,13 @@
                             <label for="adminEmail" class="form-label">Mailadres beheersaccount *</label>
                             <input id="adminEmail" name="adminEmail" type="email" class="form-control"
                                    placeholder="admin@voorbeeld.be" required/>
-                            <div class="invalid-feedback">Vul een geldig e‑mailadres in.</div>
+                            <div class="invalid-feedback">Vul een geldig e-mailadres in.</div>
                         </div>
 
-                        <div class="form-text">Een wachtwoord wordt automatisch gegenereerd en zo dadelijk getoond.
-                        </div>
+                        <div class="form-text">Een wachtwoord wordt automatisch gegenereerd en zo dadelijk getoond.</div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuleren
-                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuleren</button>
                         <button id="submitCreateSubplatform" type="submit" class="btn btn-primary">Aanmaken</button>
                     </div>
                 </form>
@@ -59,51 +164,23 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-success">
                 <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="successModalLabel">Subplatform Succesvol Aangemaakt</h5>
+                    <h5 class="modal-title" id="successModalLabel">Subplatform succesvol aangemaakt</h5>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-3">Het subplatform is aangemaakt. Het wachtwoord voor het beheersaccount <br /> <strong id="successEmail"></strong> is:</p>
-                    
-                    <div class="alert alert-secondary fs-4 fw-bold user-select-all" id="successPassword">
-                        
-                    </div>
-                    
+                    <p class="mb-3">Het subplatform is aangemaakt. Het wachtwoord voor het beheersaccount <br/> <strong id="successEmail"></strong> is:</p>
+
+                    <div class="alert alert-secondary fs-4 fw-bold user-select-all" id="successPassword"></div>
+
                     <p class="text-danger small mb-0">
                         <strong>Let op:</strong> Kopieer dit wachtwoord nu. Je krijgt dit hierna niet meer te zien!
                     </p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success w-100" id="reloadPageBtn">
-                        klaar
+                        Klaar
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
-    @foreach (var subPlatform in @Model.Platform.SubPlatforms)
-    {
-        var subAdminsCount = Model.SubAdmins.Count(sa => sa.SubPlatform.Id == subPlatform.Id);
-
-        <div class="card p-3 mb-3 ">
-            <h3>@subPlatform.CompanyName</h3>
-            <div class="row mt-2">
-                <div class="col-md-4">
-                    <p><strong>Aantal subadmins:</strong><br/>@subAdminsCount</p>
-                </div>
-                <div class="col-md-4">
-                    <p><strong>Aantal projecten:</strong><br/>@(subPlatform.Projects?.Count() ?? 0)</p>
-                </div>
-                <div class="col-md-4">
-                    <p><strong>Totaal deelnemers:</strong><br/>@(subPlatform.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0)</p>
-                </div>
-            </div>
-            <a class="text-center d-block mt-2 p-2 border rounded text-decoration-none custom-details-link"
-               asp-action="Details"
-               asp-controller="Platform"
-               asp-route-id="@subPlatform.Id">
-                Details bekijken →
-            </a>
-        </div>
-    }
-</div>
+</section>
