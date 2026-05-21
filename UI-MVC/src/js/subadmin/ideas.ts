@@ -1,5 +1,5 @@
 // subadmin/ideas.ts
-import { DomUtils } from '../helpers/utils';
+import {DomUtils} from '../helpers/utils';
 
 type SortOrder = 'newest' | 'oldest';
 type SimilarityFilter = 'all' | 'similar' | 'different' | 'broad';
@@ -123,11 +123,11 @@ export class SubAdminIdeas {
     private updateSortIcons(): void {
         const iconEmail = document.getElementById('iconEmail');
         if (iconEmail) {
-            iconEmail.className = this.emailSort === 'none' ? 'text-muted small d-flex align-items-center' : 'text-primary small d-flex align-items-center';
+            iconEmail.className = this.emailSort === 'none' ? 'text-body-secondary small d-flex align-items-center' : 'text-primary small d-flex align-items-center';
         }
         const iconStatus = document.getElementById('iconStatus');
         if (iconStatus) {
-            iconStatus.className = this.statusSort === 'none' ? 'text-muted small d-flex align-items-center' : 'text-primary small d-flex align-items-center';
+            iconStatus.className = this.statusSort === 'none' ? 'text-body-secondary small d-flex align-items-center' : 'text-primary small d-flex align-items-center';
         }
     }
 
@@ -198,6 +198,7 @@ export class SubAdminIdeas {
             this.showLoading(false);
         }
     }
+
     private async fetchAiSelection(projectId: number, mode: SimilarityFilter): Promise<void> {
         this.showLoading(true);
 
@@ -237,8 +238,8 @@ export class SubAdminIdeas {
         let ideas = this.allIdeas;
 
         if (this.keywordFilter) {
-            ideas = ideas.filter(i => 
-                (i.title && i.title.toLowerCase().includes(this.keywordFilter)) || 
+            ideas = ideas.filter(i =>
+                (i.title && i.title.toLowerCase().includes(this.keywordFilter)) ||
                 (i.text && i.text.toLowerCase().includes(this.keywordFilter)) ||
                 (i.topic && i.topic.toLowerCase().includes(this.keywordFilter)) ||
                 (i.project && i.project.toLowerCase().includes(this.keywordFilter))
@@ -316,11 +317,11 @@ export class SubAdminIdeas {
             if (groupIdeas.length === 0) return;
 
             const header = document.createElement('tr');
-            header.className = 'idea-row table-light';
+            header.className = 'idea-row bg-body-tertiary border-bottom border-secondary';
             header.innerHTML = `
-            <td colspan="8" class="p-3">
-                <div class="fw-bold">${DomUtils.escapeHtml(group.title)}</div>
-                <div class="text-muted small">${DomUtils.escapeHtml(group.reason)}</div>
+            <td colspan="8" class="p-3 bg-transparent">
+                <div class="fw-bold text-body-emphasis">${DomUtils.escapeHtml(group.title)}</div>
+                <div class="text-body-secondary small">${DomUtils.escapeHtml(group.reason)}</div>
             </td>
         `;
             tbody.appendChild(header);
@@ -351,27 +352,27 @@ export class SubAdminIdeas {
         const hasEmail = email !== '';
 
         tr.innerHTML = `
-            <td class="p-3 fw-semibold" style="max-width:160px">
+            <td class="p-3 fw-semibold text-body-emphasis bg-transparent" style="max-width:160px">
                 <span class="d-block text-truncate">${DomUtils.escapeHtml(idea.title)}</span>
             </td>
-            <td class="p-3 text-muted d-none d-md-table-cell" style="max-width:260px">
+            <td class="p-3 text-body-secondary bg-transparent d-none d-md-table-cell" style="max-width:260px">
                 <span class="d-block text-truncate">${DomUtils.escapeHtml(idea.text)}</span>
             </td>
-            <td class="p-3 d-none d-md-table-cell">${DomUtils.escapeHtml(idea.topic)}</td>
-            <td class="p-3">${DomUtils.escapeHtml(idea.project)}</td>
-            <td class="p-3">
-                <span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text}">
+            <td class="p-3 text-body-emphasis bg-transparent d-none d-md-table-cell">${DomUtils.escapeHtml(idea.topic)}</td>
+            <td class="p-3 text-body-emphasis bg-transparent">${DomUtils.escapeHtml(idea.project)}</td>
+            <td class="p-3 bg-transparent">
+                <span class="px-2 py-1 border border-secondary rounded-1 small ${statusCfg.bg} ${statusCfg.text}">
                     ${DomUtils.escapeHtml(statusCfg.label)}
                 </span>
             </td>
-            <td class="p-3 d-none d-md-table-cell">
+            <td class="p-3 bg-transparent d-none d-md-table-cell">
                 ${hasEmail
-            ? `<span class="small text-success" >✔️</span>`
-            : `<span class="small text-muted">❌</span>`}
+            ? `<span class="small text-success">✔️</span>`
+            : `<span class="small text-body-secondary">❌</span>`}
             </td>
-            <td class="p-3 d-none d-md-table-cell">
+            <td class="p-3 bg-transparent d-none d-md-table-cell">
                 <button type="button"
-                        class="btn btn-sm btn-outline-secondary toggle-reactions-btn"
+                        class="btn btn-sm btn-outline-secondary toggle-reactions-btn text-body-emphasis"
                         data-idea-id="${idea.id}"
                         ${reactionCount === 0 ? 'disabled' : ''}>
                     ${reactionCount === 0
@@ -379,7 +380,7 @@ export class SubAdminIdeas {
             : `${reactionCount} reactie${reactionCount === 1 ? '' : 's'} tonen`}
                 </button>
             </td>
-            <td class="p-3 text-end d-none d-md-table-cell">
+            <td class="p-3 text-end bg-transparent d-none d-md-table-cell">
                 <button type="button" class="btn btn-sm btn-outline-danger delete-idea-btn" data-idea-id="${idea.id}">🗑️</button>
             </td>
         `;
@@ -411,7 +412,7 @@ export class SubAdminIdeas {
             : `
                 <div class="d-flex flex-wrap gap-2 mb-2">
                     ${emojiSummary.map(item => `
-                        <span class="badge rounded-pill bg-white text-dark border">
+                        <span class="badge rounded-pill bg-transparent text-body-emphasis border border-secondary">
                             <span>${DomUtils.escapeHtml(item.emoji)}</span>
                             <span class="ms-1">${item.count}</span>
                         </span>
@@ -421,16 +422,16 @@ export class SubAdminIdeas {
         const textReactions = reactions.filter(reaction => reaction.text);
 
         const reactionItems = textReactions.length === 0
-            ? '<li class="text-muted small">Geen reacties.</li>'
+            ? '<li class="text-body-secondary small">Geen reacties.</li>'
             : textReactions.map(r => {
                 const parts: string[] = [];
                 if (r.emoji) parts.push(`<span>${DomUtils.escapeHtml(r.emoji)}</span>`);
-                if (r.text)  parts.push(`<span>${DomUtils.escapeHtml(r.text)}</span>`);
+                if (r.text) parts.push(`<span>${DomUtils.escapeHtml(r.text)}</span>`);
                 const statusCfg = this.getStatusConfig(r.status);
                 return `
-                    <li class="d-flex align-items-center gap-2 py-1 border-bottom">
+                    <li class="d-flex align-items-center gap-2 py-1 border-bottom border-secondary text-body-emphasis">
                         <span class="flex-grow-1">${parts.join(' ')}</span>
-                        <span class="badge ${statusCfg.bg} ${statusCfg.text} border small">
+                        <span class="badge ${statusCfg.bg} ${statusCfg.text} border border-secondary small">
                             ${DomUtils.escapeHtml(statusCfg.label)}
                         </span>
                         <button type="button" class="btn btn-sm btn-outline-danger delete-reaction-btn" data-idea-id="${idea.id}" data-reaction-id="${r.id}">🗑️</button>
@@ -438,9 +439,9 @@ export class SubAdminIdeas {
             }).join('');
 
         tr.innerHTML = `
-            <td colspan="8" class="p-0">
-                <div class="px-4 py-2 bg-light border-bottom">
-                    <p class="small fw-semibold text-muted mb-1">Reacties</p>
+            <td colspan="8" class="p-0 bg-transparent">
+                <div class="px-4 py-2 bg-body-tertiary border-bottom border-secondary">
+                    <p class="small fw-semibold text-body-secondary mb-1">Reacties</p>
                     ${emojiSummaryMarkup}
                     <ul class="list-unstyled mb-0">${reactionItems}</ul>
                 </div>
@@ -460,7 +461,7 @@ export class SubAdminIdeas {
             });
 
         return Array.from(counts.entries())
-            .map(([emoji, count]) => ({ emoji, count }))
+            .map(([emoji, count]) => ({emoji, count}))
             .sort((a, b) => b.count - a.count || a.emoji.localeCompare(b.emoji));
     }
 
@@ -522,7 +523,7 @@ export class SubAdminIdeas {
     }
 
     private openDeleteReactionModal(ideaId: number, reactionId: number): void {
-        this.reactionToDelete = { ideaId, reactionId };
+        this.reactionToDelete = {ideaId, reactionId};
         DomUtils.openModal('deleteReactionModal');
     }
 
@@ -535,7 +536,7 @@ export class SubAdminIdeas {
         const ideaId = this.ideaToDelete?.id;
         if (!ideaId) return;
 
-        const response = await fetch(`/api/ideas/${ideaId}`, { method: 'DELETE' });
+        const response = await fetch(`/api/ideas/${ideaId}`, {method: 'DELETE'});
         if (!response.ok) {
             this.showError('Kon idee niet verwijderen.');
             return;
@@ -551,7 +552,7 @@ export class SubAdminIdeas {
         const ideaId = this.reactionToDelete?.ideaId;
         if (!reactionId || !ideaId) return;
 
-        const response = await fetch(`/api/reactions/${reactionId}`, { method: 'DELETE' });
+        const response = await fetch(`/api/reactions/${reactionId}`, {method: 'DELETE'});
         if (!response.ok) {
             this.showError('Kon reactie niet verwijderen.');
             return;
@@ -578,7 +579,6 @@ export class SubAdminIdeas {
             });
         });
     }
-    
 
     private buildDetailModal(): void {
         if (document.getElementById('ideaDetailModal')) return;
@@ -587,10 +587,10 @@ export class SubAdminIdeas {
         el.innerHTML = `
             <div class="modal fade" id="ideaDetailModal" tabindex="-1" aria-hidden="true" style="display:none">
                 <div class="modal-dialog modal-lg modal-fullscreen-md-down modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content bg-light">
-                        <div class="modal-header border-bottom-0 pb-0">
-                            <h5 class="modal-title fw-bold" id="ideaDetailTitle"></h5>
-                            <button type="button" class="btn-close" aria-label="Sluiten"></button>
+                    <div class="modal-content border-secondary" style="background-color: #0f172a; color: #f8fafc;">
+                        <div class="modal-header border-bottom border-secondary pb-3">
+                            <h5 class="modal-title fw-bold text-white" id="ideaDetailTitle"></h5>
+                            <button type="button" class="btn-close btn-close-white" aria-label="Sluiten"></button>
                         </div>
                         <div class="modal-body" id="ideaDetailBody"></div>
                     </div>
@@ -606,7 +606,7 @@ export class SubAdminIdeas {
 
     private openDetailModal(idea: IdeaDto): void {
         const title = document.getElementById('ideaDetailTitle');
-        const body  = document.getElementById('ideaDetailBody');
+        const body = document.getElementById('ideaDetailBody');
         if (!title || !body) return;
 
         const statusCfg = this.getStatusConfig(idea.status);
@@ -614,32 +614,33 @@ export class SubAdminIdeas {
 
         title.textContent = idea.title || 'Zonder titel';
 
+        // bg-transparent toegevoegd aan BEIDE kanten van de email-rij!
         const emailRow = email
             ? `<tr>
-                   <th class="text-muted fw-normal" style="width:140px">Email</th>
-                   <td><a href="mailto:${DomUtils.escapeHtml(email)}">${DomUtils.escapeHtml(email)}</a></td>
+                   <th class="text-body-secondary fw-normal bg-transparent" style="width:140px">Email</th>
+                   <td class="bg-transparent"><a href="mailto:${DomUtils.escapeHtml(email)}" class="text-info">${DomUtils.escapeHtml(email)}</a></td>
                </tr>`
             : `<tr>
-                   <th class="text-muted fw-normal" style="width:140px">Email</th>
-                   <td class="text-muted">Niet opgegeven</td>
+                   <th class="text-body-secondary fw-normal bg-transparent" style="width:140px">Email</th>
+                   <td class="text-body-secondary bg-transparent">Niet opgegeven</td>
                </tr>`;
 
         body.innerHTML = `
-            <div class="card shadow-sm border-0 mb-4">
+            <div class="card shadow-sm bg-transparent border border-secondary mb-4">
                 <div class="card-body">
                     <table class="table table-borderless table-sm mb-0">
                         <tbody>
                             <tr>
-                                <th class="text-muted fw-normal" style="width:140px">Project</th>
-                                <td class="fw-semibold">${DomUtils.escapeHtml(idea.project)}</td>
+                                <th class="text-body-secondary fw-normal bg-transparent" style="width:140px">Project</th>
+                                <td class="fw-semibold text-white bg-transparent">${DomUtils.escapeHtml(idea.project)}</td>
                             </tr>
                             <tr>
-                                <th class="text-muted fw-normal">Topic</th>
-                                <td class="fw-semibold">${DomUtils.escapeHtml(idea.topic)}</td>
+                                <th class="text-body-secondary fw-normal bg-transparent">Topic</th>
+                                <td class="fw-semibold text-white bg-transparent">${DomUtils.escapeHtml(idea.topic)}</td>
                             </tr>
                             <tr>
-                                <th class="text-muted fw-normal">Status</th>
-                                <td><span class="px-2 py-1 border rounded-1 small ${statusCfg.bg} ${statusCfg.text} fw-semibold">${DomUtils.escapeHtml(statusCfg.label)}</span></td>
+                                <th class="text-body-secondary fw-normal bg-transparent">Status</th>
+                                <td class="bg-transparent"><span class="px-2 py-1 border border-secondary rounded-1 small ${statusCfg.bg} ${statusCfg.text} fw-semibold">${DomUtils.escapeHtml(statusCfg.label)}</span></td>
                             </tr>
                             ${emailRow}
                         </tbody>
@@ -647,10 +648,10 @@ export class SubAdminIdeas {
                 </div>
             </div>
 
-            <div class="card shadow-sm border-0">
+            <div class="card shadow-sm bg-transparent border border-secondary">
                 <div class="card-body">
-                    <h6 class="fw-bold mb-3 text-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Inhoud</h6>
-                    <p class="mb-0" style="white-space:pre-wrap; font-size: 1.05rem;">${DomUtils.escapeHtml(idea.text)}</p>
+                    <h6 class="fw-bold mb-3 text-body-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Inhoud</h6>
+                    <p class="mb-0 text-white" style="white-space:pre-wrap; font-size: 1.05rem;">${DomUtils.escapeHtml(idea.text)}</p>
                 </div>
             </div>
 
@@ -680,6 +681,11 @@ export class SubAdminIdeas {
             const isActive = btn.dataset.similarity === this.similarityFilter;
             btn.classList.toggle('btn-dark', isActive);
             btn.classList.toggle('btn-outline-secondary', !isActive);
+            if (!isActive) {
+                btn.classList.add('text-body-emphasis');
+            } else {
+                btn.classList.remove('text-body-emphasis');
+            }
         });
     }
 
@@ -688,6 +694,11 @@ export class SubAdminIdeas {
             const isActive = btn.dataset.sort === this.sortOrder;
             btn.classList.toggle('btn-dark', isActive);
             btn.classList.toggle('btn-outline-secondary', !isActive);
+            if (!isActive) {
+                btn.classList.add('text-body-emphasis');
+            } else {
+                btn.classList.remove('text-body-emphasis');
+            }
         });
     }
 
@@ -714,17 +725,17 @@ export class SubAdminIdeas {
 
         const tr = document.createElement('tr');
         tr.className = 'idea-row';
-        tr.innerHTML = `<td colspan="8" class="text-center text-danger p-4">${DomUtils.escapeHtml(msg)}</td>`;
+        tr.innerHTML = `<td colspan="8" class="text-center bg-transparent text-danger p-4">${DomUtils.escapeHtml(msg)}</td>`;
         tbody.appendChild(tr);
     }
 
     private getStatusConfig(status: string): { bg: string; text: string; label: string } {
         const configs: Record<string, { bg: string; text: string; label: string }> = {
-            Accepted: { bg: 'bg-success bg-opacity-10', text: 'text-success', label: 'Goedgekeurd' },
-            InReview:  { bg: 'bg-warning bg-opacity-10', text: 'text-warning', label: 'In review'   },
-            Rejected:  { bg: 'bg-danger  bg-opacity-10', text: 'text-danger',  label: 'Afgewezen'   },
+            Accepted: {bg: 'bg-success bg-opacity-10', text: 'text-success', label: 'Goedgekeurd'},
+            InReview: {bg: 'bg-warning bg-opacity-10', text: 'text-warning', label: 'In review'},
+            Rejected: {bg: 'bg-danger  bg-opacity-10', text: 'text-danger', label: 'Afgewezen'},
         };
-        return configs[status] ?? { bg: '', text: 'text-secondary', label: status };
+        return configs[status] ?? {bg: '', text: 'text-body-secondary', label: status};
     }
 }
 
