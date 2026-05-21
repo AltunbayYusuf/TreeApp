@@ -24,7 +24,6 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary">Preview</button>
             <button type="submit" form="createProjectForm" class="btn btn-primary">Opslaan</button>
         </div>
     </div>
@@ -161,7 +160,7 @@
                         <div id="fontPreview"
                              class="border rounded px-3 py-2 bg-light h-100 d-flex align-items-center"
                              style="font-family: @IntegratieProject.UI.MVC.Models.ProjectFontFamily.ToCssStack(Model.FontFamily);">
-                            Dit is een Voorbeeldzin
+                            Dit is een voorbeeld zin.
                         </div>
                     </div>
                 </div>
@@ -172,26 +171,26 @@
                 <label asp-for="ColorTheme" class="form-label">
                     Kleurthema <span class="text-danger">*</span>
                 </label>
-            
-                <div class="theme-selector-grid">
-                    @foreach (var theme in CreateProjectInfoViewModel.AllowedColorThemes)
-                    {
-                        var primaryColor = ProjectColorTheme.GetPrimaryColor(theme);
-                        var darkColor = ProjectColorTheme.GetDarkColor(theme);
-            
-                        <label class="theme-option-label">
-                            <input asp-for="ColorTheme" type="radio" value="@theme" />
-            
-                            <div class="theme-option-card">
-                                <div class="theme-preview-circle" style="background: linear-gradient(135deg, @primaryColor 0%, @darkColor 100%);">
-                                </div>
-            
-                                <span>@theme</span>
-                            </div>
-                        </label>
-                    }
+
+                <div class="theme-select-wrapper">
+                    <div id="themePreview"
+                         class="theme-select-preview"
+                         style="background: linear-gradient(135deg, @ProjectColorTheme.GetPrimaryColor(Model.ColorTheme) 0%, @ProjectColorTheme.GetDarkColor(Model.ColorTheme) 100%);">
+                    </div>
+
+                    <select asp-for="ColorTheme"
+                            class="form-select theme-select" >
+                        @foreach (var theme in CreateProjectInfoViewModel.AllowedColorThemes)
+                        {
+                            <option value="@theme"
+                                    data-primary="@ProjectColorTheme.GetPrimaryColor(theme)"
+                                    data-dark="@ProjectColorTheme.GetDarkColor(theme)">
+                                @theme
+                            </option>
+                        }
+                    </select>
                 </div>
-            
+
                 <span asp-validation-for="ColorTheme" class="text-danger small d-block mt-2"></span>
             </div>
 
