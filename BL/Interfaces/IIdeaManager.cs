@@ -24,4 +24,5 @@ public interface IIdeaManager
         string imageUri = null);
 
     Task<ToxicityResult> ModerateIdeaOnlyAsync(string title, string text);
+    Task<string> SummarizeIdeaWithFollowUpAnswersAsync(string title, string text, string followUpAnswers);
 }

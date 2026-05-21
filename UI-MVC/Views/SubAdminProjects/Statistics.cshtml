@@ -90,8 +90,11 @@
                             <div class="overflow-auto">
                                 <div class="d-flex align-items-end gap-4 pb-3" style="height:260px;">
 
-                                    @foreach (var option in question.Options)
+                                    @for (var i = 0; i < question.Options.Count; i++)
                                     {
+                                        var option = question.Options[i];
+                                        var barColors = new[] { "#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6" };
+                                        var barColor = barColors[i % barColors.Length];
                                         var barHeight = maxPercentage == 0
                                             ? 0
                                             : Math.Max((option.Percentage / maxPercentage) * 170, 12);
@@ -102,9 +105,9 @@
                                                 @option.Percentage%
                                             </div>
 
-                                            <div class="bg-primary rounded-top w-75"
+                                            <div class="rounded-top w-75"
                                                  title="@option.Answer - @option.Count antwoorden"
-                                                 style="height:@(barHeight)px;">
+                                                 style="height:@(barHeight)px; background-color:@barColor;">
                                             </div>
 
                                             <div class="small text-muted mt-2 text-center">
@@ -122,7 +125,21 @@
                         }
                         else if (question.QuestionType == "OpenQuestion")
                         {
-                           
+                            @if (question.OpenAnswers.Any())
+                            {
+                                <div class="mb-3">
+                                    <h3 class="fs-6 fw-bold mb-2">Open antwoorden</h3>
+
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach (var answer in question.OpenAnswers)
+                                        {
+                                            <div class="border rounded p-3 bg-white">
+                                                @answer
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
 
                             <div class="card bg-light border">
                                 <div class="card-body">
@@ -141,30 +158,43 @@
 
                                         @if (string.IsNullOrWhiteSpace(question.AiSummary) || question.AiSummaryNeedsRefresh)
                                         {
-                                            <form asp-controller="SubAdminProjects"
+                                            <form class="open-question-summary-form"
+                                                  asp-controller="SubAdminProjects"
                                                   asp-action="GenerateOpenQuestionSummary"
                                                   asp-route-subplatform="@ViewContext.RouteData.Values["subplatform"]"
                                                   asp-route-projectId="@Model.ProjectId"
                                                   asp-route-questionId="@question.QuestionId"
-                                                  method="post">
+                                                  method="post"
+                                                  data-question-id="@question.QuestionId">
+
                                                 @Html.AntiForgeryToken()
 
-                                                <button type="submit" class="btn btn-primary btn-sm">
+                                                <button type="submit"
+                                                        class="btn btn-primary btn-sm open-question-summary-button">
                                                     @(string.IsNullOrWhiteSpace(question.AiSummary)
                                                         ? "Genereer samenvatting"
                                                         : "Vernieuw samenvatting")
                                                 </button>
                                             </form>
+
+                                           
                                         }
+                                    </div>
+                                    <div class="alert alert-info d-none mt-2 open-question-loading">
+                                        AI genereert samenvatting...
+                                    </div>
+
+                                    <div class="alert alert-danger d-none mt-2 open-question-error">
+                                        AI kon geen samenvatting genereren.
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(question.AiSummary))
                                     {
-                                        <p class="mb-0">@question.AiSummary</p>
+                                        <p class="mb-0 open-question-summary-text">@question.AiSummary</p>
                                     }
                                     else
                                     {
-                                        <p class="text-muted mb-0">
+                                        <p class="text-muted mb-0 open-question-summary-text">
                                             Nog geen AI-samenvatting gegenereerd.
                                         </p>
                                     }
@@ -182,5 +212,42 @@
                 </div>
             </div>
         }
+    </div>
+    <div class="card border-0 shadow-sm mt-4" id="projectSummaryCard">
+        <div class="card-body p-4">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h2 class="fs-5 fw-bold mb-1">Algemene AI-samenvatting</h2>
+                    <p class="text-muted small mb-0">
+                        Vat de volledige statistieken, ideeën en reacties van dit project samen.
+                    </p>
+                </div>
+
+                <form id="projectSummaryForm"
+                      asp-controller="SubAdminProjects"
+                      asp-action="GenerateProjectTrendSummary"
+                      asp-route-subplatform="@ViewContext.RouteData.Values["subplatform"]"
+                      asp-route-projectId="@Model.ProjectId"
+                      method="post">
+                    @Html.AntiForgeryToken()
+
+                    <button id="projectSummaryButton" type="submit" class="btn btn-primary btn-sm">
+                        Genereer algemene samenvatting
+                    </button>
+                </form>
+            </div>
+
+            <div id="projectSummaryLoading" class="alert alert-info d-none mb-3">
+                AI genereert samenvatting...
+            </div>
+
+            <div id="projectSummaryError" class="alert alert-danger d-none mb-3">
+                AI kon geen samenvatting genereren. Probeer opnieuw.
+            </div>
+
+            <p id="projectSummaryResult" class="mb-0 text-muted">
+                Nog geen algemene AI-samenvatting gegenereerd.
+            </p>
+        </div>
     </div>
 </div>

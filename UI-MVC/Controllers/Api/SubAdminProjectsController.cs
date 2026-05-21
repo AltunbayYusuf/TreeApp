@@ -1,5 +1,6 @@
 using System.Text.Json;
 using IntegratieProject.BL.Domain.questions;
+using IntegratieProject.BL.Domain.Questions;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
@@ -15,7 +16,7 @@ namespace IntegratieProject.UI.MVC.Controllers.Api;
 public class SubAdminProjectsController : ControllerBase
 {
     private const int MaxRangeValue = 10;
-    
+
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
     private readonly IAiIdeaSelectionService _aiIdeaSelectionService;
@@ -63,7 +64,19 @@ public class SubAdminProjectsController : ControllerBase
                             .Where(a => !string.IsNullOrWhiteSpace(a))
                             .ToList() ?? new List<string>(),
                         RangeMin = int.TryParse(q.Min, out var min) ? Math.Min(min, MaxRangeValue) : null,
-                        RangeMax = int.TryParse(q.Max, out var max) ? Math.Min(max, MaxRangeValue) : null
+                        RangeMax = int.TryParse(q.Max, out var max) ? Math.Min(max, MaxRangeValue) : null,
+                        Conditionals = q.Conditionals
+                            .Where(c => !string.IsNullOrWhiteSpace(c.Trigger))
+                            .Select(c => new ConditionalQuestionViewModel
+                            {
+                                Trigger = c.Trigger,
+                                TriggerType = Enum.TryParse<TriggerType>(c.TriggerType, out var triggerType)
+                                    ? triggerType
+                                    : TriggerType.Contains,
+                                QuestionText = c.Question,
+                                UseAi = c.Ai
+                            })
+                            .ToList()
                     })
                     .ToList()
             }).ToList()
@@ -116,7 +129,7 @@ public class SubAdminProjectsController : ControllerBase
             message = "Vragenlijst gegenereerd."
         });
     }
-    
+
     [HttpPost("summary")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateProjectSummary(
@@ -140,7 +153,7 @@ public class SubAdminProjectsController : ControllerBase
             summary
         });
     }
-    
+
     [HttpPost("idea-selection")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateIdeaSelection(
@@ -201,5 +214,4 @@ public class SubAdminProjectsController : ControllerBase
             });
         }
     }
-    
 }
