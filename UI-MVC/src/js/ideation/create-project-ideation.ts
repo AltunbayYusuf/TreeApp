@@ -81,12 +81,12 @@ export class ProjectIdeationBuilder {
 
         if (titleInput) {
             titleInput.value = selectedOption.dataset.title || "";
-            titleInput.dispatchEvent(new Event("input", { bubbles: true }));
+            titleInput.dispatchEvent(new Event("input", {bubbles: true}));
         }
 
         if (descriptionInput) {
             descriptionInput.value = selectedOption.dataset.description || "";
-            descriptionInput.dispatchEvent(new Event("input", { bubbles: true }));
+            descriptionInput.dispatchEvent(new Event("input", {bubbles: true}));
         }
     }
 
@@ -159,27 +159,44 @@ export class ProjectIdeationBuilder {
 
     private createTopicCard(index: number): HTMLDivElement {
         const card = document.createElement("div");
-        card.className = "topic-card rounded-2xl border border-slate-200 bg-slate-50 p-5";
+        // Dezelfde transparante styling als de Razor-view
+        card.className = "topic-card bg-transparent border border-secondary rounded-3 p-3 mb-4";
         card.dataset.index = index.toString();
         const existingTopicSelect = this.createExistingTopicSelectMarkup(index);
 
         card.innerHTML = `
-            <div class="flex items-start justify-between mb-3">
-                <h3 class="topic-label text-sm font-semibold text-slate-700">Topic ${index + 1}</h3>
-                <button type="button" class="remove-topic-btn inline-flex h-11 w-11 items-center justify-center rounded-lg border border-red-200 bg-white text-red-500 hover:bg-red-50 transition" aria-label="Verwijder topic ${index + 1}">🗑</button>
-            </div>
-            ${existingTopicSelect}
-            <div class="flex gap-3 items-start">
-                <div class="flex-1">
-                    <input name="Topics[${index}].Title" id="Topics_${index}__Title" class="topic-title w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" maxlength="50" placeholder="bv. Acties om mentaal welzijn te verbeteren" />
-                    <span class="topic-title-validation mt-1 block text-sm text-red-600 field-validation-valid" data-valmsg-for="Topics[${index}].Title" data-valmsg-replace="true"></span>
-                </div>
-            </div>
-            <div class="mt-4">
-                <textarea name="Topics[${index}].Description" id="Topics_${index}__Description" rows="4" class="topic-description w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100" maxlength="200" placeholder="Beschrijving/context voor dit topic (optioneel)..."></textarea>
-                <span class="topic-description-validation mt-1 block text-sm text-red-600 field-validation-valid" data-valmsg-for="Topics[${index}].Description" data-valmsg-replace="true"></span>
-            </div>
-        `;
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="topic-number text-body-emphasis fw-bold">Topic ${index + 1}</div>
+            <button type="button" class="remove-topic-btn btn btn-outline-danger btn-sm" aria-label="Verwijder topic ${index + 1}">
+                🗑️
+            </button>
+        </div>
+        
+        ${existingTopicSelect}
+        
+        <div class="mb-3">
+            <input name="Topics[${index}].Title" 
+                   id="Topics_${index}__Title" 
+                   class="topic-title form-control bg-transparent text-body-emphasis border-secondary" 
+                   maxlength="50" 
+                   placeholder="bv. Acties om mentaal welzijn te verbeteren" />
+            <span class="topic-title-validation text-danger small field-validation-valid" 
+                  data-valmsg-for="Topics[${index}].Title" 
+                  data-valmsg-replace="true"></span>
+        </div>
+        
+        <div>
+            <textarea name="Topics[${index}].Description" 
+                      id="Topics_${index}__Description" 
+                      rows="3" 
+                      class="topic-description form-control bg-transparent text-body-emphasis border-secondary" 
+                      maxlength="200" 
+                      placeholder="Beschrijving/context voor dit topic (optioneel)..."></textarea>
+            <span class="topic-description-validation text-danger small field-validation-valid" 
+                  data-valmsg-for="Topics[${index}].Description" 
+                  data-valmsg-replace="true"></span>
+        </div>
+    `;
         return card;
     }
 
@@ -294,6 +311,7 @@ export class ProjectIdeationBuilder {
 
         defaultButton?.click();
     }
+
     private handleSubmit(event: Event): void {
         this.clearSummaryMessage();
 
