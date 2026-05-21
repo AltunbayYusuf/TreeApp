@@ -2,6 +2,7 @@
 @using IntegratieProject.UI.MVC
 @using IntegratieProject.BL.interfaces
 @using Microsoft.AspNetCore.Identity
+@using IntegratieProject.UI.MVC.Models
 @inject UserManager<ApplicationUser> UserManager
 @inject IProjectManager ProjectManager
 
@@ -81,6 +82,9 @@
             currentProjectId = "1";
         }
     }
+    
+    var project = int.TryParse(currentProjectId, out var id) ? ProjectManager.GetProject(id) : null;
+    var projectColorTheme = project?.ColorTheme ?? "Blue";
 
     var currentSubplatformRoute = string.IsNullOrWhiteSpace(currentSubplatform) ? null : currentSubplatform;
 }
@@ -111,14 +115,15 @@
     }
 </head>
 
-<body class="d-flex flex-column min-vh-100" data-subplatform="@currentSubplatform">
+<body class="d-flex flex-column min-vh-100"
+      data-subplatform="@currentSubplatform"
+      style="@ProjectColorTheme.ToCssVariables(projectColorTheme)">
 
 <header>
-    <nav class="navbar navbar-expand-sm navbar-dark">
+    <nav class="navbar navbar-expand-sm">
         <div class="container-fluid px-4">
 
-            @if (User.Identity?.IsAuthenticated == false)
-            {
+        
                 <a class="navbar-brand"
                    asp-area=""
                    asp-controller="Project"
@@ -127,7 +132,7 @@
                    asp-route-id="@currentProjectId">
                     Echo
                 </a>
-            }
+        
 
             <div class="d-flex align-items-center gap-2 ms-auto">
 
@@ -228,6 +233,7 @@
                                asp-area=""
                                asp-controller="Project"
                                asp-action="Index"
+                               asp-route-subplatform="@currentSubplatform"
                                asp-route-subplatform="@currentSubplatformRoute"
                                asp-route-id="@currentProjectId">
                                 Project
@@ -239,6 +245,7 @@
                                asp-area=""
                                asp-controller="Idea"
                                asp-action="Index"
+                               asp-route-subplatform="@currentSubplatform"
                                asp-route-subplatform="@currentSubplatformRoute"
                                asp-route-projectId="@currentProjectId">
                                 Ideeën
@@ -250,6 +257,7 @@
                                asp-area=""
                                asp-controller="Home"
                                asp-action="Privacy"
+                               asp-route-subplatform="@currentSubplatform"
                                asp-route-subplatform="@currentSubplatformRoute"
                                asp-route-projectId="@currentProjectId">
                                 Privacy

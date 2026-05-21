@@ -1,4 +1,5 @@
 @using IntegratieProject.BL.Domain.project
+@using IntegratieProject.UI.MVC.Models
 @model IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel
 
 @{
@@ -146,11 +147,11 @@
                 <div class="row g-3 align-items-stretch">
                     <div class="col-12 col-md-6">
                         <select asp-for="FontFamily" class="form-select" id="FontFamily">
-                            @foreach (var fontFamily in IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.AllowedFontFamilies)
+                            @foreach (var fontFamily in CreateProjectInfoViewModel.AllowedFontFamilies)
                             {
                                 <option value="@fontFamily"
-                                        data-font-stack="@IntegratieProject.UI.MVC.Models.ProjectFontFamily.ToCssStack(fontFamily)">
-                                    @(fontFamily == IntegratieProject.UI.MVC.Models.CreateProjectInfoViewModel.DefaultFontFamily ? $"{fontFamily} (default)" : fontFamily)
+                                        data-font-stack="@ProjectFontFamily.ToCssStack(fontFamily)">
+                                    @(fontFamily == CreateProjectInfoViewModel.DefaultFontFamily ? $"{fontFamily} (default)" : fontFamily)
                                 </option>
                             }
                         </select>
@@ -164,6 +165,33 @@
                     </div>
                 </div>
                 <span asp-validation-for="FontFamily" class="text-danger small"></span>
+            </div>
+            
+            <div class="mb-4">
+                <label asp-for="ColorTheme" class="form-label">
+                    Kleurthema <span class="text-danger">*</span>
+                </label>
+            
+                <div class="theme-selector-grid">
+                    @foreach (var theme in CreateProjectInfoViewModel.AllowedColorThemes)
+                    {
+                        var primaryColor = ProjectColorTheme.GetPrimaryColor(theme);
+                        var darkColor = ProjectColorTheme.GetDarkColor(theme);
+            
+                        <label class="theme-option-label">
+                            <input asp-for="ColorTheme" type="radio" value="@theme" />
+            
+                            <div class="theme-option-card">
+                                <div class="theme-preview-circle" style="background: linear-gradient(135deg, @primaryColor 0%, @darkColor 100%);">
+                                </div>
+            
+                                <span>@theme</span>
+                            </div>
+                        </label>
+                    }
+                </div>
+            
+                <span asp-validation-for="ColorTheme" class="text-danger small d-block mt-2"></span>
             </div>
 
             <div>

@@ -17,12 +17,14 @@ public class Repository : IRepository
     {
         return _context.Topics.Where(t => t.Project == project).ToList();
     }
-    public Topic? ReadTopicById(int topicId)
+    public Topic ReadTopicById(int topicId)
     {
-        return _context.Topics.Include(t => t.Ideas)
+        return _context.Topics
+            .Include(t => t.Project)
+            .Include(t => t.Ideas)
             .FirstOrDefault(t => t.Id == topicId);
     }
-    public SubPlatform? ReadSubPlatformBySlug(string slug)
+    public SubPlatform ReadSubPlatformBySlug(string slug)
     {
         return _context.SubPlatforms
             .FirstOrDefault(sp => sp.Slug == slug);
