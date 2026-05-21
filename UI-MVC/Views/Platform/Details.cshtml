@@ -2,13 +2,15 @@
 @model IntegratieProject.BL.Domain.project.SubPlatform
 
 @{
-    ViewBag.Title = "title";
-    Layout = "_Layout";
+    ViewBag.Title = $"{Model.CompanyName} - details";
+    Layout = "_AdminLayout";
 
-    var allResponses = Model.Projects
+    var projects = Model.Projects?.ToList() ?? new List<IntegratieProject.BL.Domain.project.Project>();
+    var subAdmins = Model.SubAdmins?.ToList() ?? new List<IntegratieProject.BL.Domain.users.SubAdmin>();
+
+    var allResponses = projects
         .SelectMany(p => p.SurveyResponses ?? new List<SurveyResponse>())
         .ToList();
-
 
     var avgSeconds = allResponses.Any()
         ? (int)Math.Round(allResponses.Average(r => r.DurationInSeconds))
@@ -17,83 +19,127 @@
     var avgMinutes = avgSeconds / 60;
     var remainingSeconds = avgSeconds % 60;
 }
-<a asp-action="Index" asp-controller="Admin" class="btn btn-light mb-3">
-    ← Terug naar overzicht
-</a>
-<h1>@Model.CompanyName</h1>
 
-<div class="d-flex align-items-center justify-content-between mt-4">
-    <h3 class="mb-0">Subadmins</h3>
-    <a asp-action="ExportSubAdminsCsv"
-       asp-controller="Platform"
-       asp-route-id="@Model.Id"
-       class="btn btn-success btn-sm d-flex justify-content-center align-items-center">
-        Exporteer CSV
-    </a>
-</div>
+<div class="admin-page platform-details-page">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <a asp-action="Index"
+           asp-controller="Admin"
+           class="btn btn-light platform-back-btn shadow-sm">
+            <span aria-hidden="true">&larr;</span> Terug naar overzicht
+        </a>
 
-<ul class="list-group">
-    @foreach (var subAdmin in Model.SubAdmins)
-    {
-        <li class="list-group-item">
-            @subAdmin.Name
-        </li>
-    }
-</ul>
-
-<h3 class="mt-4">Subplatform overzicht</h3>
-
-<div class="row">
-    <div class="col">
-        <div class="card p-3 text-center">
-
-            <div>@Model.Projects.Count()</div>
-            <em>Projecten</em>
-        </div>
+        <a asp-action="ExportSubAdminsCsv"
+           asp-controller="Platform"
+           asp-route-id="@Model.Id"
+           class="btn btn-success shadow-sm">
+            Exporteer CSV
+        </a>
     </div>
 
-    <div class="col">
-        <div class="card p-3 text-center">
-            <div>
-                @Model.Projects.Sum(p => p.SurveyResponses?.Count ?? 0)
+    <section class="platform-detail-hero mb-4">
+        <div>
+            <p class="platform-detail-eyebrow">Subplatform details</p>
+            <h1>@Model.CompanyName</h1>
+            <p class="mb-0">Overzicht van subadmins, projecten, deelnemers en AI-kosten.</p>
+        </div>
+        <div class="platform-detail-badge">
+            @projects.Count project@(projects.Count == 1 ? "" : "en")
+        </div>
+    </section>
+
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card stat-primary">
+                <div class="stat-label">Projecten</div>
+                <div class="stat-value">@projects.Count</div>
             </div>
-            <em>Deelnemers</em>
-
         </div>
-    </div>
-    <div class="col">
-        <div class="card p-3 text-center">
-            <div>
-                @avgMinutes min @remainingSeconds sec
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card stat-success">
+                <div class="stat-label">Deelnemers</div>
+                <div class="stat-value">@projects.Sum(p => p.SurveyResponses?.Count ?? 0)</div>
             </div>
-            <em>gem. tijd</em>
-
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card stat-secondary">
+                <div class="stat-label">Gem. tijd</div>
+                <div class="stat-value platform-time-value">@avgMinutes min @remainingSeconds sec</div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="stat-card stat-neutral">
+                <div class="stat-label">Totale kosten</div>
+                <div id="total-ai-cost"
+                     class="stat-value platform-cost-value"
+                     data-subplatform-id="@Model.Id">
+                    &euro; 0.0000
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col">
-        <div id="total-ai-cost"
-             data-subplatform-id="@Model.Id">
-            € 0.0000
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-4">
+            <section class="admin-form-card h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h2 class="admin-form-title mb-1">Subadmins</h2>
+                        <p class="admin-form-subtitle mb-0">@subAdmins.Count beheerder@(subAdmins.Count == 1 ? "" : "s")</p>
+                    </div>
+                </div>
+
+                @if (subAdmins.Any())
+                {
+                    <div class="list-group list-group-flush platform-admin-list">
+                        @foreach (var subAdmin in subAdmins)
+                        {
+                            <div class="list-group-item px-0">
+                                <div class="platform-admin-avatar">@subAdmin.Name.Substring(0, 1).ToUpper()</div>
+                                <span>@subAdmin.Name</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="platform-empty-state">Er zijn nog geen subadmins gekoppeld.</div>
+                }
+            </section>
         </div>
 
-        <em>Totale kosten</em>
+        <div class="col-12 col-lg-8">
+            <section class="admin-form-card">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                    <div>
+                        <h2 class="admin-form-title mb-1">Projecten</h2>
+                        <p class="admin-form-subtitle mb-0">@projects.Count project@(projects.Count == 1 ? "" : "en") binnen dit subplatform</p>
+                    </div>
+                </div>
+
+                @if (projects.Any())
+                {
+                    <div class="platform-project-grid">
+                        @foreach (var project in projects)
+                        {
+                            <a asp-controller="Project"
+                               asp-action="Index"
+                               asp-route-id="@project.Id"
+                               asp-route-subplatform="@Model.Slug"
+                               class="platform-project-card">
+                                <div>
+                                    <h3>@project.Name</h3>
+                                    <p>@(project.SurveyResponses?.Count ?? 0) deelnemers</p>
+                                </div>
+                                <span aria-hidden="true">&rarr;</span>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="platform-empty-state">Er zijn nog geen projecten voor dit subplatform.</div>
+                }
+            </section>
+        </div>
     </div>
 </div>
-
-<h3 class="mt-4">Projecten (@Model.Projects.Count())</h3>
-
-@foreach (var project in Model.Projects)
-{
-    <a asp-controller="Project"
-       asp-action="Index"
-       asp-route-id="@project.Id"
-       asp-route-subplatform="@Model.Slug"
-       class="card p-3 mb-2 d-block text-decoration-none">
-
-        <h5>@project.Name</h5>
-
-        <small>
-            @(project.SurveyResponses?.Count ?? 0) deelnemers
-        </small>
-    </a>
-}
