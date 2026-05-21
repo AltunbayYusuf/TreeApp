@@ -624,7 +624,7 @@ export class IdeaCreator {
 
         const validQuestions = (data.questions ?? [])
             .map(q => q.trim())
-            .filter(q => q.length > 0)
+            .filter(q => q.length > 0) 
             .slice(0, 2);
 
         if (!response.ok || !data.ok || validQuestions.length === 0) {

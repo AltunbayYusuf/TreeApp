@@ -71,11 +71,9 @@
                 const loading = card?.querySelector(".open-question-loading");
                 const error = card?.querySelector(".open-question-error");
 
-                const summaryText = card?.querySelector("p.mb-0");
-
+                const summaryText = card?.querySelector(".open-question-summary-text");
                 if (button) {
                     button.disabled = true;
-                    button.textContent = "AI genereert...";
                 }
 
                 loading?.classList.remove("d-none");
@@ -111,7 +109,6 @@
 
                     if (button) {
                         button.disabled = false;
-                        button.textContent = "Vernieuw samenvatting";
                     }
                 }
             });

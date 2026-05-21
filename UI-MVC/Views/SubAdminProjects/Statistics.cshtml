@@ -177,23 +177,24 @@
                                                 </button>
                                             </form>
 
-                                            <div class="alert alert-info d-none mt-2 open-question-loading">
-                                                AI genereert samenvatting...
-                                            </div>
-
-                                            <div class="alert alert-danger d-none mt-2 open-question-error">
-                                                AI kon geen samenvatting genereren.
-                                            </div>
+                                           
                                         }
+                                    </div>
+                                    <div class="alert alert-info d-none mt-2 open-question-loading">
+                                        AI genereert samenvatting...
+                                    </div>
+
+                                    <div class="alert alert-danger d-none mt-2 open-question-error">
+                                        AI kon geen samenvatting genereren.
                                     </div>
 
                                     @if (!string.IsNullOrWhiteSpace(question.AiSummary))
                                     {
-                                        <p class="mb-0">@question.AiSummary</p>
+                                        <p class="mb-0 open-question-summary-text">@question.AiSummary</p>
                                     }
                                     else
                                     {
-                                        <p class="text-muted mb-0">
+                                        <p class="text-muted mb-0 open-question-summary-text">
                                             Nog geen AI-samenvatting gegenereerd.
                                         </p>
                                     }
