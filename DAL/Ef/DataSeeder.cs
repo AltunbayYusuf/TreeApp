@@ -65,7 +65,7 @@ public class DataSeeder
             Duration = 10,
             ReleaseDate = DateTime.UtcNow,
             SubPlatform = subPlatform,
-           
+
             Photo = new Media
             {
                 Uri = "/images/photos/kdg-Photo.jpg"
@@ -1035,45 +1035,26 @@ public class DataSeeder
             Key = "project_trend_summary",
             Name = "Project trend summary",
             PromptText = """
-                         Je bent een AI-analist voor een participatieplatform.
+                         Je bent een AI-assistent voor een participatieplatform.
 
-                         Analyseer de data van één project. Je krijgt:
-                         - topics
-                         - ideeën
-                         - reacties
-                         - ingevulde enquêtes met vragen en antwoorden
+                         Vat de data van dit project kort en duidelijk samen voor een subadmin.
 
-                         Doel:
-                         De subadmin moet snel en overzichtelijk begrijpen:
-                         - welke trends terugkomen
-                         - hoe deelnemers denken over het project
-                         - welke bezorgdheden vaak terugkomen
-                         - welke ideeën steun krijgen
-                         - wat uit de enquêtes blijkt
-                         - welke acties de organisatie best kan nemen
+                         Geef maximaal 5 korte zinnen.
 
-                         Geef een duidelijke analyse in het Nederlands.
-
-                         Structuur:
-                         1. Algemene indruk
-                         2. Belangrijkste trends
-                         3. Wat blijkt uit de ideeën
-                         4. Wat blijkt uit de reacties
-                         5. Wat blijkt uit de enquêtes
-                         6. Sentiment van de deelnemers
-                         7. Veel voorkomende bezorgdheden
-                         8. Populaire of sterke ideeën
-                         9. Aanbevelingen voor de subadmin
+                         De samenvatting moet bevatten:
+                         - de belangrijkste trend
+                         - wat deelnemers vooral belangrijk vinden
+                         - welke actie de organisatie best eerst bekijkt
 
                          Regels:
                          - Gebruik alleen de meegegeven data.
                          - Verzin geen cijfers.
-                         - Als er weinig data is, zeg dat duidelijk.
-                         - Maak het overzichtelijk met korte titels.
+                         - Geen lange analyse.
+                         - Geen genummerde lijst.
+                         - Geen markdown.
+                         - Geen titel.
                          - Schrijf professioneel maar begrijpelijk.
                          - Geef geen JSON terug.
-                         - Geef geen markdown codeblok terug.
-                         - Geef concrete aanbevelingen, maar overdrijf niet.
 
                          DATA:
                          {{projectData}}
@@ -1105,7 +1086,7 @@ public class DataSeeder
                          Korte conclusie:
                          ...
 
-                         Vraag:
+                         Gebruik deze vraag alleen als context. Herhaal de vraag niet in je antwoord:
                          {{question}}
 
                          Antwoorden:
@@ -1229,6 +1210,35 @@ public class DataSeeder
 
                          DATA:
                          {{projectData}}
+                         """,
+            IsActive = true
+        };
+
+        var ideaFollowUpSummaryPrompt = new AiPrompt
+        {
+            Key = "idea_follow_up_summary",
+            Name = "idea follow up summary",
+            PromptText = """
+                         Je maakt van een idee en antwoorden op bijvragen één duidelijke ideetekst.
+
+                         Titel:
+                         {title}
+
+                         Origineel idee:
+                         {text}
+
+                         Antwoorden op bijvragen:
+                         {followUpAnswers}
+
+                         Regels:
+                         - Geef alleen de finale ideetekst terug.
+                         - Geen JSON.
+                         - Geen markdown.
+                         - Geen titel.
+                         - Geen opsomming met vragen en antwoorden.
+                         - Schrijf alsof dit de beschrijving is die andere gebruikers zullen lezen.
+                         - Maak het idee duidelijker en concreter.
+                         - Voeg geen nieuwe informatie toe die niet in het origineel of de antwoorden staat.
                          """,
             IsActive = true
         };
@@ -1439,98 +1449,108 @@ public class DataSeeder
                 DurationInSeconds = 302
             }
         };
-        
+
         dbContext.AiModelConfigurations.AddRange(
-    new AiModelConfiguration
-    {
-        FeatureKey = "Moderation",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "SurveyGeneration",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "ImageGeneration",
-        Provider = "Google",
-        ModelName = "imagen-3.0-generate-002",
-        ImageCostPerImage = 0.04m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "IntroGeneration",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "IdeaImprovement",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "IdeaFollowUpQuestions",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "ProjectSummary",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "OpenQuestionSummary",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    },
-    new AiModelConfiguration
-    {
-        FeatureKey = "IdeaSelection",
-        Provider = "Google",
-        ModelName = "gemini-2.5-flash-lite",
-        InputCostPerMillionTokens = 0.10m,
-        OutputCostPerMillionTokens = 0.40m,
-        Currency = "USD",
-        IsActive = true
-    }
-);
+            new AiModelConfiguration
+            {
+                FeatureKey = "Moderation",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "SurveyGeneration",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "ImageGeneration",
+                Provider = "Google",
+                ModelName = "imagen-3.0-generate-002",
+                ImageCostPerImage = 0.04m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "IntroGeneration",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "IdeaImprovement",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "IdeaFollowUpQuestions",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "ProjectSummary",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "OpenQuestionSummary",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "IdeaSelection",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            },
+            new AiModelConfiguration
+            {
+                FeatureKey = "IdeaFollowUpSummary",
+                Provider = "Google",
+                ModelName = "gemini-2.5-flash-lite",
+                InputCostPerMillionTokens = 0.10m,
+                OutputCostPerMillionTokens = 0.40m,
+                Currency = "USD",
+                IsActive = true
+            }
+        );
 
 
         /* =========================
@@ -1548,6 +1568,7 @@ public class DataSeeder
         dbContext.AiPrompts.Add(openQuestionSummaryPrompt);
         dbContext.AiPrompts.Add(ideaFollowUpPrompt);
         dbContext.AiPrompts.Add(ideaSelectionPrompt);
+        dbContext.AiPrompts.Add(ideaFollowUpSummaryPrompt);
 
         dbContext.Platforms.Add(platform);
         dbContext.SubPlatforms.Add(subPlatform);

@@ -12,4 +12,5 @@ public interface IAiPromptService
     string BuildIdeaFollowUpQuestionsPrompt(string title, string text);
     Task<string> BuildProjectImageGenerationPromptAsync(string title, string description);
     string BuildIdeaSelectionPrompt(string selectionMode, string projectData);
+    string BuildIdeaFollowUpSummaryPrompt(string title, string text, string followUpAnswers);
 }

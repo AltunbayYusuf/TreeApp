@@ -89,6 +89,11 @@ public class StatisticsManager : IProjectStatisticsManager
                     .Where(a => !string.IsNullOrWhiteSpace(a.Text))
                     .OrderBy(a => a.Id)
                     .ToList();
+                
+                questionStats.OpenAnswers = openAnswers
+                    .Select(a => a.Text)
+                    .Where(t => !string.IsNullOrWhiteSpace(t))
+                    .ToList();
 
                 var existingSummary = _aiRepository.ReadOpenQuestionSummary(projectId, question.Id);
 

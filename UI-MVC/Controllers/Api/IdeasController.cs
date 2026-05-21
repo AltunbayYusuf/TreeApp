@@ -130,11 +130,6 @@ public class IdeasController : ControllerBase
 
         var finalText = vm.Text;
 
-        if (!string.IsNullOrWhiteSpace(vm.FollowUpAnswers))
-        {
-            finalText += "\n\nExtra verduidelijking:\n" + vm.FollowUpAnswers.Trim();
-        }
-
 
         ToxicityResult result;
 
@@ -234,10 +229,6 @@ public class IdeasController : ControllerBase
 
         var finalText = vm.Text;
 
-        if (!string.IsNullOrWhiteSpace(vm.FollowUpAnswers))
-        {
-            finalText += "\n\nExtra verduidelijking:\n" + vm.FollowUpAnswers.Trim();
-        }
 
         await _ideaManager.ForceSubmitIdeaAsync(
             vm.TopicId,
@@ -477,5 +468,39 @@ public class IdeasController : ControllerBase
                 rawResult = resultJson
             });
         }
+    }
+
+    [HttpPost("follow-up-summary")]
+    public async Task<IActionResult> SummarizeFollowUpAnswers([FromBody] IdeaFollowUpQuestionsDto dto)
+    {
+        if (string.IsNullOrWhiteSpace(dto.Text))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Beschrijving mag niet leeg zijn."
+            });
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.FollowUpAnswers))
+        {
+            return BadRequest(new
+            {
+                ok = false,
+                message = "Beantwoord eerst minstens één bijvraag."
+            });
+        }
+
+        var summarizedText = await _ideaManager.SummarizeIdeaWithFollowUpAnswersAsync(
+            dto.Title,
+            dto.Text,
+            dto.FollowUpAnswers
+        );
+
+        return Ok(new
+        {
+            ok = true,
+            text = summarizedText
+        });
     }
 }
