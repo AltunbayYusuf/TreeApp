@@ -28,6 +28,7 @@ public class SubAdminProjectsController : Controller
     private readonly IProjectStatisticsManager _projectStatisticsManager;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
     private readonly IGoogleCloudStorageService _googleCloudStorageService;
+    private readonly ITopicManager _topicManager;
 
     private const string InfoKey = "CreateProject_Info";
     private const string SurveyKey = "CreateProject_Survey";
@@ -42,7 +43,9 @@ public class SubAdminProjectsController : Controller
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
         IProjectStatisticsManager projectStatisticsManager,
-        IAiSummaryIdeas aiSummaryIdeas,IGoogleCloudStorageService googleCloudStorageService
+        IAiSummaryIdeas aiSummaryIdeas,
+        IGoogleCloudStorageService googleCloudStorageService,
+        ITopicManager topicManager
         )
     {
         _subplatformManager = subplatformManager;
@@ -54,6 +57,7 @@ public class SubAdminProjectsController : Controller
         _projectStatisticsManager = projectStatisticsManager;
         _aiSummaryIdeas = aiSummaryIdeas;
         _googleCloudStorageService=googleCloudStorageService;
+        _topicManager = topicManager;
     }
 
     private string Subplatform
@@ -205,6 +209,8 @@ public class SubAdminProjectsController : Controller
         if (!vm.Topics.Any())
             vm.Topics.Add(new IdeationTopicViewModel());
 
+        PopulateExistingTopics(vm, subplatform);
+
         return View(vm);
     }
 
@@ -226,7 +232,10 @@ public class SubAdminProjectsController : Controller
             ModelState.AddModelError("", "Je moet minstens 1 topic invullen.");
 
         if (!ModelState.IsValid)
+        {
+            PopulateExistingTopics(vm, subplatform);
             return View("CreateIdeation", vm);
+        }
 
         SaveSession(IdeationKey, vm);
 
@@ -474,6 +483,29 @@ public class SubAdminProjectsController : Controller
             Theme = t.Title,
             Description = t.Description
         }).ToList();
+    }
+
+    private void PopulateExistingTopics(CreateProjectIdeationViewModel vm, string subplatform)
+    {
+        var subPlatform = _subplatformManager.GetSubPlatformBySlug(subplatform);
+
+        if (subPlatform == null)
+        {
+            vm.ExistingTopics = new List<ExistingTopicOptionViewModel>();
+            return;
+        }
+
+        vm.ExistingTopics = _topicManager
+            .GetTopicsBySubPlatform(subPlatform.Id)
+            .GroupBy(t => t.Theme.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Select(t => new ExistingTopicOptionViewModel
+            {
+                Id = t.Id,
+                Title = t.Theme,
+                Description = t.Description ?? ""
+            })
+            .ToList();
     }
 
     private QuestionList BuildQuestionList(CreateProjecSurveyViewModel survey)

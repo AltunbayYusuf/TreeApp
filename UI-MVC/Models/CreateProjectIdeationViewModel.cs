@@ -6,6 +6,8 @@ public class CreateProjectIdeationViewModel
 {
     public string SubplatformSlug { get; set; } = "";
 
+    public List<ExistingTopicOptionViewModel> ExistingTopics { get; set; } = new();
+
     [Required]
     [MinLength(1, ErrorMessage = "Er moet minstens 1 topic zijn.")]
     [MaxLength(5, ErrorMessage = "Je kan maximaal 5 topics toevoegen.")]
@@ -32,6 +34,17 @@ public class CreateProjectIdeationViewModel
 public class IdeationTopicViewModel
 {
     [Required(ErrorMessage = "Een topic titel is verplicht.")]
+    [MaxLength(50, ErrorMessage = "Topic titel mag maximaal 50 tekens zijn.")]
+    public string Title { get; set; } = "";
+
+    [MaxLength(200, ErrorMessage = "Beschrijving mag maximaal 200 tekens zijn.")]
+    public string Description { get; set; } = "";
+}
+
+public class ExistingTopicOptionViewModel
+{
+    public int Id { get; set; }
+
     public string Title { get; set; } = "";
 
     public string Description { get; set; } = "";

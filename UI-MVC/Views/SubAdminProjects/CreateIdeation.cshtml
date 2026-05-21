@@ -63,11 +63,31 @@
                             </button>
                         </div>
 
+                        @if (Model.ExistingTopics.Any())
+                        {
+                            <div class="mb-3">
+                                <label for="Topics_@(i)__ExistingTopic" class="form-label">Bestaande topic gebruiken</label>
+                                <select id="Topics_@(i)__ExistingTopic"
+                                        class="existing-topic-select form-select">
+                                    <option value="">Kies een bestaande topic...</option>
+                                    @foreach (var topic in Model.ExistingTopics)
+                                    {
+                                        <option value="@topic.Id"
+                                                data-title="@topic.Title"
+                                                data-description="@topic.Description">
+                                            @topic.Title
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
                         <div class="mb-3">
                             <input name="Topics[@i].Title"
                                    id="Topics_@(i)__Title"
                                    value="@Model.Topics[i].Title"
                                    class="topic-title form-control"
+                                   maxlength="50"
                                    placeholder="bv. Acties om mentaal welzijn te verbeteren" />
                             <span class="topic-title-validation text-danger small"
                                   data-valmsg-for="Topics[@i].Title"
@@ -79,6 +99,7 @@
                                       id="Topics_@(i)__Description"
                                       rows="3"
                                       class="topic-description form-control"
+                                      maxlength="200"
                                       placeholder="Beschrijving/context voor dit topic (optioneel)...">@Model.Topics[i].Description</textarea>
                             <span class="topic-description-validation text-danger small"
                                   data-valmsg-for="Topics[@i].Description"
@@ -199,6 +220,27 @@
                 || buttons[0];
 
             if (defaultButton) { defaultButton.click(); }
+
+            document.querySelectorAll(".existing-topic-select").forEach(select => {
+                select.addEventListener("change", function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const card = this.closest(".topic-card");
+                    const titleInput = card?.querySelector(".topic-title");
+                    const descriptionInput = card?.querySelector(".topic-description");
+
+                    if (!selectedOption || !selectedOption.value || !card) return;
+
+                    if (titleInput) {
+                        titleInput.value = selectedOption.dataset.title || "";
+                        titleInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+
+                    if (descriptionInput) {
+                        descriptionInput.value = selectedOption.dataset.description || "";
+                        descriptionInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+                });
+            });
         });
     </script>
 }
