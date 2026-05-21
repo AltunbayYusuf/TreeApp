@@ -292,8 +292,8 @@
 
 // ── AI assistent kaart ────────────────────────────────────────────────────────
 .ai-assistant-card {
-  background: linear-gradient(135deg, #faf5ff 0%, #f0f4ff 100%);
-  border: 2px solid #c4b5fd;
+  background: linear-gradient(135deg, var(--echo-primary-light) 0%, var(--echo-primary) 100%);
+  border: 1px solid var(--echo-primary-light);
   border-radius: var(--echo-radius-lg);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
@@ -301,19 +301,19 @@
   .ai-card-title {
     font-size: 1.05rem;
     font-weight: 700;
-    color: #5b21b6;
+    color: #fff;
     margin-bottom: 0.3rem;
   }
 
   .ai-card-subtitle {
     font-size: 0.87rem;
-    color: #7c3aed;
+    color: #fff;
     opacity: 0.85;
     margin-bottom: 1rem;
   }
 
   .btn-ai {
-    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    background: linear-gradient(135deg, var(--echo-primary) 0%, var(--echo-primary-dark) 100%);
     color: #fff;
     border: none;
     font-weight: 600;
@@ -324,14 +324,14 @@
 
     &:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(109, 40, 217, 0.35);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.4);
       color: #fff;
     }
   }
 
   .ai-message {
     font-size: 0.87rem;
-    color: #7c3aed;
+    color: #fff;
     margin-left: 0.5rem;
   }
 }
@@ -745,6 +745,96 @@
 
 .prompt-arrow {
   min-width: 44px;
+}
+
+.existing-topic-select,
+.existing-topic-select option {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+.admin-dashboard-page {
+  padding: 1.5rem 0 3rem;
+}
+
+.admin-dashboard-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-radius: 1rem;
+  padding: 2rem;
+  color: #fff;
+  background: linear-gradient(135deg, #1d4ed8 0%, #0f172a 100%);
+  box-shadow: var(--echo-shadow-md);
+}
+
+.admin-summary-card,
+.admin-platform-card {
+  border-radius: 0.85rem;
+  background: var(--echo-card-bg);
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.admin-summary-card:hover,
+.admin-platform-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--echo-shadow-md) !important;
+}
+
+.admin-summary-card {
+  border-left: 4px solid var(--echo-primary) !important;
+}
+
+.admin-platform-icon {
+  width: 46px;
+  height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.85rem;
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.admin-mini-stat {
+  border: 1px solid var(--echo-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+  background: var(--echo-bg);
+
+  span {
+    display: block;
+    color: var(--echo-text);
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  small {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--echo-muted);
+    font-size: 0.72rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-dashboard-page {
+    padding-top: 1rem;
+  }
+
+  .admin-dashboard-hero {
+    padding: 1.25rem;
+
+    .btn {
+      width: 100%;
+    }
+  }
 }
 
 

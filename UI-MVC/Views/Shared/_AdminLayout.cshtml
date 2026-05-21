@@ -10,6 +10,9 @@
     var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
     if (string.IsNullOrWhiteSpace(currentSubplatform))
         currentSubplatform = Context.Request.Query["subplatform"].ToString();
+    var currentUser = await UserManager.GetUserAsync(User);
+    if (string.IsNullOrWhiteSpace(currentSubplatform) && !string.IsNullOrWhiteSpace(currentUser?.SubPlatformSlug))
+        currentSubplatform = currentUser.SubPlatformSlug;
     if (string.IsNullOrWhiteSpace(currentSubplatform))
         currentSubplatform = "kdg-hogeschool";
 
@@ -182,16 +185,15 @@
             }
 
         </nav>
-   
+
         <div class="admin-sidebar-footer">
             <div class="sidebar-user-row">
                 <div class="sidebar-avatar">@userInitial</div>
                 <div>
                     <a id="manage" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
-                       title="Beheer account" style="color: white !important;" >@userName</a>
+                       title="Beheer account" style="color: white !important;">@userName</a>
                     <div class="sidebar-user-role">@(isSubAdmin ? "Sub Admin" : "Generaal Admin")</div>
                 </div>
-
                 <a id="manageIcon" class="nav-link" asp-area="Identity" asp-page="/Account/Manage/Index"
                    title="Beheer account">⚙️</a>
             </div>
@@ -216,10 +218,7 @@
                 </svg>
             </button>
             <span class="admin-topbar-brand">Echo</span>
-            <div class="d-flex align-items-center gap-3 ms-auto">
-
-                <span class="admin-topbar-user mb-0">@userName</span>
-            </div>
+            <span class="admin-topbar-user">@userName</span>
         </div>
 
         <div class="admin-content">

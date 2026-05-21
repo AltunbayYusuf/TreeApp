@@ -12,7 +12,11 @@ export class SurveyBuilder {
         this.updateCounter();
         this.bindWindowMethods();
 
-        document.getElementById("generateSurveyWithAiBtn")?.addEventListener("click", async () => {
+        const generateButton =
+            document.getElementById("generateQuestionsBtn")
+            ?? document.getElementById("generateSurveyWithAiBtn");
+
+        generateButton?.addEventListener("click", async () => {
             await this.generateSurveyWithAi();
         });
 
@@ -593,7 +597,9 @@ export class SurveyBuilder {
     }
 
     private async generateSurveyWithAi(): Promise<void> {
-        const promptInput = document.getElementById("aiPrompt") as HTMLTextAreaElement | null;
+        const promptInput =
+            (document.getElementById("aiPromptInput") as HTMLTextAreaElement | null)
+            ?? (document.getElementById("aiPrompt") as HTMLTextAreaElement | null);
         const questionAmountInput = document.getElementById("questionAmount") as HTMLInputElement | null;
         const messageBox = document.getElementById("surveyAiMessage") as HTMLSpanElement | null;
         const errorBox = document.getElementById("surveyAiError") as HTMLDivElement | null;
