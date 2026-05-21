@@ -110,6 +110,10 @@
                         kan AI automatisch een afbeelding genereren.
                     </p>
 
+                    <div id="introMediaUploadStatus"
+                         class="alert alert-success py-2 px-3 small d-none mb-3"
+                         role="status"></div>
+
                     <img id="projectImagePreview"
                          src="@Model.IntroMediaUri"
                          alt="Project afbeelding preview"
@@ -232,7 +236,7 @@
                 <span asp-validation-for="Type" class="text-danger small d-block mt-2"></span>
             </div>
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex justify-content-end gap-2">
             <button type="submit" form="createProjectForm" class="btn btn-primary">Opslaan</button>
         </div>
     </form>
