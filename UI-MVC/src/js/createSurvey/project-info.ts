@@ -18,9 +18,12 @@ function getProjectInfoElements() {
         nameInput: document.getElementById("Name") as HTMLInputElement | null,
         introductionInput: document.getElementById("Introduction") as HTMLTextAreaElement | null,
         generateImageButton: document.getElementById("generateProjectImageButton") as HTMLButtonElement | null,
+        introMediaUpload: document.getElementById("IntroMediaUpload") as HTMLInputElement | null,
+        introMediaType: document.getElementById("IntroMediaType") as HTMLSelectElement | null,
+        introMediaUploadStatus: document.getElementById("introMediaUploadStatus") as HTMLElement | null,
         imagePreview: document.getElementById("projectImagePreview") as HTMLImageElement | null,
         imageStatus: document.getElementById("projectImageStatus") as HTMLDivElement | null,
-        generatedPhotoUrlInput: document.getElementById("PhotoUri") as HTMLInputElement | null,
+        generatedPhotoUrlInput: document.getElementById("IntroMediaUri") as HTMLInputElement | null,
         generateIntroductionButton: document.getElementById("generateIntroductionButton") as HTMLButtonElement | null,
     };
 }
@@ -136,8 +139,42 @@ async function generateIntroduction(): Promise<void> {
     }
 }
 
+function updateIntroMediaUploadStatus(): void {
+    const {
+        introMediaUpload,
+        introMediaType,
+        introMediaUploadStatus,
+        imageStatus,
+        imagePreview,
+        generatedPhotoUrlInput
+    } = getProjectInfoElements();
+
+    if (!introMediaUpload || !introMediaUploadStatus) return;
+
+    const file = introMediaUpload.files?.[0] ?? null;
+
+    if (!file) {
+        introMediaUploadStatus.classList.add("d-none");
+        introMediaUploadStatus.textContent = "";
+        return;
+    }
+
+    const isVideo = file.type.startsWith("video/") || introMediaType?.value === "Video";
+    introMediaUploadStatus.textContent = `${isVideo ? "Video" : "Foto"} geupload: ${file.name}`;
+    introMediaUploadStatus.classList.remove("d-none");
+
+    if (imagePreview) {
+        imagePreview.removeAttribute("src");
+        imagePreview.classList.add("d-none");
+    }
+
+    if (generatedPhotoUrlInput) generatedPhotoUrlInput.value = "";
+    if (imageStatus) imageStatus.textContent = "Bestand klaar om op te slaan.";
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    const {generateImageButton, generateIntroductionButton} = getProjectInfoElements();
+    const {generateImageButton, generateIntroductionButton, introMediaUpload} = getProjectInfoElements();
     generateImageButton?.addEventListener("click", generateProjectImage);
     generateIntroductionButton?.addEventListener("click", generateIntroduction);
+    introMediaUpload?.addEventListener("change", updateIntroMediaUploadStatus);
 });

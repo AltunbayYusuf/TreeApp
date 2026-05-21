@@ -28,6 +28,7 @@ public class SubAdminProjectsController : Controller
     private readonly IProjectStatisticsManager _projectStatisticsManager;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
     private readonly IGoogleCloudStorageService _googleCloudStorageService;
+    private readonly ITopicManager _topicManager;
 
     private const string InfoKey = "CreateProject_Info";
     private const string SurveyKey = "CreateProject_Survey";
@@ -42,7 +43,9 @@ public class SubAdminProjectsController : Controller
         IIntroTextService introTextService,
         IAiSurveyGenerationService aiSurveyGenerationService,
         IProjectStatisticsManager projectStatisticsManager,
-        IAiSummaryIdeas aiSummaryIdeas,IGoogleCloudStorageService googleCloudStorageService
+        IAiSummaryIdeas aiSummaryIdeas,
+        IGoogleCloudStorageService googleCloudStorageService,
+        ITopicManager topicManager
         )
     {
         _subplatformManager = subplatformManager;
@@ -54,6 +57,7 @@ public class SubAdminProjectsController : Controller
         _projectStatisticsManager = projectStatisticsManager;
         _aiSummaryIdeas = aiSummaryIdeas;
         _googleCloudStorageService=googleCloudStorageService;
+        _topicManager = topicManager;
     }
 
     private string Subplatform
@@ -133,7 +137,7 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateProjectInfoViewModel vm)
+    public async Task<IActionResult> Create(CreateProjectInfoViewModel vm, string nextAction = null)
     {
         var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
@@ -173,8 +177,12 @@ public class SubAdminProjectsController : Controller
         vm.IntroMediaUpload = null;
         SaveSession(InfoKey, vm);
 
-        return await TryCreateProject(subplatform);
+        if (!string.IsNullOrWhiteSpace(nextAction))
+        {
+            return RedirectToAction(nextAction, new { subplatform });
+        }
 
+        return await TryCreateProject(subplatform);
     }
 
     [HttpGet]
@@ -205,12 +213,14 @@ public class SubAdminProjectsController : Controller
         if (!vm.Topics.Any())
             vm.Topics.Add(new IdeationTopicViewModel());
 
+        PopulateExistingTopics(vm, subplatform);
+
         return View(vm);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveIdeation(CreateProjectIdeationViewModel vm)
+    public async Task<IActionResult> SaveIdeation(CreateProjectIdeationViewModel vm, string nextAction = null)
     {
         var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
@@ -226,9 +236,28 @@ public class SubAdminProjectsController : Controller
             ModelState.AddModelError("", "Je moet minstens 1 topic invullen.");
 
         if (!ModelState.IsValid)
+        {
+            PopulateExistingTopics(vm, subplatform);
             return View("CreateIdeation", vm);
+        }
 
         SaveSession(IdeationKey, vm);
+
+        if (!string.IsNullOrWhiteSpace(nextAction))
+        {
+            return RedirectToAction(nextAction, new { subplatform });
+        }
+
+        return await TryCreateProject(subplatform);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FinalizeProject()
+    {
+        var subplatform = Subplatform;
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
 
         return await TryCreateProject(subplatform);
     }
@@ -476,6 +505,29 @@ public class SubAdminProjectsController : Controller
         }).ToList();
     }
 
+    private void PopulateExistingTopics(CreateProjectIdeationViewModel vm, string subplatform)
+    {
+        var subPlatform = _subplatformManager.GetSubPlatformBySlug(subplatform);
+
+        if (subPlatform == null)
+        {
+            vm.ExistingTopics = new List<ExistingTopicOptionViewModel>();
+            return;
+        }
+
+        vm.ExistingTopics = _topicManager
+            .GetTopicsBySubPlatform(subPlatform.Id)
+            .GroupBy(t => t.Theme.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .Select(t => new ExistingTopicOptionViewModel
+            {
+                Id = t.Id,
+                Title = t.Theme,
+                Description = t.Description ?? ""
+            })
+            .ToList();
+    }
+
     private QuestionList BuildQuestionList(CreateProjecSurveyViewModel survey)
     {
         var questionList = new QuestionList
@@ -531,7 +583,7 @@ public class SubAdminProjectsController : Controller
                         ParentQuestion = parentQuestion,
                         FollowUpQuestion = followUpQuestion,
                         TriggerValue = conditionalVm.Trigger,
-                        TriggerType = TriggerType.Contains
+                        TriggerType = conditionalVm.TriggerType
                     });
                 }
             }
@@ -790,12 +842,35 @@ public class SubAdminProjectsController : Controller
             return NotFound();
         }
 
-        await _aiSummaryIdeas.GenerateOpenQuestionSummaryAsync(projectId, questionId);
+        var summary = await _aiSummaryIdeas.GenerateOpenQuestionSummaryAsync(projectId, questionId);
 
-        return RedirectToAction(nameof(Statistics), new
+        return Ok(new
         {
-            subplatform,
-            projectId
+            ok = true,
+            summary
+        });
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateProjectTrendSummary(string subplatform, int projectId)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
+
+        var project = _projectManager.GetProject(projectId);
+
+        if (project == null || project.SubPlatform.Slug != subplatform)
+        {
+            return NotFound();
+        }
+
+        var summary = await _aiSummaryIdeas.GenerateProjectTrendSummaryAsync(projectId);
+
+        return Ok(new
+        {
+            ok = true,
+            summary
         });
     }
 

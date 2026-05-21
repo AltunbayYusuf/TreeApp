@@ -21,24 +21,33 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary">Preview</button>
             <button type="submit" form="ideationForm" class="btn btn-primary">Opslaan</button>
         </div>
     </div>
 
     <nav class="admin-tabs mb-4">
-        <a asp-controller="SubAdminProjects"
-           asp-action="ProjectInfo"
-           class="admin-tab-link">Project Info</a>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateSurvey"
-           class="admin-tab-link">Bevraging</a>
+        <button type="submit"
+                form="ideationForm"
+                name="nextAction"
+                value="ProjectInfo"
+                class="admin-tab-link">
+            Project Info
+        </button>
+
+        <button type="submit"
+                form="ideationForm"
+                name="nextAction"
+                value="CreateSurvey"
+                class="admin-tab-link">
+            Bevraging
+        </button>
         <button type="button" class="admin-tab-link active">Ideation</button>
     </nav>
 
     <form id="ideationForm"
           asp-controller="SubAdminProjects"
           asp-action="SaveIdeation"
+          asp-route-subplatform="@Model.SubplatformSlug"
           method="post">
         @Html.AntiForgeryToken()
 
@@ -98,34 +107,7 @@
                 + Topic toevoegen
             </button>
         </div>
-
-        <div class="admin-form-card">
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <h2 class="admin-form-title mb-0">AI Doorvraag Prompts</h2>
-                <span class="badge bg-light text-muted border">?</span>
-            </div>
-            <p class="admin-form-subtitle">
-                AI stelt gerichte vragen om ideeën te verdiepen. Pas de prompt aan voor betere context.
-            </p>
-
-            <div class="mb-3">
-                <label asp-for="ProjectContext" class="form-label">Context over het project</label>
-                <textarea asp-for="ProjectContext"
-                          rows="5"
-                          class="form-control"
-                          placeholder="bv. Dit gaat over een hogeschool die haar studenten (17-25 jaar) wil ondersteunen..."></textarea>
-                <span asp-validation-for="ProjectContext" class="text-danger small"></span>
-            </div>
-
-            <div>
-                <label asp-for="IdeaInfo" class="form-label">Gewenste informatie over ideeën</label>
-                <textarea asp-for="IdeaInfo"
-                          rows="5"
-                          class="form-control"
-                          placeholder="bv. We willen weten: Wie organiseert het? Hoe vaak? Wat kost het? Hoe bereik je studenten?..."></textarea>
-                <span asp-validation-for="IdeaInfo" class="text-danger small"></span>
-            </div>
-        </div>
+        
 
         <div class="admin-form-card">
             <h2 class="admin-form-title">AI-selectie instellingen</h2>

@@ -24,15 +24,27 @@
             </div>
         </div>
         <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-secondary">Preview</button>
             <button type="submit" form="createProjectForm" class="btn btn-primary">Opslaan</button>
         </div>
     </div>
 
     <nav class="admin-tabs mb-4">
         <button type="button" class="admin-tab-link active">Project Info</button>
-        <button type="submit" form="createProjectForm" class="admin-tab-link">Bevraging</button>
-        <button type="submit" form="createProjectForm" class="admin-tab-link">Ideation</button>
+        <button type="submit"
+                form="createProjectForm"
+                name="nextAction"
+                value="CreateSurvey"
+                class="admin-tab-link">
+            Bevraging
+        </button>
+
+        <button type="submit"
+                form="createProjectForm"
+                name="nextAction"
+                value="CreateIdeation"
+                class="admin-tab-link">
+            Ideation
+        </button>
     </nav>
 
     <form id="createProjectForm"
@@ -56,14 +68,14 @@
                 </label>
                 <input asp-for="Name"
                        class="form-control"
-                       placeholder="bijv. Actieplan mentaal welzijn 2026" />
+                       placeholder="bijv. Actieplan mentaal welzijn 2026"/>
                 <span asp-validation-for="Name" class="text-danger small"></span>
             </div>
 
             <div class="mb-4">
                 <label asp-for="IntroMediaUpload" class="form-label">Introductie media</label>
 
-                <input asp-for="IntroMediaUri" type="hidden" id="IntroMediaUri" />
+                <input asp-for="IntroMediaUri" type="hidden" id="IntroMediaUri"/>
 
                 <div class="mb-2">
                     <label class="form-label small text-muted">Kies type media</label>
@@ -81,12 +93,11 @@
                     </label>
 
                     <input asp-for="IntroMediaUpload"
+                           id="IntroMediaUpload"
                            type="file"
                            class="d-none"
-                           accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime" />
-
-                    <span asp-validation-for="IntroMediaUpload" class="text-danger small"></span>
-
+                           accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"/>
+                    
                     <div class="text-muted small mb-2">of</div>
 
                     <button type="button"
@@ -100,11 +111,15 @@
                         kan AI automatisch een afbeelding genereren.
                     </p>
 
+                    <div id="introMediaUploadStatus"
+                         class="alert alert-success py-2 px-3 small d-none mb-3"
+                         role="status"></div>
+
                     <img id="projectImagePreview"
                          src="@Model.IntroMediaUri"
                          alt="Project afbeelding preview"
                          class="img-fluid rounded border @(string.IsNullOrWhiteSpace(Model.IntroMediaUri) ? "d-none" : "")"
-                         style="max-height: 220px; object-fit: cover;" />
+                         style="max-height: 220px; object-fit: cover;"/>
                 </div>
             </div>
 
@@ -113,8 +128,8 @@
                     Introductietekst <span class="text-danger">*</span>
                 </label>
                 <div class="border rounded overflow-hidden">
-                    <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-light border-bottom">
-                        <span class="small text-muted fw-semibold">Tekstinhoud</span>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                         <span class="small text-body-secondary fw-semibold">Tekstinhoud</span>
                         <button type="button"
                                 id="generateIntroductionButton"
                                 class="btn btn-outline-primary btn-sm">
@@ -137,7 +152,7 @@
                        type="number"
                        min="1"
                        class="form-control"
-                       placeholder="bijv. 10" />
+                       placeholder="bijv. 10"/>
                 <span asp-validation-for="Duration" class="text-danger small"></span>
             </div>
 
@@ -159,39 +174,39 @@
                     </div>
                     <div class="col-12 col-md-6">
                         <div id="fontPreview"
-                             class="border rounded px-3 py-2 bg-light h-100 d-flex align-items-center"
-                             style="font-family: @IntegratieProject.UI.MVC.Models.ProjectFontFamily.ToCssStack(Model.FontFamily);">
-                            Dit is een Voorbeeldzin
+                             class="border rounded px-3 py-2 bg-body-tertiary text-body-emphasis h-100 d-flex align-items-center"
+                             style="font-family: @ProjectFontFamily.ToCssStack(Model.FontFamily);">
+                            Dit is een voorbeeld zin.
                         </div>
                     </div>
                 </div>
                 <span asp-validation-for="FontFamily" class="text-danger small"></span>
             </div>
-            
+
             <div class="mb-4">
                 <label asp-for="ColorTheme" class="form-label">
                     Kleurthema <span class="text-danger">*</span>
                 </label>
-            
-                <div class="theme-selector-grid">
-                    @foreach (var theme in CreateProjectInfoViewModel.AllowedColorThemes)
-                    {
-                        var primaryColor = ProjectColorTheme.GetPrimaryColor(theme);
-                        var darkColor = ProjectColorTheme.GetDarkColor(theme);
-            
-                        <label class="theme-option-label">
-                            <input asp-for="ColorTheme" type="radio" value="@theme" />
-            
-                            <div class="theme-option-card">
-                                <div class="theme-preview-circle" style="background: linear-gradient(135deg, @primaryColor 0%, @darkColor 100%);">
-                                </div>
-            
-                                <span>@theme</span>
-                            </div>
-                        </label>
-                    }
+
+                <div class="theme-select-wrapper">
+                    <div id="themePreview"
+                         class="theme-select-preview"
+                         style="background: linear-gradient(135deg, @ProjectColorTheme.GetPrimaryColor(Model.ColorTheme) 0%, @ProjectColorTheme.GetDarkColor(Model.ColorTheme) 100%);">
+                    </div>
+
+                    <select asp-for="ColorTheme"
+                            class="form-select theme-select" >
+                        @foreach (var theme in CreateProjectInfoViewModel.AllowedColorThemes)
+                        {
+                            <option value="@theme"
+                                    data-primary="@ProjectColorTheme.GetPrimaryColor(theme)"
+                                    data-dark="@ProjectColorTheme.GetDarkColor(theme)">
+                                @theme
+                            </option>
+                        }
+                    </select>
                 </div>
-            
+
                 <span asp-validation-for="ColorTheme" class="text-danger small d-block mt-2"></span>
             </div>
 
@@ -201,7 +216,7 @@
 
                 <div class="type-selector-grid">
                     <label class="project-type-label">
-                        <input asp-for="Type" type="radio" value="@ProjectType.Chat" />
+                        <input asp-for="Type" type="radio" value="@ProjectType.Chat"/>
                         <div class="project-type-card">
                             <div class="type-icon">💬</div>
                             <h3>Chat-vorm</h3>
@@ -210,7 +225,7 @@
                     </label>
 
                     <label class="project-type-label">
-                        <input asp-for="Type" type="radio" value="@ProjectType.VerticalScroll" />
+                        <input asp-for="Type" type="radio" value="@ProjectType.VerticalScroll"/>
                         <div class="project-type-card">
                             <div class="type-icon">↕️</div>
                             <h3>Verticale scroll-vorm</h3>

@@ -6,4 +6,5 @@ namespace IntegratieProject.BL.interfaces;
 public interface ITopicManager
 {
     public IEnumerable<Topic> GetTopicsByProject(Project project);
+    public IEnumerable<Topic> GetTopicsBySubPlatform(int subPlatformId);
 }

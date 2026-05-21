@@ -10,6 +10,9 @@
     var currentSubplatform = ViewContext.RouteData.Values["subplatform"]?.ToString();
     if (string.IsNullOrWhiteSpace(currentSubplatform))
         currentSubplatform = Context.Request.Query["subplatform"].ToString();
+    var currentUser = await UserManager.GetUserAsync(User);
+    if (string.IsNullOrWhiteSpace(currentSubplatform) && !string.IsNullOrWhiteSpace(currentUser?.SubPlatformSlug))
+        currentSubplatform = currentUser.SubPlatformSlug;
     if (string.IsNullOrWhiteSpace(currentSubplatform))
         currentSubplatform = "kdg-hogeschool";
 
