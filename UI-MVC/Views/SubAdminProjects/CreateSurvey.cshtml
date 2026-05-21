@@ -24,6 +24,7 @@
             conditionals = q.Conditionals.Select(c => new
             {
                 trigger = c.Trigger,
+                triggerType = c.TriggerType.ToString(),
                 ai = c.UseAi,
                 question = c.QuestionText
             })

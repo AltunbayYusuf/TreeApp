@@ -531,7 +531,7 @@ public class SubAdminProjectsController : Controller
                         ParentQuestion = parentQuestion,
                         FollowUpQuestion = followUpQuestion,
                         TriggerValue = conditionalVm.Trigger,
-                        TriggerType = TriggerType.Contains
+                        TriggerType = conditionalVm.TriggerType
                     });
                 }
             }

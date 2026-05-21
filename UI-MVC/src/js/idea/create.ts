@@ -63,6 +63,15 @@ export class IdeaCreator {
         this.toggleContactEmail();
     }
 
+    private showInfo(message: string): void {
+        const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement | null;
+        if (!aiMessage) return;
+
+        aiMessage.style.display = "block";
+        aiMessage.className = "mb-3 idea-message idea-message-info";
+        aiMessage.textContent = message;
+    }
+
     private handleImagePreview(): void {
         const imageInput = document.getElementById("idea-image") as HTMLInputElement | null;
         const previewWrapper = document.getElementById("idea-image-preview-wrapper") as HTMLDivElement | null;
@@ -290,6 +299,7 @@ export class IdeaCreator {
         aiMessage.innerHTML = "";
     }
 
+    
     private showError(message: string): void {
         const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement | null;
         if (!aiMessage) return;
@@ -346,6 +356,7 @@ export class IdeaCreator {
         }
 
         if (!this.skipAiModerationForNextSubmit) {
+            this.showInfo("AI controleert je idee...");
             const moderationData = await this.moderateIdea(followUpAnswers);
 
             if (!moderationData.ok) {
@@ -360,6 +371,7 @@ export class IdeaCreator {
         }
 
         if (!this.followUpQuestionsShown && !followUpAnswers) {
+            this.showInfo("AI bekijkt of extra vragen nodig zijn...");
             const hasQuestions = await this.loadFollowUpQuestions();
 
             if (hasQuestions) {
@@ -367,6 +379,7 @@ export class IdeaCreator {
             }
         }
 
+        this.showInfo("Je idee wordt verstuurd...");
         const data = await this.postIdea("/api/ideas", true);
 
         if (!data.ok) {
