@@ -332,4 +332,43 @@ public class IdeaManager : IIdeaManager
             null
         );
     }
+    
+    public async Task<string> SummarizeIdeaWithFollowUpAnswersAsync(string title, string text, string followUpAnswers)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            throw new ArgumentException("Idea text is required.");
+        }
+
+        if (string.IsNullOrWhiteSpace(followUpAnswers))
+        {
+            return text.Trim();
+        }
+
+        var config = _aiModelConfigurationManager
+            .GetActiveConfiguration("IdeaFollowUpSummary", null);
+
+        var prompt = _aiPromptService.BuildIdeaFollowUpSummaryPrompt(
+            title ?? string.Empty,
+            text,
+            followUpAnswers
+        );
+
+        var summary = await _aiProvider.GenerateAsync(prompt);
+
+        _aiUsageService.RegisterTextUsage(
+            "IdeaFollowUpSummary",
+            config.ModelName,
+            prompt,
+            summary,
+            true
+        );
+
+        if (string.IsNullOrWhiteSpace(summary))
+        {
+            return text.Trim();
+        }
+
+        return summary.Trim();
+    }
 }

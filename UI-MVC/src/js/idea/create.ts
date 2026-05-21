@@ -24,6 +24,11 @@ type FollowUpQuestionsResponse = {
     questions?: string[];
     message?: string;
 };
+type FollowUpSummaryResponse = {
+    ok?: boolean;
+    text?: string;
+    message?: string;
+};
 
 export class IdeaCreator {
     private topicId = "";
@@ -47,7 +52,6 @@ export class IdeaCreator {
         document.getElementById("use-ai-improvement-btn")?.addEventListener("click", this.useAiImprovement.bind(this));
         document.getElementById("speech-to-text-btn")?.addEventListener("click", this.startSpeechToText.bind(this));
         document.getElementById("stop-speech-btn")?.addEventListener("click", this.stopSpeechToText.bind(this));
-        document.getElementById("submitWithFollowUpsBtn")?.addEventListener("click", this.handleSubmitWithFollowUps.bind(this));
         document.getElementById("skipFollowUpsBtn")?.addEventListener("click", this.handleSkipFollowUps.bind(this));
         // Toegevoegd: afbeelding preview
         document.getElementById("idea-image")?.addEventListener("change", this.handleImagePreview.bind(this));
@@ -339,9 +343,53 @@ export class IdeaCreator {
             return;
         }
 
-        const followUpAnswers = (
-            document.getElementById("followUpAnswers") as HTMLInputElement | null
-        )?.value?.trim() ?? "";
+        const hiddenFollowUpAnswers = document.getElementById("followUpAnswers") as HTMLInputElement | null;
+        const collectedFollowUpAnswers = this.collectFollowUpAnswers();
+
+        if (hiddenFollowUpAnswers && collectedFollowUpAnswers) {
+            hiddenFollowUpAnswers.value = collectedFollowUpAnswers;
+        }
+
+        const followUpAnswers = hiddenFollowUpAnswers?.value?.trim() ?? "";
+
+        if (followUpAnswers) {
+            this.showInfo("AI verwerkt je antwoorden tot één duidelijke ideetekst...");
+
+            const summarizedText = await this.summarizeFollowUpAnswers(followUpAnswers);
+
+            if (!summarizedText) {
+                this.showError("AI kon je antwoorden niet verwerken. Probeer opnieuw.");
+                return;
+            }
+
+            if (ideaText) {
+                ideaText.value = summarizedText;
+                this.text = summarizedText;
+                ideaText.focus();
+            }
+
+            const followUpAnswersInput = document.getElementById("followUpAnswers") as HTMLInputElement | null;
+            const followUpBlock = document.getElementById("followUpQuestionsBlock") as HTMLDivElement | null;
+            const followUpContainer = document.getElementById("followUpQuestionsContainer") as HTMLDivElement | null;
+
+            if (followUpAnswersInput) {
+                followUpAnswersInput.value = "";
+            }
+
+            if (followUpContainer) {
+                followUpContainer.innerHTML = "";
+            }
+
+            if (followUpBlock) {
+                followUpBlock.style.display = "none";
+            }
+
+            this.followUpQuestionsShown = true;
+            this.skipAiModerationForNextSubmit = false;
+
+            this.showInfo("AI heeft je antwoorden verwerkt. Lees je idee nog even na en klik daarna opnieuw op ‘Idee indienen’.");
+            return;
+        }
 
         if (contactOptIn?.checked && !contactEmail?.value.trim()) {
             this.showError("Geef je e-mailadres in als je gecontacteerd wil worden.");
@@ -412,6 +460,28 @@ export class IdeaCreator {
         });
 
         return await response.json() as IdeaResponse;
+    }
+    private async summarizeFollowUpAnswers(followUpAnswers: string): Promise<string | null> {
+        const response = await fetch("/api/ideas/follow-up-summary", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify({
+                title: this.title,
+                text: this.text,
+                followUpAnswers
+            })
+        });
+
+        const data = await response.json() as FollowUpSummaryResponse;
+
+        if (!response.ok || !data.ok || !data.text) {
+            return null;
+        }
+
+        return data.text.trim();
     }
 
     private async postIdea(url: string, skipAiModeration: boolean): Promise<IdeaResponse> {
@@ -594,8 +664,8 @@ export class IdeaCreator {
         return true;
     }
 
-    private handleSubmitWithFollowUps(): void {
-        const answers = Array.from(document.querySelectorAll<HTMLTextAreaElement>(".follow-up-answer"))
+    private collectFollowUpAnswers(): string {
+        return Array.from(document.querySelectorAll<HTMLTextAreaElement>(".follow-up-answer"))
             .map((textarea, index) => {
                 const questionLabel = document.querySelector<HTMLLabelElement>(`label[for="follow-up-answer-${index}"]`);
                 const question = questionLabel?.textContent?.trim() ?? `Vraag ${index + 1}`;
@@ -609,16 +679,8 @@ export class IdeaCreator {
             })
             .filter(Boolean)
             .join("\n\n");
-
-        const hiddenInput = document.getElementById("followUpAnswers") as HTMLInputElement | null;
-
-        if (hiddenInput) {
-            hiddenInput.value = answers;
-        }
-
-        this.handleSubmit(new Event("submit"));
     }
-
+    
     private handleSkipFollowUps(): void {
         const hiddenInput = document.getElementById("followUpAnswers") as HTMLInputElement | null;
 

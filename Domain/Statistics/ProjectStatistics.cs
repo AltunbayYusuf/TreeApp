@@ -27,6 +27,7 @@ public class QuestionStatistics
     public string AiSummary { get; set; }
     public DateTime? AiSummaryGeneratedAt { get; set; }
     public bool AiSummaryNeedsRefresh { get; set; }
+    public List<string> OpenAnswers { get; set; } = new();
 }
 
 public class AnswerOptionStatistics
