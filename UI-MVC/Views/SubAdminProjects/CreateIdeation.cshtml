@@ -79,11 +79,10 @@
                                 <label for="Topics_@(i)__ExistingTopic" class="form-label text-body-emphasis">Bestaande topic gebruiken</label>
                                 <select id="Topics_@(i)__ExistingTopic"
                                         class="existing-topic-select form-select bg-transparent text-body-emphasis border-secondary">
-                                    <option value="" class="bg-dark">Kies een bestaande topic...</option>
+                                    <option value="">Kies een bestaande topic...</option>
                                     @foreach (var topic in Model.ExistingTopics)
                                     {
                                         <option value="@topic.Id"
-                                                class="bg-dark"
                                                 data-title="@topic.Title"
                                                 data-description="@topic.Description">
                                             @topic.Title

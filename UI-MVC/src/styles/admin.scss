@@ -747,6 +747,12 @@
   min-width: 44px;
 }
 
+.existing-topic-select,
+.existing-topic-select option {
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
 
 @media (max-width: 1100px) {
   .admin-prompts-page {
