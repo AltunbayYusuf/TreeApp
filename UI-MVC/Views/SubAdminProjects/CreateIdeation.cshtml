@@ -7,7 +7,7 @@
 
 <div class="admin-page">
 
-    <div class="admin-header">
+    <div class="admin-header mb-4">
         <div class="d-flex align-items-center gap-3">
             <a asp-controller="SubAdmin"
                asp-action="Index"
@@ -16,8 +16,8 @@
                 ←
             </a>
             <div>
-                <h1 class="admin-title">Nieuw project aanmaken</h1>
-                <span class="badge bg-secondary">Draft</span>
+                <h1 class="admin-title text-body-emphasis mb-1">Nieuw project aanmaken</h1>
+                <span class="badge text-bg-secondary">Draft</span>
             </div>
         </div>
     </div>
@@ -27,7 +27,7 @@
                 form="ideationForm"
                 name="nextAction"
                 value="ProjectInfo"
-                class="admin-tab-link">
+                class="admin-tab-link text-body-emphasis">
             Project Info
         </button>
 
@@ -35,7 +35,7 @@
                 form="ideationForm"
                 name="nextAction"
                 value="CreateSurvey"
-                class="admin-tab-link">
+                class="admin-tab-link text-body-emphasis">
             Bevraging
         </button>
         <button type="button" class="admin-tab-link active">Ideation</button>
@@ -48,36 +48,56 @@
           method="post">
         @Html.AntiForgeryToken()
 
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-transparent border-danger text-danger"></div>
 
         @if (TempData["IdeationSavedMessage"] is string savedMessage)
         {
-            <div class="alert alert-success">@savedMessage</div>
+            <div class="alert alert-success bg-transparent border-success text-success">@savedMessage</div>
         }
 
-        <div class="admin-form-card">
-            <h2 class="admin-form-title">Ideation Topics</h2>
-            <p class="admin-form-subtitle">
+        <div class="admin-form-card bg-transparent border border-secondary p-4 mb-4 rounded-4">
+            <h2 class="admin-form-title text-body-emphasis">Ideation Topics</h2>
+            <p class="admin-form-subtitle text-body-secondary">
                 Stel de topics in waarvoor jongeren ideeën kunnen geven. Dit kan 1 topic zijn, maar ook meerdere.
             </p>
 
             <div id="topicsContainer">
                 @for (var i = 0; i < Model.Topics.Count; i++)
                 {
-                    <div class="topic-card" data-index="@i">
+                    <div class="topic-card bg-transparent border border-secondary rounded-3 p-3 mb-4" data-index="@i">
                         <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="topic-number">Topic @(i + 1)</div>
+                            <div class="topic-number text-body-emphasis fw-bold">Topic @(i + 1)</div>
                             <button type="button"
                                     class="remove-topic-btn btn btn-outline-danger btn-sm">
                                 🗑️
                             </button>
                         </div>
 
+                        @if (Model.ExistingTopics.Any())
+                        {
+                            <div class="mb-3">
+                                <label for="Topics_@(i)__ExistingTopic" class="form-label text-body-emphasis">Bestaande topic gebruiken</label>
+                                <select id="Topics_@(i)__ExistingTopic"
+                                        class="existing-topic-select form-select bg-transparent text-body-emphasis border-secondary">
+                                    <option value="">Kies een bestaande topic...</option>
+                                    @foreach (var topic in Model.ExistingTopics)
+                                    {
+                                        <option value="@topic.Id"
+                                                data-title="@topic.Title"
+                                                data-description="@topic.Description">
+                                            @topic.Title
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
+
                         <div class="mb-3">
                             <input name="Topics[@i].Title"
                                    id="Topics_@(i)__Title"
                                    value="@Model.Topics[i].Title"
-                                   class="topic-title form-control"
+                                   class="topic-title form-control bg-transparent text-body-emphasis border-secondary"
+                                   maxlength="50"
                                    placeholder="bv. Acties om mentaal welzijn te verbeteren" />
                             <span class="topic-title-validation text-danger small"
                                   data-valmsg-for="Topics[@i].Title"
@@ -88,7 +108,8 @@
                             <textarea name="Topics[@i].Description"
                                       id="Topics_@(i)__Description"
                                       rows="3"
-                                      class="topic-description form-control"
+                                      class="topic-description form-control bg-transparent text-body-emphasis border-secondary"
+                                      maxlength="200"
                                       placeholder="Beschrijving/context voor dit topic (optioneel)...">@Model.Topics[i].Description</textarea>
                             <span class="topic-description-validation text-danger small"
                                   data-valmsg-for="Topics[@i].Description"
@@ -100,52 +121,51 @@
 
             <button type="button"
                     id="addTopicButton"
-                    class="btn btn-outline-secondary btn-sm mt-2">
+                    class="btn btn-outline-secondary text-body-emphasis btn-sm mt-2">
                 + Topic toevoegen
             </button>
         </div>
         
-
-        <div class="admin-form-card">
-            <h2 class="admin-form-title">AI-selectie instellingen</h2>
-            <p class="admin-form-subtitle">Stel in hoeveel ideeën tegelijk getoond worden.</p>
+        <div class="admin-form-card bg-transparent border border-secondary p-4 mb-4 rounded-4">
+            <h2 class="admin-form-title text-body-emphasis">AI-selectie instellingen</h2>
+            <p class="admin-form-subtitle text-body-secondary">Stel in hoeveel ideeën tegelijk getoond worden.</p>
 
             <div class="row">
                 <div class="col-12 col-md-6">
-                    <label asp-for="IdeasPerBatch" class="form-label">Aantal ideeën per keer</label>
+                    <label asp-for="IdeasPerBatch" class="form-label text-body-emphasis">Aantal ideeën per keer</label>
                     <input asp-for="IdeasPerBatch"
                            type="number"
                            min="3"
                            max="10"
-                           class="form-control" />
+                           class="form-control bg-transparent text-body-emphasis border-secondary" />
                     <span asp-validation-for="IdeasPerBatch" class="text-danger small"></span>
                 </div>
             </div>
         </div>
 
-        <div class="admin-form-card">
-            <h2 class="admin-form-title">Reacties</h2>
-            <p class="admin-form-subtitle">Kies de emoji-groep die je wilt tonen bij ideeën.</p>
+        <div class="admin-form-card bg-transparent border border-secondary p-4 mb-4 rounded-4">
+            <h2 class="admin-form-title text-body-emphasis">Reacties</h2>
+            <p class="admin-form-subtitle text-body-secondary">Kies de emoji-groep die je wilt tonen bij ideeën.</p>
 
             <input asp-for="SelectedEmojiGroup" type="hidden" id="SelectedEmojiGroup" />
 
             <div id="emojiGroups" class="d-flex flex-column gap-2">
                 <button type="button"
-                        class="emoji-group"
+                        class="emoji-group border border-secondary rounded p-2 bg-transparent text-body-emphasis"
                         data-selected="false"
                         data-value="😮,🤩">
                     <span>😮</span>
                     <span>🤩</span>
                 </button>
                 <button type="button"
-                        class="emoji-group"
+                        class="emoji-group border border-secondary rounded p-2 bg-transparent text-body-emphasis"
                         data-selected="false"
                         data-value="😻,😹">
                     <span>😻</span>
                     <span>😹</span>
                 </button>
                 <button type="button"
-                        class="emoji-group"
+                        class="emoji-group border border-secondary rounded p-2 bg-transparent text-body-emphasis"
                         data-selected="false"
                         data-value="☺️,😀">
                     <span>☺️</span>
@@ -155,7 +175,7 @@
         </div>
 
         <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn btn-primary">Opslaan</button>
+            <button type="submit" class="btn btn-primary px-4 py-2">Opslaan</button>
         </div>
     </form>
 
@@ -171,8 +191,17 @@
 
             buttons.forEach(button => {
                 button.addEventListener("click", function () {
-                    buttons.forEach(b => { b.dataset.selected = "false"; });
+                    // Update styling om de selectie visueel te maken zonder grijze achtergronden
+                    buttons.forEach(b => { 
+                        b.dataset.selected = "false";
+                        b.classList.remove("border-primary", "text-primary");
+                        b.classList.add("border-secondary", "text-body-emphasis");
+                    });
+                    
                     this.dataset.selected = "true";
+                    this.classList.remove("border-secondary", "text-body-emphasis");
+                    this.classList.add("border-primary", "text-primary");
+                    
                     hiddenInput.value = this.dataset.value;
                 });
             });
@@ -182,6 +211,27 @@
                 || buttons[0];
 
             if (defaultButton) { defaultButton.click(); }
+
+            document.querySelectorAll(".existing-topic-select").forEach(select => {
+                select.addEventListener("change", function () {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const card = this.closest(".topic-card");
+                    const titleInput = card?.querySelector(".topic-title");
+                    const descriptionInput = card?.querySelector(".topic-description");
+
+                    if (!selectedOption || !selectedOption.value || !card) return;
+
+                    if (titleInput) {
+                        titleInput.value = selectedOption.dataset.title || "";
+                        titleInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+
+                    if (descriptionInput) {
+                        descriptionInput.value = selectedOption.dataset.description || "";
+                        descriptionInput.dispatchEvent(new Event("input", { bubbles: true }));
+                    }
+                });
+            });
         });
     </script>
 }

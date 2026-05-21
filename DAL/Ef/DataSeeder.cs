@@ -1067,26 +1067,34 @@ public class DataSeeder
             Key = "open_question_summary",
             Name = "Open question summary",
             PromptText = """
-                         Vat de open antwoorden kort samen voor een subadmin.
+                         Vat de antwoorden op deze open vraag samen voor een subadmin.
 
-                         Regels:
-                         - Schrijf maximaal 5 korte bullets.
+                         BELANGRIJK:
+                         - Schrijf professioneel en zeer leesbaar Nederlands.
+                         - Gebruik korte paragrafen.
                          - Gebruik geen Markdown-opmaak zoals **vetgedrukt**.
-                         - Gebruik geen lange alinea's.
                          - Maak geen personen herkenbaar.
-                         - Schrijf concreet en duidelijk Nederlands.
+                         - Herhaal de vraag niet.
+                         - Zet elke insight op een nieuwe lijn.
+                         - Voeg lege lijnen toe tussen secties.
+                         - Gebruik maximaal 3 inzichten.
+                         - Elk inzicht moet 1 duidelijke volledige zin zijn.
 
-                         Geef exact deze structuur:
+                         Gebruik EXACT deze structuur:
 
-                         Belangrijkste inzichten:
-                         - ...
-                         - ...
-                         - ...
+                         Belangrijkste inzichten
 
-                         Korte conclusie:
+                         1. ...
+
+                         2. ...
+
+                         3. ...
+
+                         Korte conclusie
+
                          ...
 
-                         Gebruik deze vraag alleen als context. Herhaal de vraag niet in je antwoord:
+                         Vraag als context:
                          {{question}}
 
                          Antwoorden:

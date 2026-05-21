@@ -1,11 +1,11 @@
 @model IntegratieProject.UI.MVC.Models.SubAdminDashboardViewModel
 
-<div class="admin-page">
+<div class="admin-page py-4">
 
-    <div class="admin-header">
+    <div class="admin-header mb-4">
         <div>
-            <h1 class="admin-title">Ideeën</h1>
-            <p class="admin-subtitle">Overzicht van alle ingediende ideeën</p>
+            <h1 class="admin-title text-body-emphasis fw-bold">Ideeën</h1>
+            <p class="admin-subtitle text-body-secondary">Overzicht van alle ingediende ideeën</p>
         </div>
         <a asp-action="ExportCsv"
            asp-route-subplatform="@Model.Slug"
@@ -16,42 +16,42 @@
 
     <span id="subplatformIdData" data-id="@Model.SubPlatformId" class="d-none"></span>
     @Html.AntiForgeryToken()
-    <div class="admin-table-card">
+    
+    <div class="admin-table-card bg-transparent border border-secondary rounded-4 p-4 shadow-sm">
 
-        <div class="admin-filter-bar">
+        <div class="admin-filter-bar mb-4">
             <div class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center flex-wrap w-100">
-                <label class="fw-semibold mb-0 text-nowrap small">Project:</label>
-                <select id="projectFilter" class="form-select form-select-sm" style="max-width:200px;">
-                    <option value="">-- Alle projecten --</option>
+                <label class="fw-semibold mb-0 text-nowrap small text-body-emphasis">Project:</label>
+                <select id="projectFilter" class="form-select form-select-sm bg-transparent text-body-emphasis border-secondary" style="max-width:200px;">
+                    <option value="" class="bg-dark text-light">-- Alle projecten --</option>
                     @foreach (var p in Model.Projects)
                     {
-                        <option value="@p.Id">@p.Name</option>
+                        <option value="@p.Id" class="bg-dark text-light">@p.Name</option>
                     }
                 </select>
 
-                <span id="ideasCount" class="text-muted small"></span>
+                <span id="ideasCount" class="text-body-secondary small fw-semibold"></span>
 
                 <div class="input-group input-group-sm" style="max-width:240px;">
-                    <input type="text" id="keywordFilter" class="form-control" placeholder="Zoeken op trefwoord..." />
-                    <button class="btn btn-outline-secondary" type="button" id="clearKeywordBtn">&times;</button>
+                    <input type="text" id="keywordFilter" class="form-control bg-transparent text-body-emphasis border-secondary" placeholder="Zoeken op trefwoord..." />
+                    <button class="btn btn-outline-secondary text-body-emphasis border-secondary" type="button" id="clearKeywordBtn">&times;</button>
                 </div>
 
                 <div class="ms-sm-auto d-flex align-items-center gap-2">
-                    <label class="fw-semibold mb-0 text-nowrap small">Datum:</label>
+                    <label class="fw-semibold mb-0 text-nowrap small text-body-emphasis">Datum:</label>
                     <div class="btn-group btn-group-sm" role="group">
                         <button type="button" class="btn btn-dark" data-sort="newest">Nieuwste</button>
-                        <button type="button" class="btn btn-outline-secondary" data-sort="oldest">Oudste</button>
+                        <button type="button" class="btn btn-outline-secondary text-body-emphasis" data-sort="oldest">Oudste</button>
                     </div>
                 </div>
             </div>
 
             <div id="similarityFilterGroup" style="display:none"
-                 class="d-flex align-items-center gap-2 flex-wrap mt-2">
-                <label class="fw-semibold mb-0 text-nowrap text-muted small">Vergelijking:</label>
+                 class="d-flex align-items-center gap-2 flex-wrap mt-3">
+                <label class="fw-semibold mb-0 text-nowrap text-body-secondary small">Vergelijking:</label>
                 <div class="btn-group btn-group-sm" role="group">
                     <button type="button" class="btn btn-dark" data-similarity="all">Alle ideeën</button>
-                    <button type="button" class="btn btn-outline-secondary" data-similarity="different">Verschillend</button>
-                    
+                    <button type="button" class="btn btn-outline-secondary text-body-emphasis" data-similarity="different">Verschillend</button>
                 </div>
             </div>
         </div>
@@ -60,39 +60,39 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th>Titel</th>
-                        <th class="d-none d-md-table-cell">Inhoud</th>
-                        <th class="d-none d-md-table-cell">Topic</th>
-                        <th>Project</th>
-                        <th class="user-select-none" style="cursor:pointer;" id="thStatus" title="Klik om te sorteren op status">
+                        <th class="text-body-secondary">Titel</th>
+                        <th class="d-none d-md-table-cell text-body-secondary">Inhoud</th>
+                        <th class="d-none d-md-table-cell text-body-secondary">Topic</th>
+                        <th class="text-body-secondary">Project</th>
+                        <th class="user-select-none text-body-secondary" style="cursor:pointer;" id="thStatus" title="Klik om te sorteren op status">
                             <div class="d-flex align-items-center gap-1">
                                 Status
-                                <span class="text-muted small" id="iconStatus">
+                                <span class="text-body-secondary small" id="iconStatus">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
                                 </span>
                             </div>
                         </th>
-                        <th class="user-select-none d-none d-md-table-cell" style="cursor:pointer;" id="thEmail">
+                        <th class="user-select-none d-none d-md-table-cell text-body-secondary" style="cursor:pointer;" id="thEmail">
                             <div class="d-flex align-items-center gap-1">
                                 Email
-                                <span class="text-muted small" id="iconEmail">
+                                <span class="text-body-secondary small" id="iconEmail">
                                     <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z"/></svg>
                                 </span>
                             </div>
                         </th>
-                        <th class="d-none d-md-table-cell">Reacties</th>
+                        <th class="d-none d-md-table-cell text-body-secondary">Reacties</th>
                         <th class="d-none d-md-table-cell"></th>
                     </tr>
                 </thead>
                 <tbody id="ideasTableBody">
                     <tr id="ideasLoadingRow">
-                        <td colspan="8" class="text-center text-muted p-4">
+                        <td colspan="8" class="text-center text-body-secondary bg-transparent p-4">
                             <span class="spinner-border spinner-border-sm me-2" role="status"></span>
                             Laden...
                         </td>
                     </tr>
                     <tr id="ideasEmptyRow" style="display:none">
-                        <td colspan="8" class="text-center text-muted p-4">Geen ideeën gevonden.</td>
+                        <td colspan="8" class="text-center text-body-secondary bg-transparent p-4">Geen ideeën gevonden.</td>
                     </tr>
                 </tbody>
             </table>
@@ -103,8 +103,8 @@
 
 <div class="modal fade" id="deleteIdeaModal" tabindex="-1" aria-hidden="true" style="display:none">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content bg-body text-body-emphasis border-secondary">
+            <div class="modal-header border-bottom border-secondary">
                 <h5 class="modal-title" id="deleteIdeaModalLabel">Idee verwijderen</h5>
                 <button type="button" class="btn-close" aria-label="Sluiten"></button>
             </div>
@@ -114,8 +114,8 @@
                 <br/>
                 <span class="text-danger small">Deze actie kan niet ongedaan gemaakt worden.</span>
             </div>
-            <div class="modal-footer gap-2">
-                <button type="button" class="btn btn-secondary" id="cancelDeleteIdeaBtn">Nee</button>
+            <div class="modal-footer gap-2 border-top border-secondary">
+                <button type="button" class="btn btn-outline-secondary text-body-emphasis" id="cancelDeleteIdeaBtn">Nee</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteIdeaBtn">Ja, verwijderen</button>
             </div>
         </div>
@@ -124,8 +124,8 @@
 
 <div class="modal fade" id="deleteReactionModal" tabindex="-1" aria-hidden="true" style="display:none">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
+        <div class="modal-content bg-body text-body-emphasis border-secondary">
+            <div class="modal-header border-bottom border-secondary">
                 <h5 class="modal-title" id="deleteReactionModalLabel">Reactie verwijderen</h5>
                 <button type="button" class="btn-close" aria-label="Sluiten"></button>
             </div>
@@ -134,8 +134,8 @@
                 <br/>
                 <span class="text-danger small">Deze actie kan niet ongedaan gemaakt worden.</span>
             </div>
-            <div class="modal-footer gap-2">
-                <button type="button" class="btn btn-secondary" id="cancelDeleteReactionBtn">Nee</button>
+            <div class="modal-footer gap-2 border-top border-secondary">
+                <button type="button" class="btn btn-outline-secondary text-body-emphasis" id="cancelDeleteReactionBtn">Nee</button>
                 <button type="button" class="btn btn-danger" id="confirmDeleteReactionBtn">Ja, verwijderen</button>
             </div>
         </div>

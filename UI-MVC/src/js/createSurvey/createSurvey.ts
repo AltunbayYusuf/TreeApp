@@ -4,7 +4,6 @@ import type { ConditionalData, QuestionData, SectionData } from "../helpers/type
 export class SurveyBuilder {
     private questionCount: number = 0;
     private readonly maxQuestions: number = 20;
-    private readonly maxRangeValue: number = 10;
     private sectionCount: number = 0;
     private isLoading: boolean = false;
     private saveTimeout?: number;
@@ -13,7 +12,11 @@ export class SurveyBuilder {
         this.updateCounter();
         this.bindWindowMethods();
 
-        document.getElementById("generateSurveyWithAiBtn")?.addEventListener("click", async () => {
+        const generateButton =
+            document.getElementById("generateQuestionsBtn")
+            ?? document.getElementById("generateSurveyWithAiBtn");
+
+        generateButton?.addEventListener("click", async () => {
             await this.generateSurveyWithAi();
         });
 
@@ -274,10 +277,9 @@ export class SurveyBuilder {
         if (select.value === "range") {
             container.innerHTML = `
                 <div class="d-flex gap-2">
-                    <input type="number" placeholder="Min" min="1" max="${this.maxRangeValue}" class="form-control form-control-sm" />
-                    <input type="number" placeholder="Max" min="1" max="${this.maxRangeValue}" aria-describedby="rangeMaxHelp" class="form-control form-control-sm" />
+                    <input type="number" placeholder="Min" class="form-control form-control-sm" />
+                    <input type="number" placeholder="Max" class="form-control form-control-sm" />
                 </div>
-                <div id="rangeMaxHelp" class="form-text small">Maximumwaarde kan tot ${this.maxRangeValue} gekozen worden.</div>
             `;
         }
 
@@ -595,7 +597,9 @@ export class SurveyBuilder {
     }
 
     private async generateSurveyWithAi(): Promise<void> {
-        const promptInput = document.getElementById("aiPrompt") as HTMLTextAreaElement | null;
+        const promptInput =
+            (document.getElementById("aiPromptInput") as HTMLTextAreaElement | null)
+            ?? (document.getElementById("aiPrompt") as HTMLTextAreaElement | null);
         const questionAmountInput = document.getElementById("questionAmount") as HTMLInputElement | null;
         const messageBox = document.getElementById("surveyAiMessage") as HTMLSpanElement | null;
         const errorBox = document.getElementById("surveyAiError") as HTMLDivElement | null;

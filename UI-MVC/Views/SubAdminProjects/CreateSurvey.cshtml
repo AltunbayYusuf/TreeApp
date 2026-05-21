@@ -81,55 +81,56 @@
 
         @Html.AntiForgeryToken()
 
-        <div id="surveyError" class="alert alert-danger d-none"></div>
-        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <div id="surveyError" class="alert alert-danger bg-danger bg-opacity-10 border-danger text-danger d-none"></div>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger bg-danger bg-opacity-10 border-danger text-danger"></div>
 
-        <div class="ai-assistant-card mb-4">
+        <div class="ai-assistant-card bg-transparent border border-secondary rounded-4 p-4 mb-4 shadow-sm">
             <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
                 <div class="flex-grow-1">
-                    <div class="ai-card-title">✨ AI Vragenlijst Assistent</div>
-                    <div class="ai-card-subtitle">
+                    <div class="ai-card-title text-body-emphasis fw-bold mb-1">✨ AI Vragenlijst Assistent</div>
+
+                    <div class="ai-card-subtitle text-body-secondary">
                         Beschrijf wat je wil weten van jongeren. De AI maakt gewone vragen aan,
                         zonder conditionele bijvragen. Bijvragen voeg je daarna zelf toe.
                     </div>
                 </div>
+
                 <div style="min-width:120px;">
-                    <label for="questionAmount" class="form-label small fw-semibold">Aantal vragen</label>
+                    <label for="questionAmount" class="form-label small fw-semibold text-body-emphasis">Aantal vragen</label>
+
                     <input id="questionAmount"
                            type="number"
                            min="1"
                            max="20"
                            value="5"
-                           class="form-control form-control-sm"/>
+                           class="form-control form-control-sm bg-transparent text-body-emphasis border-secondary"/>
+                </div>
+
+                <div class="w-100">
+                    <textarea id="aiPromptInput"
+                              class="form-control mt-3 bg-transparent text-body-tertiary border-secondary"
+                              rows="3"
+                              placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren en welke ondersteuning ze verwachten van de school..."></textarea>
+                </div>
+
+                <div class="w-100">
+                    <button type="button" id="generateQuestionsBtn" class="btn btn-primary mt-2">
+                        Genereer vragenlijst
+                    </button>
                 </div>
             </div>
 
-            <textarea id="aiPrompt"
-                      rows="4"
-                      class="form-control mt-3"
-                      placeholder="bv. Ik wil begrijpen welke stressfactoren studenten ervaren en welke ondersteuning ze verwachten van de school..."></textarea>
-
-            <div class="d-flex align-items-center gap-3 mt-3">
-                <button type="button"
-                        id="generateSurveyWithAiBtn"
-                        class="btn-ai btn">
-                    Genereer vragenlijst
-                </button>
-                <span id="surveyAiMessage" class="ai-message"></span>
-            </div>
-
-            <div id="surveyAiError" class="alert alert-danger d-none mt-3"></div>
+            <div id="surveyAiError" class="alert alert-danger bg-danger bg-opacity-10 border-danger text-danger d-none mt-3"></div>
         </div>
 
-        <div class="survey-builder-card">
+        <div class="survey-builder-card bg-transparent border border-secondary rounded-4 p-4 mb-4 shadow-sm">
             <div class="d-flex align-items-center justify-content-between mb-4">
                 <button type="button"
                         onclick="addSection()"
-                        class="btn btn-outline-secondary btn-sm">
+                        class="btn btn-outline-secondary text-body-emphasis btn-sm">
                     + Sectie toevoegen
                 </button>
-                <span id="questionCounter" class="question-counter-badge">0 / 20 vragen</span>
-            </div>
+                <span id="questionCounter" class="question-counter-badge badge border border-secondary bg-body-tertiary text-body-emphasis px-3 py-2 fs-6 fw-semibold">0 / 20 vragen</span>            </div>
 
             <div id="sections"></div>
         </div>

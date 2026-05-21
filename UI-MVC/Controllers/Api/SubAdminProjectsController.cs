@@ -16,7 +16,7 @@ namespace IntegratieProject.UI.MVC.Controllers.Api;
 public class SubAdminProjectsController : ControllerBase
 {
     private const int MaxRangeValue = 10;
-    
+
     private readonly IAiSurveyGenerationService _aiSurveyGenerationService;
     private readonly IAiSummaryIdeas _aiSummaryIdeas;
     private readonly IAiIdeaSelectionService _aiIdeaSelectionService;

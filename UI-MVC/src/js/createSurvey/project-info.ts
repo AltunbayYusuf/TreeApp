@@ -145,6 +145,7 @@ function updateIntroMediaUploadStatus(): void {
         introMediaType,
         introMediaUploadStatus,
         imageStatus,
+        imagePreview,
         generatedPhotoUrlInput
     } = getProjectInfoElements();
 
@@ -153,17 +154,22 @@ function updateIntroMediaUploadStatus(): void {
     const file = introMediaUpload.files?.[0] ?? null;
 
     if (!file) {
-        introMediaUploadStatus.style.display = "none";
+        introMediaUploadStatus.classList.add("d-none");
         introMediaUploadStatus.textContent = "";
         return;
     }
 
     const isVideo = file.type.startsWith("video/") || introMediaType?.value === "Video";
-    introMediaUploadStatus.textContent = `${isVideo ? "Video" : "Foto"} gekozen: ${file.name}`;
-    introMediaUploadStatus.style.display = "block";
+    introMediaUploadStatus.textContent = `${isVideo ? "Video" : "Foto"} geupload: ${file.name}`;
+    introMediaUploadStatus.classList.remove("d-none");
+
+    if (imagePreview) {
+        imagePreview.removeAttribute("src");
+        imagePreview.classList.add("d-none");
+    }
 
     if (generatedPhotoUrlInput) generatedPhotoUrlInput.value = "";
-    if (imageStatus) imageStatus.textContent = "Bestand gekozen. Opslaan om te uploaden.";
+    if (imageStatus) imageStatus.textContent = "Bestand klaar om op te slaan.";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
