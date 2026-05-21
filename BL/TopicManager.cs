@@ -19,4 +19,9 @@ public class TopicManager : ITopicManager
     {
         return _topicRepository.ReadTopicsByProject(project);
     }
+
+    public IEnumerable<Topic> GetTopicsBySubPlatform(int subPlatformId)
+    {
+        return _topicRepository.ReadTopicsBySubPlatform(subPlatformId);
+    }
 }

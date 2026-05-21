@@ -18,6 +18,16 @@ public class TopicRepository : ITopicRepository
     {
         return _context.Topics.Where(t => t.Project == project).ToList();
     }
+
+    public IEnumerable<Topic> ReadTopicsBySubPlatform(int subPlatformId)
+    {
+        return _context.Topics
+            .AsNoTracking()
+            .Where(t => t.Project != null && t.Project.SubPlatformId == subPlatformId)
+            .OrderBy(t => t.Theme)
+            .ToList();
+    }
+
     public Topic ReadTopicById(int topicId)
     {
         return _context.Topics.Include(t => t.Ideas)
