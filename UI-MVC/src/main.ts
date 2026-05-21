@@ -22,3 +22,4 @@ import './js/admin/newSubplatform.ts';
 import './js/admin/prompts.ts';
 import './js/admin/sidebar.ts';
 import './js/admin/platform-details.ts';
+import './js/statistics/projectSummary.ts'

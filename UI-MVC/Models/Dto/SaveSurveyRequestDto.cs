@@ -25,6 +25,7 @@ public class SurveyQuestionDto
 public class ConditionalQuestionDto
 {
     public string Trigger { get; set; } = "";
+    public string TriggerType { get; set; } = "Contains";
     public bool Ai { get; set; }
     public string Question { get; set; } = "";
 }

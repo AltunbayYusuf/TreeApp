@@ -24,6 +24,7 @@
             conditionals = q.Conditionals.Select(c => new
             {
                 trigger = c.Trigger,
+                triggerType = c.TriggerType.ToString(),
                 ai = c.UseAi,
                 question = c.QuestionText
             })
@@ -46,22 +47,37 @@
                 <span class="badge bg-secondary">Draft</span>
             </div>
         </div>
+        <div class="d-flex gap-2">
+            <button type="submit"
+                    form="surveyForm"
+                    class="btn btn-primary"
+                    data-final-save>
+                Opslaan
+            </button>
+        </div>
     </div>
 
     <nav class="admin-tabs mb-4">
-        <a asp-controller="SubAdminProjects"
-           asp-action="ProjectInfo"
-           class="admin-tab-link">Project Info</a>
+        <button type="submit"
+                form="surveyForm"
+                class="admin-tab-link"
+                data-redirect-url="@Url.Action("ProjectInfo", "SubAdminProjects", new { subplatform = Model.SubplatformSlug })">
+            Project Info
+        </button>
         <button type="button" class="admin-tab-link active">Bevraging</button>
-        <a asp-controller="SubAdminProjects"
-           asp-action="CreateIdeation"
-           class="admin-tab-link">Ideation</a>
+        <button type="submit"
+                form="surveyForm"
+                class="admin-tab-link"
+                data-redirect-url="@Url.Action("CreateIdeation", "SubAdminProjects", new { subplatform = Model.SubplatformSlug })">
+            Ideation
+        </button>
     </nav>
 
-        <form id="surveyForm"
-              data-save-url="/api/subadmin-projects/survey"
-              data-ai-url="/api/subadmin-projects/survey/ai"
-              class="space-y-6">
+    <form id="surveyForm"
+          data-save-url="/api/subadmin-projects/survey"
+          data-ai-url="/api/subadmin-projects/survey/ai"
+          data-finalize-url="@Url.Action("FinalizeProject", "SubAdminProjects", new { subplatform = Model.SubplatformSlug })"
+          class="space-y-6">
 
         @Html.AntiForgeryToken()
 
@@ -116,10 +132,6 @@
             </div>
 
             <div id="sections"></div>
-        </div>
-
-        <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn btn-primary">Opslaan</button>
         </div>
 
     </form>

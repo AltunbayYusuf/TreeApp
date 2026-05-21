@@ -161,4 +161,15 @@ public class AiPromptService : IAiPromptService
             .Replace("{{selectionMode}}", selectionMode)
             .Replace("{{projectData}}", projectData);
     }
+    
+    public string BuildIdeaFollowUpSummaryPrompt(string title, string text, string followUpAnswers)
+    {
+        var prompt = _aiRepository.ReadAiPromptByKey("idea_follow_up_summary")
+                     ?? throw new InvalidOperationException("Prompt 'idea_follow_up_summary' niet gevonden.");
+
+        return prompt.PromptText
+            .Replace("{title}", title)
+            .Replace("{text}", text)
+            .Replace("{followUpAnswers}", followUpAnswers);
+    }
 }

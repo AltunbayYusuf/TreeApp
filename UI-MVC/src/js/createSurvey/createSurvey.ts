@@ -20,7 +20,8 @@ export class SurveyBuilder {
         const form = document.getElementById("surveyForm") as HTMLFormElement | null;
         form?.addEventListener("submit", async (event) => {
             event.preventDefault();
-            await this.handleSave(form);
+            const submitter = (event as SubmitEvent).submitter as HTMLElement | null;
+            await this.handleSave(form,submitter);
         });
 
         document.addEventListener("input", this.handleInputDebounce.bind(this));
@@ -50,7 +51,7 @@ export class SurveyBuilder {
         }
     }
 
-    private async handleSave(form: HTMLFormElement): Promise<void> {
+    private async handleSave(form: HTMLFormElement, submitter: HTMLElement | null): Promise<void> {
         const url = form.dataset.saveUrl;
         const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
         if (!url) return;
@@ -78,7 +79,37 @@ export class SurveyBuilder {
             return;
         }
 
-        window.location.href = result.redirectUrl;
+        if (submitter?.hasAttribute("data-final-save")) {
+            await this.finalizeProject(form);
+            return;
+        }
+
+        const redirectUrl = submitter?.dataset.redirectUrl || result.redirectUrl;
+        if (!redirectUrl) return;
+
+        window.location.href = redirectUrl;
+    }
+    private async finalizeProject(form: HTMLFormElement): Promise<void> {
+        const finalizeUrl = form.dataset.finalizeUrl;
+
+        if (!finalizeUrl) {
+            alert("Finalize-url ontbreekt.");
+            return;
+        }
+
+        const response = await fetch(finalizeUrl, {
+            method: "POST",
+            headers: {
+                "RequestVerificationToken": DomUtils.getAntiForgeryToken()
+            }
+        });
+
+        if (!response.ok) {
+            alert("Project kon niet opgeslagen worden. Controleer of alle tabs ingevuld zijn.");
+            return;
+        }
+
+        window.location.href = response.url;
     }
 
     private bindWindowMethods(): void {
@@ -273,6 +304,17 @@ export class SurveyBuilder {
         input.placeholder = "Antwoord...";
         input.className = "form-control form-control-sm";
 
+        input.addEventListener("input", () => {
+            const question = input.closest(".question") as HTMLElement | null;
+            if (!question) return;
+
+            question.querySelectorAll<HTMLSelectElement>(".conditional-trigger").forEach(triggerSelect => {
+                const currentValue = triggerSelect.value;
+                this.populateConditionalTriggerOptions(question, triggerSelect);
+                triggerSelect.value = currentValue;
+            });
+        });
+
         const removeBtn = document.createElement("button");
         removeBtn.type = "button";
         removeBtn.innerText = "🗑";
@@ -295,32 +337,84 @@ export class SurveyBuilder {
 
     addConditional(btn: HTMLElement): void {
         const container = btn.parentElement?.querySelector(".conditional-container");
-        if (!container) return;
+        const question = btn.closest(".question") as HTMLElement | null;
+
+        if (!container || !question) return;
 
         const conditional = document.createElement("div");
         conditional.className = "conditional-block border rounded p-3 mt-3 bg-light";
         conditional.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-primary small fw-semibold text-uppercase">Conditionele Vraag</span>
-                <button type="button"
-                        onclick="removeConditional(this)"
-                        class="btn btn-outline-danger btn-sm"
-                        title="Verwijder conditionele vraag">
-                    🗑
-                </button>
-            </div>
-            <input placeholder="Trigger antwoord"
-                   class="form-control form-control-sm mb-2" />
-            <label class="mb-2 d-flex gap-2 small align-items-center">
-                <input type="checkbox" onchange="toggleAI(this)" />
-                AI laten genereren
-            </label>
-            <input class="conditional-input form-control form-control-sm"
-                   placeholder="Conditionele vraag..." />
-        `;
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="text-primary small fw-semibold text-uppercase">Conditionele Vraag</span>
+            <button type="button"
+                    onclick="removeConditional(this)"
+                    class="btn btn-outline-danger btn-sm"
+                    title="Verwijder conditionele vraag">
+                🗑
+            </button>
+        </div>
+
+        <div class="conditional-trigger-type-container mb-2"></div>
+
+        <select class="conditional-trigger form-select form-select-sm mb-2"></select>
+
+       
+
+        <input class="conditional-input form-control form-control-sm"
+               placeholder="Conditionele vraag..." />
+    `;
 
         container.appendChild(conditional);
+        this.updateConditionalTriggerType(question, conditional);
+
+        const triggerSelect = conditional.querySelector(".conditional-trigger") as HTMLSelectElement | null;
+        if (triggerSelect) {
+            this.populateConditionalTriggerOptions(question, triggerSelect);
+        }
+
         this.saveToLocalStorage();
+    }
+
+    private populateConditionalTriggerOptions(
+        question: HTMLElement,
+        triggerSelect: HTMLSelectElement
+    ): void {
+        triggerSelect.innerHTML = "";
+
+        const typeSelect = question.querySelector("select") as HTMLSelectElement | null;
+        const questionType = typeSelect?.value ?? "";
+
+        if (questionType === "range") {
+            const min = Number((question.querySelector('input[placeholder="Min"]') as HTMLInputElement | null)?.value ?? 1);
+            const max = Number((question.querySelector('input[placeholder="Max"]') as HTMLInputElement | null)?.value ?? 5);
+
+            for (let value = min; value <= max; value++) {
+                const option = document.createElement("option");
+                option.value = value.toString();
+                option.textContent = value.toString();
+                triggerSelect.appendChild(option);
+            }
+
+            return;
+        }
+
+        const answerInputs = question.querySelectorAll<HTMLInputElement>(".answers-list input");
+        answerInputs.forEach(input => {
+            if (!input.value.trim()) return;
+
+            const option = document.createElement("option");
+            option.value = input.value.trim();
+            option.textContent = input.value.trim();
+
+            triggerSelect.appendChild(option);
+        });
+
+        if (triggerSelect.options.length === 0) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "Vul eerst antwoordopties in";
+            triggerSelect.appendChild(option);
+        }
     }
 
     removeConditional(btn: HTMLElement): void {
@@ -362,10 +456,19 @@ export class SurveyBuilder {
 
                 const conditionals: ConditionalData[] = [];
                 question.querySelectorAll(".conditional-container > div.conditional-block").forEach(c => {
-                    const trigger = (c.querySelector("input") as HTMLInputElement | null)?.value ?? "";
-                    const ai = (c.querySelector("input[type='checkbox']") as HTMLInputElement | null)?.checked ?? false;
+                    const trigger = (c.querySelector(".conditional-trigger") as HTMLSelectElement | null)?.value ?? "";
+                    let triggerType = (c.querySelector(".conditional-trigger-type") as HTMLSelectElement | null)?.value ?? "Contains";
+
+                    if (type === "single" || type === "multiple") {
+                        triggerType = "Equals";
+                    }
+
+                    if (type === "open") {
+                        triggerType = "Contains";
+                    }                    const ai = false;
                     const conditionalQuestion = (c.querySelector(".conditional-input") as HTMLInputElement | null)?.value ?? "";
-                    conditionals.push({ trigger, ai, question: conditionalQuestion });
+
+                    conditionals.push({ trigger, triggerType, ai, question: conditionalQuestion });
                 });
 
                 questions.push({ title: qTitle, type, answers, min, max, conditionals });
@@ -449,11 +552,13 @@ export class SurveyBuilder {
                     const conditional = conditionals[conditionals.length - 1] as HTMLElement | null;
                     if (!conditional) return;
 
-                    const triggerInput = conditional.querySelector("input") as HTMLInputElement | null;
+                    const triggerSelect = conditional.querySelector(".conditional-trigger") as HTMLSelectElement | null;
+                    const triggerTypeSelect = conditional.querySelector(".conditional-trigger-type") as HTMLSelectElement | null;
                     const aiCheckbox = conditional.querySelector("input[type='checkbox']") as HTMLInputElement | null;
                     const conditionalInput = conditional.querySelector(".conditional-input") as HTMLInputElement | null;
 
-                    if (triggerInput) triggerInput.value = cond.trigger ?? "";
+                    if (triggerSelect) triggerSelect.value = cond.trigger ?? "";
+                    if (triggerTypeSelect) triggerTypeSelect.value = cond.triggerType ?? "Contains";
                     if (aiCheckbox) aiCheckbox.checked = cond.ai;
                     if (conditionalInput) {
                         conditionalInput.value = cond.question ?? "";
@@ -465,6 +570,28 @@ export class SurveyBuilder {
 
         this.isLoading = false;
         this.updateCounter();
+    }
+
+    private updateConditionalTriggerType(question: HTMLElement, conditional: HTMLElement): void {
+        const container = conditional.querySelector(".conditional-trigger-type-container") as HTMLElement | null;
+        const typeSelect = question.querySelector("select") as HTMLSelectElement | null;
+        const questionType = typeSelect?.value ?? "";
+
+        if (!container) return;
+
+        container.innerHTML = "";
+
+        if (questionType !== "range") {
+            return;
+        }
+
+        container.innerHTML = `
+        <select class="conditional-trigger-type form-select form-select-sm">
+            <option value="Equals">Gelijk aan</option>
+            <option value="GreaterOrEqual">Groter dan of gelijk aan</option>
+            <option value="LessOrEqual">Kleiner dan of gelijk aan</option>
+        </select>
+    `;
     }
 
     private async generateSurveyWithAi(): Promise<void> {

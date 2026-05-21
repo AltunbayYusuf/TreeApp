@@ -133,7 +133,7 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CreateProjectInfoViewModel vm)
+    public async Task<IActionResult> Create(CreateProjectInfoViewModel vm, string nextAction = null)
     {
         var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
@@ -173,8 +173,12 @@ public class SubAdminProjectsController : Controller
         vm.IntroMediaUpload = null;
         SaveSession(InfoKey, vm);
 
-        return await TryCreateProject(subplatform);
+        if (!string.IsNullOrWhiteSpace(nextAction))
+        {
+            return RedirectToAction(nextAction, new { subplatform });
+        }
 
+        return await TryCreateProject(subplatform);
     }
 
     [HttpGet]
@@ -210,7 +214,7 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> SaveIdeation(CreateProjectIdeationViewModel vm)
+    public async Task<IActionResult> SaveIdeation(CreateProjectIdeationViewModel vm, string nextAction = null)
     {
         var subplatform = Subplatform;
         var errorResult = await ValidateSubplatformAccess(subplatform);
@@ -229,6 +233,22 @@ public class SubAdminProjectsController : Controller
             return View("CreateIdeation", vm);
 
         SaveSession(IdeationKey, vm);
+
+        if (!string.IsNullOrWhiteSpace(nextAction))
+        {
+            return RedirectToAction(nextAction, new { subplatform });
+        }
+
+        return await TryCreateProject(subplatform);
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> FinalizeProject()
+    {
+        var subplatform = Subplatform;
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
 
         return await TryCreateProject(subplatform);
     }
@@ -531,7 +551,7 @@ public class SubAdminProjectsController : Controller
                         ParentQuestion = parentQuestion,
                         FollowUpQuestion = followUpQuestion,
                         TriggerValue = conditionalVm.Trigger,
-                        TriggerType = TriggerType.Contains
+                        TriggerType = conditionalVm.TriggerType
                     });
                 }
             }
@@ -790,12 +810,35 @@ public class SubAdminProjectsController : Controller
             return NotFound();
         }
 
-        await _aiSummaryIdeas.GenerateOpenQuestionSummaryAsync(projectId, questionId);
+        var summary = await _aiSummaryIdeas.GenerateOpenQuestionSummaryAsync(projectId, questionId);
 
-        return RedirectToAction(nameof(Statistics), new
+        return Ok(new
         {
-            subplatform,
-            projectId
+            ok = true,
+            summary
+        });
+    }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GenerateProjectTrendSummary(string subplatform, int projectId)
+    {
+        var errorResult = await ValidateSubplatformAccess(subplatform);
+        if (errorResult != null) return errorResult;
+
+        var project = _projectManager.GetProject(projectId);
+
+        if (project == null || project.SubPlatform.Slug != subplatform)
+        {
+            return NotFound();
+        }
+
+        var summary = await _aiSummaryIdeas.GenerateProjectTrendSummaryAsync(projectId);
+
+        return Ok(new
+        {
+            ok = true,
+            summary
         });
     }
 
