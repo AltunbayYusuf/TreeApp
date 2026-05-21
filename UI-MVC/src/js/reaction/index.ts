@@ -109,6 +109,15 @@ export class ReactionHandler {
 
         if (!confirm("Wil je deze reactie zeker verzenden?")) return;
 
+        const submitButton = form.querySelector("button[type='submit']") as HTMLButtonElement | null;
+
+        this.showResultMsg(resultBox, "AI controleert je reactie...", "info");
+
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.textContent = "AI controleert...";
+        }
+
         try {
             const response = await fetch("/api/reactions", {
                 method: "POST",
@@ -142,6 +151,11 @@ export class ReactionHandler {
         } catch (error) {
             console.error("Fout bij verzenden van reactie:", error);
             this.showResultMsg(resultBox, "Er ging iets mis bij het verzenden.", "danger");
+        } finally {
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.textContent = "Verzenden";
+            }
         }
     }
 

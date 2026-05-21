@@ -204,7 +204,10 @@ export class SurveySubmitter {
 
         switch (triggerType) {
             case "Equals":
-                return answer === trigger;
+                return answer
+                    .split(",")
+                    .map(value => value.trim())
+                    .includes(trigger);
 
             case "Contains":
                 return answer.includes(trigger);
