@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Interfaces;
-using IntegratieProject.DAL.Interfaces;
+using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -9,25 +9,29 @@ public class AiModerationService : IAiModerationService
 {
     private readonly IAiProvider _aiProvider;    
     private readonly IAiPromptService _promptService;
-    private readonly IAiUsageRepository _aiUsageRepository;
+    private readonly AiUsageService _aiUsageService;
+    private readonly IAiModelConfigurationManager _modelConfigurationManager;
+
 
     public AiModerationService(
         IAiProvider aiProvider, 
         IAiPromptService promptService, 
-        IAiUsageRepository aiUsageRepository)
+        AiUsageService aiUsageService,
+        IAiModelConfigurationManager modelConfigurationManager)
     {
         _aiProvider = aiProvider;
         _promptService = promptService;
-        _aiUsageRepository = aiUsageRepository;
+        _aiUsageService = aiUsageService;
+        _modelConfigurationManager = modelConfigurationManager;
     }
 
-    public async Task<ToxicityResult> ModerateIdeaAsync(string title, string text)
+    public async Task<ToxicityResult> ModerateIdeaAsync(string title, string text, int? subPlatformId = null)
     {
         var prompt = _promptService.BuildIdeaModerationPrompt(title, text);
-        return await ModerateAsync(prompt);
+        return await ModerateAsync(prompt, subPlatformId);
     }
 
-    public async Task<ToxicityResult> ModerateReactionAsync(string text)
+    public async Task<ToxicityResult> ModerateReactionAsync(string text, int? subPlatformId = null)
     {
         if (string.IsNullOrWhiteSpace(text))
         {
@@ -41,11 +45,12 @@ public class AiModerationService : IAiModerationService
         }
 
         var prompt = _promptService.BuildReactionModerationPrompt(text.Trim());
-        return await ModerateAsync(prompt);
+        return await ModerateAsync(prompt, subPlatformId);
     }
 
-    private async Task<ToxicityResult> ModerateAsync(string prompt)
+    private async Task<ToxicityResult> ModerateAsync(string prompt, int? subPlatformId)
     {
+        var config = _modelConfigurationManager.GetActiveConfiguration("Moderation", subPlatformId);
         try
         {
             var rawText = await _aiProvider.GenerateAsync(prompt);
@@ -62,13 +67,15 @@ public class AiModerationService : IAiModerationService
                 ? suggestedTitleElement.GetString() ?? ""
                 : "";
 
-          
-            _aiUsageRepository.AddUsage(new AiUsage
-            {
-                Feature = "Moderation",
-                Model = "gemini-2.5-flash-lite",
-                Success = true
-            });
+            _aiUsageService.RegisterTextUsage(
+                "Moderation",
+                config.ModelName,
+                prompt,
+                rawText,
+                true,
+                null,
+                subPlatformId
+            );
 
             return new ToxicityResult
             {
@@ -84,14 +91,15 @@ public class AiModerationService : IAiModerationService
             Console.WriteLine("AI moderation failed:");
             Console.WriteLine(ex.ToString());
 
-       
-            _aiUsageRepository.AddUsage(new AiUsage
-            {
-                Feature = "Moderation",
-                Model = "gemini-2.5-flash-lite",
-                Success = false,
-                ErrorMessage = ex.Message
-            });
+            _aiUsageService.RegisterTextUsage(
+                "Moderation",
+                config.ModelName,
+                prompt,
+                "",
+                false,
+                ex.Message,
+                subPlatformId
+            );
 
             return new ToxicityResult
             {

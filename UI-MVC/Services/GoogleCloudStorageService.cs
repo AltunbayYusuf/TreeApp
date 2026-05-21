@@ -46,4 +46,40 @@ public class GoogleCloudStorageService : IGoogleCloudStorageService
 
         return $"{publicBaseUrl}/{objectName}";
     }
+    
+    public async Task<string> UploadProjectMediaAsync(
+        byte[] fileBytes,
+        string fileName,
+        string contentType,
+        string subplatformSlug)
+    {
+        var bucketName = _configuration["GoogleCloudStorage:BucketName"];
+        var publicBaseUrl = _configuration["GoogleCloudStorage:PublicBaseUrl"];
+
+        if (string.IsNullOrWhiteSpace(bucketName))
+            throw new InvalidOperationException("GoogleCloudStorage:BucketName ontbreekt in appsettings.json.");
+
+        if (string.IsNullOrWhiteSpace(publicBaseUrl))
+            throw new InvalidOperationException("GoogleCloudStorage:PublicBaseUrl ontbreekt in appsettings.json.");
+
+        var extension = Path.GetExtension(fileName).ToLowerInvariant();
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+
+        if (!allowedExtensions.Contains(extension))
+            throw new InvalidOperationException("Alleen jpg, jpeg, png of webp is toegestaan voor AI-afbeeldingen.");
+
+        var finalFileName = $"{Guid.NewGuid()}{extension}";
+        var objectName = $"projects/{subplatformSlug}/intro-media/{finalFileName}";
+
+        await using var stream = new MemoryStream(fileBytes);
+
+        await _storageClient.UploadObjectAsync(
+            bucket: bucketName,
+            objectName: objectName,
+            contentType: contentType,
+            source: stream
+        );
+
+        return $"{publicBaseUrl}/{objectName}";
+    }
 }

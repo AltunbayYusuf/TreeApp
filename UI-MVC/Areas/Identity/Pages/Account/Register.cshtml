@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = "Register";
     ViewData["ActivePage"] = ManageNavPages.Register;
+    Layout = "_AdminLayout";
 }
 
 @if (User.IsInRole(CustomIdentityConstants.GeneralAdminRoleName))

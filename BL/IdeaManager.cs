@@ -1,10 +1,10 @@
 using System.Text.Json;
+using IntegratieProject.BL.Ai;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Interfaces;
-using IntegratieProject.DAL;
 using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
 
@@ -13,27 +13,30 @@ namespace IntegratieProject.BL;
 public class IdeaManager : IIdeaManager
 {
     private readonly IIdeaRepository _ideaRepository;
-    private readonly ITopicRepository _topicRepository;
     private readonly IReactionRepository _reactionRepository;
     private readonly IManager _manager;
     private readonly IAiModerationService _aiModerationService;
     private readonly IAiProvider _aiProvider;
     private readonly IAiPromptService _aiPromptService;
     private readonly IRepository _repository;
+    private readonly AiUsageService _aiUsageService;
+    private readonly IAiModelConfigurationManager _aiModelConfigurationManager;
 
 
-    public IdeaManager(IIdeaRepository ideaRepository, ITopicRepository topicRepository,
+    public IdeaManager(IIdeaRepository ideaRepository,
         IReactionRepository reactionRepository, IManager manager, IAiModerationService aiModerationService,
-        IAiProvider aiProvider, IAiPromptService aiPromptService, IRepository repository)
+        IAiProvider aiProvider, IAiPromptService aiPromptService, IRepository repository,
+        AiUsageService aiUsageService, IAiModelConfigurationManager modelConfigurationManager)
     {
         _reactionRepository = reactionRepository;
-        _topicRepository = topicRepository;
         _ideaRepository = ideaRepository;
         _manager = manager;
         _aiModerationService = aiModerationService;
         _aiProvider = aiProvider;
         _aiPromptService = aiPromptService;
         _repository = repository;
+        _aiUsageService = aiUsageService;
+        _aiModelConfigurationManager = modelConfigurationManager;
     }
 
 
@@ -76,7 +79,13 @@ public class IdeaManager : IIdeaManager
         var safeTitle = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title.Trim();
         var safeText = text?.Trim() ?? "";
 
-        var moderation = await _aiModerationService.ModerateIdeaAsync(safeTitle, safeText);
+        var subPlatformId = topic.Project?.SubPlatformId;
+
+        var moderation = await _aiModerationService.ModerateIdeaAsync(
+            safeTitle,
+            safeText,
+            subPlatformId
+        );
 
         if (moderation.AiUnavailable)
         {
@@ -192,7 +201,8 @@ public class IdeaManager : IIdeaManager
     public async Task<string> ImproveIdeaTextAsync(int ideaId)
     {
         var idea = _ideaRepository.ReadIdeaById(ideaId);
-
+        var subPlatformId = idea?.Topic?.Project?.SubPlatformId;
+        var config = _aiModelConfigurationManager.GetActiveConfiguration("IdeaImprovement", subPlatformId);
         if (idea == null)
         {
             throw new ArgumentException("Idea not found");
@@ -201,6 +211,16 @@ public class IdeaManager : IIdeaManager
         var prompt = _aiPromptService.BuildIdeaImprovementPrompt(idea.Title, idea.Text);
 
         var improvedText = await _aiProvider.GenerateAsync(prompt);
+
+        _aiUsageService.RegisterTextUsage(
+            "IdeaImprovement",
+            config.ModelName,
+            prompt,
+            improvedText,
+            true,
+            null,
+            subPlatformId
+        );
 
         if (string.IsNullOrWhiteSpace(improvedText))
         {
@@ -232,6 +252,9 @@ public class IdeaManager : IIdeaManager
 
     public async Task<List<string>> GenerateIdeaFollowUpQuestionsAsync(string title, string text)
     {
+        var config = _aiModelConfigurationManager
+            .GetActiveConfiguration("IdeaFollowUpQuestions", null);
+
         if (string.IsNullOrWhiteSpace(text))
         {
             throw new ArgumentException("Idea text is required.");
@@ -240,6 +263,14 @@ public class IdeaManager : IIdeaManager
         var prompt = _aiPromptService.BuildIdeaFollowUpQuestionsPrompt(title ?? string.Empty, text);
 
         var aiResponse = await _aiProvider.GenerateAsync(prompt);
+
+        _aiUsageService.RegisterTextUsage(
+            "IdeaFollowUpQuestions",
+            config.ModelName,
+            prompt,
+            aiResponse,
+            true
+        );
 
         if (string.IsNullOrWhiteSpace(aiResponse))
         {
@@ -297,7 +328,8 @@ public class IdeaManager : IIdeaManager
     {
         return await _aiModerationService.ModerateIdeaAsync(
             title ?? string.Empty,
-            text ?? string.Empty
+            text ?? string.Empty,
+            null
         );
     }
 }
