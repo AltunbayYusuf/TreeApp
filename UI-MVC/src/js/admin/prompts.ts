@@ -1,11 +1,24 @@
-﻿class AdminPromptsPage {
+﻿type BootstrapModal = {
+    show(): void;
+    hide(): void;
+};
+
+type BootstrapModalConstructor = new (element: HTMLElement) => BootstrapModal;
+
+type BootstrapWindow = Window & {
+    bootstrap?: {
+        Modal?: BootstrapModalConstructor;
+    };
+};
+
+class AdminPromptsPage {
     private scrollContainer!: HTMLElement;
     private previousButton!: HTMLButtonElement;
     private nextButton!: HTMLButtonElement;
     private promptCards: HTMLFormElement[] = [];
 
     private modalElement!: HTMLElement;
-    private modal: any = null;
+    private modal: BootstrapModal | null = null;
 
     private cancelButton!: HTMLButtonElement;
     private discardButton!: HTMLButtonElement;
@@ -14,13 +27,15 @@
     private activeCard: HTMLFormElement | null = null;
     private requestedCard: HTMLFormElement | null = null;
 
-    private originalValues = new Map<HTMLFormElement, string>();
+    private requestedScrollDirection: -1 | 1 | null = null;
+
+    private readonly originalValues = new Map<HTMLFormElement, string>();
 
     init(): void {
         this.scrollContainer = document.getElementById("promptsScroll") as HTMLElement;
         this.previousButton = document.getElementById("promptPrev") as HTMLButtonElement;
         this.nextButton = document.getElementById("promptNext") as HTMLButtonElement;
-        this.promptCards = Array.from(document.querySelectorAll("[data-prompt-card]")) as HTMLFormElement[];
+        this.promptCards = Array.from(document.querySelectorAll<HTMLFormElement>("[data-prompt-card]"));
 
         this.modalElement = document.getElementById("unsavedPromptModal") as HTMLElement;
         this.cancelButton = document.getElementById("cancelSwitchPrompt") as HTMLButtonElement;
@@ -39,65 +54,90 @@
 
     private storeOriginalValues(): void {
         this.promptCards.forEach((card) => {
-            const textarea = card.querySelector(".prompt-text") as HTMLTextAreaElement;
+            const textarea = this.getPromptTextarea(card);
 
-            this.originalValues.set(card, textarea.value);
+            if (textarea) {
+                this.originalValues.set(card, textarea.value);
+            }
         });
     }
 
     private initializeModal(): void {
-        const bootstrapInstance = (window as any).bootstrap;
+        const modalConstructor = this.getBootstrapModalConstructor();
 
-        if (bootstrapInstance?.Modal && this.modalElement) {
-            this.modal = new bootstrapInstance.Modal(this.modalElement);
+        if (modalConstructor && this.modalElement) {
+            this.modal = new modalConstructor(this.modalElement);
         }
+    }
+    private requestScroll(direction: -1 | 1): void {
+        if (this.activeCard && this.hasUnsavedChanges(this.activeCard)) {
+            this.requestedScrollDirection = direction;
+            this.showModal();
+            return;
+        }
+
+        this.scrollPrompts(direction);
+    }
+
+    private getBootstrapModalConstructor(): BootstrapModalConstructor | null {
+        return (window as BootstrapWindow).bootstrap?.Modal ?? null;
     }
 
     private bindEvents(): void {
-        this.promptCards.forEach((card) => {
-            const title = card.querySelector("[data-focus-prompt]") as HTMLButtonElement;
+        this.promptCards.forEach((card) => this.bindPromptCard(card));
 
-            title?.addEventListener("click", () => {
-                this.requestSwitch(card);
-            });
-        });
+        this.previousButton.addEventListener("click", () => this.requestScroll(-1));
+        this.nextButton.addEventListener("click", () => this.requestScroll(1));
 
-        this.previousButton.addEventListener("click", () => {
-            this.scrollContainer.scrollBy({
-                left: -this.scrollContainer.clientWidth,
-                behavior: "smooth"
-            });
-        });
+        this.cancelButton?.addEventListener("click", () => this.cancelSwitch());
+        this.discardButton?.addEventListener("click", () => this.discardChangesAndSwitch());
+        this.saveButton?.addEventListener("click", () => this.activeCard?.submit());
+    }
 
-        this.nextButton.addEventListener("click", () => {
-            this.scrollContainer.scrollBy({
-                left: this.scrollContainer.clientWidth,
-                behavior: "smooth"
-            });
-        });
+    private bindPromptCard(card: HTMLFormElement): void {
+        card.addEventListener("pointerdown", (event) => this.handleCardPointerDown(event, card));
 
-        this.cancelButton?.addEventListener("click", () => {
-            this.requestedCard = null;
-            this.hideModal();
-        });
+        const title = card.querySelector<HTMLButtonElement>("[data-focus-prompt]");
+        title?.addEventListener("click", () => this.requestSwitch(card));
+    }
 
-        this.discardButton?.addEventListener("click", () => {
-            this.discardChangesAndSwitch();
-        });
+    private handleCardPointerDown(event: PointerEvent, card: HTMLFormElement): void {
+        if (!this.shouldConfirmSwitch(card)) {
+            this.setActiveCard(card);
+            return;
+        }
 
-        this.saveButton?.addEventListener("click", () => {
-            this.activeCard?.submit();
+        event.preventDefault();
+        this.requestedCard = card;
+        this.showModal();
+    }
+
+    private scrollPrompts(direction: -1 | 1): void {
+        this.scrollContainer.scrollBy({
+            left: direction * this.scrollContainer.clientWidth,
+            behavior: "smooth"
         });
     }
 
+    private cancelSwitch(): void {
+        this.requestedCard = null;
+        this.hideModal();
+    }
+
     private requestSwitch(card: HTMLFormElement): void {
-        if (this.activeCard && this.activeCard !== card && this.hasUnsavedChanges(this.activeCard)) {
+        if (this.shouldConfirmSwitch(card)) {
             this.requestedCard = card;
             this.showModal();
             return;
         }
 
         this.setActiveCard(card);
+    }
+
+    private shouldConfirmSwitch(card: HTMLFormElement): boolean {
+        return this.activeCard !== null
+            && this.activeCard !== card
+            && this.hasUnsavedChanges(this.activeCard);
     }
 
     private setActiveCard(card: HTMLFormElement): void {
@@ -107,33 +147,40 @@
 
         card.classList.add("active");
         this.activeCard = card;
-
-        card.scrollIntoView({
-            behavior: "smooth",
-            inline: "center",
-            block: "nearest"
-        });
     }
 
     private hasUnsavedChanges(card: HTMLFormElement): boolean {
-        const textarea = card.querySelector(".prompt-text") as HTMLTextAreaElement;
+        const textarea = this.getPromptTextarea(card);
         const originalValue = this.originalValues.get(card) ?? "";
 
-        return textarea.value !== originalValue;
+        return textarea !== null && textarea.value !== originalValue;
     }
 
     private discardChangesAndSwitch(): void {
-        if (!this.activeCard || !this.requestedCard) {
-            this.hideModal();
+        if (this.activeCard) {
+            const textarea = this.getPromptTextarea(this.activeCard);
+
+            if (textarea) {
+                textarea.value = this.originalValues.get(this.activeCard) ?? "";
+            }
+        }
+
+        this.hideModal();
+
+        if (this.requestedCard) {
+            this.setActiveCard(this.requestedCard);
+            this.requestedCard = null;
             return;
         }
 
-        const textarea = this.activeCard.querySelector(".prompt-text") as HTMLTextAreaElement;
-        textarea.value = this.originalValues.get(this.activeCard) ?? "";
+        if (this.requestedScrollDirection) {
+            this.scrollPrompts(this.requestedScrollDirection);
+            this.requestedScrollDirection = null;
+        }
+    }
 
-        this.hideModal();
-        this.setActiveCard(this.requestedCard);
-        this.requestedCard = null;
+    private getPromptTextarea(card: HTMLFormElement): HTMLTextAreaElement | null {
+        return card.querySelector<HTMLTextAreaElement>(".prompt-text");
     }
 
     private showModal(): void {
@@ -157,6 +204,8 @@
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+export function initAdminPrompts(): void {
     new AdminPromptsPage().init();
-});
+}
+
+initAdminPrompts();

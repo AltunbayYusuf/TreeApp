@@ -1,4 +1,5 @@
-﻿using IntegratieProject.BL.Interfaces;
+﻿using IntegratieProject.BL.Domain.Ai;
+using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.Interfaces;
 
 namespace IntegratieProject.BL.Ai;
@@ -14,8 +15,7 @@ public class AiPromptService : IAiPromptService
 
     public string BuildIdeaModerationPrompt(string title, string text)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("idea_moderation")
-                     ?? throw new InvalidOperationException("Prompt 'idea_moderation' niet gevonden.");
+        var prompt = GetPrompt("idea_moderation");
 
         var promptText = RemoveDutchLanguageInstruction(prompt.PromptText);
 
@@ -38,8 +38,7 @@ public class AiPromptService : IAiPromptService
 
     public string BuildReactionModerationPrompt(string text)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("reaction_moderation")
-                     ?? throw new InvalidOperationException("Prompt 'reaction_moderation' niet gevonden.");
+        var prompt = GetPrompt("reaction_moderation");
 
         return $"""
                 {prompt.PromptText}
@@ -48,27 +47,18 @@ public class AiPromptService : IAiPromptService
                 {text}
                 """;
     }
-
-    public string BuildProjectImagePrompt(string projectName)
-    {
-        var prompt = _aiRepository.ReadAiPromptByKey("project_image_generation")
-                     ?? throw new InvalidOperationException("Prompt 'project_image_generation' niet gevonden.");
-
-        return prompt.PromptText.Replace("{projectName}", projectName);
-    }
+    
 
     public string BuildProjectIntroPrompt(string projectName)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("project_intro_generation")
-                     ?? throw new InvalidOperationException("Prompt 'project_intro_generation' niet gevonden.");
+        var prompt = GetPrompt("project_intro_generation");
 
         return prompt.PromptText.Replace("{projectName}", projectName);
     }
 
     public string BuildSurveyGenerationPrompt(string description, int questionAmount)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("survey_generation") ??
-                     throw new InvalidOperationException("Prompt 'survey_generation' niet gevonden.");
+        var prompt = GetPrompt("survey_generation");
         return prompt.PromptText
             .Replace("{{description}}", description)
             .Replace("{{questionAmount}}", questionAmount.ToString());
@@ -76,8 +66,7 @@ public class AiPromptService : IAiPromptService
 
     public string BuildIdeaImprovementPrompt(string title, string text, string language = "")
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("idea_improvement")
-                     ?? throw new InvalidOperationException("Prompt 'idea_improvement' niet gevonden.");
+        var prompt = GetPrompt("idea_improvement");
 
         var promptText = RemoveDutchLanguageInstruction(prompt.PromptText);
 
@@ -113,16 +102,14 @@ public class AiPromptService : IAiPromptService
 
     public string BuildProjectTrendSummaryPrompt(string projectData)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("project_trend_summary")
-                     ?? throw new InvalidOperationException("Prompt 'project_trend_summary' niet gevonden.");
+        var prompt = GetPrompt("project_trend_summary");
 
         return prompt.PromptText.Replace("{{projectData}}", projectData);
     }
 
     public string BuildOpenQuestionSummaryPrompt(string question, string answers)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("open_question_summary")
-                     ?? throw new InvalidOperationException("Prompt 'open_question_summary' niet gevonden.");
+        var prompt = GetPrompt("open_question_summary");
 
         return prompt.PromptText
             .Replace("{{question}}", question)
@@ -132,30 +119,25 @@ public class AiPromptService : IAiPromptService
 
     public string BuildIdeaFollowUpQuestionsPrompt(string title, string text)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("idea_follow_up_questions")
-                     ?? throw new InvalidOperationException("Prompt 'idea_follow_up_questions' niet gevonden.");
+        var prompt = GetPrompt("idea_follow_up_questions");
 
         return prompt.PromptText
             .Replace("{title}", title)
             .Replace("{text}", text);
     }
 
-    public Task<string> BuildProjectImageGenerationPromptAsync(string title, string description)
+    public string BuildProjectImageGenerationPrompt(string title, string description)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("project_image_generation")
-                     ?? throw new InvalidOperationException("Prompt 'project_image_generation' niet gevonden.");
+        var prompt = GetPrompt("project_image_generation");
 
-        var result = prompt.PromptText
+        return prompt.PromptText
             .Replace("{projectName}", title)
             .Replace("{introduction}", description);
-
-        return Task.FromResult(result);
     }
 
     public string BuildIdeaSelectionPrompt(string selectionMode, string projectData)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("idea_selection")
-                     ?? throw new InvalidOperationException("Prompt 'idea_selection' niet gevonden.");
+        var prompt = GetPrompt("idea_selection");
 
         return prompt.PromptText
             .Replace("{{selectionMode}}", selectionMode)
@@ -164,12 +146,17 @@ public class AiPromptService : IAiPromptService
     
     public string BuildIdeaFollowUpSummaryPrompt(string title, string text, string followUpAnswers)
     {
-        var prompt = _aiRepository.ReadAiPromptByKey("idea_follow_up_summary")
-                     ?? throw new InvalidOperationException("Prompt 'idea_follow_up_summary' niet gevonden.");
+        var prompt = GetPrompt("idea_follow_up_summary");
 
         return prompt.PromptText
             .Replace("{title}", title)
             .Replace("{text}", text)
             .Replace("{followUpAnswers}", followUpAnswers);
+    }
+    
+    private AiPrompt GetPrompt(string key)
+    {
+        return _aiRepository.ReadAiPromptByKey(key)
+               ?? throw new InvalidOperationException($"Prompt '{key}' niet gevonden.");
     }
 }
