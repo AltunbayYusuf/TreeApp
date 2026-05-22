@@ -328,8 +328,7 @@ public class IdeaManager : IIdeaManager
     {
         return await _aiModerationService.ModerateIdeaAsync(
             title ?? string.Empty,
-            text ?? string.Empty,
-            null
+            text ?? string.Empty
         );
     }
     

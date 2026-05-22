@@ -218,7 +218,7 @@ public class AiSummaryIdeas : IAiSummaryIdeas
         return summary;
     }
 
-    private static string Limit(string? value)
+    private static string Limit(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return "";

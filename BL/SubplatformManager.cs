@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting; // Nodig voor IWebHostEnvironment
-using Microsoft.AspNetCore.Http; // Nodig voor IFormFile
-using System.IO;
+﻿using Microsoft.AspNetCore.Hosting; 
+using Microsoft.AspNetCore.Http; 
 using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Domain.users;
@@ -19,7 +18,7 @@ public class SubplatformManager : ISubplatformManager
     public SubplatformManager(
         ISubplatformRepository subplatformRepository,
         IUserManager userManager,
-        IWebHostEnvironment webHostEnvironment) // Voeg deze toe
+        IWebHostEnvironment webHostEnvironment) 
     {
         _subplatformRepository = subplatformRepository;
         _userManager = userManager;

@@ -1,8 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Text.Json;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.DAL.interfaces;
 using IntegratieProject.DAL.Interfaces;
 
 namespace IntegratieProject.BL;
