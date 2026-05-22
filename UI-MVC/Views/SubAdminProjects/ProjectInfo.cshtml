@@ -243,22 +243,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const fontSelect = document.getElementById("FontFamily");
-            const fontPreview = document.getElementById("fontPreview");
-
-            if (!fontSelect || !fontPreview) {
-                return;
-            }
-
-            const updateFontPreview = function () {
-                const selectedOption = fontSelect.options[fontSelect.selectedIndex];
-                fontPreview.style.fontFamily = selectedOption.dataset.fontStack;
-            };
-
-            fontSelect.addEventListener("change", updateFontPreview);
-            updateFontPreview();
-        });
-    </script>
 }
