@@ -123,16 +123,16 @@ bash setup.sh feature/nieuwe-feature staging.example.com
 
 ```bash
 # VM status controleren
-gcloud compute instance-groups managed list-instances treeapp-mig \
+gcloud compute instance-groups managed list-instances echo20-mig \
   --zone=europe-west1-b --project=integratieproject-mvp
 
 # Extern IP van de VM vinden
 gcloud compute instances list \
-  --filter="name~treeapp" \
+  --filter="name~echo20" \
   --format="value(name,EXTERNAL_IP)"
 
 # Statisch LB IP bekijken
-gcloud compute addresses describe treeapp-ip \
+gcloud compute addresses describe echo20-ip \
   --global --project=integratieproject-mvp --format="value(address)"
 ```
 
@@ -163,7 +163,7 @@ DNS A-record: jouw-domein.com → <STATIC_IP_ADDRESS>
 
 Het statische IP vind je met:
 ```bash
-gcloud compute addresses describe treeapp-ip --global \
+gcloud compute addresses describe echo20-ip --global \
   --project=integratieproject-mvp --format="value(address)"
 ```
 
@@ -173,9 +173,7 @@ Na het instellen van de DNS duurt het **15–60 minuten** voordat Google het cer
 Status controleren:
 
 ```bash
-gcloud compute ssl-certificates describe treeapp-ssl-cert \
-  --global --project=integratieproject-mvp \
-  --format="value(managed.status,managed.domainStatus)"
+gcloud certificate-manager certificates list --project=integratieproject-mvp
 ```
 
 Status `ACTIVE` = certificaat werkt.
@@ -227,17 +225,17 @@ Bij lage belasting wordt er ingekrompen tot minimaal 1 VM.
 **Status bekijken:**
 
 ```bash
-gcloud compute instance-groups managed list-instances treeapp-mig \
+gcloud compute instance-groups managed list-instances echo20-mig \
   --zone=europe-west1-b --project=integratieproject-mvp
 
-gcloud compute instance-groups managed describe treeapp-mig \
+gcloud compute instance-groups managed describe echo20-mig \
   --zone=europe-west1-b --project=integratieproject-mvp
 ```
 
 **Handmatig schalen (tijdelijk):**
 
 ```bash
-gcloud compute instance-groups managed resize treeapp-mig \
+gcloud compute instance-groups managed resize echo20-mig \
   --size=2 --zone=europe-west1-b --project=integratieproject-mvp
 ```
 
@@ -304,12 +302,12 @@ Geconfigureerd via ASP.NET Core's ingebouwde `RateLimiter` middleware (`Program.
 bash backup.sh
 ```
 
-Dit maakt een **on-demand backup** van de Cloud SQL instantie `treeapp-db-new` en toont de laatste 5 backups.
+Dit maakt een **on-demand backup** van de Cloud SQL instantie `echo20-db` en toont de laatste 5 backups.
 
 ### Backup lijst bekijken
 
 ```bash
-gcloud sql backups list --instance=treeapp-db-new --project=integratieproject-mvp
+gcloud sql backups list --instance=echo20-db --project=integratieproject-mvp
 ```
 
 ### Restore uitvoeren
@@ -331,7 +329,7 @@ Het script:
 Cloud SQL maakt standaard **automatische dagelijkse backups**. Dit kan beheerd worden via:
 
 ```bash
-gcloud sql instances patch treeapp-db-new \
+gcloud sql instances patch echo20-db \
   --backup-start-time=02:00 \
   --project=integratieproject-mvp
 ```
