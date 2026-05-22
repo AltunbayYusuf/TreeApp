@@ -20,11 +20,12 @@ De applicatie draait op **Google Cloud Platform (GCP)** met de volgende stack:
 4. [HTTPS instellen](#4-https-instellen)
 5. [Autoscaling](#5-autoscaling)
 6. [Session state management](#6-session-state-management)
-7. [Bescherming AI tokens](#7-bescherming-ai-tokens)
-8. [Database backup en restore](#8-database-backup-en-restore)
-9. [Zero-downtime upgrade](#9-zero-downtime-upgrade)
-10. [Omgeving afbreken](#10-omgeving-afbreken)
-11. [Scripts overzicht](#11-scripts-overzicht)
+7. [Cloud Armor (rate limiting & DDoS bescherming)](#7-cloud-armor-rate-limiting--ddos-bescherming)
+8. [Bescherming AI tokens](#8-bescherming-ai-tokens)
+9. [Database backup en restore](#9-database-backup-en-restore)
+10. [Zero-downtime upgrade](#10-zero-downtime-upgrade)
+11. [Omgeving afbreken](#11-omgeving-afbreken)
+12. [Scripts overzicht](#12-scripts-overzicht)
 
 ---
 
@@ -269,7 +270,40 @@ builder.Services.AddDataProtection()
 
 ---
 
-## 7. Bescherming AI tokens
+## 7. Cloud Armor (rate limiting & DDoS bescherming)
+
+De applicatie is beveiligd met **Google Cloud Armor**, gekoppeld aan de load balancer backend service.
+
+**Wat het doet:**
+
+- Throttelt IP-adressen die meer dan **60 requests per minuut** sturen (HTTP 429)
+- Blokkeert automatisch volumetrische DDoS-aanvallen
+- Werkt op netwerkniveau, vóór de applicatie bereikt wordt
+
+**Configuratie:**
+
+| Parameter | Waarde |
+|-----------|--------|
+| Policy | `echo20-security-policy` |
+| Drempel | 60 requests/min per IP |
+| Bij overschrijding | HTTP 429 (Too Many Requests) |
+| Gekoppeld aan | `echo20-backend` (backend service) |
+
+**Status bekijken:**
+
+```bash
+gcloud compute security-policies describe echo20-security-policy \
+  --project=integratieproject-mvp
+
+gcloud compute security-policies rules list echo20-security-policy \
+  --project=integratieproject-mvp
+```
+
+> Cloud Armor werkt samen met de applicatie-level rate limiter (max 20 AI-verzoeken/uur per gebruiker). Cloud Armor vangt botverkeer en DDoS op netwerkniveau af; de applicatielaag beperkt legitieme gebruikers bij overconsumptie van Gemini-tokens.
+
+---
+
+## 8. Bescherming AI tokens
 
 Om overconsumptie van de **Gemini API** te voorkomen is er **rate limiting** ingebouwd.
 
@@ -294,7 +328,7 @@ Geconfigureerd via ASP.NET Core's ingebouwde `RateLimiter` middleware (`Program.
 
 ---
 
-## 8. Database backup en restore
+## 9. Database backup en restore
 
 ### Backup aanmaken
 
@@ -336,7 +370,7 @@ gcloud sql instances patch echo20-db \
 
 ---
 
-## 9. Zero-downtime upgrade
+## 10. Zero-downtime upgrade
 
 Om de applicatie te updaten **zonder downtime** gebruik je:
 
@@ -368,7 +402,7 @@ zodat altijd minstens één VM beschikbaar blijft.
 
 ---
 
-## 10. Omgeving afbreken
+## 11. Omgeving afbreken
 
 ```bash
 bash teardown.sh
@@ -380,6 +414,7 @@ Het script vraagt om bevestiging (`yes`) en verwijdert daarna:
 - HTTPS/HTTP target proxies
 - SSL certificaat
 - URL maps
+- Cloud Armor security policy
 - Backend service
 - Health check
 - Managed Instance Group
@@ -391,7 +426,7 @@ Het script vraagt om bevestiging (`yes`) en verwijdert daarna:
 
 ---
 
-## 11. Scripts overzicht
+## 12. Scripts overzicht
 
 | Script | Gebruik | Beschrijving |
 |--------|---------|--------------|

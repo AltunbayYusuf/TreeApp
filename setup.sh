@@ -57,6 +57,11 @@ HTTP_URL_MAP="echo20-http-redirect"
 TARGET_HTTP_PROXY="echo20-http-proxy"
 HTTP_FORWARDING_RULE="echo20-http-rule"
 
+# Cloud Armor
+SECURITY_POLICY="echo20-security-policy"
+# Max. aantal requests per IP per minuut voordat throttling in werking treedt
+RATE_LIMIT_THRESHOLD=60
+
 echo " Setup gestart voor project: $PROJECT_ID"
 echo " Deploying branch: $BRANCH"
 echo " Instance template: $INSTANCE_TEMPLATE"
@@ -237,11 +242,45 @@ else
 fi
 
 # ============================================================
-# 10. HTTPS Load Balancer (alleen als DOMAIN opgegeven)
+# 10. Cloud Armor security policy (rate limiting + DDoS bescherming)
+# ============================================================
+echo ""
+echo "  Stap 10: Cloud Armor security policy aanmaken..."
+if gcloud compute security-policies describe "$SECURITY_POLICY" --project="$PROJECT_ID" &>/dev/null; then
+  echo "    $SECURITY_POLICY bestaat al, overgeslagen"
+else
+  gcloud compute security-policies create "$SECURITY_POLICY" \
+    --project="$PROJECT_ID" \
+    --description="Rate limiting en DDoS bescherming voor TreeApp"
+
+  # Rate limiting: throttle bij meer dan $RATE_LIMIT_THRESHOLD requests/minuut per IP
+  gcloud compute security-policies rules create 1000 \
+    --security-policy="$SECURITY_POLICY" \
+    --project="$PROJECT_ID" \
+    --action=throttle \
+    --src-ip-ranges="*" \
+    --rate-limit-threshold-count="$RATE_LIMIT_THRESHOLD" \
+    --rate-limit-threshold-interval-sec=60 \
+    --conform-action=allow \
+    --exceed-action=deny-429 \
+    --enforce-on-key=IP
+
+  echo "   Security policy aangemaakt (throttle: $RATE_LIMIT_THRESHOLD req/min per IP)"
+fi
+
+echo "   Security policy koppelen aan backend service..."
+gcloud compute backend-services update "$BACKEND_SERVICE" \
+  --security-policy="$SECURITY_POLICY" \
+  --global \
+  --project="$PROJECT_ID"
+echo "   Cloud Armor actief op $BACKEND_SERVICE"
+
+# ============================================================
+# 11. HTTPS Load Balancer (alleen als DOMAIN opgegeven)
 # ============================================================
 echo ""
 if [ -n "$DOMAIN" ]; then
-  echo " Stap 10: HTTPS load balancer aanmaken voor $DOMAIN..."
+  echo " Stap 11: HTTPS load balancer aanmaken voor $DOMAIN..."
 
   # URL map voor HTTPS verkeer
   if gcloud compute url-maps describe "$URL_MAP" --project="$PROJECT_ID" &>/dev/null; then
@@ -321,7 +360,7 @@ YAMLEOF
   echo "    DNS instelling vereist: $DOMAIN → $STATIC_IP_ADDRESS"
   echo "    SSL provisioning kan 15-60 min duren na DNS koppeling"
 else
-  echo "  Stap 10: Geen DOMAIN opgegeven — HTTPS load balancer overgeslagen"
+  echo "  Stap 11: Geen DOMAIN opgegeven — HTTPS load balancer overgeslagen"
   echo "    Gebruik: bash setup.sh $BRANCH <jouw-domein.com>"
   echo "    Direct toegankelijk via VM IP op poort 8080"
 fi
