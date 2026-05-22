@@ -80,7 +80,7 @@ public class SubAdminProjectsController : Controller
         }
     }
 
-    private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
+    private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
 

@@ -5,6 +5,6 @@ namespace IntegratieProject.DAL.Identity;
 
 public class ApplicationUser : IdentityUser
 {
-    [MaxLength]
+    [MaxLength(200)]
     public string SubPlatformSlug { get; set; }
 }

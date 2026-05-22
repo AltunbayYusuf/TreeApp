@@ -18,7 +18,8 @@
         <div>
             <span class="badge rounded-pill text-bg-light mb-3">Platformbeheer</span>
             <h1 class="display-6 fw-bold mb-2">Admin Dashboard</h1>
-            <p class="text-white-50 mb-0">Beheer deelplatformen, subadmins en projecten vanuit een overzichtelijke omgeving.</p>
+            <p class="text-white-50 mb-0">Beheer deelplatformen, subadmins en projecten vanuit een overzichtelijke
+                omgeving.</p>
         </div>
         <button id="newSubplatform" class="btn btn-light btn-lg fw-semibold shadow-sm" type="button">
             + Nieuw deelplatform
@@ -149,10 +150,12 @@
                             <div class="invalid-feedback">Vul een geldig e-mailadres in.</div>
                         </div>
 
-                        <div class="form-text">Een wachtwoord wordt automatisch gegenereerd en zo dadelijk getoond.</div>
+                        <div class="form-text">Een wachtwoord wordt automatisch gegenereerd en zo dadelijk getoond.
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuleren</button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuleren
+                        </button>
                         <button id="submitCreateSubplatform" type="submit" class="btn btn-primary">Aanmaken</button>
                     </div>
                 </form>
@@ -160,14 +163,16 @@
         </div>
     </div>
 
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true"
+         data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-success">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="successModalLabel">Subplatform succesvol aangemaakt</h5>
                 </div>
                 <div class="modal-body text-center">
-                    <p class="mb-3">Het subplatform is aangemaakt. Het wachtwoord voor het beheersaccount <br/> <strong id="successEmail"></strong> is:</p>
+                    <p class="mb-3">Het subplatform is aangemaakt. Het wachtwoord voor het beheersaccount <br/> <strong
+                            id="successEmail"></strong> is:</p>
 
                     <div class="alert alert-secondary fs-4 fw-bold user-select-all" id="successPassword"></div>
 

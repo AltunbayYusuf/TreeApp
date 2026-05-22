@@ -12,18 +12,15 @@ namespace IntegratieProject.UI.MVC.Controllers.subAdmin;
 public class SubAdminController : Controller
 {
     private readonly ISubplatformManager _subplatformManager;
-    private readonly IReactionManager _reactionManager;
-    private readonly IIdeaManager _ideaManager;
     private readonly IProjectManager _projectManager;
 
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public SubAdminController(ISubplatformManager subplatformManager, UserManager<ApplicationUser> userManager,IReactionManager reactionManager,IIdeaManager ideaManager,IProjectManager projectManager)
+    public SubAdminController(ISubplatformManager subplatformManager, UserManager<ApplicationUser> userManager,
+        IProjectManager projectManager)
     {
         _subplatformManager = subplatformManager;
         _userManager = userManager;
-        _reactionManager = reactionManager;
-        _ideaManager = ideaManager;
         _projectManager = projectManager;
     }
 
@@ -32,7 +29,9 @@ public class SubAdminController : Controller
         get
         {
             var fromRoute = RouteData.Values["subplatform"]?.ToString();
-            return !string.IsNullOrWhiteSpace(fromRoute) ? fromRoute : (HttpContext.Items["subplatform"]?.ToString() ?? "");
+            return !string.IsNullOrWhiteSpace(fromRoute)
+                ? fromRoute
+                : (HttpContext.Items["subplatform"]?.ToString() ?? "");
         }
     }
 
@@ -65,10 +64,7 @@ public class SubAdminController : Controller
         }
 
         var projects = _projectManager.GetProjectsBySubPlatform(subPlatformEntity.Id);
-        var ideasInReview = _ideaManager.GetIdeasInReviewBySubPlatform(subPlatformEntity.Id);
-        var reactionsInReview = _reactionManager.GetReactionsInReviewBySubPlatform(subPlatformEntity.Id);
 
-        
         var projectSummaries = projects.Select(p => new ProjectSummaryViewModel
         {
             Id = p.Id,
@@ -96,11 +92,10 @@ public class SubAdminController : Controller
 
         return View(vm);
     }
-    
+
     [HttpPost]
     public IActionResult UpdateStatus(int projectId, string status)
     {
-        var subplatform = Subplatform;
         var project = _projectManager.GetProject(projectId);
 
         if (project == null)

@@ -1,5 +1,4 @@
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.UI.MVC.Models;
 using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

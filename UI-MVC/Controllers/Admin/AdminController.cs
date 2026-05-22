@@ -1,8 +1,6 @@
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.BL.Domain.users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace IntegratieProject.UI.MVC.Controllers.Admin;
 

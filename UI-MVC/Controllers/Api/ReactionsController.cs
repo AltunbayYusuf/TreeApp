@@ -1,7 +1,6 @@
 ﻿using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models.Dto;
-using IntegratieProject.DAL.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -19,6 +19,10 @@ public class UserRepository : IUserRepository
 
     public User ReadUser(string cookieId)
     {
+        if (string.IsNullOrEmpty(cookieId))
+        {
+            throw new ArgumentException("Geen user gevonen", nameof(cookieId));
+        }
         return _context.Users
             .Include(u => u.SurveyResponses)
             .ThenInclude(sr => sr.Answers)

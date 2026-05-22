@@ -10,20 +10,20 @@ namespace IntegratieProject.UI.MVC.Controllers.Admin;
 public class AdminStatsController : Controller
 {
     private readonly ILogger<AdminStatsController> _logger;
-    private readonly IManager _manager;
+    private readonly ISubplatformManager _subplatformManager;
 
     public AdminStatsController(
         ILogger<AdminStatsController> logger,
-        IManager manager)
+        ISubplatformManager subplatformManager)
     {
         _logger = logger;
-        _manager = manager;
+        _subplatformManager = subplatformManager;
     }
 
     [HttpGet]
     public IActionResult Index()
     {
-        var subPlatforms = _manager.GetAllSubPlatformsWithAdmins();
+        var subPlatforms = _subplatformManager.GetAllSubPlatformsWithAdmins();
 
         var platforms = subPlatforms.Select(sp => new SubPlatformAdminOverviewViewModel
         {

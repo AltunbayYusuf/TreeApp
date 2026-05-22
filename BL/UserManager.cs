@@ -19,6 +19,11 @@ public class UserManager : IUserManager
 
     public User GetUser(string cookieId)
     {
+        if (string.IsNullOrWhiteSpace(cookieId))
+        {
+            throw new ArgumentException("Geen user gevonden", nameof(cookieId));
+        }
+
         return _userRepository.ReadUser(cookieId);
     }
 
@@ -33,21 +38,44 @@ public class UserManager : IUserManager
         _manager.ValidateEntity(user);
         _userRepository.UpdateUser(user);
     }
+
     public IEnumerable<SubAdmin> GetAllSubAdmins()
     {
         return _userRepository.ReadAllSubAdminsWithPlatformsAndProjects();
     }
+
     public GeneralAdmin GetGeneralAdmin()
     {
         return _userRepository.GetGeneralAdmin();
     }
+
     public async Task<IdentityResult> CreateUserAsync(ApplicationUser user, string password)
     {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
+        }
+
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            throw new ArgumentException("Password mag niet leeg zijn.", nameof(password));
+        }
+
         return await _userRepository.CreateUserAsync(user, password);
     }
 
     public async Task<IdentityResult> AddUserToRoleAsync(ApplicationUser user, string role)
     {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user));
+        }
+
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            throw new ArgumentException("Role mag niet leeg zijn.", nameof(role));
+        }
+
         return await _userRepository.AddUserToRoleAsync(user, role);
     }
 }

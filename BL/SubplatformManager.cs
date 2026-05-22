@@ -27,22 +27,49 @@ public class SubplatformManager : ISubplatformManager
 
     public SubPlatform GetSubPlatformBySlug(string slug)
     {
+        if (string.IsNullOrWhiteSpace(slug))
+            throw new ArgumentException("Slug mag niet leeg zijn.", nameof(slug));
+
         return _subplatformRepository.ReadSubPlatformBySlug(slug);
     }
 
     public SubPlatform GetSubPlatform(int subPlatformId)
     {
+        if (subPlatformId <= 0)
+            throw new ArgumentException("SubPlatformId moet groter zijn dan 0.", nameof(subPlatformId));
+
         return _subplatformRepository.ReadSubPlatform(subPlatformId);
     }
 
     public void CreateSubPlatform(SubPlatform subPlatform)
     {
+        if (subPlatform == null)
+            throw new ArgumentNullException(nameof(subPlatform));
+            
+        if (string.IsNullOrWhiteSpace(subPlatform.Slug))
+            throw new ArgumentException("Het subplatform moet een geldige slug hebben.");
+
         _subplatformRepository.CreateSubPlatform(subPlatform);
     }
 
     public async Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail,
         IFormFile logoFile = null)
     {
+        if (string.IsNullOrWhiteSpace(companyName))
+            throw new ArgumentException("Bedrijfsnaam is verplicht.", nameof(companyName));
+            
+        if (string.IsNullOrWhiteSpace(slug))
+            throw new ArgumentException("Slug is verplicht.", nameof(slug));
+            
+        if (string.IsNullOrWhiteSpace(adminEmail))
+            throw new ArgumentException("Admin e-mail is verplicht.", nameof(adminEmail));
+
+        var existingPlatform = _subplatformRepository.ReadSubPlatformBySlug(slug);
+        if (existingPlatform != null)
+        {
+            throw new InvalidOperationException($"Een subplatform met de slug '{slug}' bestaat al.");
+        }
+
         var generatedPassword = GenerateRandomPassword();
 
         var user = new ApplicationUser
@@ -57,7 +84,7 @@ public class SubplatformManager : ISubplatformManager
         if (result.Succeeded)
         {
             var roleResult = await _userManager.AddUserToRoleAsync(user, "SubAdmin");
-            if (!roleResult.Succeeded) throw new Exception("...");
+            if (!roleResult.Succeeded) throw new Exception("Kon de SubAdmin rol niet toewijzen.");
 
             var rootPlatform = _subplatformRepository.ReadPlatform();
 
@@ -70,6 +97,14 @@ public class SubplatformManager : ISubplatformManager
 
             if (logoFile != null && logoFile.Length > 0)
             {
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                var extension = Path.GetExtension(logoFile.FileName).ToLowerInvariant();
+                
+                if (!allowedExtensions.Contains(extension))
+                {
+                    throw new ArgumentException("Enkel afbeeldingsbestanden (.jpg, .png, etc.) zijn toegestaan als logo.");
+                }
+
                 string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "logos");
 
                 Directory.CreateDirectory(uploadsFolder);
@@ -121,13 +156,24 @@ public class SubplatformManager : ISubplatformManager
 
     public void UpdateSubPlatformLogo(string slug, string logoUri)
     {
+        if (string.IsNullOrWhiteSpace(slug))
+            throw new ArgumentException("Slug is verplicht.", nameof(slug));
+
+        if (string.IsNullOrWhiteSpace(logoUri))
+            throw new ArgumentException("Logo URI is verplicht.", nameof(logoUri));
+
         var subPlatform = _subplatformRepository.ReadSubPlatformBySlug(slug);
 
-        if (subPlatform != null)
+        if (subPlatform == null)
         {
-            subPlatform.Logo = new Media { Uri = logoUri };
-
-            _subplatformRepository.UpdateSubPlatform(subPlatform);
+            throw new KeyNotFoundException($"Subplatform met slug '{slug}' is niet gevonden.");
         }
+
+        subPlatform.Logo = new Media { Uri = logoUri };
+        _subplatformRepository.UpdateSubPlatform(subPlatform);
+    }
+    public IEnumerable<SubPlatform> GetAllSubPlatformsWithAdmins()
+    {
+        return _subplatformRepository.ReadAllSubPlatformsWithAdmins();
     }
 }

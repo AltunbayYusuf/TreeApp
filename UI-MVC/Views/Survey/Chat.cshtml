@@ -28,7 +28,7 @@
 </script>
 
 <div class="chatbot-page d-flex flex-column bg-white overflow-hidden"
-     style="font-family: @ProjectFontFamily.ToCssStack(Model?.Project?.FontFamily); @ProjectColorTheme.ToCssVariables(Model.Project?.ColorTheme)">
+     style="font-family: @ProjectFontFamily.ToCssStack(Model?.Project?.FontFamily); @ProjectColorTheme.ToCssVariables(Model?.Project?.ColorTheme)">
     <div class="chatbot-header d-flex align-items-center gap-3 py-3 px-4 text-white">
         @if (!string.IsNullOrWhiteSpace(logoUri))
         {
