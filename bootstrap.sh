@@ -18,10 +18,15 @@ DOMAIN="${1:-}"
 PROJECT_ID="${2:-integratieproject-mvp}"
 SA_NAME="echo20-vm-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
-CERT_MAP="treeapp-cert-map"
-CERT_NAME="echo20-wildcard-cert"
-DNS_AUTH_NAME="echo20-dns-auth"
-WILDCARD_DOMAIN="*.echo20.com"
+
+# Base domein afleiden uit het opgegeven domein (bv. "app.youthvoice.com" → "youthvoice.com")
+BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+BASE_DOMAIN_SLUG=$(echo "$BASE_DOMAIN" | tr '.' '-')
+
+CERT_MAP="${BASE_DOMAIN_SLUG}-cert-map"
+CERT_NAME="${BASE_DOMAIN_SLUG}-wildcard-cert"
+DNS_AUTH_NAME="${BASE_DOMAIN_SLUG}-dns-auth"
+WILDCARD_DOMAIN="*.${BASE_DOMAIN}"
 
 if [ -z "$DOMAIN" ]; then
   echo "Gebruik: bash bootstrap.sh <DOMAIN>"
@@ -111,6 +116,20 @@ for ROLE in "roles/cloudsql.client" "roles/secretmanager.secretAccessor"; do
     --condition=None \
     --quiet 2>/dev/null
 done
+
+# Default compute SA heeft ook toegang nodig (gebruikt door VM's via startup.sh)
+PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+DEFAULT_COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
+  --role="roles/secretmanager.secretAccessor" \
+  --condition=None \
+  --quiet 2>/dev/null
+gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+  --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
+  --role="roles/cloudsql.client" \
+  --condition=None \
+  --quiet 2>/dev/null
 echo "  IAM rollen toegewezen (cloudsql.client, secretmanager.secretAccessor)"
 
 # ============================================================
@@ -167,7 +186,7 @@ else
 
   if ! gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" --project="$PROJECT_ID" &>/dev/null; then
     gcloud certificate-manager dns-authorizations create "$DNS_AUTH_NAME" \
-      --domain="echo20.com" \
+      --domain="$BASE_DOMAIN" \
       --project="$PROJECT_ID"
   fi
 
@@ -176,7 +195,7 @@ else
   DNS_VALUE=$(gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" \
     --project="$PROJECT_ID" --format="value(dnsResourceRecord.data)")
 
-  DNS_SUBDOMAIN=$(echo "$DNS_CNAME" | sed 's/\.echo20\.com\.$//')
+  DNS_SUBDOMAIN=$(echo "$DNS_CNAME" | sed "s/\\.${BASE_DOMAIN//./\\.}\\.\$//")
 
   echo ""
   echo "  ================================================================"
@@ -186,7 +205,7 @@ else
   echo "  Subdomain : $DNS_SUBDOMAIN"
   echo "  Target    : $DNS_VALUE"
   echo "  ================================================================"
-  echo "  Tip: vul ALLEEN het subdomain in (zonder .echo20.com)"
+  echo "  Tip: vul ALLEEN het subdomain in (zonder .${BASE_DOMAIN})"
   echo "       bv. '$DNS_SUBDOMAIN' in het 'Subdomain' veld"
   echo "       en de volledige Target waarde in het 'Target' veld"
   echo ""
@@ -201,10 +220,10 @@ else
 
   gcloud certificate-manager maps create "$CERT_MAP" --project="$PROJECT_ID"
 
-  gcloud certificate-manager maps entries create "echo20-wildcard-entry" \
+  gcloud certificate-manager maps entries create "${BASE_DOMAIN_SLUG}-wildcard-entry" \
     --map="$CERT_MAP" \
     --certificates="$CERT_NAME" \
-    --hostname="*.echo20.com" \
+    --hostname="$WILDCARD_DOMAIN" \
     --project="$PROJECT_ID"
 
   echo "  Certificaat ingediend. Wordt ACTIVE na DNS validatie (10-30 min)."
