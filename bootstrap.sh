@@ -40,14 +40,14 @@ fi
 echo ""
 echo "=== Stap 1: Prerequisites controleren ==="
 
-if ! command -v gcloud &>/dev/null; then
+if ! command -v gcloud >/dev/null 2>&1; then
   echo "FOUT: gcloud CLI niet gevonden."
   echo "Installeer via: https://cloud.google.com/sdk/docs/install"
   exit 1
 fi
 echo "  gcloud: OK ($(gcloud --version | head -1))"
 
-if ! command -v curl &>/dev/null; then
+if ! command -v curl >/dev/null 2>&1; then
   echo "FOUT: curl niet gevonden. Installeer curl en probeer opnieuw."
   exit 1
 fi
@@ -100,7 +100,7 @@ done
 echo ""
 echo "=== Stap 4: Service account aanmaken ==="
 
-if gcloud iam service-accounts describe "$SA_EMAIL" --project="$PROJECT_ID" &>/dev/null; then
+if gcloud iam service-accounts describe "$SA_EMAIL" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "  $SA_EMAIL: bestaat al, overgeslagen"
 else
   gcloud iam service-accounts create "$SA_NAME" \
@@ -141,7 +141,7 @@ echo "=== Stap 5: Secrets aanmaken ==="
 secret_prompt() {
   local NAME="$1"
   local LABEL="$2"
-  if gcloud secrets describe "$NAME" --project="$PROJECT_ID" &>/dev/null; then
+  if gcloud secrets describe "$NAME" --project="$PROJECT_ID" >/dev/null 2>&1; then
     echo "  $NAME: bestaat al, overgeslagen"
   else
     echo ""
@@ -159,7 +159,7 @@ secret_prompt "gemini-api-key"         "Google Gemini API sleutel (https://aistu
 secret_prompt "gitlab-deploy-username" "GitLab deploy token gebruikersnaam (GitLab > Settings > Repository > Deploy tokens):"
 secret_prompt "gitlab-deploy-token"    "GitLab deploy token waarde:"
 
-if gcloud secrets describe "sa-key" --project="$PROJECT_ID" &>/dev/null; then
+if gcloud secrets describe "sa-key" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "  sa-key: bestaat al, overgeslagen"
 else
   echo "  Service account key aanmaken en opslaan als secret..."
@@ -179,15 +179,29 @@ fi
 echo ""
 echo "=== Stap 6: SSL certificaat controleren ==="
 
-if gcloud certificate-manager maps describe "$CERT_MAP" --project="$PROJECT_ID" &>/dev/null; then
+if gcloud certificate-manager maps describe "$CERT_MAP" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "  Cert map '$CERT_MAP': bestaat al, overgeslagen"
 else
   echo "  Wildcard SSL certificaat aanmaken voor $WILDCARD_DOMAIN..."
 
-  if ! gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" --project="$PROJECT_ID" &>/dev/null; then
-    gcloud certificate-manager dns-authorizations create "$DNS_AUTH_NAME" \
-      --domain="$BASE_DOMAIN" \
-      --project="$PROJECT_ID" 2>/dev/null || true
+  if gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" \
+      --project="$PROJECT_ID" >/dev/null 2>&1; then
+    echo "  DNS autorisatie $DNS_AUTH_NAME: bestaat al"
+  else
+    if ! gcloud certificate-manager dns-authorizations create "$DNS_AUTH_NAME" \
+        --domain="$BASE_DOMAIN" \
+        --project="$PROJECT_ID" >/dev/null 2>&1; then
+      # Aanmaken mislukt: domein heeft al een autorisatie onder een andere naam
+      EXISTING_AUTH=$(gcloud certificate-manager dns-authorizations list \
+        --project="$PROJECT_ID" --format="value(name)" 2>/dev/null | head -1)
+      if [ -n "$EXISTING_AUTH" ]; then
+        DNS_AUTH_NAME="$EXISTING_AUTH"
+        echo "  Bestaande DNS autorisatie hergebruikt: $DNS_AUTH_NAME"
+      else
+        echo "FOUT: Kon geen DNS autorisatie aanmaken of vinden voor $BASE_DOMAIN"
+        exit 1
+      fi
+    fi
   fi
 
   DNS_CNAME=$(gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" \
@@ -211,7 +225,7 @@ else
   echo ""
   read -rp "  Druk op Enter nadat je het CNAME record hebt opgeslagen..."
 
-  if ! gcloud certificate-manager certificates describe "$CERT_NAME" --project="$PROJECT_ID" &>/dev/null; then
+  if ! gcloud certificate-manager certificates describe "$CERT_NAME" --project="$PROJECT_ID" >/dev/null 2>&1; then
     gcloud certificate-manager certificates create "$CERT_NAME" \
       --domains="$WILDCARD_DOMAIN" \
       --dns-authorizations="$DNS_AUTH_NAME" \
