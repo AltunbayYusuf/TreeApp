@@ -1,22 +1,47 @@
-const storedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-bs-theme', storedTheme);
+const storageKey = 'theme';
+const lightTheme = 'light';
+const darkTheme = 'dark';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggleBtn = document.getElementById('themeToggleBtn') as HTMLButtonElement | null;
-    const themeIcon = document.getElementById('themeIcon') as HTMLElement | null;
+type Theme = typeof lightTheme | typeof darkTheme;
 
-    if (!themeToggleBtn || !themeIcon) return;
+function getStoredTheme(): Theme {
+    return localStorage.getItem(storageKey) === darkTheme ? darkTheme : lightTheme;
+}
 
-    themeIcon.textContent = storedTheme === 'dark' ? '☀️' : '🌙';
+function applyTheme(theme: Theme): void {
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    localStorage.setItem(storageKey, theme);
+}
+
+function updateThemeIcon(themeIcon: HTMLElement, theme: Theme): void {
+    themeIcon.textContent = theme === darkTheme ? '☀️' : '🌙';
+}
+
+function getNextTheme(): Theme {
+    return document.documentElement.getAttribute('data-bs-theme') === darkTheme
+        ? lightTheme
+        : darkTheme;
+}
+
+export function initDarkMode(): void {
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+
+    const storedTheme = getStoredTheme();
+    applyTheme(storedTheme);
+
+    if (!(themeToggleBtn instanceof HTMLButtonElement) || !(themeIcon instanceof HTMLElement)) {
+        return;
+    }
+
+    updateThemeIcon(themeIcon, storedTheme);
 
     themeToggleBtn.addEventListener('click', () => {
-        const htmlElement = document.documentElement;
-        const newTheme = htmlElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        const newTheme = getNextTheme();
 
-        htmlElement.setAttribute('data-bs-theme', newTheme);
-
-        localStorage.setItem('theme', newTheme);
-
-        themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+        applyTheme(newTheme);
+        updateThemeIcon(themeIcon, newTheme);
     });
-});
+}
+
+initDarkMode();

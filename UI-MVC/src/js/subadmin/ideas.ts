@@ -93,7 +93,7 @@ export class SubAdminIdeas {
         this.bindDeleteModal();
         this.bindDeleteReactionModal();
 
-        this.fetchAndRender(null);
+        void this.fetchAndRender(null);
     }
 
     private handleEmailSortClick(): void {
@@ -142,7 +142,7 @@ export class SubAdminIdeas {
         this.updateSimilarityButtons();
         this.toggleSimilarityGroup(projectId !== null);
 
-        this.fetchAndRender(projectId);
+        void this.fetchAndRender(projectId);
     }
 
     private async handleSimilarityClick(e: MouseEvent): Promise<void> {
@@ -187,7 +187,10 @@ export class SubAdminIdeas {
             if (projectId !== null) url += `&projectId=${projectId}`;
 
             const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            if (!response.ok) {
+                this.showError("Kon ideeën niet ophalen. Probeer opnieuw.");
+                return;
+            }
 
             this.allIdeas = await response.json() as IdeaDto[];
             this.renderRows();
@@ -215,8 +218,10 @@ export class SubAdminIdeas {
                 })
             });
 
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
+            if (!response.ok) {
+                this.showError("AI-selectie kon niet opgehaald worden. Probeer opnieuw.");
+                return;
+            }
             const data = await response.json();
 
             if (!data.ok) {
@@ -650,7 +655,7 @@ export class SubAdminIdeas {
 
             <div class="card shadow-sm bg-transparent border border-secondary">
                 <div class="card-body">
-                    <h6 class="fw-bold mb-3 text-body-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 0.5px;">Inhoud</h6>
+                    <h6 class="fw-bold mb-3 text-body-secondary text-uppercase" style="font-size: 0.85rem; letter-spacing: 1px;">Inhoud</h6>
                     <p class="mb-0 text-body-emphasis" style="white-space:pre-wrap; font-size: 1.05rem;">${DomUtils.escapeHtml(idea.text)}</p>
                 </div>
             </div>

@@ -1,16 +1,20 @@
-﻿namespace IntegratieProject.BL.Domain.Ai;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace IntegratieProject.BL.Domain.Ai;
 
 public class AiOpenQuestionSummary
 {
     public int Id { get; set; }
 
-    public int ProjectId { get; set; }
-    public int QuestionId { get; set; }
+    [Required] public int ProjectId { get; set; }
 
-    public string Summary { get; set; } = string.Empty;
+    [Required] public int QuestionId { get; set; }
 
-    public int AnswerCountAtGeneration { get; set; }
-    public int LastAnswerIdAtGeneration { get; set; }
+    [Required] public string Summary { get; set; } = "";
+
+    [Range(0, int.MaxValue)] public int AnswerCountAtGeneration { get; set; }
+
+    [Range(0, int.MaxValue)] public int LastAnswerIdAtGeneration { get; set; }
 
     public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
 }

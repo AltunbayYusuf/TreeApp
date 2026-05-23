@@ -74,11 +74,8 @@ public class AiUsageService
         });
     }
 
-    private int EstimateTokens(string text)
+    private static int EstimateTokens(string text)
     {
-        if (string.IsNullOrWhiteSpace(text))
-            return 0;
-
-        return (int)Math.Ceiling(text.Length / 4.0);
+        return text.Length / 4;
     }
 }
