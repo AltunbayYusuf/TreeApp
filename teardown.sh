@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-PROJECT_ID="integratieproject-mvp"
+PROJECT_ID="${1:-integratieproject-mvp}"
 REGION="europe-west1"
 ZONE="europe-west1-b"
 
