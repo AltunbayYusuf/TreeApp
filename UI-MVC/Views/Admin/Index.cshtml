@@ -1,14 +1,8 @@
-@model IntegratieProject.BL.Domain.users.GeneralAdmin
+@model IntegratieProject.UI.MVC.Models.Admin.AdminDashboardViewModel
 
 @{
     ViewData["Title"] = "Admin Dashboard";
     Layout = "_AdminLayout";
-
-    var subPlatforms = Model.Platform.SubPlatforms.ToList();
-    var subPlatformCount = subPlatforms.Count;
-    var projectCount = subPlatforms.Sum(sp => sp.Projects?.Count() ?? 0);
-    var participantCount = subPlatforms.Sum(sp => sp.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0);
-    var subAdminCount = Model.SubAdmins.Count();
 }
 
 @Html.AntiForgeryToken()
@@ -31,7 +25,7 @@
             <div class="card admin-summary-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small fw-semibold text-uppercase mb-2">Deelplatformen</div>
-                    <div class="h2 fw-bold mb-0">@subPlatformCount</div>
+                    <div class="h2 fw-bold mb-0">@Model.SubPlatformCount</div>
                 </div>
             </div>
         </div>
@@ -39,7 +33,7 @@
             <div class="card admin-summary-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small fw-semibold text-uppercase mb-2">Subadmins</div>
-                    <div class="h2 fw-bold mb-0">@subAdminCount</div>
+                    <div class="h2 fw-bold mb-0">@Model.SubAdminCount</div>
                 </div>
             </div>
         </div>
@@ -47,7 +41,7 @@
             <div class="card admin-summary-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small fw-semibold text-uppercase mb-2">Projecten</div>
-                    <div class="h2 fw-bold mb-0">@projectCount</div>
+                    <div class="h2 fw-bold mb-0">@Model.ProjectCount</div>
                 </div>
             </div>
         </div>
@@ -55,7 +49,7 @@
             <div class="card admin-summary-card h-100 border-0 shadow-sm">
                 <div class="card-body">
                     <div class="text-muted small fw-semibold text-uppercase mb-2">Deelnemers</div>
-                    <div class="h2 fw-bold mb-0">@participantCount</div>
+                    <div class="h2 fw-bold mb-0">@Model.ParticipantCount</div>
                 </div>
             </div>
         </div>
@@ -66,25 +60,18 @@
             <h2 class="h4 fw-bold mb-1">Deelplatformen</h2>
             <p class="text-muted mb-0">Bekijk snel de activiteit per klant.</p>
         </div>
-        <span class="badge text-bg-primary rounded-pill px-3 py-2">@subPlatformCount totaal</span>
+        <span class="badge text-bg-primary rounded-pill px-3 py-2">@Model.SubPlatformCount totaal</span>
     </div>
 
     <div class="row g-3">
-        @foreach (var subPlatform in subPlatforms)
+        @foreach (var subPlatform in Model.SubPlatforms)
         {
-            var subAdminsForPlatform = Model.SubAdmins.Count(sa => sa.SubPlatform.Id == subPlatform.Id);
-            var projectsForPlatform = subPlatform.Projects?.Count() ?? 0;
-            var participantsForPlatform = subPlatform.Projects?.Sum(p => p.SurveyResponses?.Count ?? 0) ?? 0;
-            var platformInitial = string.IsNullOrWhiteSpace(subPlatform.CompanyName)
-                ? "?"
-                : subPlatform.CompanyName.Substring(0, 1).ToUpper();
-
             <div class="col-12 col-lg-6 col-xxl-4">
                 <div class="card admin-platform-card h-100 border-0 shadow-sm">
                     <div class="card-body p-4">
                         <div class="d-flex align-items-start justify-content-between gap-3 mb-4">
                             <div>
-                                <div class="admin-platform-icon mb-3">@platformInitial</div>
+                                <div class="admin-platform-icon mb-3">@subPlatform.Initial</div>
                                 <h3 class="h5 fw-bold mb-1">@subPlatform.CompanyName</h3>
                                 <p class="text-muted mb-0 small">Deelplatform overzicht</p>
                             </div>
@@ -94,19 +81,19 @@
                         <div class="row g-2 mb-4">
                             <div class="col-4">
                                 <div class="admin-mini-stat">
-                                    <span>@subAdminsForPlatform</span>
+                                    <span>@subPlatform.SubAdminCount</span>
                                     <small>Subadmins</small>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="admin-mini-stat">
-                                    <span>@projectsForPlatform</span>
+                                    <span>@subPlatform.ProjectCount</span>
                                     <small>Projecten</small>
                                 </div>
                             </div>
                             <div class="col-4">
                                 <div class="admin-mini-stat">
-                                    <span>@participantsForPlatform</span>
+                                    <span>@subPlatform.ParticipantCount</span>
                                     <small>Deelnemers</small>
                                 </div>
                             </div>
