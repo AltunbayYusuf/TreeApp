@@ -1,65 +1,123 @@
 import { DomUtils } from "../helpers/utils";
 import type { ConditionalData, QuestionData, SectionData } from "../helpers/types";
 
+type SaveSurveyResponse = {
+    ok: boolean;
+    message?: string;
+    redirectUrl?: string;
+};
+
+type GenerateSurveyResponse = {
+    ok: boolean;
+    message?: string;
+    survey?: {
+        sections: SectionData[];
+    };
+};
+
+type QuestionType = "single" | "multiple" | "range" | "open" | "";
+
 export class SurveyBuilder {
-    private questionCount: number = 0;
-    private readonly maxQuestions: number = 20;
-    private sectionCount: number = 0;
-    private isLoading: boolean = false;
+    private questionCount = 0;
+    private readonly maxQuestions = 20;
+    private sectionCount = 0;
+    private isLoading = false;
     private saveTimeout?: number;
 
     init(): void {
+        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
+        const sectionsContainer = document.getElementById("sections");
+
+        if (!form || !sectionsContainer) {
+            return;
+        }
+
+        this.bindEvents(form);
+        this.loadInitialData();
         this.updateCounter();
-        this.bindWindowMethods();
+    }
 
-        const generateButton =
-            document.getElementById("generateQuestionsBtn")
-            ?? document.getElementById("generateSurveyWithAiBtn");
+    private bindEvents(form: HTMLFormElement): void {
+        document.getElementById("addSectionBtn")?.addEventListener("click", () => {
+            this.addSection();
+        });
 
-        generateButton?.addEventListener("click", async () => {
+        document.getElementById("generateSurveyWithAiBtn")?.addEventListener("click", async () => {
             await this.generateSurveyWithAi();
         });
 
-        const form = document.getElementById("surveyForm") as HTMLFormElement | null;
-        form?.addEventListener("submit", async (event) => {
+        form.addEventListener("submit", async (event) => {
             event.preventDefault();
+
             const submitter = (event as SubmitEvent).submitter as HTMLElement | null;
-            await this.handleSave(form,submitter);
+            await this.handleSave(form, submitter);
         });
 
-        document.addEventListener("input", this.handleInputDebounce.bind(this));
+        form.addEventListener("input", () => {
+            this.handleInputDebounce();
+        });
+    }
 
-        const initialDataElement = document.getElementById("initialSurveyData");
-        if (initialDataElement?.textContent?.trim()) {
-            const serverData = JSON.parse(initialDataElement.textContent) as SectionData[];
-            if (serverData.some(s => s.questions?.length > 0)) {
-                sessionStorage.setItem("surveyDraft", JSON.stringify(serverData));
-                this.loadFromLocalStorage(serverData);
-                return;
-            }
+    private loadInitialData(): void {
+        const initialData = this.readInitialServerData();
+
+        if (this.hasQuestions(initialData)) {
+            sessionStorage.setItem("surveyDraft", JSON.stringify(initialData));
+            this.loadFromLocalStorage(initialData);
+            return;
         }
 
-        const data = sessionStorage.getItem("surveyDraft");
-        if (!data) {
+        const storedData = sessionStorage.getItem("surveyDraft");
+
+        if (!storedData) {
             this.createInitialSurvey();
             return;
         }
 
-        const parsed = JSON.parse(data) as SectionData[];
-        if (parsed.some(s => s.questions?.length > 0)) {
-            this.loadFromLocalStorage(parsed);
-        } else {
-            sessionStorage.removeItem("surveyDraft");
-            this.createInitialSurvey();
+        const parsedData = this.parseSections(storedData);
+
+        if (this.hasQuestions(parsedData)) {
+            this.loadFromLocalStorage(parsedData);
+            return;
         }
+
+        sessionStorage.removeItem("surveyDraft");
+        this.createInitialSurvey();
+    }
+
+    private readInitialServerData(): SectionData[] {
+        const element = document.getElementById("initialSurveyData");
+        const text = element?.textContent?.trim();
+
+        if (!text) {
+            return [];
+        }
+
+        return this.parseSections(text);
+    }
+
+    private parseSections(value: string): SectionData[] {
+        try {
+            const parsed = JSON.parse(value) as SectionData[];
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+
+    private hasQuestions(sections: SectionData[]): boolean {
+        return sections.some(section => section.questions?.length > 0);
     }
 
     private async handleSave(form: HTMLFormElement, submitter: HTMLElement | null): Promise<void> {
         const url = form.dataset.saveUrl;
         const errorBox = document.getElementById("surveyError") as HTMLDivElement | null;
-        if (!url) return;
 
-        if (errorBox) { errorBox.textContent = ""; errorBox.classList.add("d-none"); }
+        if (!url) {
+            return;
+        }
+
+        this.hideError(errorBox);
 
         const response = await fetch(url, {
             method: "POST",
@@ -70,15 +128,10 @@ export class SurveyBuilder {
             body: JSON.stringify({ sections: this.getSurveyData() })
         });
 
-        const result = await response.json();
+        const result = await response.json() as SaveSurveyResponse;
 
         if (!response.ok || !result.ok) {
-            if (errorBox) {
-                errorBox.textContent = result.message ?? "Er is iets fout gegaan.";
-                errorBox.classList.remove("d-none");
-            } else {
-                alert(result.message ?? "Er is iets fout gegaan.");
-            }
+            this.showError(errorBox, result.message ?? "Er is iets fout gegaan.");
             return;
         }
 
@@ -87,16 +140,18 @@ export class SurveyBuilder {
             return;
         }
 
-        const redirectUrl = submitter?.dataset.redirectUrl || result.redirectUrl;
-        if (!redirectUrl) return;
+        const redirectUrl = submitter?.dataset.redirectUrl ?? result.redirectUrl;
 
-        window.location.href = redirectUrl;
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        }
     }
+
     private async finalizeProject(form: HTMLFormElement): Promise<void> {
         const finalizeUrl = form.dataset.finalizeUrl;
 
         if (!finalizeUrl) {
-            alert("Finalize-url ontbreekt.");
+            window.alert("Finalize-url ontbreekt.");
             return;
         }
 
@@ -108,77 +163,94 @@ export class SurveyBuilder {
         });
 
         if (!response.ok) {
-            alert("Project kon niet opgeslagen worden. Controleer of alle tabs ingevuld zijn.");
+            window.alert("Project kon niet opgeslagen worden. Controleer of alle tabs ingevuld zijn.");
             return;
         }
 
         window.location.href = response.url;
     }
 
-    private bindWindowMethods(): void {
-        // Zorg dat de inline HTML onclick/onchange attributes blijven werken
-        (window as any).addSection = this.addSection.bind(this);
-        (window as any).addQuestion = this.addQuestion.bind(this);
-        (window as any).removeQuestion = this.removeQuestion.bind(this);
-        (window as any).removeSection = this.removeSection.bind(this);
-        (window as any).changeType = this.changeType.bind(this);
-        (window as any).addConditional = this.addConditional.bind(this);
-        (window as any).removeConditional = this.removeConditional.bind(this);
-        (window as any).toggleAI = this.toggleAI.bind(this);
-    }
-
     private handleInputDebounce(): void {
-        if (this.saveTimeout !== undefined) clearTimeout(this.saveTimeout);
-        this.saveTimeout = window.setTimeout(() => this.saveToLocalStorage(), 300);
+        if (this.saveTimeout !== undefined) {
+            window.clearTimeout(this.saveTimeout);
+        }
+
+        this.saveTimeout = window.setTimeout(() => {
+            this.saveToLocalStorage();
+        }, 300);
     }
 
     private updateCounter(): void {
         const counter = document.getElementById("questionCounter");
-        if (counter) counter.innerText = `${this.questionCount} / ${this.maxQuestions} vragen`;
+
+        if (counter) {
+            counter.textContent = `${this.questionCount} / ${this.maxQuestions} vragen`;
+        }
     }
 
-    addSection(): void {
+    private addSection(): void {
         const container = document.getElementById("sections");
-        if (!container) return;
+
+        if (!container) {
+            return;
+        }
 
         this.sectionCount++;
 
         const section = document.createElement("div");
         section.className = "section card mb-3";
-        section.innerHTML = `
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-                    <input type="text"
-                           class="section-title form-control form-control-sm"
-                           placeholder="Sectie ${this.sectionCount} titel..." />
-                    <button type="button"
-                            onclick="removeSection(this)"
-                            class="btn btn-outline-danger btn-sm flex-shrink-0">
-                        🗑
-                    </button>
-                </div>
-                <div class="questions d-flex flex-column gap-3"></div>
-                <button type="button"
-                        onclick="addQuestion(this)"
-                        class="add-question-btn btn btn-outline-primary btn-sm mt-3">
-                    + Vraag toevoegen
-                </button>
-            </div>
-        `;
 
+        const cardBody = document.createElement("div");
+        cardBody.className = "card-body";
+
+        const header = document.createElement("div");
+        header.className = "d-flex justify-content-between align-items-center gap-3 mb-3";
+
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.className = "section-title form-control form-control-sm";
+        titleInput.placeholder = `Sectie ${this.sectionCount} titel...`;
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "btn btn-outline-danger btn-sm flex-shrink-0";
+        removeButton.textContent = "🗑";
+        removeButton.addEventListener("click", () => {
+            this.removeSection(removeButton);
+        });
+
+        const questionsContainer = document.createElement("div");
+        questionsContainer.className = "questions d-flex flex-column gap-3";
+
+        const addQuestionButton = document.createElement("button");
+        addQuestionButton.type = "button";
+        addQuestionButton.className = "add-question-btn btn btn-outline-primary btn-sm mt-3";
+        addQuestionButton.textContent = "+ Vraag toevoegen";
+        addQuestionButton.addEventListener("click", () => {
+            this.addQuestion(addQuestionButton);
+        });
+
+        header.append(titleInput, removeButton);
+        cardBody.append(header, questionsContainer, addQuestionButton);
+        section.appendChild(cardBody);
         container.appendChild(section);
+
         this.saveToLocalStorage();
     }
 
-    removeSection(btn: HTMLElement): void {
+    private removeSection(button: HTMLElement): void {
         const sections = document.querySelectorAll(".section");
+
         if (sections.length <= 1) {
-            alert("Er moet minstens 1 sectie zijn");
+            window.alert("Er moet minstens 1 sectie zijn");
             return;
         }
 
-        const section = btn.closest(".section");
-        if (!section) return;
+        const section = button.closest(".section");
+
+        if (!section) {
+            return;
+        }
 
         this.questionCount -= section.querySelectorAll(".question").length;
         section.remove();
@@ -187,62 +259,105 @@ export class SurveyBuilder {
         this.saveToLocalStorage();
     }
 
-    addQuestion(btn: HTMLElement): void {
+    private addQuestion(button: HTMLElement): void {
         if (this.questionCount >= this.maxQuestions) {
-            alert(`Max ${this.maxQuestions} vragen toegestaan`);
+            window.alert(`Max ${this.maxQuestions} vragen toegestaan`);
             return;
         }
 
-        const section = btn.closest(".section");
+        const section = button.closest(".section");
         const container = section?.querySelector(".questions");
-        if (!container) return;
+
+        if (!container) {
+            return;
+        }
 
         this.questionCount++;
         this.updateCounter();
 
         const question = document.createElement("div");
         question.className = "question border rounded p-3";
-        question.innerHTML = `
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="text-muted small">Vraag</span>
-                <button type="button"
-                        onclick="removeQuestion(this)"
-                        class="btn btn-outline-danger btn-sm">
-                    🗑
-                </button>
-            </div>
-            <input type="text"
-                   class="question-title form-control form-control-sm mb-3"
-                   placeholder="Vraag titel..." />
-            <select onchange="changeType(this)"
-                    class="form-select form-select-sm mb-3">
-                <option value="" disabled selected>Kies type vraag...</option>
-                <option value="single">Enkelkeuze</option>
-                <option value="multiple">Meerkeuze</option>
-                <option value="range">Range</option>
-                <option value="open">Open vraag</option>
-            </select>
-            <div class="answers d-flex flex-column gap-2"></div>
-            <button type="button"
-                    onclick="addConditional(this)"
-                    class="add-conditional-btn btn btn-link btn-sm mt-2 p-0 text-decoration-none">
-                + Conditionele vraag
-            </button>
-            <div class="conditional-container"></div>
-        `;
 
+        const header = document.createElement("div");
+        header.className = "d-flex justify-content-between align-items-center mb-2";
+
+        const label = document.createElement("span");
+        label.className = "text-muted small";
+        label.textContent = "Vraag";
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "btn btn-outline-danger btn-sm";
+        removeButton.textContent = "🗑";
+        removeButton.addEventListener("click", () => {
+            this.removeQuestion(removeButton);
+        });
+
+        const titleInput = document.createElement("input");
+        titleInput.type = "text";
+        titleInput.className = "question-title form-control form-control-sm mb-3";
+        titleInput.placeholder = "Vraag titel...";
+
+        const typeSelect = this.createQuestionTypeSelect();
+
+        const answersContainer = document.createElement("div");
+        answersContainer.className = "answers d-flex flex-column gap-2";
+
+        const conditionalButton = document.createElement("button");
+        conditionalButton.type = "button";
+        conditionalButton.className = "add-conditional-btn btn btn-link btn-sm mt-2 p-0 text-decoration-none";
+        conditionalButton.textContent = "+ Conditionele vraag";
+        conditionalButton.addEventListener("click", () => {
+            this.addConditional(conditionalButton);
+        });
+
+        const conditionalContainer = document.createElement("div");
+        conditionalContainer.className = "conditional-container";
+
+        header.append(label, removeButton);
+        question.append(titleInput, typeSelect, answersContainer, conditionalButton, conditionalContainer);
         container.appendChild(question);
+
         this.saveToLocalStorage();
     }
 
-    removeQuestion(btn: HTMLElement): void {
+    private createQuestionTypeSelect(): HTMLSelectElement {
+        const select = document.createElement("select");
+        select.className = "form-select form-select-sm mb-3";
+
+        [
+            { value: "", text: "Kies type vraag...", disabled: true, selected: true },
+            { value: "single", text: "Enkelkeuze" },
+            { value: "multiple", text: "Meerkeuze" },
+            { value: "range", text: "Range" },
+            { value: "open", text: "Open vraag" }
+        ].forEach(optionData => {
+            const option = document.createElement("option");
+            option.value = optionData.value;
+            option.textContent = optionData.text;
+            option.disabled = optionData.disabled ?? false;
+            option.selected = optionData.selected ?? false;
+            select.appendChild(option);
+        });
+
+        select.addEventListener("change", () => {
+            this.changeType(select);
+        });
+
+        return select;
+    }
+
+    private removeQuestion(button: HTMLElement): void {
         if (this.questionCount <= 1) {
-            alert("Er moet minstens 1 vraag zijn");
+            window.alert("Er moet minstens 1 vraag zijn");
             return;
         }
 
-        const question = btn.closest(".question");
-        if (!question) return;
+        const question = button.closest(".question");
+
+        if (!question) {
+            return;
+        }
 
         question.remove();
         this.questionCount--;
@@ -251,39 +366,86 @@ export class SurveyBuilder {
         this.saveToLocalStorage();
     }
 
-    changeType(select: HTMLSelectElement): void {
-        const container = select.parentElement?.querySelector(".answers") as HTMLElement | null;
-        if (!container) return;
+    private changeType(select: HTMLSelectElement): void {
+        const question = select.closest(".question") as HTMLElement | null;
+        const container = question?.querySelector(".answers") as HTMLElement | null;
+        const questionType = select.value as QuestionType;
+
+        if (!question || !container) {
+            return;
+        }
 
         container.innerHTML = "";
 
-        if (select.value === "single" || select.value === "multiple") {
-            const wrapper = document.createElement("div");
-            wrapper.className = "answers-list d-flex flex-column gap-2";
-
-            this.addAnswer(wrapper);
-            this.addAnswer(wrapper);
-
-            const button = document.createElement("button");
-            button.type = "button";
-            button.innerText = "+ Antwoord";
-            button.className = "btn btn-link btn-sm mt-2 p-0 text-decoration-none";
-            button.onclick = () => this.addAnswer(wrapper);
-
-            container.appendChild(wrapper);
-            container.appendChild(button);
+        if (questionType === "single" || questionType === "multiple") {
+            this.createChoiceAnswers(container);
         }
 
-        if (select.value === "range") {
-            container.innerHTML = `
-                <div class="d-flex gap-2">
-                    <input type="number" placeholder="Min" class="form-control form-control-sm" />
-                    <input type="number" placeholder="Max" class="form-control form-control-sm" />
-                </div>
-            `;
+        if (questionType === "range") {
+            this.createRangeInputs(container);
         }
+
+        question.querySelectorAll<HTMLElement>(".conditional-block").forEach(conditional => {
+            this.updateConditionalTriggerType(question, conditional);
+
+            const triggerSelect = conditional.querySelector(".conditional-trigger") as HTMLSelectElement | null;
+
+            if (triggerSelect) {
+                this.populateConditionalTriggerOptions(question, triggerSelect);
+            }
+        });
 
         this.saveToLocalStorage();
+    }
+
+    private createChoiceAnswers(container: HTMLElement): void {
+        const wrapper = document.createElement("div");
+        wrapper.className = "answers-list d-flex flex-column gap-2";
+
+        this.addAnswer(wrapper);
+        this.addAnswer(wrapper);
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = "+ Antwoord";
+        button.className = "btn btn-link btn-sm mt-2 p-0 text-decoration-none";
+        button.addEventListener("click", () => {
+            this.addAnswer(wrapper);
+        });
+
+        container.append(wrapper, button);
+    }
+
+    private createRangeInputs(container: HTMLElement): void {
+        const wrapper = document.createElement("div");
+        wrapper.className = "d-flex gap-2";
+
+        const minInput = document.createElement("input");
+        minInput.type = "number";
+        minInput.placeholder = "Min";
+        minInput.className = "form-control form-control-sm";
+
+        const maxInput = document.createElement("input");
+        maxInput.type = "number";
+        maxInput.placeholder = "Max";
+        maxInput.className = "form-control form-control-sm";
+
+        [minInput, maxInput].forEach(input => {
+            input.addEventListener("input", () => {
+                const question = input.closest(".question") as HTMLElement | null;
+
+                if (!question) {
+                    return;
+                }
+
+                question.querySelectorAll<HTMLSelectElement>(".conditional-trigger").forEach(triggerSelect => {
+                    this.populateConditionalTriggerOptions(question, triggerSelect);
+                });
+            });
+        });
+
+        wrapper.append(minInput, maxInput);
+        container.appendChild(wrapper);
     }
 
     private createInitialSurvey(): void {
@@ -291,14 +453,17 @@ export class SurveyBuilder {
         this.addSection();
 
         const firstSection = document.querySelector(".section");
-        const addQuestionBtn = firstSection?.querySelector(".add-question-btn") as HTMLElement | null;
-        if (addQuestionBtn) this.addQuestion(addQuestionBtn);
+        const addQuestionButton = firstSection?.querySelector(".add-question-btn") as HTMLElement | null;
+
+        if (addQuestionButton) {
+            this.addQuestion(addQuestionButton);
+        }
 
         this.isLoading = false;
         this.saveToLocalStorage();
     }
 
-    private addAnswer(container: Element): void {
+    private addAnswer(container: HTMLElement): void {
         const wrapper = document.createElement("div");
         wrapper.className = "d-flex align-items-center gap-2";
 
@@ -308,7 +473,10 @@ export class SurveyBuilder {
 
         input.addEventListener("input", () => {
             const question = input.closest(".question") as HTMLElement | null;
-            if (!question) return;
+
+            if (!question) {
+                return;
+            }
 
             question.querySelectorAll<HTMLSelectElement>(".conditional-trigger").forEach(triggerSelect => {
                 const currentValue = triggerSelect.value;
@@ -317,269 +485,349 @@ export class SurveyBuilder {
             });
         });
 
-        const removeBtn = document.createElement("button");
-        removeBtn.type = "button";
-        removeBtn.innerText = "🗑";
-        removeBtn.className = "btn btn-outline-danger btn-sm flex-shrink-0";
-        removeBtn.onclick = () => {
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.textContent = "🗑";
+        removeButton.className = "btn btn-outline-danger btn-sm flex-shrink-0";
+        removeButton.addEventListener("click", () => {
             if (container.children.length <= 2) {
-                alert("Minstens 2 antwoorden vereist");
+                window.alert("Minstens 2 antwoorden vereist");
                 return;
             }
+
             wrapper.remove();
             this.saveToLocalStorage();
-        };
+        });
 
-        wrapper.appendChild(input);
-        wrapper.appendChild(removeBtn);
+        wrapper.append(input, removeButton);
         container.appendChild(wrapper);
 
         this.saveToLocalStorage();
     }
 
-    addConditional(btn: HTMLElement): void {
-        const container = btn.parentElement?.querySelector(".conditional-container");
-        const question = btn.closest(".question") as HTMLElement | null;
+    private addConditional(button: HTMLElement): void {
+        const question = button.closest(".question") as HTMLElement | null;
+        const container = question?.querySelector(".conditional-container");
 
-        if (!container || !question) return;
-
-        const conditional = document.createElement("div");
-        conditional.className = "conditional-block border rounded p-3 mt-3 bg-light";
-        conditional.innerHTML = `
-        <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="text-primary small fw-semibold text-uppercase">Conditionele Vraag</span>
-            <button type="button"
-                    onclick="removeConditional(this)"
-                    class="btn btn-outline-danger btn-sm"
-                    title="Verwijder conditionele vraag">
-                🗑
-            </button>
-        </div>
-
-        <div class="conditional-trigger-type-container mb-2"></div>
-
-        <select class="conditional-trigger form-select form-select-sm mb-2"></select>
-
-       
-
-        <input class="conditional-input form-control form-control-sm"
-               placeholder="Conditionele vraag..." />
-    `;
-
-        container.appendChild(conditional);
-        this.updateConditionalTriggerType(question, conditional);
-
-        const triggerSelect = conditional.querySelector(".conditional-trigger") as HTMLSelectElement | null;
-        if (triggerSelect) {
-            this.populateConditionalTriggerOptions(question, triggerSelect);
-        }
-
-        this.saveToLocalStorage();
-    }
-
-    private populateConditionalTriggerOptions(
-        question: HTMLElement,
-        triggerSelect: HTMLSelectElement
-    ): void {
-        triggerSelect.innerHTML = "";
-
-        const typeSelect = question.querySelector("select") as HTMLSelectElement | null;
-        const questionType = typeSelect?.value ?? "";
-
-        if (questionType === "range") {
-            const min = Number((question.querySelector('input[placeholder="Min"]') as HTMLInputElement | null)?.value ?? 1);
-            const max = Number((question.querySelector('input[placeholder="Max"]') as HTMLInputElement | null)?.value ?? 5);
-
-            for (let value = min; value <= max; value++) {
-                const option = document.createElement("option");
-                option.value = value.toString();
-                option.textContent = value.toString();
-                triggerSelect.appendChild(option);
-            }
-
+        if (!container || !question) {
             return;
         }
 
-        const answerInputs = question.querySelectorAll<HTMLInputElement>(".answers-list input");
-        answerInputs.forEach(input => {
-            if (!input.value.trim()) return;
+        const conditional = document.createElement("div");
+        conditional.className = "conditional-block border rounded p-3 mt-3 bg-light";
 
-            const option = document.createElement("option");
-            option.value = input.value.trim();
-            option.textContent = input.value.trim();
+        const header = document.createElement("div");
+        header.className = "d-flex justify-content-between align-items-center mb-2";
 
-            triggerSelect.appendChild(option);
+        const title = document.createElement("span");
+        title.className = "text-primary small fw-semibold text-uppercase";
+        title.textContent = "Conditionele vraag";
+
+        const removeButton = document.createElement("button");
+        removeButton.type = "button";
+        removeButton.className = "btn btn-outline-danger btn-sm";
+        removeButton.title = "Verwijder conditionele vraag";
+        removeButton.textContent = "🗑";
+        removeButton.addEventListener("click", () => {
+            this.removeConditional(removeButton);
         });
 
-        if (triggerSelect.options.length === 0) {
-            const option = document.createElement("option");
-            option.value = "";
-            option.textContent = "Vul eerst antwoordopties in";
-            triggerSelect.appendChild(option);
+        const triggerTypeContainer = document.createElement("div");
+        triggerTypeContainer.className = "conditional-trigger-type-container mb-2";
+
+        const triggerSelect = document.createElement("select");
+        triggerSelect.className = "conditional-trigger form-select form-select-sm mb-2";
+
+        const conditionalInput = document.createElement("input");
+        conditionalInput.className = "conditional-input form-control form-control-sm";
+        conditionalInput.placeholder = "Conditionele vraag...";
+
+        header.append(title, removeButton);
+        conditional.append(header, triggerTypeContainer, triggerSelect, conditionalInput);
+        container.appendChild(conditional);
+
+        this.updateConditionalTriggerType(question, conditional);
+        this.populateConditionalTriggerOptions(question, triggerSelect);
+        this.saveToLocalStorage();
+    }
+
+    private populateConditionalTriggerOptions(question: HTMLElement, triggerSelect: HTMLSelectElement): void {
+        triggerSelect.innerHTML = "";
+
+        const typeSelect = question.querySelector("select") as HTMLSelectElement | null;
+        const questionType = typeSelect?.value as QuestionType;
+
+        if (questionType === "range") {
+            this.populateRangeTriggerOptions(question, triggerSelect);
+            return;
+        }
+
+        this.populateAnswerTriggerOptions(question, triggerSelect);
+    }
+
+    private populateRangeTriggerOptions(question: HTMLElement, triggerSelect: HTMLSelectElement): void {
+        const minInput = question.querySelector('input[placeholder="Min"]') as HTMLInputElement | null;
+        const maxInput = question.querySelector('input[placeholder="Max"]') as HTMLInputElement | null;
+
+        const min = Number(minInput?.value || 1);
+        const max = Number(maxInput?.value || 5);
+
+        if (!Number.isFinite(min) || !Number.isFinite(max) || min > max) {
+            this.appendOption(triggerSelect, "", "Vul eerst een geldige range in");
+            return;
+        }
+
+        for (let value = min; value <= max; value++) {
+            this.appendOption(triggerSelect, value.toString(), value.toString());
         }
     }
 
-    removeConditional(btn: HTMLElement): void {
-        const conditionalBlock = btn.closest(".conditional-block");
-        if (!conditionalBlock) return;
+    private populateAnswerTriggerOptions(question: HTMLElement, triggerSelect: HTMLSelectElement): void {
+        const answerInputs = question.querySelectorAll<HTMLInputElement>(".answers-list input");
+
+        answerInputs.forEach(input => {
+            const value = input.value.trim();
+
+            if (value) {
+                this.appendOption(triggerSelect, value, value);
+            }
+        });
+
+        if (triggerSelect.options.length === 0) {
+            this.appendOption(triggerSelect, "", "Vul eerst antwoordopties in");
+        }
+    }
+
+    private appendOption(select: HTMLSelectElement, value: string, text: string): void {
+        const option = document.createElement("option");
+        option.value = value;
+        option.textContent = text;
+        select.appendChild(option);
+    }
+
+    private removeConditional(button: HTMLElement): void {
+        const conditionalBlock = button.closest(".conditional-block");
+
+        if (!conditionalBlock) {
+            return;
+        }
+
         conditionalBlock.remove();
         this.saveToLocalStorage();
     }
 
-    toggleAI(checkbox: HTMLInputElement): void {
-        const wrapper = checkbox.closest("div");
-        const input = wrapper?.querySelector(".conditional-input") as HTMLInputElement | null;
-        if (!input) return;
-
-        input.disabled = checkbox.checked;
-        if (checkbox.checked) input.value = "";
-
-        this.saveToLocalStorage();
-    }
-
     private getSurveyData(): SectionData[] {
-        const sections: SectionData[] = [];
+        return Array.from(document.querySelectorAll<HTMLElement>(".section")).map(section => {
+            const title = section.querySelector<HTMLInputElement>(".section-title")?.value ?? "";
 
-        document.querySelectorAll(".section").forEach(section => {
-            const title = (section.querySelector(".section-title") as HTMLInputElement | null)?.value ?? "";
-            const questions: QuestionData[] = [];
-
-            section.querySelectorAll(".question").forEach(question => {
-                const qTitle = (question.querySelector(".question-title") as HTMLInputElement | null)?.value ?? "";
-                const type = (question.querySelector("select") as HTMLSelectElement | null)?.value ?? "";
-
-                const answers: string[] = [];
-                question.querySelectorAll(".answers input").forEach(answer => {
-                    answers.push((answer as HTMLInputElement).value);
-                });
-
-                const min = (question.querySelector('input[placeholder="Min"]') as HTMLInputElement | null)?.value ?? "";
-                const max = (question.querySelector('input[placeholder="Max"]') as HTMLInputElement | null)?.value ?? "";
-
-                const conditionals: ConditionalData[] = [];
-                question.querySelectorAll(".conditional-container > div.conditional-block").forEach(c => {
-                    const trigger = (c.querySelector(".conditional-trigger") as HTMLSelectElement | null)?.value ?? "";
-                    let triggerType = (c.querySelector(".conditional-trigger-type") as HTMLSelectElement | null)?.value ?? "Contains";
-
-                    if (type === "single" || type === "multiple") {
-                        triggerType = "Equals";
-                    }
-
-                    if (type === "open") {
-                        triggerType = "Contains";
-                    }                    const ai = false;
-                    const conditionalQuestion = (c.querySelector(".conditional-input") as HTMLInputElement | null)?.value ?? "";
-
-                    conditionals.push({ trigger, triggerType, ai, question: conditionalQuestion });
-                });
-
-                questions.push({ title: qTitle, type, answers, min, max, conditionals });
+            const questions = Array.from(section.querySelectorAll<HTMLElement>(".question")).map(question => {
+                return this.getQuestionData(question);
             });
 
-            sections.push({ title, questions });
+            return { title, questions };
         });
+    }
 
-        return sections;
+    private getQuestionData(question: HTMLElement): QuestionData {
+        const title = question.querySelector<HTMLInputElement>(".question-title")?.value ?? "";
+        const type = question.querySelector<HTMLSelectElement>("select")?.value as QuestionType;
+        const answers = Array.from(question.querySelectorAll<HTMLInputElement>(".answers-list input"))
+            .map(input => input.value);
+
+        const min = question.querySelector<HTMLInputElement>('input[placeholder="Min"]')?.value ?? "";
+        const max = question.querySelector<HTMLInputElement>('input[placeholder="Max"]')?.value ?? "";
+        const conditionals = this.getConditionals(question, type);
+
+        return { title, type, answers, min, max, conditionals };
+    }
+
+    private getConditionals(question: HTMLElement, type: QuestionType): ConditionalData[] {
+        return Array.from(question.querySelectorAll<HTMLElement>(".conditional-container > .conditional-block"))
+            .map(conditional => {
+                const trigger = conditional.querySelector<HTMLSelectElement>(".conditional-trigger")?.value ?? "";
+                const questionText = conditional.querySelector<HTMLInputElement>(".conditional-input")?.value ?? "";
+
+                return {
+                    trigger,
+                    triggerType: this.getTriggerType(conditional, type),
+                    ai: false,
+                    question: questionText
+                };
+            });
+    }
+
+    private getTriggerType(conditional: HTMLElement, type: QuestionType): string {
+        if (type === "single" || type === "multiple") {
+            return "Equals";
+        }
+
+        if (type === "open") {
+            return "Contains";
+        }
+
+        return conditional.querySelector<HTMLSelectElement>(".conditional-trigger-type")?.value ?? "Contains";
     }
 
     private saveToLocalStorage(): void {
-        if (this.isLoading) return;
+        if (this.isLoading) {
+            return;
+        }
+
         sessionStorage.setItem("surveyDraft", JSON.stringify(this.getSurveyData()));
     }
 
-    private loadFromLocalStorage(parsed: SectionData[]): void {
+    private loadFromLocalStorage(sections: SectionData[]): void {
         const container = document.getElementById("sections");
-        if (!container) return;
+
+        if (!container) {
+            return;
+        }
 
         this.isLoading = true;
         container.innerHTML = "";
         this.questionCount = 0;
         this.sectionCount = 0;
 
-        parsed.forEach(sectionData => {
-            this.addSection();
-
-            const sections = document.querySelectorAll(".section");
-            const section = sections[sections.length - 1] as HTMLElement;
-
-            const sectionTitle = section.querySelector(".section-title") as HTMLInputElement | null;
-            if (sectionTitle) sectionTitle.value = sectionData.title ?? "";
-
-            sectionData.questions.forEach(q => {
-                const addQuestionBtn = section.querySelector(".add-question-btn") as HTMLElement | null;
-                if (!addQuestionBtn) return;
-
-                this.addQuestion(addQuestionBtn);
-
-                const questions = section.querySelectorAll(".question");
-                const question = questions[questions.length - 1] as HTMLElement;
-
-                const titleInput = question.querySelector(".question-title") as HTMLInputElement | null;
-                const typeSelect = question.querySelector("select") as HTMLSelectElement | null;
-
-                if (titleInput) titleInput.value = q.title ?? "";
-
-                if (typeSelect) {
-                    typeSelect.value = q.type ?? "";
-                    this.changeType(typeSelect);
-                }
-
-                if (q.type === "single" || q.type === "multiple") {
-                    const answersList = question.querySelector(".answers-list") as HTMLElement | null;
-                    if (answersList) {
-                        answersList.innerHTML = "";
-                        q.answers.forEach(answer => {
-                            this.addAnswer(answersList);
-                            const inputs = answersList.querySelectorAll("input");
-                            const input = inputs[inputs.length - 1] as HTMLInputElement | null;
-                            if (input) input.value = answer;
-                        });
-                    }
-                }
-
-                if (q.type === "range") {
-                    const minInput = question.querySelector('input[placeholder="Min"]') as HTMLInputElement | null;
-                    const maxInput = question.querySelector('input[placeholder="Max"]') as HTMLInputElement | null;
-                    if (minInput) minInput.value = q.min ?? "";
-                    if (maxInput) maxInput.value = q.max ?? "";
-                }
-
-                q.conditionals.forEach(cond => {
-                    const conditionalBtn = question.querySelector(".add-conditional-btn") as HTMLElement | null;
-                    if (!conditionalBtn) return;
-
-                    this.addConditional(conditionalBtn);
-
-                    const conditionals = question.querySelectorAll(".conditional-container > div.conditional-block");
-                    const conditional = conditionals[conditionals.length - 1] as HTMLElement | null;
-                    if (!conditional) return;
-
-                    const triggerSelect = conditional.querySelector(".conditional-trigger") as HTMLSelectElement | null;
-                    const triggerTypeSelect = conditional.querySelector(".conditional-trigger-type") as HTMLSelectElement | null;
-                    const aiCheckbox = conditional.querySelector("input[type='checkbox']") as HTMLInputElement | null;
-                    const conditionalInput = conditional.querySelector(".conditional-input") as HTMLInputElement | null;
-
-                    if (triggerSelect) triggerSelect.value = cond.trigger ?? "";
-                    if (triggerTypeSelect) triggerTypeSelect.value = cond.triggerType ?? "Contains";
-                    if (aiCheckbox) aiCheckbox.checked = cond.ai;
-                    if (conditionalInput) {
-                        conditionalInput.value = cond.question ?? "";
-                        conditionalInput.disabled = cond.ai;
-                    }
-                });
-            });
+        sections.forEach(sectionData => {
+            this.loadSection(sectionData);
         });
 
         this.isLoading = false;
         this.updateCounter();
+        this.saveToLocalStorage();
+    }
+
+    private loadSection(sectionData: SectionData): void {
+        this.addSection();
+
+        const sections = Array.from(document.querySelectorAll<HTMLElement>(".section"));
+        const section = sections[sections.length - 1];
+        
+        if (!section) {
+            return;
+        }
+
+        const sectionTitle = section.querySelector<HTMLInputElement>(".section-title");
+
+        if (sectionTitle) {
+            sectionTitle.value = sectionData.title ?? "";
+        }
+
+        sectionData.questions.forEach(questionData => {
+            this.loadQuestion(section, questionData);
+        });
+    }
+
+    private loadQuestion(section: HTMLElement, questionData: QuestionData): void {
+        const addQuestionButton = section.querySelector<HTMLElement>(".add-question-btn");
+
+        if (!addQuestionButton) {
+            return;
+        }
+
+        this.addQuestion(addQuestionButton);
+
+        const questions = Array.from(section.querySelectorAll<HTMLElement>(".question"));
+        const question = questions[questions.length - 1];
+        
+        if (!question) {
+            return;
+        }
+
+        const titleInput = question.querySelector<HTMLInputElement>(".question-title");
+        const typeSelect = question.querySelector<HTMLSelectElement>("select");
+
+        if (titleInput) {
+            titleInput.value = questionData.title ?? "";
+        }
+
+        if (typeSelect) {
+            typeSelect.value = questionData.type ?? "";
+            this.changeType(typeSelect);
+        }
+
+        this.loadQuestionAnswers(question, questionData);
+        this.loadConditionals(question, questionData.conditionals ?? []);
+    }
+
+    private loadQuestionAnswers(question: HTMLElement, questionData: QuestionData): void {
+        if (questionData.type === "single" || questionData.type === "multiple") {
+            const answersList = question.querySelector<HTMLElement>(".answers-list");
+
+            if (!answersList) {
+                return;
+            }
+
+            answersList.innerHTML = "";
+
+            questionData.answers.forEach(answer => {
+                this.addAnswer(answersList);
+
+                const inputs = Array.from(answersList.querySelectorAll<HTMLInputElement>("input"));
+                const input = inputs[inputs.length - 1];
+
+                if (input) {
+                    input.value = answer;
+                }
+            });
+        }
+
+        if (questionData.type === "range") {
+            const minInput = question.querySelector<HTMLInputElement>('input[placeholder="Min"]');
+            const maxInput = question.querySelector<HTMLInputElement>('input[placeholder="Max"]');
+
+            if (minInput) {
+                minInput.value = questionData.min ?? "";
+            }
+
+            if (maxInput) {
+                maxInput.value = questionData.max ?? "";
+            }
+        }
+    }
+
+    private loadConditionals(question: HTMLElement, conditionals: ConditionalData[]): void {
+        conditionals.forEach(conditionalData => {
+            const conditionalButton = question.querySelector<HTMLElement>(".add-conditional-btn");
+
+            if (!conditionalButton) {
+                return;
+            }
+
+            this.addConditional(conditionalButton);
+
+            const conditionals = Array.from(question.querySelectorAll<HTMLElement>(".conditional-container > .conditional-block"));
+            const conditional = conditionals[conditionals.length - 1];
+
+            if (!conditional) {
+                return;
+            }
+
+            const triggerSelect = conditional.querySelector<HTMLSelectElement>(".conditional-trigger");
+            const triggerTypeSelect = conditional.querySelector<HTMLSelectElement>(".conditional-trigger-type");
+            const conditionalInput = conditional.querySelector<HTMLInputElement>(".conditional-input");
+
+            if (triggerSelect) {
+                triggerSelect.value = conditionalData.trigger ?? "";
+            }
+
+            if (triggerTypeSelect) {
+                triggerTypeSelect.value = conditionalData.triggerType ?? "Contains";
+            }
+
+            if (conditionalInput) {
+                conditionalInput.value = conditionalData.question ?? "";
+            }
+        });
     }
 
     private updateConditionalTriggerType(question: HTMLElement, conditional: HTMLElement): void {
-        const container = conditional.querySelector(".conditional-trigger-type-container") as HTMLElement | null;
-        const typeSelect = question.querySelector("select") as HTMLSelectElement | null;
-        const questionType = typeSelect?.value ?? "";
+        const container = conditional.querySelector<HTMLElement>(".conditional-trigger-type-container");
+        const questionType = question.querySelector<HTMLSelectElement>("select")?.value as QuestionType;
 
-        if (!container) return;
+        if (!container) {
+            return;
+        }
 
         container.innerHTML = "";
 
@@ -587,38 +835,59 @@ export class SurveyBuilder {
             return;
         }
 
-        container.innerHTML = `
-        <select class="conditional-trigger-type form-select form-select-sm">
-            <option value="Equals">Gelijk aan</option>
-            <option value="GreaterOrEqual">Groter dan of gelijk aan</option>
-            <option value="LessOrEqual">Kleiner dan of gelijk aan</option>
-        </select>
-    `;
+        const select = document.createElement("select");
+        select.className = "conditional-trigger-type form-select form-select-sm";
+
+        [
+            { value: "Equals", text: "Gelijk aan" },
+            { value: "GreaterOrEqual", text: "Groter dan of gelijk aan" },
+            { value: "LessOrEqual", text: "Kleiner dan of gelijk aan" }
+        ].forEach(optionData => {
+            this.appendOption(select, optionData.value, optionData.text);
+        });
+
+        select.addEventListener("change", () => {
+            this.saveToLocalStorage();
+        });
+
+        container.appendChild(select);
     }
 
     private async generateSurveyWithAi(): Promise<void> {
-        const promptInput =
-            (document.getElementById("aiPromptInput") as HTMLTextAreaElement | null)
-            ?? (document.getElementById("aiPrompt") as HTMLTextAreaElement | null);
+        const promptInput = document.getElementById("aiPrompt") as HTMLTextAreaElement | null;
         const questionAmountInput = document.getElementById("questionAmount") as HTMLInputElement | null;
         const messageBox = document.getElementById("surveyAiMessage") as HTMLSpanElement | null;
         const errorBox = document.getElementById("surveyAiError") as HTMLDivElement | null;
         const form = document.getElementById("surveyForm") as HTMLFormElement | null;
 
-        if (!promptInput) return;
+        if (!promptInput || !form) {
+            return;
+        }
 
         const description = promptInput.value.trim();
         const questionAmount = Number(questionAmountInput?.value ?? 5);
-        const aiUrl = form?.dataset.aiUrl;
+        const aiUrl = form.dataset.aiUrl;
 
-        if (!aiUrl) { alert("AI-url ontbreekt."); return; }
+        if (!aiUrl) {
+            window.alert("AI-url ontbreekt.");
+            return;
+        }
 
-        if (errorBox) { errorBox.textContent = ""; errorBox.classList.add("d-none"); }
+        this.hideError(errorBox);
 
-        if (!description) { alert("Geef eerst een beschrijving in."); return; }
-        if (description.length < 50) { alert("Beschrijving moet minstens 50 tekens bevatten."); return; }
+        if (!description) {
+            window.alert("Geef eerst een beschrijving in.");
+            return;
+        }
 
-        if (messageBox) messageBox.textContent = "AI maakt je vragenlijst...";
+        if (description.length < 50) {
+            window.alert("Beschrijving moet minstens 50 tekens bevatten.");
+            return;
+        }
+
+        if (messageBox) {
+            messageBox.textContent = "AI maakt je vragenlijst...";
+        }
 
         const response = await fetch(aiUrl, {
             method: "POST",
@@ -629,28 +898,62 @@ export class SurveyBuilder {
             body: JSON.stringify({ description, questionAmount })
         });
 
-        const responseText = await response.text();
-        let data: any;
+        const data = await this.readGenerateSurveyResponse(response);
 
-        try {
-            data = JSON.parse(responseText);
-        } catch {
-            console.error("Server gaf geen JSON terug:", responseText);
-            if (errorBox) { errorBox.textContent = responseText; errorBox.classList.remove("d-none"); }
-            if (messageBox) messageBox.textContent = "";
+        if (!data) {
+            this.showError(errorBox, "Server gaf geen geldige JSON terug.");
+            this.clearMessage(messageBox);
             return;
         }
 
-        if (!response.ok || !data.ok) {
-            if (errorBox) { errorBox.textContent = data.message ?? "AI kon geen vragenlijst genereren."; errorBox.classList.remove("d-none"); }
-            if (messageBox) messageBox.textContent = "";
+        if (!response.ok || !data.ok || !data.survey?.sections) {
+            this.showError(errorBox, data.message ?? "AI kon geen vragenlijst genereren.");
+            this.clearMessage(messageBox);
             return;
         }
 
         this.loadFromLocalStorage(data.survey.sections);
         sessionStorage.setItem("surveyDraft", JSON.stringify(data.survey.sections));
-        if (messageBox) messageBox.textContent = "Vragenlijst gegenereerd.";
+
+        if (messageBox) {
+            messageBox.textContent = "Vragenlijst gegenereerd.";
+        }
+    }
+
+    private async readGenerateSurveyResponse(response: Response): Promise<GenerateSurveyResponse | null> {
+        try {
+            return await response.json() as GenerateSurveyResponse;
+        } catch {
+            return null;
+        }
+    }
+
+    private hideError(errorBox: HTMLElement | null): void {
+        if (!errorBox) {
+            return;
+        }
+
+        errorBox.textContent = "";
+        errorBox.classList.add("d-none");
+    }
+
+    private showError(errorBox: HTMLElement | null, message: string): void {
+        if (!errorBox) {
+            window.alert(message);
+            return;
+        }
+
+        errorBox.textContent = message;
+        errorBox.classList.remove("d-none");
+    }
+
+    private clearMessage(messageBox: HTMLElement | null): void {
+        if (messageBox) {
+            messageBox.textContent = "";
+        }
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => new SurveyBuilder().init());
+document.addEventListener("DOMContentLoaded", () => {
+    new SurveyBuilder().init();
+});

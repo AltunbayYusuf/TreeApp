@@ -1,40 +1,98 @@
-(function (): void {
-    const toggle = document.getElementById('adminSidebarToggle');
-    const sidebarElement = document.getElementById('adminSidebar');
-    const overlayElement = document.getElementById('adminOverlay');
+class AdminSidebar {
+    private readonly sidebar = document.getElementById("adminSidebar");
+    private readonly overlay = document.getElementById("adminOverlay");
+    private readonly toggleButton = document.getElementById("adminSidebarToggle");
+    private readonly mobileBreakpointPixels = 992;
 
-    if (!(sidebarElement instanceof HTMLElement) || !(overlayElement instanceof HTMLElement)) {
-        return;
+    init(): void {
+        if (!this.hasRequiredElements()) {
+            return;
+        }
+
+        this.bindEvents();
     }
 
-    const sidebar: HTMLElement = sidebarElement;
-    const overlay: HTMLElement = overlayElement;
-
-    function openSidebar(): void {
-        sidebar.classList.add('is-open');
-        overlay.classList.add('is-visible');
-        document.body.style.overflow = 'hidden';
+    private hasRequiredElements(): boolean {
+        return this.sidebar instanceof HTMLElement &&
+            this.overlay instanceof HTMLElement;
     }
 
-    function closeSidebar(): void {
-        sidebar.classList.remove('is-open');
-        overlay.classList.remove('is-visible');
-        document.body.style.overflow = '';
-    }
+    private bindEvents(): void {
+        this.toggleButton?.addEventListener("click", () => {
+            this.toggleSidebar();
+        });
 
-    if (toggle instanceof HTMLElement) {
-        toggle.addEventListener('click', function (): void {
-            if (sidebar.classList.contains('is-open')) {
-                closeSidebar();
-            } else {
-                openSidebar();
+        this.overlay?.addEventListener("click", () => {
+            this.closeSidebar();
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                this.closeSidebar();
+            }
+        });
+
+        this.sidebar?.querySelectorAll<HTMLAnchorElement>(".sidebar-link").forEach((link) => {
+            link.addEventListener("click", () => {
+                if (this.isMobileViewport()) {
+                    this.closeSidebar();
+                }
+            });
+        });
+
+        window.addEventListener("resize", () => {
+            if (!this.isMobileViewport()) {
+                this.closeSidebar();
             }
         });
     }
 
-    overlay.addEventListener('click', closeSidebar);
-})();
+    private toggleSidebar(): void {
+        if (this.isSidebarOpen()) {
+            this.closeSidebar();
+            return;
+        }
 
-window.addEventListener('load', function (): void {
-    document.body.classList.add('css-loaded');
-});
+        this.openSidebar();
+    }
+
+    private openSidebar(): void {
+        if (!(this.sidebar instanceof HTMLElement) || !(this.overlay instanceof HTMLElement)) {
+            return;
+        }
+
+        this.sidebar.classList.add("is-open");
+        this.overlay.classList.add("is-visible");
+        document.body.style.overflow = "hidden";
+    }
+
+    private closeSidebar(): void {
+        if (!(this.sidebar instanceof HTMLElement) || !(this.overlay instanceof HTMLElement)) {
+            return;
+        }
+
+        this.sidebar.classList.remove("is-open");
+        this.overlay.classList.remove("is-visible");
+        document.body.style.overflow = "";
+    }
+
+    private isSidebarOpen(): boolean {
+        return this.sidebar instanceof HTMLElement &&
+            this.sidebar.classList.contains("is-open");
+    }
+
+    private isMobileViewport(): boolean {
+        return window.innerWidth < this.mobileBreakpointPixels;
+    }
+}
+
+class CssLoadedMarker {
+    init(): void {
+        window.addEventListener("load", () => {
+            document.body.classList.add("css-loaded");
+        });
+    }
+}
+
+new AdminSidebar().init();
+new CssLoadedMarker().init();

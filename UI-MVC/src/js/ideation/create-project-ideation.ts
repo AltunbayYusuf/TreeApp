@@ -236,8 +236,19 @@ export class ProjectIdeationBuilder {
     }
 
     private setSummaryMessage(message: string): void {
-        if (!this.validationSummary) return;
-        this.validationSummary.innerHTML = `<ul><li>${message}</li></ul>`;
+        if (!this.validationSummary) {
+            return;
+        }
+
+        this.validationSummary.replaceChildren();
+
+        const list = document.createElement("ul");
+        const item = document.createElement("li");
+
+        item.textContent = message;
+        list.appendChild(item);
+
+        this.validationSummary.appendChild(list);
         this.validationSummary.classList.remove("validation-summary-valid");
         this.validationSummary.classList.add("validation-summary-errors");
     }

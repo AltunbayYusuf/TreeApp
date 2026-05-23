@@ -39,7 +39,8 @@
                 };
 
                 if (!response.ok || !data.ok || !data.summary) {
-                    throw new Error();
+                    error?.classList.remove("d-none");
+                    return;
                 }
 
                 if (result) {
@@ -91,7 +92,8 @@
                     };
 
                     if (!response.ok || !data.ok || !data.summary) {
-                        throw new Error();
+                        error?.classList.remove("d-none");
+                        return;
                     }
 
                     if (summaryText) {
