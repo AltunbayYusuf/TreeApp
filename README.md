@@ -25,7 +25,8 @@ git clone https://gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/integratiep
 cd integratieproject
 
 # 2. Draai bootstrap
-bash bootstrap.sh kdg-hogeschool.echo20.com
+bash bootstrap.sh kdg-hogeschool.echo20.com                    # default project
+bash bootstrap.sh kdg-hogeschool.echo20.com mijn-project-id   # ander GCP project
 ```
 
 Het script vraagt tijdens de uitvoering om:

@@ -2,16 +2,17 @@
 # ============================================================
 # setup.sh
 # Bouwt de volledige cloud omgeving op vanaf nul
-# Gebruik: bash setup.sh [BRANCH] [DOMAIN]
+# Gebruik: bash setup.sh [BRANCH] [DOMAIN] [PROJECT_ID]
 #   - BRANCH: optioneel, default = main
 #   - DOMAIN: optioneel, bv. kdg-hogeschool.echo20.com
 #             Als opgegeven: HTTPS load balancer + Google-managed SSL worden aangemaakt
 #             Als weggelaten: alleen HTTP op poort 8080 (directe VM toegang)
+#   - PROJECT_ID: optioneel, default = integratieproject-mvp
 #   - Voorbeelden:
 #       bash setup.sh
 #       bash setup.sh main
 #       bash setup.sh main kdg-hogeschool.echo20.com
-#       bash setup.sh feature/cloud-sql-proxy kdg-hogeschool.echo20.com
+#       bash setup.sh main kdg-hogeschool.echo20.com mijn-project-id
 #
 # Vereist: je bent ingelogd met gcloud en hebt rechten op project
 # ============================================================
@@ -26,7 +27,7 @@ DOMAIN="${2:-}"
 # Veilige naam voor in template-naam: vervang '/' door '-' en lowercase
 BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
-PROJECT_ID="integratieproject-mvp"
+PROJECT_ID="${3:-integratieproject-mvp}"
 REGION="europe-west1"
 ZONE="europe-west1-b"
 

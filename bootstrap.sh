@@ -2,19 +2,20 @@
 # ============================================================
 # bootstrap.sh
 # Deployt de volledige TreeApp omgeving vanaf nul op GCP.
-# Gebruik: bash bootstrap.sh <DOMAIN>
+# Gebruik: bash bootstrap.sh <DOMAIN> [PROJECT_ID]
 # Voorbeeld: bash bootstrap.sh kdg-hogeschool.echo20.com
+#            bash bootstrap.sh test.echo20.com mijn-nieuw-project
 #
 # Vereisten (zie README.md):
 #   - gcloud CLI geinstalleerd
-#   - GCP project 'integratieproject-mvp' met actief billing account
+#   - GCP project met actief billing account
 #   - Toegang tot DNS provider van het opgegeven domein
 # ============================================================
 
 set -euo pipefail
 
 DOMAIN="${1:-}"
-PROJECT_ID="integratieproject-mvp"
+PROJECT_ID="${2:-integratieproject-mvp}"
 SA_NAME="echo20-vm-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 CERT_MAP="treeapp-cert-map"
@@ -211,7 +212,7 @@ echo ""
 echo "=== Stap 7: Infrastructure opbouwen ==="
 echo ""
 
-bash "$(dirname "$0")/setup.sh" main "$DOMAIN"
+bash "$(dirname "$0")/setup.sh" main "$DOMAIN" "$PROJECT_ID"
 
 # ============================================================
 # Klaar
