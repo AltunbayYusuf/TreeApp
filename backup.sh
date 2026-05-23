@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PROJECT_ID="integratieproject-mvp"
-INSTANCE="echo20-db"
+INSTANCE="treeapp-db"
 
 echo " Backup aanmaken voor Cloud SQL instance: $INSTANCE"
 

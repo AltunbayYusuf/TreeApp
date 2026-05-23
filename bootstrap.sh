@@ -16,7 +16,7 @@ set -euo pipefail
 
 DOMAIN="${1:-}"
 PROJECT_ID="${2:-integratieproject-mvp}"
-SA_NAME="echo20-vm-sa"
+SA_NAME="treeapp-vm-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 # Base domein afleiden uit het opgegeven domein (bv. "app.youthvoice.com" → "youthvoice.com")
@@ -255,7 +255,7 @@ bash "$(dirname "$0")/setup.sh" main "$DOMAIN" "$PROJECT_ID"
 # ============================================================
 # Klaar
 # ============================================================
-STATIC_IP=$(gcloud compute addresses describe echo20-ip --global --project="$PROJECT_ID" --format="value(address)" 2>/dev/null || echo "<zie output hierboven>")
+STATIC_IP=$(gcloud compute addresses describe treeapp-ip --global --project="$PROJECT_ID" --format="value(address)" 2>/dev/null || echo "<zie output hierboven>")
 
 echo ""
 echo "================================================================"
