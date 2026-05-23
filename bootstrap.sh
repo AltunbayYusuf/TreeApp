@@ -176,16 +176,21 @@ else
   DNS_VALUE=$(gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" \
     --project="$PROJECT_ID" --format="value(dnsResourceRecord.data)")
 
+  DNS_SUBDOMAIN=$(echo "$DNS_CNAME" | sed 's/\.echo20\.com\.$//')
+
   echo ""
   echo "  ================================================================"
   echo "  ACTIE VEREIST: voeg dit CNAME record toe in je DNS provider"
   echo "  ================================================================"
-  echo "  Type  : CNAME"
-  echo "  Naam  : $DNS_CNAME"
-  echo "  Waarde: $DNS_VALUE"
+  echo "  Type      : CNAME"
+  echo "  Subdomain : $DNS_SUBDOMAIN"
+  echo "  Target    : $DNS_VALUE"
   echo "  ================================================================"
+  echo "  Tip: vul ALLEEN het subdomain in (zonder .echo20.com)"
+  echo "       bv. '$DNS_SUBDOMAIN' in het 'Subdomain' veld"
+  echo "       en de volledige Target waarde in het 'Target' veld"
   echo ""
-  read -rp "  Druk op Enter nadat je het CNAME record hebt toegevoegd..."
+  read -rp "  Druk op Enter nadat je het CNAME record hebt opgeslagen..."
 
   if ! gcloud certificate-manager certificates describe "$CERT_NAME" --project="$PROJECT_ID" &>/dev/null; then
     gcloud certificate-manager certificates create "$CERT_NAME" \
