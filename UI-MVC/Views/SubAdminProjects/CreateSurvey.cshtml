@@ -1,35 +1,8 @@
-@using IntegratieProject.BL.Domain.questions
 @model IntegratieProject.UI.MVC.Models.CreateProjecSurveyViewModel
 
 @{
     ViewBag.Title = "Nieuw project aanmaken";
     Layout = "_AdminLayout";
-
-    var initialSurveyData = Model.Sections.Select(s => new
-    {
-        title = s.Title,
-        questions = s.Questions.Select(q => new
-        {
-            title = q.Description,
-            type = q.QuestionType switch
-            {
-                QuestionType.SingleChoice => "single",
-                QuestionType.MultipleChoice => "multiple",
-                QuestionType.Range => "range",
-                _ => "open"
-            },
-            answers = q.Options ?? new List<string>(),
-            min = q.RangeMin?.ToString() ?? "",
-            max = q.RangeMax?.ToString() ?? "",
-            conditionals = q.Conditionals.Select(c => new
-            {
-                trigger = c.Trigger,
-                triggerType = c.TriggerType.ToString(),
-                ai = c.UseAi,
-                question = c.QuestionText
-            })
-        })
-    });
 }
 
 <div class="admin-page">
@@ -138,7 +111,7 @@
 </div>
 
 <script id="initialSurveyData" type="application/json">
-    @Html.Raw(System.Text.Json.JsonSerializer.Serialize(initialSurveyData))
+    @Html.Raw(Model.SurveyJson)
 </script>
 
 @section Scripts {
