@@ -187,7 +187,7 @@ else
   if ! gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" --project="$PROJECT_ID" &>/dev/null; then
     gcloud certificate-manager dns-authorizations create "$DNS_AUTH_NAME" \
       --domain="$BASE_DOMAIN" \
-      --project="$PROJECT_ID"
+      --project="$PROJECT_ID" 2>/dev/null || true
   fi
 
   DNS_CNAME=$(gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" \
