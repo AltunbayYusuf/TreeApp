@@ -28,6 +28,7 @@ HTTP_URL_MAP="echo20-http-redirect"
 TARGET_HTTP_PROXY="echo20-http-proxy"
 HTTP_FORWARDING_RULE="echo20-http-rule"
 STATIC_IP="echo20-ip"
+SECURITY_POLICY="echo20-security-policy"
 
 echo "  Dit verwijdert ALLE cloud resources voor project: $PROJECT_ID"
 echo "Ben je zeker? (yes/no)"
@@ -48,7 +49,9 @@ gcloud compute target-http-proxies delete "$TARGET_HTTP_PROXY" --project="$PROJE
 # Wildcard cert map blijft bewaard (herbruikbaar voor nieuwe deployments)
 gcloud compute url-maps delete "$URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($URL_MAP overgeslagen)"
 gcloud compute url-maps delete "$HTTP_URL_MAP" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HTTP_URL_MAP overgeslagen)"
+gcloud compute backend-services update "$BACKEND_SERVICE" --security-policy="" --global --project="$PROJECT_ID" --quiet 2>/dev/null || true
 gcloud compute backend-services delete "$BACKEND_SERVICE" --global --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($BACKEND_SERVICE overgeslagen)"
+gcloud compute security-policies delete "$SECURITY_POLICY" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($SECURITY_POLICY overgeslagen)"
 gcloud compute health-checks delete "$HEALTH_CHECK" --project="$PROJECT_ID" --quiet 2>/dev/null || echo "  ($HEALTH_CHECK overgeslagen)"
 
 # MIG eerst verwijderen (anders kunnen templates niet weg)
