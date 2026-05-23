@@ -51,7 +51,12 @@ STATIC_IP="echo20-ip"
 HEALTH_CHECK="echo20-health-check"
 BACKEND_SERVICE="echo20-backend"
 URL_MAP="echo20-url-map"
-CERT_MAP="treeapp-cert-map"
+if [ -n "$DOMAIN" ]; then
+  _BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+  CERT_MAP="$(echo "$_BASE_DOMAIN" | tr '.' '-')-cert-map"
+else
+  CERT_MAP="treeapp-cert-map"
+fi
 TARGET_HTTPS_PROXY="echo20-https-proxy"
 FORWARDING_RULE="echo20-https-rule"
 HTTP_URL_MAP="echo20-http-redirect"
