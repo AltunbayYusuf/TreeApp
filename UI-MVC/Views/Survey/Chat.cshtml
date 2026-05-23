@@ -1,25 +1,9 @@
-@using IntegratieProject.BL.Domain.questions
 @using IntegratieProject.UI.MVC.Models
-@using System.Text.Json
-@model QuestionList
+@model IntegratieProject.BL.Domain.questions.QuestionList
 @{
     ViewBag.Title = "Survey - Chat";
     Layout = "_Layout";
-    var allQuestions = Model?.Sections?
-        .Where(s => s != null)
-        .SelectMany(s => s.Questions ?? Enumerable.Empty<Question>())
-        .ToList() ?? new List<Question>();
-    var jsonData = JsonSerializer.Serialize(allQuestions.Select(q => new
-    {
-        id = q.Id,
-        description = q.Description,
-        questionType = q.QuestionType.ToString(),
-        options = (q.Options ?? Enumerable.Empty<QuestionOption>()).Select(o => new { text = o.Text }),
-        rangeMin = q.RangeMin,
-        rangeMax = q.RangeMax,
-        rangeMinLabel = q.RangeMinLabel,
-        rangeMaxLabel = q.RangeMaxLabel
-    }));
+    var jsonData = ViewBag.SurveyQuestionsJson ?? "[]";
     var logoUri = Model?.Project?.SubPlatform?.Logo?.Uri ?? "";
 }
 
