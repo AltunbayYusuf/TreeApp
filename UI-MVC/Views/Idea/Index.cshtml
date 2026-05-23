@@ -2,17 +2,6 @@
 
 @{
     ViewData["Title"] = "Ideeën";
-
-    var reactionEmojis = (Model.Project.ReactionEmojiGroup ?? "👍,❤️")
-        .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-        .Where(emoji => !string.IsNullOrWhiteSpace(emoji))
-        .Distinct()
-        .ToList();
-
-    if (!reactionEmojis.Any())
-    {
-        reactionEmojis = new List<string> { "👍", "❤️" };
-    }
 }
 
 @using IntegratieProject.UI.MVC.Models
@@ -188,7 +177,7 @@
                                 Verzenden
                             </button>
 
-                            @foreach (var emoji in reactionEmojis)
+                            @foreach (var emoji in Model.ReactionEmojis)
                             {
                                 var isSelected = Model.CurrentUserId.HasValue &&
                                                      idea.Reactions?.Any(r =>

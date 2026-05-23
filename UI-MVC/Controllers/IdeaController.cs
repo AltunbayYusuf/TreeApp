@@ -43,7 +43,8 @@ public class IdeaController : Controller
             CurrentUserId = GetCurrentUserId(),
             SelectedTopicId = topicId,
             Topics = _topicManager.GetTopicsByProject(project),
-            Ideas = _ideaManager.GetIdeasByProject(project, topicId)
+            Ideas = _ideaManager.GetIdeasByProject(project, topicId),
+            ReactionEmojis = GetReactionEmojis(project.ReactionEmojiGroup)
         };
         return View(vm);
     }
@@ -67,7 +68,8 @@ public class IdeaController : Controller
             Project = project,
             CurrentUserId = GetCurrentUserId(),
             Topics = _topicManager.GetTopicsByProject(project),
-            Ideas = _ideaManager.GetIdeasByProject(project)
+            Ideas = _ideaManager.GetIdeasByProject(project),
+            ReactionEmojis = GetReactionEmojis(project.ReactionEmojiGroup)
         };
 
         return View(vm);
@@ -76,6 +78,17 @@ public class IdeaController : Controller
     private Project GetCurrentProject(string subplatform, int projectId)
     {
         return _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+    }
+
+    private static IEnumerable<string> GetReactionEmojis(string reactionEmojiGroup)
+    {
+        var reactionEmojis = (reactionEmojiGroup ?? "👍,❤️")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(emoji => !string.IsNullOrWhiteSpace(emoji))
+            .Distinct()
+            .ToList();
+
+        return reactionEmojis.Any() ? reactionEmojis : new List<string> { "👍", "❤️" };
     }
 
     private int? GetCurrentUserId()
