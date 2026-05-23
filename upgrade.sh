@@ -14,7 +14,7 @@
 
 set -euo pipefail
 
-PROJECT_ID="integratieproject-mvp"
+PROJECT_ID=$(curl -s "http://metadata.google.internal/computeMetadata/v1/project/project-id" -H "Metadata-Flavor: Google")
 REPO_DIR="/opt/intergratieproject"
 
 cd "$REPO_DIR"
