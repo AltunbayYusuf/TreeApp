@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Interfaces;
-using Microsoft.Extensions.Options;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -60,7 +59,6 @@ public class AiModerationService : IAiModerationService
             using var doc = JsonDocument.Parse(json);
 
             var isToxic = doc.RootElement.GetProperty("isToxic").GetBoolean();
-            var needsMoreDetail = doc.RootElement.GetProperty("needsMoreDetail").GetBoolean();
             var explanation = doc.RootElement.GetProperty("explanation").GetString() ?? "";
             var suggestedText = doc.RootElement.GetProperty("suggestedText").GetString() ?? "";
             var suggestedTitle = doc.RootElement.TryGetProperty("suggestedTitle", out var suggestedTitleElement)

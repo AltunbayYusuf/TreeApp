@@ -28,7 +28,7 @@ public class ImageGenerationService : IImageGenerationService
     {
         var config = _modelConfigurationManager.GetActiveConfiguration("ImageGeneration", subPlatformId);
 
-        var prompt = await _aiPromptService.BuildProjectImageGenerationPromptAsync(
+        var prompt =  _aiPromptService.BuildProjectImageGenerationPrompt(
             title,
             description
         );

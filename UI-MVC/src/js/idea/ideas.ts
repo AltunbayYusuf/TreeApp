@@ -60,21 +60,35 @@ export class IdeaViewer {
             return;
         }
 
-        const response = await fetch("/api/ideas/idea-selection", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                projectId: this.projectId,
-                selectionMode: mode
-            })
-        });
+        type IdeaSelectionResponse = {
+            ok?: boolean;
+            selection?: IdeaSelection;
+        };
 
-        const data = await response.json();
+        try {
+            const response = await fetch("/api/ideas/idea-selection", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    projectId: this.projectId,
+                    selectionMode: mode
+                })
+            });
 
-        if (data.ok && data.selection) {
-            this.aiSelections.set(mode, data.selection as IdeaSelection);
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json() as IdeaSelectionResponse;
+
+            if (data.ok && data.selection) {
+                this.aiSelections.set(mode, data.selection);
+            }
+        } catch {
+            // AI-filter is optioneel. Als die faalt, blijven de gewone ideeën zichtbaar.
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using IntegratieProject.BL.Domain.project;
+﻿using System.ComponentModel.DataAnnotations;
+using IntegratieProject.BL.Domain.project;
 
 namespace IntegratieProject.BL.Domain.Ai;
 
@@ -7,18 +8,22 @@ public class AiUsage
     public int Id { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    public string Feature { get; set; } 
-    public string Model { get; set; } 
+    [Required] [MaxLength(100)] public string Feature { get; set; }
 
-    public int InputTokens { get; set; }
-    public int OutputTokens { get; set; }
-    public int TotalTokens { get; set; }
+    [Required] [MaxLength(100)] public string Model { get; set; }
 
-    public decimal EstimatedCost { get; set; }
-    public string Currency { get; set; } = "USD";
+    [Range(0, int.MaxValue)] public int InputTokens { get; set; }
 
+    [Range(0, int.MaxValue)] public int OutputTokens { get; set; }
+
+    [Range(0, int.MaxValue)] public int TotalTokens { get; set; }
+
+    [Range(0, double.MaxValue)] public decimal EstimatedCost { get; set; }
+
+    [Required] [MaxLength(10)] public string Currency { get; set; } = "USD";
+
+    [MaxLength(1000)] public string ErrorMessage { get; set; }
     public bool Success { get; set; }
-    public string ErrorMessage { get; set; }
     public int? SubPlatformId { get; set; }
     public SubPlatform SubPlatform { get; set; }
 }

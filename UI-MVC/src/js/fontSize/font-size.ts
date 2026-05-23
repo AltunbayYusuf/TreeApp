@@ -4,16 +4,16 @@ const minFontSize = 0.9;
 const maxFontSize = 2;
 const defaultFontSize = 1;
 
-const applyFontSize = (size: number) => {
+function applyFontSize(size: number): void {
     document.documentElement.style.setProperty('--font-scale', size.toFixed(1));
     localStorage.setItem(fontSizeStorageKey, size.toFixed(1));
 
     document.querySelectorAll<HTMLElement>('[data-font-size-value]').forEach((value) => {
         value.textContent = `${Math.round(size * 100)}%`;
     });
-};
+}
 
-const getStoredFontSize = () => {
+function getStoredFontSize(): number {
     const storedValue = Number(localStorage.getItem(fontSizeStorageKey));
 
     if (Number.isNaN(storedValue) || storedValue < minFontSize || storedValue > maxFontSize) {
@@ -21,9 +21,20 @@ const getStoredFontSize = () => {
     }
 
     return storedValue;
-};
+}
 
-const setupFontSizeControls = () => {
+function handleFontSizeClick(button: HTMLElement): void {
+    const direction = button.dataset.fontSize;
+    const currentSize = getStoredFontSize();
+
+    const nextSize = direction === 'up'
+        ? Math.min(currentSize + fontSizeStep, maxFontSize)
+        : Math.max(currentSize - fontSizeStep, minFontSize);
+
+    applyFontSize(nextSize);
+}
+
+export function initFontSize(): void {
     const fontSizeButtons = document.querySelectorAll<HTMLElement>('[data-font-size]');
 
     if (fontSizeButtons.length === 0) {
@@ -34,16 +45,8 @@ const setupFontSizeControls = () => {
     applyFontSize(getStoredFontSize());
 
     fontSizeButtons.forEach((button) => {
-        button.addEventListener('click', () => {
-            const direction = button.dataset.fontSize;
-            const currentSize = getStoredFontSize();
-            const nextSize = direction === 'up'
-                ? Math.min(currentSize + fontSizeStep, maxFontSize)
-                : Math.max(currentSize - fontSizeStep, minFontSize);
-
-            applyFontSize(nextSize);
-        });
+        button.addEventListener('click', () => handleFontSizeClick(button));
     });
-};
+}
 
-setupFontSizeControls();
+initFontSize();

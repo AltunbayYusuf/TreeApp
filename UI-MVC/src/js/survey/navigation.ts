@@ -1,7 +1,7 @@
 export class SurveyNavigation {
-    private prevButton: HTMLButtonElement | null;
-    private nextButton: HTMLButtonElement | null;
-    private progressElement: HTMLDivElement | null;
+    private readonly prevButton: HTMLButtonElement | null;
+    private readonly nextButton: HTMLButtonElement | null;
+    private readonly progressElement: HTMLDivElement | null;
 
     constructor() {
         this.prevButton = document.getElementById("prevQuestionBtn") as HTMLButtonElement | null;

@@ -57,23 +57,16 @@ export class SurveySubmitter {
         this.updateConditionalQuestions();
     }
 
-    private handleSubmit(e: MouseEvent): void {
+    private async handleSubmit(e: MouseEvent): Promise<void> {
         e.preventDefault();
 
         this.updateConditionalQuestions();
 
-        const startTime = Number(
-            sessionStorage.getItem("surveyStartTime")
-        );
-
-        const durationInSeconds = Math.floor(
-            (Date.now() - startTime) / 1000
-        );
-
+        const startTime = Number(sessionStorage.getItem("surveyStartTime"));
+        const durationInSeconds = Math.floor((Date.now() - startTime) / 1000);
         const answers: { questionId: number; value: string }[] = [];
 
         const questions = document.querySelectorAll<HTMLElement>(".survey-question");
-
         let allFilled = true;
 
         questions.forEach(block => {
@@ -85,7 +78,7 @@ export class SurveySubmitter {
             const type = block.getAttribute("data-type");
             const isRequired = block.dataset.required !== "false";
 
-            const {value, answered} = this.extractAnswer(block, type);
+            const { value, answered } = this.extractAnswer(block, type);
 
             if (isRequired && !answered) {
                 block.style.border = "2px solid red";
@@ -107,37 +100,37 @@ export class SurveySubmitter {
             return;
         }
 
-        const submitUrl =
-            DomUtils.getProjectRedirectUrl("Survey/Submit");
+        const submitUrl = DomUtils.getProjectRedirectUrl("Survey/Submit");
 
         const payload = {
-            projectId: Number(
-                new URLSearchParams(window.location.search).get("projectId")
-            ),
+            projectId: Number(new URLSearchParams(window.location.search).get("projectId")),
             durationInSeconds,
             answers
         };
 
-        fetch(submitUrl, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        })
-            .then(response => {
-                if (response.ok) return response.json();
-                throw new Error("Netwerk response was niet ok");
-            })
-            .then((data: { redirectUrl?: string }) => {
-                if (data.redirectUrl) {
-                    sessionStorage.removeItem("surveyStartTime");
-                    window.location.href = data.redirectUrl;
-                }
-            })
-            .catch(error =>
-                console.error("Fout bij verzenden:", error)
-            );
+        try {
+            const response = await fetch(submitUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                alert("Fout bij verzenden van de bevraging. Probeer opnieuw.");
+                return;
+            }
+
+            const data = await response.json() as { redirectUrl?: string };
+
+            sessionStorage.removeItem("surveyStartTime");
+
+            window.location.href = data.redirectUrl ??
+                DomUtils.getProjectRedirectUrl("Survey");
+        } catch {
+            alert("Fout bij verzenden van de bevraging. Probeer opnieuw.");
+        }
     }
 
     private extractAnswer(block: HTMLElement, type: string | null): { value: string; answered: boolean } {

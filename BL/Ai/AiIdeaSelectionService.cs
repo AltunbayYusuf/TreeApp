@@ -148,7 +148,7 @@ public class AiIdeaSelectionService : IAiIdeaSelectionService
         return sb.ToString();
     }
 
-    private static string Limit(string? value)
+    private static string Limit(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
             return "";

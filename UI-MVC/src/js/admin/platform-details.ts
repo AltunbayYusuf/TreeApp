@@ -1,21 +1,72 @@
-﻿async function loadTotalAiCost() {
-    const costElement = document.getElementById("total-ai-cost");
+﻿type TotalAiCostResponse = {
+    totalCost: number;
+};
 
-    if (!costElement) return;
+class PlatformDetailsPage {
+    private readonly costElement = document.getElementById("total-ai-cost");
+    private readonly refreshIntervalMilliseconds = 5000;
 
-    const subPlatformId = Number(costElement.dataset.subplatformId);
+    init(): void {
+        if (!this.costElement) {
+            return;
+        }
 
-    const response = await fetch(
-        `/api/aiusage/total-cost?subPlatformId=${subPlatformId}`
-    );
+        void this.loadTotalAiCost();
 
-    if (!response.ok) return;
+        window.setInterval(() => {
+            void this.loadTotalAiCost();
+        }, this.refreshIntervalMilliseconds);
+    }
 
-    const data = await response.json();
+    private async loadTotalAiCost(): Promise<void> {
+        const subPlatformId = this.getSubPlatformId();
 
-    costElement.innerText = `€ ${data.totalCost.toFixed(4)}`;
+        if (subPlatformId === null) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/aiusage/total-cost?subPlatformId=${subPlatformId}`);
+
+            if (!response.ok) {
+                return;
+            }
+
+            const data = await response.json() as TotalAiCostResponse;
+            this.updateCost(data.totalCost);
+        } catch {
+            // dit is een automatische refresh op de achtergrond.
+        }
+    }
+
+    private getSubPlatformId(): number | null {
+        if (!(this.costElement instanceof HTMLElement)) {
+            return null;
+        }
+
+        const subPlatformId = Number(this.costElement.dataset.subplatformId);
+
+        return Number.isFinite(subPlatformId) && subPlatformId > 0
+            ? subPlatformId
+            : null;
+    }
+
+    private updateCost(totalCost: number): void {
+        if (!(this.costElement instanceof HTMLElement)) {
+            return;
+        }
+
+        this.costElement.textContent = this.formatEuro(totalCost);
+    }
+
+    private formatEuro(value: number): string {
+        return new Intl.NumberFormat("nl-BE", {
+            style: "currency",
+            currency: "EUR",
+            minimumFractionDigits: 4,
+            maximumFractionDigits: 4
+        }).format(value);
+    }
 }
 
-loadTotalAiCost();
-
-setInterval(loadTotalAiCost, 5000);
+new PlatformDetailsPage().init();

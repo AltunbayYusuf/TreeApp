@@ -701,7 +701,7 @@ export class IdeaCreator {
             hiddenInput.value = "";
         }
 
-        this.handleSubmit(new Event("submit"));
+        void this.handleSubmit(new Event("submit"));
     }
 }
 
