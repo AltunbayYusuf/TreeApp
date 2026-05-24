@@ -1,4 +1,4 @@
-﻿// survey/results.ts
+// survey/results.ts
 import {DomUtils} from '../helpers/utils';
 
 export class SurveyResultsHandler {

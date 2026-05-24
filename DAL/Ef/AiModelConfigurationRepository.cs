@@ -13,7 +13,7 @@ public class AiModelConfigurationRepository : IAiModelConfigurationRepository
         _context = context;
     }
 
-    public AiModelConfiguration? ReadActiveConfiguration(string featureKey, int? subPlatformId)
+    public AiModelConfiguration ReadActiveConfiguration(string featureKey, int? subPlatformId)
     {
         return _context.AiModelConfigurations
             .Include(c => c.SubPlatform)

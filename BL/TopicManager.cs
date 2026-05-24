@@ -17,11 +17,21 @@ public class TopicManager : ITopicManager
 
     public IEnumerable<Topic> GetTopicsByProject(Project project)
     {
+        if (project == null)
+        {
+            throw new ArgumentNullException(nameof(project));
+        }
+
         return _topicRepository.ReadTopicsByProject(project);
     }
 
     public IEnumerable<Topic> GetTopicsBySubPlatform(int subPlatformId)
     {
+        if (subPlatformId <= 0)
+        {
+            throw new ArgumentException("Geen subplatform gevonden", nameof(subPlatformId));
+        }
+
         return _topicRepository.ReadTopicsBySubPlatform(subPlatformId);
     }
 }

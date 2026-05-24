@@ -27,10 +27,18 @@ public class ReactionManager : IReactionManager
 
     public async Task<ToxicityResult> AddReaction(int ideaId, string emoji, string text, int? userId)
     {
+        // 1. ID validatie
+        ValidateIds(ideaId, userId);
+            
+        // 2. Business rule: Een reactie moet ofwel tekst, ofwel een emoji hebben (of beide)
+        if (string.IsNullOrWhiteSpace(text) && string.IsNullOrWhiteSpace(emoji))
+            throw new ArgumentException("Een reactie moet minimaal tekst of een emoji bevatten.");
+
         var idea = _ideaRepository.ReadIdeaById(ideaId);
 
+        // 3. Specifieke exception gebruiken
         if (idea == null)
-            throw new Exception("Idee niet gevonden");
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
 
         var safeText = text?.Trim();
 
@@ -69,7 +77,7 @@ public class ReactionManager : IReactionManager
             var reviewReaction = new Reaction
             {
                 Idea = idea,
-                Emoji = emoji,
+                Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
                 Text = safeText,
                 UserId = userId,
                 ModerationStatus = ModerationStatus.InReview
@@ -87,7 +95,7 @@ public class ReactionManager : IReactionManager
         var acceptedReaction = new Reaction
         {
             Idea = idea,
-            Emoji = emoji,
+            Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
             Text = safeText,
             UserId = userId,
             ModerationStatus = ModerationStatus.Accepted
@@ -107,17 +115,22 @@ public class ReactionManager : IReactionManager
 
     public async Task ForceAddReactionAsync(int ideaId, string emoji, string text, int? userId)
     {
+        ValidateIds(ideaId, userId);
+        
+        if (string.IsNullOrWhiteSpace(text) && string.IsNullOrWhiteSpace(emoji))
+            throw new ArgumentException("Een reactie moet minimaal tekst of een emoji bevatten.");
+
         var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
-            throw new Exception("Idee niet gevonden");
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
 
         var reaction = new Reaction
         {
             UserId = userId,
             Idea = idea,
             Emoji = string.IsNullOrWhiteSpace(emoji) ? null : emoji,
-            Text = string.IsNullOrWhiteSpace(text) ? null : text,
+            Text = string.IsNullOrWhiteSpace(text) ? null : text.Trim(),
             ModerationStatus = ModerationStatus.InReview
         };
 
@@ -126,14 +139,18 @@ public class ReactionManager : IReactionManager
 
         await Task.CompletedTask;
     }
+
     public async Task AddReactionWithoutAiAsync(int ideaId, string emoji, string text, int? userId)
     {
-        Idea idea = _ideaRepository.ReadIdeaById(ideaId);
+        ValidateIds(ideaId, userId);
+        
+        if (string.IsNullOrWhiteSpace(text) && string.IsNullOrWhiteSpace(emoji))
+            throw new ArgumentException("Een reactie moet minimaal tekst of een emoji bevatten.");
+
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
-        {
-            throw new Exception("Idee niet gevonden");
-        }
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
 
         var reaction = new Reaction
         {
@@ -152,10 +169,15 @@ public class ReactionManager : IReactionManager
 
     public async Task<(bool Added, int Count)> ToggleEmojiReactionAsync(int ideaId, string emoji, int userId)
     {
+        ValidateIds(ideaId, userId);
+        
+        if (string.IsNullOrWhiteSpace(emoji))
+            throw new ArgumentException("Emoji mag niet leeg zijn.", nameof(emoji));
+
         var idea = _ideaRepository.ReadIdeaById(ideaId);
 
         if (idea == null)
-            throw new Exception("Idee niet gevonden");
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
 
         var existingReaction = _reactionRepository.ReadAcceptedEmojiReaction(ideaId, userId, emoji);
 
@@ -184,6 +206,7 @@ public class ReactionManager : IReactionManager
             ModerationStatus = ModerationStatus.Accepted
         };
 
+        _manager.ValidateEntity(reaction);
         _reactionRepository.AddReaction(reaction);
 
         await Task.CompletedTask;
@@ -192,27 +215,46 @@ public class ReactionManager : IReactionManager
 
     public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
     {
+        if (subPlatformId <= 0)
+            throw new ArgumentException("SubPlatformId moet groter zijn dan 0.", nameof(subPlatformId));
+
         return _reactionRepository.ReadReactionsInReviewBySubPlatform(subPlatformId);
     }
 
     public void ApproveReaction(int reactionId)
     {
+        if (reactionId <= 0)
+            throw new ArgumentException("ReactionId moet groter zijn dan 0.", nameof(reactionId));
+
         var reaction = _reactionRepository.ReadReactionById(reactionId);
 
         if (reaction == null)
-            throw new ArgumentException("Reaction not found");
+            throw new KeyNotFoundException($"Reactie met ID {reactionId} niet gevonden.");
 
         reaction.ModerationStatus = ModerationStatus.Accepted;
+        _manager.ValidateEntity(reaction);
         _reactionRepository.UpdateReaction(reaction);
     }
 
     public void RejectReaction(int reactionId)
     {
+        if (reactionId <= 0)
+            throw new ArgumentException("ReactionId moet groter zijn dan 0.", nameof(reactionId));
+
         var reaction = _reactionRepository.ReadReactionById(reactionId);
 
         if (reaction == null)
-            throw new ArgumentException("Reaction not found");
+            throw new KeyNotFoundException($"Reactie met ID {reactionId} niet gevonden.");
 
         _reactionRepository.DeleteReaction(reactionId);
+    }
+
+    private void ValidateIds(int ideaId, int? userId)
+    {
+        if (ideaId <= 0)
+            throw new ArgumentException("IdeaId moet groter zijn dan 0.", nameof(ideaId));
+            
+        if (userId.HasValue && userId.Value <= 0)
+            throw new ArgumentException("UserId moet groter zijn dan 0.", nameof(userId));
     }
 }

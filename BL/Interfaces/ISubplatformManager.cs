@@ -11,5 +11,7 @@ public interface ISubplatformManager
     
     Task<string> CreateSubPlatformAsync(string companyName, string slug, string adminEmail, IFormFile logoFile = null);
     void UpdateSubPlatformLogo(string slug, string logoUri);
+    IEnumerable<SubPlatform> GetAllSubPlatformsWithAdmins();
+
     
 }

@@ -53,4 +53,10 @@ public class SubplatformRepository : ISubplatformRepository
         _context.SubPlatforms.Update(subPlatform);
         _context.SaveChanges();
     }
+    public IEnumerable<SubPlatform> ReadAllSubPlatformsWithAdmins()
+    {
+        return _context.SubPlatforms
+            .Include(sp => sp.SubAdmins)
+            .ToList();
+    }
 }

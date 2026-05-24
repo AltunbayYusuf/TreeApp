@@ -37,24 +37,15 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account.Manage
 
         public class InputModel
         {
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
-
             [Display(Name = "Subplatform Logo")] public IFormFile LogoFile { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
         {
             var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
             Username = userName;
 
-            Input = new InputModel
-            {
-                PhoneNumber = phoneNumber
-            };
+       
         }
 
         public async Task<IActionResult> OnGetAsync()
@@ -85,7 +76,6 @@ namespace IntegratieProject.UI.MVC.Areas.Identity.Pages.Account.Manage
 
             if (Input.LogoFile != null && Input.LogoFile.Length > 0)
             {
-                // VERDACHTE 1: Is de slug wel ingevuld voor deze gebruiker?
                 if (string.IsNullOrEmpty(user.SubPlatformSlug))
                 {
                     ModelState.AddModelError(string.Empty,

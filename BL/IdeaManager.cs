@@ -6,7 +6,6 @@ using IntegratieProject.BL.Domain.ideas;
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
-using IntegratieProject.DAL.Interfaces;
 
 namespace IntegratieProject.BL;
 
@@ -18,14 +17,13 @@ public class IdeaManager : IIdeaManager
     private readonly IAiModerationService _aiModerationService;
     private readonly IAiProvider _aiProvider;
     private readonly IAiPromptService _aiPromptService;
-    private readonly IRepository _repository;
+    private readonly ITopicRepository _topicRepository;
     private readonly AiUsageService _aiUsageService;
     private readonly IAiModelConfigurationManager _aiModelConfigurationManager;
 
-
     public IdeaManager(IIdeaRepository ideaRepository,
         IReactionRepository reactionRepository, IManager manager, IAiModerationService aiModerationService,
-        IAiProvider aiProvider, IAiPromptService aiPromptService, IRepository repository,
+        IAiProvider aiProvider, IAiPromptService aiPromptService, ITopicRepository topicRepository,
         AiUsageService aiUsageService, IAiModelConfigurationManager modelConfigurationManager)
     {
         _reactionRepository = reactionRepository;
@@ -34,19 +32,19 @@ public class IdeaManager : IIdeaManager
         _aiModerationService = aiModerationService;
         _aiProvider = aiProvider;
         _aiPromptService = aiPromptService;
-        _repository = repository;
+        _topicRepository = topicRepository;
         _aiUsageService = aiUsageService;
         _aiModelConfigurationManager = modelConfigurationManager;
     }
 
-
     public async Task ForceSubmitIdeaAsync(int topicId, string title, string text, int? userId, string imageUri = null)
     {
-        var topic = _repository.ReadTopicById(topicId);
+        if (topicId <= 0) throw new ArgumentException("TopicId moet groter zijn dan 0.", nameof(topicId));
+        if (userId.HasValue && userId.Value <= 0) throw new ArgumentException("UserId moet groter zijn dan 0.", nameof(userId));
+
+        var topic = _topicRepository.ReadTopicById(topicId);
         if (topic == null)
-        {
-            throw new Exception("Topic niet gevonden");
-        }
+            throw new KeyNotFoundException($"Topic met ID {topicId} niet gevonden.");
 
         var idea = new Idea
         {
@@ -55,26 +53,22 @@ public class IdeaManager : IIdeaManager
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.InReview,
-            Image = string.IsNullOrWhiteSpace(imageUri)
-                ? null
-                : new Media
-                {
-                    Uri = imageUri
-                }
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media { Uri = imageUri }
         };
 
+        _manager.ValidateEntity(idea);
         _ideaRepository.AddIdea(idea);
         await Task.CompletedTask;
     }
 
-    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId,
-        string imageUri = null)
+    public async Task<ToxicityResult> SubmitIdeaAsync(int topicId, string title, string text, int? userId, string imageUri = null)
     {
-        var topic = _repository.ReadTopicById(topicId);
+        if (topicId <= 0) throw new ArgumentException("TopicId moet groter zijn dan 0.", nameof(topicId));
+        if (userId.HasValue && userId.Value <= 0) throw new ArgumentException("UserId moet groter zijn dan 0.", nameof(userId));
+
+        var topic = _topicRepository.ReadTopicById(topicId);
         if (topic == null)
-        {
-            throw new Exception("Topic niet gevonden");
-        }
+            throw new KeyNotFoundException($"Topic met ID {topicId} niet gevonden.");
 
         var safeTitle = string.IsNullOrWhiteSpace(title) ? "Zonder titel" : title.Trim();
         var safeText = text?.Trim() ?? "";
@@ -96,12 +90,7 @@ public class IdeaManager : IIdeaManager
                 UserId = userId,
                 Topic = topic,
                 ModerationStatus = ModerationStatus.InReview,
-                Image = string.IsNullOrWhiteSpace(imageUri)
-                    ? null
-                    : new Media
-                    {
-                        Uri = imageUri
-                    }
+                Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media { Uri = imageUri }
             };
 
             _manager.ValidateEntity(reviewIdea);
@@ -122,12 +111,7 @@ public class IdeaManager : IIdeaManager
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted,
-            Image = string.IsNullOrWhiteSpace(imageUri)
-                ? null
-                : new Media
-                {
-                    Uri = imageUri
-                }
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media { Uri = imageUri }
         };
 
         _manager.ValidateEntity(idea);
@@ -144,6 +128,9 @@ public class IdeaManager : IIdeaManager
 
     public IEnumerable<Idea> GetIdeasByProject(Project project, int? topicId = null)
     {
+        if (project == null) throw new ArgumentNullException(nameof(project), "Project mag niet null zijn.");
+        if (topicId.HasValue && topicId.Value <= 0) throw new ArgumentException("TopicId moet groter zijn dan 0.", nameof(topicId));
+
         IEnumerable<Idea> ideas;
 
         if (topicId.HasValue)
@@ -160,27 +147,31 @@ public class IdeaManager : IIdeaManager
 
     public IEnumerable<Idea> GetIdeasInReviewBySubPlatform(int subPlatformId)
     {
+        if (subPlatformId <= 0) throw new ArgumentException("SubPlatformId moet groter zijn dan 0.", nameof(subPlatformId));
         return _ideaRepository.ReadIdeasInReviewBySubPlatform(subPlatformId);
     }
 
     public IEnumerable<Idea> GetIdeasBySubPlatform(int subPlatformId, int? projectId = null)
     {
+        if (subPlatformId <= 0) throw new ArgumentException("SubPlatformId moet groter zijn dan 0.", nameof(subPlatformId));
+        if (projectId.HasValue && projectId.Value <= 0) throw new ArgumentException("ProjectId moet groter zijn dan 0.", nameof(projectId));
+        
         return _ideaRepository.ReadIdeasBySubPlatform(subPlatformId, projectId);
     }
 
     public IEnumerable<Reaction> GetReactionsInReviewBySubPlatform(int subPlatformId)
     {
+        if (subPlatformId <= 0) throw new ArgumentException("SubPlatformId moet groter zijn dan 0.", nameof(subPlatformId));
         return _reactionRepository.ReadReactionsInReviewBySubPlatform(subPlatformId);
     }
 
     public void ApproveIdea(int ideaId)
     {
-        var idea = _ideaRepository.ReadIdeaById(ideaId);
+        if (ideaId <= 0) throw new ArgumentException("IdeaId moet groter zijn dan 0.", nameof(ideaId));
 
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
         if (idea == null)
-        {
-            throw new ArgumentException("Idea not found");
-        }
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
 
         idea.ModerationStatus = ModerationStatus.Accepted;
         _ideaRepository.UpdateIdea(idea);
@@ -188,28 +179,28 @@ public class IdeaManager : IIdeaManager
 
     public void RejectIdea(int ideaId)
     {
-        var idea = _ideaRepository.ReadIdeaById(ideaId);
+        if (ideaId <= 0) throw new ArgumentException("IdeaId moet groter zijn dan 0.", nameof(ideaId));
 
+        var idea = _ideaRepository.ReadIdeaById(ideaId);
         if (idea == null)
-        {
-            throw new ArgumentException("Idea not found");
-        }
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
 
         _ideaRepository.DeleteIdea(ideaId);
     }
 
     public async Task<string> ImproveIdeaTextAsync(int ideaId)
     {
+        if (ideaId <= 0) throw new ArgumentException("IdeaId moet groter zijn dan 0.", nameof(ideaId));
+
         var idea = _ideaRepository.ReadIdeaById(ideaId);
-        var subPlatformId = idea?.Topic?.Project?.SubPlatformId;
-        var config = _aiModelConfigurationManager.GetActiveConfiguration("IdeaImprovement", subPlatformId);
+        
         if (idea == null)
-        {
-            throw new ArgumentException("Idea not found");
-        }
+            throw new KeyNotFoundException($"Idee met ID {ideaId} niet gevonden.");
+
+        var subPlatformId = idea.Topic?.Project?.SubPlatformId;
+        var config = _aiModelConfigurationManager.GetActiveConfiguration("IdeaImprovement", subPlatformId);
 
         var prompt = _aiPromptService.BuildIdeaImprovementPrompt(idea.Title, idea.Text);
-
         var improvedText = await _aiProvider.GenerateAsync(prompt);
 
         _aiUsageService.RegisterTextUsage(
@@ -230,16 +221,11 @@ public class IdeaManager : IIdeaManager
         return improvedText.Trim();
     }
 
-
     public async Task<string> ImproveIdeaTextAsync(string title, string text, string language = "")
     {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            throw new ArgumentException("Idea text is required.");
-        }
+        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException("Idea text is required.", nameof(text));
 
         var prompt = _aiPromptService.BuildIdeaImprovementPrompt(title ?? string.Empty, text, language);
-
         var improvedText = await _aiProvider.GenerateAsync(prompt);
 
         if (string.IsNullOrWhiteSpace(improvedText))
@@ -252,16 +238,10 @@ public class IdeaManager : IIdeaManager
 
     public async Task<List<string>> GenerateIdeaFollowUpQuestionsAsync(string title, string text)
     {
-        var config = _aiModelConfigurationManager
-            .GetActiveConfiguration("IdeaFollowUpQuestions", null);
+        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException("Idea text is required.", nameof(text));
 
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            throw new ArgumentException("Idea text is required.");
-        }
-
+        var config = _aiModelConfigurationManager.GetActiveConfiguration("IdeaFollowUpQuestions", null);
         var prompt = _aiPromptService.BuildIdeaFollowUpQuestionsPrompt(title ?? string.Empty, text);
-
         var aiResponse = await _aiProvider.GenerateAsync(prompt);
 
         _aiUsageService.RegisterTextUsage(
@@ -280,7 +260,6 @@ public class IdeaManager : IIdeaManager
         try
         {
             var questions = JsonSerializer.Deserialize<List<string>>(aiResponse);
-
             return questions?
                        .Where(q => !string.IsNullOrWhiteSpace(q))
                        .Select(q => q.Trim())
@@ -294,14 +273,14 @@ public class IdeaManager : IIdeaManager
         }
     }
 
-    public async Task SubmitIdeaWithoutAiModerationAsync(int topicId, string title, string text, int? userId,
-        string imageUri = null)
+    public async Task SubmitIdeaWithoutAiModerationAsync(int topicId, string title, string text, int? userId, string imageUri = null)
     {
-        var topic = _repository.ReadTopicById(topicId);
+        if (topicId <= 0) throw new ArgumentException("TopicId moet groter zijn dan 0.", nameof(topicId));
+        if (userId.HasValue && userId.Value <= 0) throw new ArgumentException("UserId moet groter zijn dan 0.", nameof(userId));
+
+        var topic = _topicRepository.ReadTopicById(topicId);
         if (topic == null)
-        {
-            throw new Exception("Topic niet gevonden");
-        }
+            throw new KeyNotFoundException($"Topic met ID {topicId} niet gevonden.");
 
         var idea = new Idea
         {
@@ -310,12 +289,7 @@ public class IdeaManager : IIdeaManager
             UserId = userId,
             Topic = topic,
             ModerationStatus = ModerationStatus.Accepted,
-            Image = string.IsNullOrWhiteSpace(imageUri)
-                ? null
-                : new Media
-                {
-                    Uri = imageUri
-                }
+            Image = string.IsNullOrWhiteSpace(imageUri) ? null : new Media { Uri = imageUri }
         };
 
         _manager.ValidateEntity(idea);
@@ -328,25 +302,20 @@ public class IdeaManager : IIdeaManager
     {
         return await _aiModerationService.ModerateIdeaAsync(
             title ?? string.Empty,
-            text ?? string.Empty,
-            null
+            text ?? string.Empty
         );
     }
     
     public async Task<string> SummarizeIdeaWithFollowUpAnswersAsync(string title, string text, string followUpAnswers)
     {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            throw new ArgumentException("Idea text is required.");
-        }
+        if (string.IsNullOrWhiteSpace(text)) throw new ArgumentException("Idea text is required.", nameof(text));
 
         if (string.IsNullOrWhiteSpace(followUpAnswers))
         {
             return text.Trim();
         }
 
-        var config = _aiModelConfigurationManager
-            .GetActiveConfiguration("IdeaFollowUpSummary", null);
+        var config = _aiModelConfigurationManager.GetActiveConfiguration("IdeaFollowUpSummary", null);
 
         var prompt = _aiPromptService.BuildIdeaFollowUpSummaryPrompt(
             title ?? string.Empty,

@@ -8,13 +8,11 @@ namespace IntegratieProject.UI.MVC.Controllers;
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
-    private readonly IManager _manager;
     private readonly IProjectManager _projectManager;
 
-    public HomeController(ILogger<HomeController> logger, IManager manager, IProjectManager projectManager)
+    public HomeController(ILogger<HomeController> logger,  IProjectManager projectManager)
     {
         _logger = logger;
-        _manager = manager;
         _projectManager = projectManager;
     }
 

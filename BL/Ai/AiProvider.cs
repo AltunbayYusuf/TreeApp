@@ -29,7 +29,7 @@ public class VertexAiProvider : IAiProvider
         };
 
         var response = await _chatClient.GetResponseAsync(messages, options);
-        return response.Text?.Trim() ?? "";
+        return response.Text.Trim();
     }
 
     public async Task<byte[]> GenerateImageAsync(string prompt)

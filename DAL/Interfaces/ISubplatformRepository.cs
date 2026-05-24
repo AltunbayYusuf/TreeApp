@@ -13,4 +13,6 @@ public interface ISubplatformRepository
     void CreateSubAdmin(SubAdmin subAdmin);
     
     void UpdateSubPlatform(SubPlatform subPlatform);
+    IEnumerable<SubPlatform> ReadAllSubPlatformsWithAdmins();
+
 }

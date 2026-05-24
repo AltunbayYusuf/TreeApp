@@ -1,5 +1,5 @@
+using System.Diagnostics;
 using System.Net;
-using Microsoft.Extensions.Configuration;
 
 namespace IntegratieProject.UI.MVC.Middleware;
 
