@@ -8,7 +8,7 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Host=cloudsql-proxy;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD}
+      ConnectionStrings__DefaultConnection: Host=cloudsql-proxy;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD};No GSS=true
     volumes:
       - dataprotection-keys:/root/.aspnet/DataProtection-Keys
     depends_on:
