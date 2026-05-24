@@ -151,6 +151,7 @@ else
     --template="$INSTANCE_TEMPLATE" \
     --size=1 \
     --base-instance-name=treeapp
+  sleep 5
 fi
 
 # ============================================================
