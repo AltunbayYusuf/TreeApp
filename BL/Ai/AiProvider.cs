@@ -3,12 +3,12 @@ using Microsoft.Extensions.AI;
 
 namespace IntegratieProject.BL.Ai;
 
-public class VertexAiProvider : IAiProvider
+public class AiProvider : IAiProvider
 {
     private readonly IChatClient _chatClient;
     private readonly IImageGenerator _imageGenerator;
 
-    public VertexAiProvider(
+    public AiProvider(
         IChatClient chatClient,
         IImageGenerator imageGenerator)
     {

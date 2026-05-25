@@ -135,7 +135,7 @@ builder.Services.AddImageGenerator(imageGenerator);
 
 
 builder.Services.AddChatClient(chatClient);
-builder.Services.AddScoped<IAiProvider, VertexAiProvider>();
+builder.Services.AddScoped<IAiProvider, AiProvider>();
 builder.Services.AddScoped<IAiPromptService, AiPromptService>();
 builder.Services.AddScoped<IAiModerationService, AiModerationService>();
 builder.Services.AddScoped<IAiSurveyGenerationService, AiSurveyGenerationService>();
@@ -219,8 +219,13 @@ app.UseSession();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
+    app.UseStatusCodePagesWithReExecute("/Home/NotFound");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+else
+{
+    app.UseStatusCodePagesWithReExecute("/Home/NotFound");
 }
 
 // HTTPS redirect alleen lokaal. Op GCP draaien we HTTP op poort 8080.
