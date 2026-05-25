@@ -2,12 +2,14 @@
 # ============================================================
 # setup.sh
 # Bouwt de volledige cloud omgeving op vanaf nul
-# Gebruik: bash setup.sh [BRANCH] [DOMAIN] [PROJECT_ID]
+# Gebruik: bash setup.sh [BRANCH] [DOMAIN] [PROJECT_ID] [GCS_BUCKET] [GCS_PUBLIC_URL]
 #   - BRANCH: optioneel, default = main
 #   - DOMAIN: optioneel, bv. kdg-hogeschool.echo20.com
 #             Als opgegeven: HTTPS load balancer + Google-managed SSL worden aangemaakt
 #             Als weggelaten: alleen HTTP op poort 8080 (directe VM toegang)
 #   - PROJECT_ID: optioneel, default = integratieproject-mvp
+#   - GCS_BUCKET: optioneel, naam van de GCS bucket voor afbeeldingen
+#   - GCS_PUBLIC_URL: optioneel, publieke basis-URL van de GCS bucket
 #   - Voorbeelden:
 #       bash setup.sh
 #       bash setup.sh main
@@ -28,6 +30,8 @@ DOMAIN="${2:-}"
 BRANCH_SAFE=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
 
 PROJECT_ID="${3:-integratieproject-mvp}"
+GCS_BUCKET="${4:-treecompanyimages}"
+GCS_PUBLIC_URL="${5:-https://storage.googleapis.com/treecompanyimages}"
 REGION="europe-west1"
 ZONE="europe-west1-b"
 
@@ -123,7 +127,7 @@ else
     --scopes=cloud-platform \
     --tags=http-server,https-server \
     --metadata-from-file=startup-script=/tmp/startup.sh \
-    --metadata=deploy-branch="$BRANCH"
+    --metadata=deploy-branch="$BRANCH",root-domain="${_BASE_DOMAIN:-}",app-subdomain="treeapp",gcs-bucket="$GCS_BUCKET",gcs-public-url="$GCS_PUBLIC_URL"
 fi
 
 # ============================================================
@@ -151,6 +155,7 @@ else
     --template="$INSTANCE_TEMPLATE" \
     --size=1 \
     --base-instance-name=treeapp
+  sleep 5
 fi
 
 # ============================================================
@@ -282,11 +287,68 @@ gcloud compute backend-services update "$BACKEND_SERVICE" \
 echo "   Cloud Armor actief op $BACKEND_SERVICE"
 
 # ============================================================
-# 11. HTTPS Load Balancer (alleen als DOMAIN opgegeven)
+# 11. SSL wildcard certificate aanmaken (alleen als DOMAIN opgegeven)
 # ============================================================
 echo ""
 if [ -n "$DOMAIN" ]; then
-  echo " Stap 11: HTTPS load balancer aanmaken voor $DOMAIN..."
+  DOMAIN_SAFE=$(echo "$_BASE_DOMAIN" | tr '.' '-')
+  AUTH_NAME="${DOMAIN_SAFE}-auth"
+  CERT_NAME="${DOMAIN_SAFE}-cert"
+
+  if gcloud certificate-manager maps describe "$CERT_MAP" --project="$PROJECT_ID" &>/dev/null; then
+    echo " Stap 11a: Cert map $CERT_MAP bestaat al, overgeslagen"
+  else
+    echo " Stap 11a: Wildcard SSL certificate aanmaken voor *.$_BASE_DOMAIN..."
+
+    if ! gcloud certificate-manager dns-authorizations describe "$AUTH_NAME" --project="$PROJECT_ID" &>/dev/null; then
+      gcloud certificate-manager dns-authorizations create "$AUTH_NAME" \
+        --domain="$_BASE_DOMAIN" \
+        --project="$PROJECT_ID"
+    fi
+
+    CNAME_NAME=$(gcloud certificate-manager dns-authorizations describe "$AUTH_NAME" \
+      --project="$PROJECT_ID" --format="value(dnsResourceRecord.name)")
+    CNAME_DATA=$(gcloud certificate-manager dns-authorizations describe "$AUTH_NAME" \
+      --project="$PROJECT_ID" --format="value(dnsResourceRecord.data)")
+
+    echo ""
+    echo "   Voeg het volgende CNAME record toe bij je DNS provider:"
+    echo "   Naam  : $CNAME_NAME"
+    echo "   Type  : CNAME"
+    echo "   Waarde: $CNAME_DATA"
+    echo ""
+    echo "   En voeg ook een A/wildcard record toe voor het statische IP:"
+    echo "   Naam  : *.$_BASE_DOMAIN"
+    echo "   Type  : A"
+    echo "   Waarde: $STATIC_IP_ADDRESS"
+    echo ""
+    read -r -p "   Druk Enter nadat je beide DNS records hebt toegevoegd..."
+
+    if ! gcloud certificate-manager certificates describe "$CERT_NAME" --project="$PROJECT_ID" &>/dev/null; then
+      gcloud certificate-manager certificates create "$CERT_NAME" \
+        --domains="*.$_BASE_DOMAIN" \
+        --dns-authorizations="$AUTH_NAME" \
+        --project="$PROJECT_ID"
+    fi
+
+    gcloud certificate-manager maps create "$CERT_MAP" --project="$PROJECT_ID"
+
+    gcloud certificate-manager maps entries create "${DOMAIN_SAFE}-wildcard" \
+      --map="$CERT_MAP" \
+      --certificates="$CERT_NAME" \
+      --hostname="*.$_BASE_DOMAIN" \
+      --project="$PROJECT_ID"
+
+    echo "   Cert map aangemaakt: $CERT_MAP"
+  fi
+fi
+
+# ============================================================
+# 12. HTTPS Load Balancer (alleen als DOMAIN opgegeven)
+# ============================================================
+echo ""
+if [ -n "$DOMAIN" ]; then
+  echo " Stap 12: HTTPS load balancer aanmaken voor $DOMAIN..."
 
   # URL map voor HTTPS verkeer
   if gcloud compute url-maps describe "$URL_MAP" --project="$PROJECT_ID" &>/dev/null; then
@@ -366,7 +428,7 @@ YAMLEOF
   echo "    DNS instelling vereist: $DOMAIN → $STATIC_IP_ADDRESS"
   echo "    SSL provisioning kan 15-60 min duren na DNS koppeling"
 else
-  echo "  Stap 11: Geen DOMAIN opgegeven — HTTPS load balancer overgeslagen"
+  echo "  Stap 12: Geen DOMAIN opgegeven — HTTPS load balancer overgeslagen"
   echo "    Gebruik: bash setup.sh $BRANCH <jouw-domein.com>"
   echo "    Direct toegankelijk via VM IP op poort 8080"
 fi
