@@ -8,7 +8,7 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__DefaultConnection: Host=cloudsql-proxy;Port=5432;Database=TreeApp;Username=postgres;Password=${DB_PASSWORD};Gss Encryption Mode=Disable;SSL Mode=Disable
+      ConnectionStrings__DefaultConnection: "Host=cloudsql-proxy;Port=5432;Database=TreeApp;Username=postgres;Password={${DB_PASSWORD}};Gss Encryption Mode=Disable;SSL Mode=Disable"
       RootDomain: ${ROOT_DOMAIN:-echo20.com}
       AppSubdomain: ${APP_SUBDOMAIN:-treeapp}
       GoogleCloudStorage__BucketName: ${GCS_BUCKET:-treecompanyimages}
