@@ -27,6 +27,8 @@ CERT_MAP="${BASE_DOMAIN_SLUG}-cert-map"
 CERT_NAME="${BASE_DOMAIN_SLUG}-wildcard-cert"
 DNS_AUTH_NAME="${BASE_DOMAIN_SLUG}-dns-auth"
 WILDCARD_DOMAIN="*.${BASE_DOMAIN}"
+GCS_BUCKET="${BASE_DOMAIN_SLUG}-images"
+GCS_PUBLIC_URL="https://storage.googleapis.com/${GCS_BUCKET}"
 
 if [ -z "$DOMAIN" ]; then
   echo "Gebruik: bash bootstrap.sh <DOMAIN>"
@@ -82,6 +84,8 @@ APIS=(
   "secretmanager.googleapis.com"
   "certificatemanager.googleapis.com"
   "iam.googleapis.com"
+  "storage.googleapis.com"
+  "aiplatform.googleapis.com"
 )
 
 for API in "${APIS[@]}"; do
@@ -244,13 +248,27 @@ else
 fi
 
 # ============================================================
-# 7. Infrastructure opbouwen
+# 7. GCS bucket aanmaken voor afbeeldingen
 # ============================================================
 echo ""
-echo "=== Stap 7: Infrastructure opbouwen ==="
+echo "=== Stap 7: GCS bucket aanmaken ==="
+
+if gsutil ls -p "$PROJECT_ID" "gs://${GCS_BUCKET}" >/dev/null 2>&1; then
+  echo "  Bucket gs://${GCS_BUCKET}: bestaat al, overgeslagen"
+else
+  gsutil mb -p "$PROJECT_ID" -l "europe-west1" "gs://${GCS_BUCKET}"
+  gsutil iam ch allUsers:objectViewer "gs://${GCS_BUCKET}"
+  echo "  Bucket aangemaakt: gs://${GCS_BUCKET} (publiek leesbaar)"
+fi
+
+# ============================================================
+# 8. Infrastructure opbouwen
+# ============================================================
+echo ""
+echo "=== Stap 8: Infrastructure opbouwen ==="
 echo ""
 
-bash "$(dirname "$0")/setup.sh" main "$DOMAIN" "$PROJECT_ID"
+bash "$(dirname "$0")/setup.sh" main "$DOMAIN" "$PROJECT_ID" "$GCS_BUCKET" "$GCS_PUBLIC_URL"
 
 # ============================================================
 # Klaar
