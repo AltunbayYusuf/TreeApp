@@ -28,7 +28,7 @@ services:
       - "--health-check"
       - "--http-address=0.0.0.0"
       - "--http-port=9090"
-      - "integratieproject-mvp:europe-west1:treeapp-db"
+      - "${PROJECT_ID:-integratieproject-mvp}:europe-west1:treeapp-db"
     volumes:
       - /tmp/sa-key.json:/secrets/sa-key.json:ro
     healthcheck:
