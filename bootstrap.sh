@@ -27,7 +27,7 @@ CERT_MAP="${BASE_DOMAIN_SLUG}-cert-map"
 CERT_NAME="${BASE_DOMAIN_SLUG}-wildcard-cert"
 DNS_AUTH_NAME="${BASE_DOMAIN_SLUG}-dns-auth"
 WILDCARD_DOMAIN="*.${BASE_DOMAIN}"
-GCS_BUCKET="${BASE_DOMAIN_SLUG}-images"
+GCS_BUCKET="${PROJECT_ID}-images"
 GCS_PUBLIC_URL="https://storage.googleapis.com/${GCS_BUCKET}"
 
 if [ -z "$DOMAIN" ]; then
