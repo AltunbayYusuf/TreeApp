@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-PROJECT_ID="integratieproject-mvp"
+PROJECT_ID="${1:-integratieproject-mvp}"
 INSTANCE="treeapp-db"
 
 echo " Beschikbare backups:"
