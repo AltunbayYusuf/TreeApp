@@ -118,7 +118,7 @@ for ROLE in "roles/cloudsql.client" "roles/secretmanager.secretAccessor"; do
     --member="serviceAccount:$SA_EMAIL" \
     --role="$ROLE" \
     --condition=None \
-    --quiet 2>/dev/null
+    --quiet >/dev/null || true
 done
 
 # Default compute SA heeft ook toegang nodig (gebruikt door VM's via startup.sh)
@@ -128,12 +128,12 @@ gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
   --role="roles/secretmanager.secretAccessor" \
   --condition=None \
-  --quiet 2>/dev/null
+  --quiet >/dev/null || true
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
   --role="roles/cloudsql.client" \
   --condition=None \
-  --quiet 2>/dev/null
+  --quiet >/dev/null || true
 echo "  IAM rollen toegewezen (cloudsql.client, secretmanager.secretAccessor)"
 
 # ============================================================
