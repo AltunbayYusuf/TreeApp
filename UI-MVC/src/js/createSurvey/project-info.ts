@@ -25,6 +25,8 @@ function getProjectInfoElements() {
         imageStatus: document.getElementById("projectImageStatus") as HTMLDivElement | null,
         generatedPhotoUrlInput: document.getElementById("IntroMediaUri") as HTMLInputElement | null,
         generateIntroductionButton: document.getElementById("generateIntroductionButton") as HTMLButtonElement | null,
+        fontSelect: document.getElementById("FontFamily") as HTMLSelectElement | null,
+        fontPreview: document.getElementById("fontPreview") as HTMLElement | null,
     };
 }
 
@@ -172,9 +174,24 @@ function updateIntroMediaUploadStatus(): void {
     if (imageStatus) imageStatus.textContent = "Bestand klaar om op te slaan.";
 }
 
+function setupFontPreview(): void {
+    const {fontSelect, fontPreview} = getProjectInfoElements();
+
+    if (!fontSelect || !fontPreview) return;
+
+    const updateFontPreview = () => {
+        const selectedOption = fontSelect.options[fontSelect.selectedIndex];
+        fontPreview.style.fontFamily = selectedOption.dataset.fontStack || "";
+    };
+
+    fontSelect.addEventListener("change", updateFontPreview);
+    updateFontPreview();
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const {generateImageButton, generateIntroductionButton, introMediaUpload} = getProjectInfoElements();
     generateImageButton?.addEventListener("click", generateProjectImage);
     generateIntroductionButton?.addEventListener("click", generateIntroduction);
     introMediaUpload?.addEventListener("change", updateIntroMediaUploadStatus);
+    setupFontPreview();
 });

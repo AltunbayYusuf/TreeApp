@@ -3,12 +3,12 @@ using Microsoft.Extensions.AI;
 
 namespace IntegratieProject.BL.Ai;
 
-public class VertexAiProvider : IAiProvider
+public class AiProvider : IAiProvider
 {
     private readonly IChatClient _chatClient;
     private readonly IImageGenerator _imageGenerator;
 
-    public VertexAiProvider(
+    public AiProvider(
         IChatClient chatClient,
         IImageGenerator imageGenerator)
     {
@@ -29,7 +29,7 @@ public class VertexAiProvider : IAiProvider
         };
 
         var response = await _chatClient.GetResponseAsync(messages, options);
-        return response.Text?.Trim() ?? "";
+        return response.Text.Trim();
     }
 
     public async Task<byte[]> GenerateImageAsync(string prompt)

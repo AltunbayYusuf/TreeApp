@@ -1,5 +1,5 @@
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.UI.MVC.Models;
+using IntegratieProject.BL.Domain.questions;
 using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +26,9 @@ public class PlatformController : Controller
 
         if (subPlatform == null) return NotFound();
 
+        ViewBag.AverageDuration = FormatAverageDuration(subPlatform.Projects
+            .SelectMany(p => p.SurveyResponses ?? []));
+
         return View(subPlatform);
     }
 
@@ -40,12 +43,7 @@ public class PlatformController : Controller
             .SelectMany(p => p.SurveyResponses ?? [])
             .ToList();
 
-        var avgSeconds = allResponses.Any()
-            ? (int)Math.Round(allResponses.Average(r => r.DurationInSeconds))
-            : 0;
-
-        var avgMinutes = avgSeconds / 60;
-        var remainingSeconds = avgSeconds % 60;
+        var averageDuration = FormatAverageDuration(allResponses);
 
         var csv = new StringBuilder();
         csv.AppendLine("sep=;");
@@ -64,7 +62,7 @@ public class PlatformController : Controller
         csv.AppendLine("Subplatform overzicht");
         csv.AppendLine($"Projecten;{subPlatform.Projects.Count}");
         csv.AppendLine($"Deelnemers;{subPlatform.Projects.Sum(p => p.SurveyResponses?.Count ?? 0)}");
-        csv.AppendLine($"Gem. tijd;{avgMinutes} min {remainingSeconds} sec");
+        csv.AppendLine($"Gem. tijd;{averageDuration}");
         csv.AppendLine("Totale kosten;");
 
         csv.AppendLine();
@@ -89,6 +87,16 @@ public class PlatformController : Controller
         return escapedValue.Contains(';') || escapedValue.Contains('"') || escapedValue.Contains('\n') || escapedValue.Contains('\r')
             ? $"\"{escapedValue}\""
             : escapedValue;
+    }
+
+    private static string FormatAverageDuration(IEnumerable<SurveyResponse> responses)
+    {
+        var responsesList = responses.ToList();
+        var avgSeconds = responsesList.Any()
+            ? (int)Math.Round(responsesList.Average(r => r.DurationInSeconds))
+            : 0;
+
+        return $"{avgSeconds / 60} min {avgSeconds % 60} sec";
     }
 
     [HttpPost]

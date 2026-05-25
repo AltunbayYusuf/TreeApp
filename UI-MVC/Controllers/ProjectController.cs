@@ -21,6 +21,11 @@ public class ProjectController : Controller
     public IActionResult Index(int id = 1)
     {
         var subplatform = Subplatform;
+        if (string.IsNullOrWhiteSpace(subplatform))
+        {
+            return NotFound();
+        }
+        
         var project = _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, id);
 
         if (project == null)

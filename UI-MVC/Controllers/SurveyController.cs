@@ -4,6 +4,7 @@ using IntegratieProject.BL.Domain.users;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace IntegratieProject.UI.MVC.Controllers;
 
@@ -99,6 +100,8 @@ public class SurveyController : Controller
 
         if (questions.Sections == null)
             questions.Sections = new List<Section>();
+
+        ViewBag.SurveyQuestionsJson = ConvertQuestionsToJson(questions);
         
         return View(questions);
     }
@@ -185,5 +188,25 @@ public class SurveyController : Controller
         }
 
         return user;
+    }
+
+    private static string ConvertQuestionsToJson(QuestionList questionList)
+    {
+        var questions = questionList.Sections?
+            .Where(section => section != null)
+            .SelectMany(section => section.Questions ?? Enumerable.Empty<Question>())
+            .ToList() ?? new List<Question>();
+
+        return JsonSerializer.Serialize(questions.Select(question => new
+        {
+            id = question.Id,
+            description = question.Description,
+            questionType = question.QuestionType.ToString(),
+            options = (question.Options ?? Enumerable.Empty<QuestionOption>()).Select(option => new { text = option.Text }),
+            rangeMin = question.RangeMin,
+            rangeMax = question.RangeMax,
+            rangeMinLabel = question.RangeMinLabel,
+            rangeMaxLabel = question.RangeMaxLabel
+        }));
     }
 }

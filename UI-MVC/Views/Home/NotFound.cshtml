@@ -1,0 +1,25 @@
+@{
+    ViewData["Title"] = "Pagina niet gevonden";
+}
+
+<div class="not-found-wrapper">
+    <div class="not-found-card">
+        <div class="not-found-code">404</div>
+        <div class="not-found-divider"></div>
+        <h1 class="not-found-title">Pagina niet gevonden</h1>
+        <p class="not-found-message">
+            De pagina die je zoekt bestaat niet of is verplaatst.<br />
+            Controleer de URL of ga terug naar de homepagina.
+        </p>
+        @if (ViewBag.HomeProjectId != null)
+        {
+            <a asp-controller="Project"
+               asp-action="Index"
+               asp-route-subplatform="@ViewBag.HomeSubplatform"
+               asp-route-id="@ViewBag.HomeProjectId"
+               class="btn btn-primary not-found-btn">
+                Terug naar home
+            </a>
+        }
+    </div>
+</div>

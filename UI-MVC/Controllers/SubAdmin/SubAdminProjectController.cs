@@ -8,6 +8,7 @@ using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.Identity;
 using IntegratieProject.UI.MVC.Models;
+using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -80,7 +81,7 @@ public class SubAdminProjectsController : Controller
         }
     }
 
-    private async Task<IActionResult?> ValidateSubplatformAccess(string subplatform)
+    private async Task<IActionResult> ValidateSubplatformAccess(string subplatform)
     {
         if (string.IsNullOrWhiteSpace(subplatform)) return NotFound();
 
@@ -194,8 +195,45 @@ public class SubAdminProjectsController : Controller
 
         var vm = GetSession<CreateProjecSurveyViewModel>(SurveyKey) ?? new CreateProjecSurveyViewModel();
         vm.SubplatformSlug = subplatform;
+        vm.SurveyJson = BuildInitialSurveyJson(vm);
 
         return View(vm);
+    }
+
+    private static string BuildInitialSurveyJson(CreateProjecSurveyViewModel vm)
+    {
+        var survey = vm.Sections.Select(section => new SurveySectionDto
+        {
+            Title = section.Title,
+            Questions = section.Questions.Select(question => new SurveyQuestionDto
+            {
+                Title = question.Description,
+                Type = ToSurveyQuestionType(question.QuestionType),
+                Answers = question.Options ?? new List<string>(),
+                Min = question.RangeMin?.ToString() ?? "",
+                Max = question.RangeMax?.ToString() ?? "",
+                Conditionals = question.Conditionals.Select(conditional => new ConditionalQuestionDto
+                {
+                    Trigger = conditional.Trigger,
+                    TriggerType = conditional.TriggerType.ToString(),
+                    Ai = conditional.UseAi,
+                    Question = conditional.QuestionText
+                }).ToList()
+            }).ToList()
+        }).ToList();
+
+        return JsonSerializer.Serialize(survey);
+    }
+
+    private static string ToSurveyQuestionType(QuestionType questionType)
+    {
+        return questionType switch
+        {
+            QuestionType.SingleChoice => "single",
+            QuestionType.MultipleChoice => "multiple",
+            QuestionType.Range => "range",
+            _ => "open"
+        };
     }
 
     [HttpGet]

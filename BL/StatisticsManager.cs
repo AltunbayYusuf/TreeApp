@@ -12,7 +12,7 @@ public class StatisticsManager : IProjectStatisticsManager
     private readonly IQuestionRepository _questionRepository;
     private readonly ISurveyRepository _surveyRepository;
     private readonly IIdeaRepository _ideaRepository;
-    private readonly IAiRepository  _aiRepository;
+    private readonly IAiRepository _aiRepository;
 
     public StatisticsManager(
         IProjectRepository projectRepository,
@@ -30,11 +30,16 @@ public class StatisticsManager : IProjectStatisticsManager
 
     public ProjectStatistics GetProjectStatistics(int projectId)
     {
+        if (projectId <= 0)
+        {
+            throw new ArgumentException("ProjectId moet groter zijn dan 0.", nameof(projectId));
+        }
+
         var project = _projectRepository.ReadProject(projectId);
 
         if (project == null)
         {
-            throw new ArgumentException("Project niet gevonden.");
+            throw new KeyNotFoundException($"Project met ID {projectId} werd niet gevonden.");
         }
 
         var questionList = _questionRepository.ReadQuestionListByProject(project);
@@ -89,7 +94,7 @@ public class StatisticsManager : IProjectStatisticsManager
                     .Where(a => !string.IsNullOrWhiteSpace(a.Text))
                     .OrderBy(a => a.Id)
                     .ToList();
-                
+
                 questionStats.OpenAnswers = openAnswers
                     .Select(a => a.Text)
                     .Where(t => !string.IsNullOrWhiteSpace(t))

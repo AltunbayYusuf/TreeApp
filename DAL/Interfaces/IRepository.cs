@@ -5,8 +5,5 @@ namespace IntegratieProject.DAL.Interfaces;
 
 public interface IRepository
 {
-    IEnumerable<Topic> ReadTopicsByProject(Project project);
-    Topic? ReadTopicById(int topicId);
-    SubPlatform? ReadSubPlatformBySlug(string slug);
-    IEnumerable<SubPlatform> ReadAllSubPlatformsWithAdmins();
+
 }

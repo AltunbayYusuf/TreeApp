@@ -13,7 +13,7 @@ public class TopicRepository : ITopicRepository
     {
         _context = context;
     }
-    
+
     public IEnumerable<Topic> ReadTopicsByProject(Project project)
     {
         return _context.Topics.Where(t => t.Project == project).ToList();
@@ -30,7 +30,9 @@ public class TopicRepository : ITopicRepository
 
     public Topic ReadTopicById(int topicId)
     {
-        return _context.Topics.Include(t => t.Ideas)
+        return _context.Topics
+            .Include(t => t.Project)
+            .Include(t => t.Ideas)
             .FirstOrDefault(t => t.Id == topicId);
     }
 }

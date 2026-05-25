@@ -1,4 +1,3 @@
-@using IntegratieProject.BL.Domain.questions
 @model IntegratieProject.BL.Domain.project.SubPlatform
 
 @{
@@ -7,17 +6,6 @@
 
     var projects = Model.Projects?.ToList() ?? new List<IntegratieProject.BL.Domain.project.Project>();
     var subAdmins = Model.SubAdmins?.ToList() ?? new List<IntegratieProject.BL.Domain.users.SubAdmin>();
-
-    var allResponses = projects
-        .SelectMany(p => p.SurveyResponses ?? new List<SurveyResponse>())
-        .ToList();
-
-    var avgSeconds = allResponses.Any()
-        ? (int)Math.Round(allResponses.Average(r => r.DurationInSeconds))
-        : 0;
-
-    var avgMinutes = avgSeconds / 60;
-    var remainingSeconds = avgSeconds % 60;
 }
 
 <div class="admin-page platform-details-page">
@@ -63,7 +51,7 @@
         <div class="col-12 col-md-6 col-xl-3">
             <div class="stat-card stat-secondary">
                 <div class="stat-label">Gem. tijd</div>
-                <div class="stat-value platform-time-value">@avgMinutes min @remainingSeconds sec</div>
+                <div class="stat-value platform-time-value">@ViewBag.AverageDuration</div>
             </div>
         </div>
         <div class="col-12 col-md-6 col-xl-3">
@@ -112,7 +100,8 @@
                 <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
                     <div>
                         <h2 class="admin-form-title mb-1">Projecten</h2>
-                        <p class="admin-form-subtitle mb-0">@projects.Count project@(projects.Count == 1 ? "" : "en") binnen dit subplatform</p>
+                        <p class="admin-form-subtitle mb-0">@projects.Count project@(projects.Count == 1 ? "" : "en") binnen
+                            dit subplatform</p>
                     </div>
                 </div>
 

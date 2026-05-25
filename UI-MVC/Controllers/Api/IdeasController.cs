@@ -20,18 +20,16 @@ public class IdeasController : ControllerBase
 {
     private readonly IIdeaManager _ideaManager;
     private readonly IUserManager _userManager;
-    private readonly ISubplatformManager _subplatformManager;
     private readonly IGoogleCloudStorageService _googleCloudStorageService;
     private readonly ILogger<IdeasController> _logger;
     private readonly IAiIdeaSelectionService _aiIdeaSelectionService;
 
-    public IdeasController(IIdeaManager ideaManager, IUserManager userManager, ISubplatformManager subplatformManager,
+    public IdeasController(IIdeaManager ideaManager, IUserManager userManager,
         IGoogleCloudStorageService googleCloudStorageService, ILogger<IdeasController> logger,
         IAiIdeaSelectionService aiIdeaSelectionService)
     {
         _ideaManager = ideaManager;
         _userManager = userManager;
-        _subplatformManager = subplatformManager;
         _googleCloudStorageService = googleCloudStorageService;
         _logger = logger;
         _aiIdeaSelectionService = aiIdeaSelectionService;

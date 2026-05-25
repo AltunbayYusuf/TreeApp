@@ -1,9 +1,7 @@
 using IntegratieProject.BL.Domain.project;
 using IntegratieProject.BL.interfaces;
-using IntegratieProject.BL.Interfaces;
 using IntegratieProject.UI.MVC.Models;
 using Microsoft.AspNetCore.Mvc;
-using IntegratieProject.UI.MVC.Services;
 
 namespace IntegratieProject.UI.MVC.Controllers;
 
@@ -13,21 +11,17 @@ public class IdeaController : Controller
     private readonly IIdeaManager _ideaManager;
     private readonly IProjectManager _projectManager;
     private readonly IUserManager _userManager;
-    private readonly IAiProvider _aiProvider;
-    private readonly IAiPromptService _aiPromptService;
 
 
-    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager,IProjectManager projectManager,IAiProvider aiProvider,
-        IAiPromptService aiPromptService, IUserManager userManager)
+    public IdeaController(ITopicManager topicManager, IIdeaManager ideaManager, IProjectManager projectManager,
+        IUserManager userManager)
     {
         _topicManager = topicManager;
         _ideaManager = ideaManager;
         _projectManager = projectManager;
         _userManager = userManager;
-        _aiProvider = aiProvider;
-        _aiPromptService = aiPromptService;
     }
-    
+
     private string Subplatform => HttpContext.Items["subplatform"]?.ToString() ?? "";
 
     public IActionResult Index(int projectId, int? topicId)
@@ -35,10 +29,10 @@ public class IdeaController : Controller
         var subplatform = Subplatform;
         Project project = GetCurrentProject(subplatform, projectId);
         if (project == null) return NotFound();
-        
+
         if (project.Status != Status.Active)
         {
-            return NotFound(); 
+            return NotFound();
         }
 
         ViewBag.SubPlatformSlug = subplatform;
@@ -49,7 +43,8 @@ public class IdeaController : Controller
             CurrentUserId = GetCurrentUserId(),
             SelectedTopicId = topicId,
             Topics = _topicManager.GetTopicsByProject(project),
-            Ideas = _ideaManager.GetIdeasByProject(project, topicId)
+            Ideas = _ideaManager.GetIdeasByProject(project, topicId),
+            ReactionEmojis = GetReactionEmojis(project.ReactionEmojiGroup)
         };
         return View(vm);
     }
@@ -63,7 +58,7 @@ public class IdeaController : Controller
 
         if (project.Status != Status.Active)
         {
-            return NotFound(); 
+            return NotFound();
         }
 
         ViewBag.SubPlatformSlug = subplatform;
@@ -73,7 +68,8 @@ public class IdeaController : Controller
             Project = project,
             CurrentUserId = GetCurrentUserId(),
             Topics = _topicManager.GetTopicsByProject(project),
-            Ideas = _ideaManager.GetIdeasByProject(project)
+            Ideas = _ideaManager.GetIdeasByProject(project),
+            ReactionEmojis = GetReactionEmojis(project.ReactionEmojiGroup)
         };
 
         return View(vm);
@@ -82,6 +78,17 @@ public class IdeaController : Controller
     private Project GetCurrentProject(string subplatform, int projectId)
     {
         return _projectManager.GetProjectBySubPlatformAndProjectId(subplatform, projectId);
+    }
+
+    private static IEnumerable<string> GetReactionEmojis(string reactionEmojiGroup)
+    {
+        var reactionEmojis = (reactionEmojiGroup ?? "👍,❤️")
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(emoji => !string.IsNullOrWhiteSpace(emoji))
+            .Distinct()
+            .ToList();
+
+        return reactionEmojis.Any() ? reactionEmojis : new List<string> { "👍", "❤️" };
     }
 
     private int? GetCurrentUserId()

@@ -13,6 +13,7 @@ public class GeneralAdmin : IAdmin
     [MaxLength(50)]
     public string Name { get; set; }
 
+    [MaxLength(10000)]
     public string IdentityUserId { get; set; }
     public IEnumerable<SubAdmin> SubAdmins { get; set; } = new List<SubAdmin>();
 
