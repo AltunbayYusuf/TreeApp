@@ -19,8 +19,10 @@ PROJECT_ID="${2:-integratieproject-mvp}"
 SA_NAME="treeapp-vm-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
-# Base domein afleiden uit het opgegeven domein (bv. "app.youthvoice.com" → "youthvoice.com")
-BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+# Base domein afleiden uit het opgegeven domein (eerste label strippen)
+# bv. "kdg-hogeschool.echo20.com" -> "echo20.com"
+# bv. "kdg-hogeschool.test.echo20.com" -> "test.echo20.com" (voor demo-deployments)
+BASE_DOMAIN="${DOMAIN#*.}"
 BASE_DOMAIN_SLUG=$(echo "$BASE_DOMAIN" | tr '.' '-')
 
 CERT_MAP="${BASE_DOMAIN_SLUG}-cert-map"

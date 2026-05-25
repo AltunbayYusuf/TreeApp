@@ -56,7 +56,10 @@ HEALTH_CHECK="treeapp-health-check"
 BACKEND_SERVICE="treeapp-backend"
 URL_MAP="treeapp-url-map"
 if [ -n "$DOMAIN" ]; then
-  _BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+  # Eerste label strippen om base domein te krijgen
+  # bv. "kdg-hogeschool.echo20.com" -> "echo20.com"
+  # bv. "kdg-hogeschool.test.echo20.com" -> "test.echo20.com"
+  _BASE_DOMAIN="${DOMAIN#*.}"
   CERT_MAP="$(echo "$_BASE_DOMAIN" | tr '.' '-')-cert-map"
 else
   CERT_MAP="treeapp-cert-map"

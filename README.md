@@ -10,8 +10,8 @@ Dit document legt uit hoe je TreeApp volledig deployt op Google Cloud Platform (
 |----------|---------|
 | **Bash** | Git Bash (Windows), Terminal (Mac/Linux) |
 | **gcloud CLI** | [Installeren](https://cloud.google.com/sdk/docs/install) |
-| **GCP billing account** | Actief op project `integratieproject-mvp` |
-| **DNS toegang** | Mogelijkheid om een A-record in te stellen voor je domein |
+| **GCP project + billing** | Eigen Google Cloud project met actief billing account |
+| **DNS toegang** | Mogelijkheid om CNAME + A-record in te stellen bij je DNS provider |
 | **GitLab deploy token** | GitLab > Settings > Repository > Deploy tokens |
 | **Gemini API sleutel** | [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
 
@@ -24,10 +24,18 @@ Dit document legt uit hoe je TreeApp volledig deployt op Google Cloud Platform (
 git clone https://gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/integratieproject.git
 cd integratieproject
 
-# 2. Draai bootstrap
-bash bootstrap.sh kdg-hogeschool.echo20.com                    # default project
-bash bootstrap.sh kdg-hogeschool.echo20.com mijn-project-id   # ander GCP project
+# 2. Draai bootstrap met jouw domein + project
+bash bootstrap.sh <subdomain>.<jouw-domein.com> <jouw-gcp-project-id>
+
+# Voorbeelden
+bash bootstrap.sh kdg-hogeschool.echo20.com                       # default project
+bash bootstrap.sh kdg-hogeschool.echo20.com mijn-project-id       # ander GCP project
+bash bootstrap.sh kdg-hogeschool.test.echo20.com demo-project-id  # test-deployment naast prod
 ```
+
+Het script leidt het base domein automatisch af door het eerste label te strippen:
+- `kdg-hogeschool.echo20.com` → wildcard cert op `*.echo20.com`
+- `kdg-hogeschool.test.echo20.com` → wildcard cert op `*.test.echo20.com` (handig voor een tweede deployment naast prod, zonder DNS-conflict)
 
 Het script vraagt tijdens de uitvoering om:
 - Database wachtwoord (zelf kiezen)
@@ -116,19 +124,21 @@ Maak eerst een backup: `bash backup.sh`
 
 ## Nuttige commando's
 
+Vervang `<PROJECT_ID>` met je eigen GCP project ID (default: `integratieproject-mvp`).
+
 ```bash
 # VM status
-gcloud compute instance-groups managed list-instances echo20-mig \
-  --zone=europe-west1-b --project=integratieproject-mvp
+gcloud compute instance-groups managed list-instances treeapp-mig \
+  --zone=europe-west1-b --project=<PROJECT_ID>
 
 # SSL certificaat status
-gcloud certificate-manager certificates list --project=integratieproject-mvp
+gcloud certificate-manager certificates list --project=<PROJECT_ID>
 
 # Statisch IP bekijken
-gcloud compute addresses describe echo20-ip \
-  --global --project=integratieproject-mvp --format="value(address)"
+gcloud compute addresses describe treeapp-ip \
+  --global --project=<PROJECT_ID> --format="value(address)"
 
 # Cloud Armor status
-gcloud compute security-policies describe echo20-security-policy \
-  --project=integratieproject-mvp
+gcloud compute security-policies describe treeapp-security-policy \
+  --project=<PROJECT_ID>
 ```
