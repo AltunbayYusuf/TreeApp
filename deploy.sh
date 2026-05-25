@@ -24,6 +24,7 @@ GCS_PUBLIC_URL=$(curl -s -f "http://metadata.google.internal/computeMetadata/v1/
 echo " App starten (domein: ${ROOT_DOMAIN:-echo20.com}, bucket: ${GCS_BUCKET})..."
 DB_PASSWORD="$DB_PASSWORD" \
 GEMINI_API_KEY="$GEMINI_API_KEY" \
+PROJECT_ID="$PROJECT_ID" \
 ROOT_DOMAIN="${ROOT_DOMAIN:-echo20.com}" \
 APP_SUBDOMAIN="${APP_SUBDOMAIN:-treeapp}" \
 GCS_BUCKET="${GCS_BUCKET}" \
