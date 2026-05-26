@@ -9,14 +9,12 @@ namespace IntegratieProject.UI.MVC.Controllers.Admin;
 [Route("[controller]")]
 public class AdminStatsController : Controller
 {
-    private readonly ILogger<AdminStatsController> _logger;
     private readonly ISubplatformManager _subplatformManager;
-
     public AdminStatsController(
-        ILogger<AdminStatsController> logger,
+        
         ISubplatformManager subplatformManager)
     {
-        _logger = logger;
+        
         _subplatformManager = subplatformManager;
     }
 
