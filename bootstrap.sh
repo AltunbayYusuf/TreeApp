@@ -241,29 +241,47 @@ else
     --display-name="Echo20 VM Service Account" \
     --project="$PROJECT_ID"
   echo "  Service account aangemaakt: $SA_EMAIL"
+
+  # IAM is eventually consistent: een net aangemaakte SA is nog niet
+  # meteen bekend bij add-iam-policy-binding. Wacht tot describe slaagt.
+  echo "  Wachten tot SA propageert in IAM..."
+  for _ in $(seq 1 24); do
+    if gcloud iam service-accounts describe "$SA_EMAIL" --project="$PROJECT_ID" >/dev/null 2>&1; then
+      break
+    fi
+    sleep 5
+  done
+  # Extra buffer: describe slaagt soms al maar bindings falen nog.
+  sleep 10
 fi
 
+# Bind roles met retry — eerste poging kan nog falen door IAM consistency lag.
+# Zonder retry werd de fout (binding faalt = "SA does not exist") tot nu toe
+# stilletjes ingeslikt en kwam pas urenlater terug via Cloud SQL Proxy 403's.
 for ROLE in "roles/cloudsql.client" "roles/secretmanager.secretAccessor"; do
-  gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-    --member="serviceAccount:$SA_EMAIL" \
-    --role="$ROLE" \
-    --condition=None \
-    --quiet >/dev/null || true
+  if ! retry gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+      --member="serviceAccount:$SA_EMAIL" \
+      --role="$ROLE" \
+      --condition=None \
+      --quiet >/dev/null; then
+    echo "FOUT: kon role $ROLE niet binden aan $SA_EMAIL"
+    exit 1
+  fi
 done
 
 # Default compute SA heeft ook toegang nodig (gebruikt door VM's via startup.sh)
 PROJECT_NUMBER=$(retry gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
 DEFAULT_COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
-gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-  --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
-  --role="roles/secretmanager.secretAccessor" \
-  --condition=None \
-  --quiet >/dev/null || true
-gcloud projects add-iam-policy-binding "$PROJECT_ID" \
-  --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
-  --role="roles/cloudsql.client" \
-  --condition=None \
-  --quiet >/dev/null || true
+for ROLE in "roles/secretmanager.secretAccessor" "roles/cloudsql.client"; do
+  if ! retry gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+      --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
+      --role="$ROLE" \
+      --condition=None \
+      --quiet >/dev/null; then
+    echo "FOUT: kon role $ROLE niet binden aan $DEFAULT_COMPUTE_SA"
+    exit 1
+  fi
+done
 echo "  IAM rollen toegewezen (cloudsql.client, secretmanager.secretAccessor)"
 
 # ============================================================
