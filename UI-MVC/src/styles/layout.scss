@@ -1,4 +1,8 @@
-// ── Navbar (reguliere gebruikers) ──────────────────────────────────────────────
+//Navbar jongeren
+
+body { visibility: hidden; }
+body.css-loaded { visibility: visible; }
+
 .navbar {
   background: linear-gradient(135deg, var(--echo-navbar) 0%, var(--echo-navbar-dark) 100%);
   padding: 0.75rem 0;
@@ -108,7 +112,7 @@
   text-align: center;
 }
 
-// ── Footer ────────────────────────────────────────────────────────────────────
+// Footer
 .footer {
   background: #0f172a;
   color: rgba(255, 255, 255, 0.5);
@@ -126,7 +130,7 @@
   }
 }
 
-// ── Project topbar (Project/Index) ────────────────────────────────────────────
+// Project topbar (Project/index) 
 .home-topbar {
   background: var(--echo-card-bg);
   border: 1px solid var(--echo-border) !important;
@@ -155,9 +159,7 @@
   background: #f8fafc;
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// ── Admin shell (sidebar layout voor SubAdmin / GeneralAdmin) ──────────────────
-// ═══════════════════════════════════════════════════════════════════════════════
+// sidebar layout voor SubAdmin / GeneralAdmin
 
 $sidebar-w: 240px;
 
@@ -172,7 +174,7 @@ $sidebar-w: 240px;
   min-height: 100vh;
 }
 
-// ── Sidebar ────────────────────────────────────────────────────────────────────
+//  linkse Sidebar 
 .admin-sidebar {
   width: $sidebar-w;
   background: linear-gradient(180deg, #0f172a 0%, #111827 100%);
@@ -354,7 +356,7 @@ $sidebar-w: 240px;
   }
 }
 
-// ── Overlay (mobiel) ──────────────────────────────────────────────────────────
+// Overlay (mobiel)
 .admin-overlay {
   display: none;
   position: fixed;
@@ -367,7 +369,7 @@ $sidebar-w: 240px;
   &.is-visible { display: block; }
 }
 
-// ── Hoofdgebied rechts van sidebar ────────────────────────────────────────────
+// Hoofdgebied rechts van sidebar
 .admin-main {
   flex: 1;
   min-height: 100vh;
@@ -381,7 +383,7 @@ $sidebar-w: 240px;
   }
 }
 
-// ── Mobiele topbar ────────────────────────────────────────────────────────────
+// Mobiele topbar 
 .admin-topbar {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   height: 54px;
@@ -436,7 +438,7 @@ $sidebar-w: 240px;
   max-width: 120px;
 }
 
-// ── Contentgebied ─────────────────────────────────────────────────────────────
+// Contentgebied 
 .admin-content {
   flex: 1;
   padding: 0 2.5rem;
