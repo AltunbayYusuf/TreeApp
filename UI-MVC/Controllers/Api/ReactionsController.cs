@@ -3,6 +3,7 @@ using IntegratieProject.BL.interfaces;
 using IntegratieProject.UI.MVC.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace IntegratieProject.UI.MVC.Controllers.api;
 
@@ -130,6 +131,7 @@ public class ReactionsController : ControllerBase
     }
 
     [HttpPost("force")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
     {
         if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)

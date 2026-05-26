@@ -183,6 +183,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("force")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> ForceSubmitIdea([FromForm] SubmitIdeaViewModel vm)
     {
         if (vm.TopicId <= 0)
@@ -319,6 +320,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("improve")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> ImproveIdea([FromBody] ImproveIdeaViewModel vm)
     {
         if (string.IsNullOrWhiteSpace(vm.Text))
@@ -359,6 +361,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("follow-up-questions")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<ActionResult> GenerateFollowUpQuestions([FromBody] IdeaFollowUpQuestionsDto dto)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.Text))
@@ -380,6 +383,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("moderate")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> ModerateIdea([FromBody] IdeaFollowUpQuestionsDto dto)
     {
         if (dto == null || string.IsNullOrWhiteSpace(dto.Text))
@@ -412,6 +416,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("idea-selection")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> GenerateIdeaSelection([FromBody] GenerateIdeaSelectionDto dto)
     {
         if (dto == null || dto.ProjectId <= 0)
@@ -469,6 +474,7 @@ public class IdeasController : ControllerBase
     }
 
     [HttpPost("follow-up-summary")]
+    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> SummarizeFollowUpAnswers([FromBody] IdeaFollowUpQuestionsDto dto)
     {
         if (string.IsNullOrWhiteSpace(dto.Text))

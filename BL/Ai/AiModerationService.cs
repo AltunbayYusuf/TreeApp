@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.Interfaces;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace IntegratieProject.BL.Ai;
 
@@ -30,6 +31,7 @@ public class AiModerationService : IAiModerationService
         return await ModerateAsync(prompt, subPlatformId);
     }
 
+    [EnableRateLimiting("ai-limit")]
     public async Task<ToxicityResult> ModerateReactionAsync(string text, int? subPlatformId = null)
     {
         if (string.IsNullOrWhiteSpace(text))

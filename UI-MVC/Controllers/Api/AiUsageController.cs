@@ -1,9 +1,11 @@
 using IntegratieProject.BL.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IntegratieProject.UI.MVC.Controllers.API;
 
 [ApiController]
+[Authorize(Roles = CustomIdentityConstants.GeneralAdminRoleName)]
 [Route("api/[controller]")]
 public class AiUsageController : ControllerBase
 {
