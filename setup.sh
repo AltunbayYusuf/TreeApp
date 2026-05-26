@@ -21,6 +21,25 @@
 
 set -euo pipefail
 
+# Voer een commando uit met automatische retry bij netwerk- of API-fouten.
+# 3 pogingen met exponentiele backoff (5s -> 10s -> 20s).
+retry() {
+  local MAX=3 DELAY=5 ATTEMPT=1
+  while [ $ATTEMPT -le $MAX ]; do
+    if "$@"; then
+      return 0
+    fi
+    if [ $ATTEMPT -lt $MAX ]; then
+      echo "  (retry) commando faalde, opnieuw na ${DELAY}s (poging $ATTEMPT/$MAX)..." >&2
+      sleep $DELAY
+      DELAY=$((DELAY * 2))
+    fi
+    ATTEMPT=$((ATTEMPT + 1))
+  done
+  echo "  (retry) commando definitief gefaald na $MAX pogingen" >&2
+  return 1
+}
+
 # Branch om te deployen (default: main)
 BRANCH="${1:-main}"
 # Optioneel domein voor HTTPS (bv. kdg-hogeschool.echo20.com)
@@ -203,7 +222,7 @@ else
     --global \
     --project="$PROJECT_ID"
 fi
-STATIC_IP_ADDRESS=$(gcloud compute addresses describe "$STATIC_IP" --global --project="$PROJECT_ID" --format="value(address)")
+STATIC_IP_ADDRESS=$(retry gcloud compute addresses describe "$STATIC_IP" --global --project="$PROJECT_ID" --format="value(address)")
 echo "   Statisch IP: $STATIC_IP_ADDRESS"
 
 # ============================================================

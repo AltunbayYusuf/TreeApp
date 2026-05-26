@@ -39,8 +39,28 @@ GCS_BUCKET="${PROJECT_ID}-images"
 GCS_PUBLIC_URL="https://storage.googleapis.com/${GCS_BUCKET}"
 
 # ============================================================
-# Helpers — automatische DNS + secret overname
+# Helpers — automatische DNS + secret overname + retry
 # ============================================================
+
+# Voer een commando uit met automatische retry bij netwerk- of API-fouten.
+# 3 pogingen met exponentiele backoff (5s -> 10s -> 20s).
+# Gebruik alleen voor calls waarvan we succes verwachten (niet voor "exists" checks).
+retry() {
+  local MAX=3 DELAY=5 ATTEMPT=1
+  while [ $ATTEMPT -le $MAX ]; do
+    if "$@"; then
+      return 0
+    fi
+    if [ $ATTEMPT -lt $MAX ]; then
+      echo "  (retry) commando faalde, opnieuw na ${DELAY}s (poging $ATTEMPT/$MAX)..." >&2
+      sleep $DELAY
+      DELAY=$((DELAY * 2))
+    fi
+    ATTEMPT=$((ATTEMPT + 1))
+  done
+  echo "  (retry) commando definitief gefaald na $MAX pogingen" >&2
+  return 1
+}
 
 # Zet (of update) een DNS record in de Cloud DNS managed zone.
 # Gebruikt door bootstrap voor CNAME (DNS authorization) en wildcard A-record.
@@ -232,7 +252,7 @@ for ROLE in "roles/cloudsql.client" "roles/secretmanager.secretAccessor"; do
 done
 
 # Default compute SA heeft ook toegang nodig (gebruikt door VM's via startup.sh)
-PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+PROJECT_NUMBER=$(retry gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
 DEFAULT_COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
@@ -360,7 +380,7 @@ bash "$(dirname "$0")/setup.sh" main "$DOMAIN" "$PROJECT_ID" "$GCS_BUCKET" "$GCS
 # ============================================================
 echo ""
 echo "=== Stap 9: Wildcard A-record toevoegen ==="
-STATIC_IP=$(gcloud compute addresses describe treeapp-ip --global --project="$PROJECT_ID" --format="value(address)" 2>/dev/null || echo "")
+STATIC_IP=$(retry gcloud compute addresses describe treeapp-ip --global --project="$PROJECT_ID" --format="value(address)" 2>/dev/null || echo "")
 
 if [ -z "$STATIC_IP" ]; then
   echo "WAARSCHUWING: kon het statisch IP niet ophalen, A-record niet aangemaakt"

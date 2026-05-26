@@ -110,7 +110,8 @@ Internet
 
 | Script | Waar | Gebruik |
 |--------|------|---------|
-| `bootstrap.sh <DOMAIN>` | Lokaal | Alles vanaf nul deployen (eerste keer) |
+| `bootstrap.sh <DOMAIN> [PROJECT_ID]` | Lokaal | Alles vanaf nul deployen (eerste keer) |
+| `deploy-demo.sh <DOMAIN> <PROJECT_ID>` | Lokaal | Bootstrap met auto-retry — voor live demos waar je niet kunt herstarten |
 | `setup.sh [BRANCH] [DOMAIN]` | Lokaal | Infrastructure opbouwen of updaten |
 | `teardown.sh` | Lokaal | Alle GCP resources verwijderen |
 | `backup.sh` | Lokaal | Database backup aanmaken |
