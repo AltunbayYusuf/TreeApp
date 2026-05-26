@@ -21,7 +21,7 @@ const translateElementId = 'google_translate_element';
 const translateScriptId = 'google-translate-script';
 const dropdownButtonSelector = '[data-language-dropdown]';
 const selectedLanguageStorageKey = 'selectedLanguage';
-const maxLanguageChangeAttempts = 10;
+const maxLanguageChangeAttempts = 10;   
 const defaultLanguageLabel = 'NL';
 const englishLanguageLabel = 'EN';
 

@@ -1,4 +1,4 @@
-// ideas/ideas.ts
+    // ideas/ideas.ts
 
 type IdeaFilter = "all" | "mine" | "different";
 

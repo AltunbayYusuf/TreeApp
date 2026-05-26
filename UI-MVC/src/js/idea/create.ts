@@ -67,11 +67,19 @@ export class IdeaCreator {
         this.toggleContactEmail();
     }
 
+    private showElement(element: HTMLElement | null): void {
+        element?.classList.remove("d-none");
+    }
+
+    private hideElement(element: HTMLElement | null): void {
+        element?.classList.add("d-none");
+    }
+
     private showInfo(message: string): void {
         const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement | null;
         if (!aiMessage) return;
 
-        aiMessage.style.display = "block";
+        this.showElement(aiMessage);
         aiMessage.className = "mb-3 idea-message idea-message-info";
         aiMessage.textContent = message;
     }
@@ -91,10 +99,10 @@ export class IdeaCreator {
 
         if (!file || !previewWrapper || !previewImage) {
             if (previewWrapper) {
-                previewWrapper.style.display = "none";
+                this.hideElement(previewWrapper);
             }
             if (uploadStatus) {
-                uploadStatus.style.display = "none";
+                this.hideElement(uploadStatus);
                 uploadStatus.textContent = "";
             }
             return;
@@ -106,19 +114,19 @@ export class IdeaCreator {
             this.showError("Alleen jpg, jpeg, png of webp is toegestaan.");
             imageInput.value = "";
             this.imageFile = null;
-            previewWrapper.style.display = "none";
+            this.hideElement(previewWrapper);
             if (uploadStatus) {
-                uploadStatus.style.display = "none";
+                this.hideElement(uploadStatus);
                 uploadStatus.textContent = "";
             }
             return;
         }
 
         previewImage.src = URL.createObjectURL(file);
-        previewWrapper.style.display = "block";
+        this.showElement(previewWrapper);
         if (uploadStatus) {
             uploadStatus.textContent = `Foto gekozen: ${file.name}`;
-            uploadStatus.style.display = "block";
+            this.showElement(uploadStatus);
         }
     }
 
@@ -148,10 +156,10 @@ export class IdeaCreator {
         let finalTranscript = ideaText.value.trim();
 
         this.recognition.onstart = () => {
-            if (startButton) startButton.style.display = "none";
-            if (stopButton) stopButton.style.display = "inline-block";
+            this.hideElement(startButton);
+            this.showElement(stopButton);
             if (speechStatus) {
-                speechStatus.style.display = "block";
+                this.showElement(speechStatus);
                 speechStatus.textContent = "🎤 Ik luister... spreek je idee rustig in.";
             }
         };
@@ -198,11 +206,11 @@ export class IdeaCreator {
         const stopButton = document.getElementById("stop-speech-btn") as HTMLButtonElement | null;
         const speechStatus = document.getElementById("speech-status") as HTMLElement | null;
 
-        if (startButton) startButton.style.display = "inline-block";
-        if (stopButton) stopButton.style.display = "none";
+        this.showElement(startButton);
+        this.hideElement(stopButton);
 
         if (speechStatus) {
-            speechStatus.style.display = "none";
+            this.hideElement(speechStatus);
             speechStatus.textContent = "";
         }
     }
@@ -218,9 +226,9 @@ export class IdeaCreator {
         if (!ideaText || !ideaTitle || !improveButton || !useButton || !resultBox || !resultText) return;
 
         if (!ideaText.value.trim()) {
-            resultBox.style.display = "block";
+            this.showElement(resultBox);
             resultText.textContent = "Schrijf eerst een idee voordat je AI gebruikt.";
-            useButton.style.display = "none";
+            this.hideElement(useButton);
             return;
         }
 
@@ -243,11 +251,11 @@ export class IdeaCreator {
 
             const data = await response.json() as ImproveIdeaResponse;
 
-            resultBox.style.display = "block";
+            this.showElement(resultBox);
 
             if (!response.ok || !data.ok) {
                 resultText.textContent = data.message ?? "AI kon geen alternatief maken.";
-                useButton.style.display = "none";
+                this.hideElement(useButton);
                 return;
             }
 
@@ -260,11 +268,11 @@ export class IdeaCreator {
                 <strong>Inhoud:</strong>
                 ${DomUtils.escapeHtml(this.aiAlternativeText)}
             `;
-            useButton.style.display = "inline-block";
+            this.showElement(useButton);
         } catch {
-            resultBox.style.display = "block";
+            this.showElement(resultBox);
             resultText.textContent = "AI-assistentie is tijdelijk niet beschikbaar.";
-            useButton.style.display = "none";
+            this.hideElement(useButton);
         } finally {
             improveButton.disabled = false;
             improveButton.textContent = "✨ Herschrijf met AI";
@@ -282,7 +290,7 @@ export class IdeaCreator {
         ideaText.value = this.aiAlternativeText;
 
         if (resultBox) {
-            resultBox.style.display = "none";
+            this.hideElement(resultBox);
         }
 
         this.clearAiMessage();
@@ -295,8 +303,10 @@ export class IdeaCreator {
 
         const isChecked = contactOptIn?.checked ?? false;
 
-        if (contactEmailWrapper) {
-            contactEmailWrapper.style.display = isChecked ? "block" : "none";
+        if (isChecked) {
+            this.showElement(contactEmailWrapper);
+        } else {
+            this.hideElement(contactEmailWrapper);
         }
 
         if (contactEmail) {
@@ -312,7 +322,7 @@ export class IdeaCreator {
         const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement | null;
         if (!aiMessage) return;
 
-        aiMessage.style.display = "none";
+        this.hideElement(aiMessage);
         aiMessage.innerHTML = "";
     }
 
@@ -321,7 +331,7 @@ export class IdeaCreator {
         const aiMessage = document.getElementById("idea-ai-message") as HTMLDivElement | null;
         if (!aiMessage) return;
 
-        aiMessage.style.display = "block";
+        this.showElement(aiMessage);
         aiMessage.className = "mb-3 idea-message idea-message-danger";
         aiMessage.textContent = message;
     }
@@ -394,7 +404,7 @@ export class IdeaCreator {
             }
 
             if (followUpBlock) {
-                followUpBlock.style.display = "none";
+                this.hideElement(followUpBlock);
             }
 
             this.followUpQuestionsShown = true;
@@ -543,7 +553,7 @@ export class IdeaCreator {
         const suggestedTitle = data.suggestedTitle || this.title;
         const suggestedText = data.suggestedText || "";
 
-        aiMessage.style.display = "block";
+        this.showElement(aiMessage);
         aiMessage.className = "mb-3 idea-message idea-message-warning";
         aiMessage.innerHTML = `
             <strong>${DomUtils.escapeHtml(data.warning || "AI: je tekst bevat mogelijk toxische inhoud.")}</strong>
@@ -592,7 +602,7 @@ export class IdeaCreator {
             }
 
             if (followUpBlock) {
-                followUpBlock.style.display = "none";
+                this.hideElement(followUpBlock);
             }
 
             this.followUpQuestionsShown = true;
@@ -671,7 +681,7 @@ export class IdeaCreator {
             container.appendChild(wrapper);
         });
 
-        block.style.display = "block";
+        this.showElement(block);
         this.followUpQuestionsShown = true;
 
         return true;
@@ -683,7 +693,6 @@ export class IdeaCreator {
                 const questionLabel = document.querySelector<HTMLLabelElement>(`label[for="follow-up-answer-${index}"]`);
                 const question = questionLabel?.textContent?.trim() ?? `Vraag ${index + 1}`;
                 const answer = textarea.value.trim();
-
                 if (!answer) {
                     return "";
                 }
