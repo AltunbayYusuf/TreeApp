@@ -754,7 +754,7 @@ public class SubAdminProjectsController : Controller
     }
 
     [HttpPost]
-    [EnableRateLimiting("ai-limit")]
+    //[EnableRateLimiting("ai-limit")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateIntroduction([FromBody] GenerateIntroductionRequest request)
     {
@@ -864,7 +864,7 @@ public class SubAdminProjectsController : Controller
     }
 
     [HttpPost]
-    [EnableRateLimiting("ai-limit")]
+   // [EnableRateLimiting("ai-limit")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateOpenQuestionSummary(
         string subplatform,

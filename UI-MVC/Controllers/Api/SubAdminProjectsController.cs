@@ -102,7 +102,7 @@ public class SubAdminProjectsController : ControllerBase
     }
 
     [HttpPost("survey/ai")]
-    [EnableRateLimiting("ai-limit")]
+    //[EnableRateLimiting("ai-limit")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateSurvey([FromBody] GenerateSurveyRequest request)
     {
@@ -133,7 +133,7 @@ public class SubAdminProjectsController : ControllerBase
     }
 
     [HttpPost("summary")]
-    [EnableRateLimiting("ai-limit")]
+   // [EnableRateLimiting("ai-limit")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateProjectSummary(
         string subplatform,
@@ -158,7 +158,7 @@ public class SubAdminProjectsController : ControllerBase
     }
 
     [HttpPost("idea-selection")]
-    [EnableRateLimiting("ai-limit")]
+    //[EnableRateLimiting("ai-limit")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> GenerateIdeaSelection(
         string subplatform,

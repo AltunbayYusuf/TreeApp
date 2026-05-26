@@ -131,7 +131,7 @@ public class ReactionsController : ControllerBase
     }
 
     [HttpPost("force")]
-    [EnableRateLimiting("ai-limit")]
+    //[EnableRateLimiting("ai-limit")]
     public async Task<ActionResult<ReactionResultDto>> ForceAddReaction([FromBody] NewReactionDto newReactionDto)
     {
         if (!newReactionDto.IdeaId.HasValue || newReactionDto.IdeaId.Value <= 0)
