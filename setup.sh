@@ -122,6 +122,18 @@ else
   gcloud sql databases create "$DB_NAME" --instance="$DB_INSTANCE" --project="$PROJECT_ID"
 fi
 
+# Postgres-wachtwoord altijd resyncen met Secret Manager.
+# Anders kan een eerdere root-password drift uit zicht raken zodra de instance
+# al bestaat (--root-password wordt enkel bij create meegegeven), en valt de
+# app daarna stil op 'password authentication failed'.
+DB_PASS_FROM_SECRET=$(gcloud secrets versions access latest --secret=db-password --project="$PROJECT_ID")
+gcloud sql users set-password postgres \
+  --instance="$DB_INSTANCE" \
+  --password="$DB_PASS_FROM_SECRET" \
+  --project="$PROJECT_ID" >/dev/null
+echo "   Postgres wachtwoord gesynchroniseerd met db-password secret"
+unset DB_PASS_FROM_SECRET
+
 # ============================================================
 # 2. Startup script kopiëren
 # ============================================================
