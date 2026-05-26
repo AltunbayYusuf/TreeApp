@@ -687,7 +687,6 @@ public class SubAdminProjectsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [EnableRateLimiting("ai-limit")]
     public async Task<IActionResult> GenerateProjectImage(
         string subplatform,
         [FromBody] GenerateProjectImageRequest request)

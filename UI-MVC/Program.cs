@@ -4,7 +4,6 @@ using Google.Cloud.AIPlatform.V1;
 using Google.Cloud.VertexAI.Extensions;
 using IntegratieProject.BL;
 using IntegratieProject.BL.Ai;
-using IntegratieProject.BL.Domain.Ai;
 using IntegratieProject.BL.interfaces;
 using IntegratieProject.BL.Interfaces;
 using IntegratieProject.DAL.interfaces;
@@ -18,7 +17,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Vite.AspNetCore;
-using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
