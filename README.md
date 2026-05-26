@@ -10,8 +10,8 @@ Dit document legt uit hoe je TreeApp volledig deployt op Google Cloud Platform (
 |----------|---------|
 | **Bash** | Git Bash (Windows), Terminal (Mac/Linux) |
 | **gcloud CLI** | [Installeren](https://cloud.google.com/sdk/docs/install) |
-| **GCP billing account** | Actief op project `integratieproject-mvp` |
-| **DNS toegang** | Mogelijkheid om een A-record in te stellen voor je domein |
+| **GCP project + billing** | Eigen Google Cloud project met actief billing account |
+| **DNS toegang** | Mogelijkheid om CNAME + A-record in te stellen bij je DNS provider |
 | **GitLab deploy token** | GitLab > Settings > Repository > Deploy tokens |
 | **Gemini API sleutel** | [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
 
@@ -24,22 +24,51 @@ Dit document legt uit hoe je TreeApp volledig deployt op Google Cloud Platform (
 git clone https://gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/integratieproject.git
 cd integratieproject
 
-# 2. Draai bootstrap
-bash bootstrap.sh kdg-hogeschool.echo20.com                    # default project
-bash bootstrap.sh kdg-hogeschool.echo20.com mijn-project-id   # ander GCP project
+# 2. Draai bootstrap met jouw domein + project
+bash bootstrap.sh <subdomain>.<jouw-domein.com> <jouw-gcp-project-id>
+
+# Voorbeelden
+bash bootstrap.sh kdg-hogeschool.echo20.com                       # default project
+bash bootstrap.sh kdg-hogeschool.echo20.com mijn-project-id       # ander GCP project
+bash bootstrap.sh kdg-hogeschool.test.echo20.com demo-project-id  # test-deployment naast prod
 ```
 
-Het script vraagt tijdens de uitvoering om:
-- Database wachtwoord (zelf kiezen)
-- Gemini API sleutel
-- GitLab deploy token gebruikersnaam + waarde
+Het script leidt het base domein automatisch af door het eerste label te strippen:
+- `kdg-hogeschool.echo20.com` → wildcard cert op `*.echo20.com`
+- `kdg-hogeschool.test.echo20.com` → wildcard cert op `*.test.echo20.com` (handig voor een tweede deployment naast prod, zonder DNS-conflict)
 
-Na afloop geeft het script een IP-adres. Stel dat in als A-record bij je DNS provider:
-```
-kdg-hogeschool.echo20.com  ->  <IP uit script output>
-```
+Het script vraagt **niets** meer tijdens uitvoering — alles is geautomatiseerd:
+- Secrets (db-password, gemini-api-key, gitlab-deploy-username/token) worden automatisch overgenomen uit het bron-project (`integratieproject-mvp` standaard, zie `SECRETS_SOURCE_PROJECT` constante).
+- DNS records (CNAME voor SSL validatie + wildcard A-record naar het statisch IP) worden automatisch in Cloud DNS gezet.
 
 Wacht 15-60 minuten voor SSL activatie, dan is de applicatie bereikbaar op `https://kdg-hogeschool.echo20.com`.
+
+---
+
+## Eenmalige Cloud DNS setup (voor autonome deployments)
+
+Om bootstrap volledig autonoom te laten draaien moet `test.echo20.com` (of welk subdomein je ook gebruikt voor test/demo deployments) gedelegeerd zijn naar Cloud DNS. Dit is een **éénmalige** setup van ~5 minuten.
+
+```bash
+# 1. Maak de Cloud DNS managed zone aan in je beheer-project
+gcloud dns managed-zones create test-echo20 \
+  --dns-name=test.echo20.com. \
+  --description="Auto-DNS voor test/demo deployments" \
+  --project=integratieproject-mvp
+
+# 2. Haal de 4 NS records op die Cloud DNS heeft toegewezen
+gcloud dns managed-zones describe test-echo20 \
+  --project=integratieproject-mvp --format='value(nameServers)'
+
+# 3. Login bij OVH (of je DNS provider) en voeg deze 4 NS records toe
+#    voor subdomein 'test' onder echo20.com:
+#      test    NS    ns-cloud-aX.googledomains.com.
+#      test    NS    ns-cloud-bX.googledomains.com.
+#      test    NS    ns-cloud-cX.googledomains.com.
+#      test    NS    ns-cloud-dX.googledomains.com.
+```
+
+Vanaf nu beheert Cloud DNS automatisch alles onder `test.echo20.com` en kan elke nieuwe demo-deployment volledig autonoom DNS records aanmaken zonder OVH-tussenkomst.
 
 ---
 
@@ -48,12 +77,14 @@ Wacht 15-60 minuten voor SSL activatie, dan is de applicatie bereikbaar op `http
 | Stap | Actie |
 |------|-------|
 | 1 | Prerequisites controleren (gcloud, curl) |
-| 2 | Inloggen bij GCP via browser (`gcloud auth login`) |
+| 2 | Inloggen bij GCP + Cloud DNS zone + bron-project verifiëren |
 | 3 | Benodigde GCP APIs inschakelen |
 | 4 | Service account aanmaken met Cloud SQL + Secret Manager rechten |
-| 5 | Secrets opslaan in Google Secret Manager |
-| 6 | Wildcard SSL certificaat aanmaken via Certificate Manager |
-| 7 | Volledige infrastructure opbouwen via `setup.sh` |
+| 5 | Secrets automatisch overnemen uit bron-project |
+| 6 | Wildcard SSL certificaat + DNS auth CNAME automatisch in Cloud DNS |
+| 7 | GCS bucket aanmaken voor afbeeldingen |
+| 8 | Volledige infrastructure opbouwen via `setup.sh` |
+| 9 | Wildcard A-record automatisch in Cloud DNS |
 
 `setup.sh` bouwt de volgende GCP resources:
 
@@ -79,7 +110,8 @@ Internet
 
 | Script | Waar | Gebruik |
 |--------|------|---------|
-| `bootstrap.sh <DOMAIN>` | Lokaal | Alles vanaf nul deployen (eerste keer) |
+| `bootstrap.sh <DOMAIN> [PROJECT_ID]` | Lokaal | Alles vanaf nul deployen (eerste keer) |
+| `deploy-demo.sh <DOMAIN> <PROJECT_ID>` | Lokaal | Bootstrap met auto-retry — voor live demos waar je niet kunt herstarten |
 | `setup.sh [BRANCH] [DOMAIN]` | Lokaal | Infrastructure opbouwen of updaten |
 | `teardown.sh` | Lokaal | Alle GCP resources verwijderen |
 | `backup.sh` | Lokaal | Database backup aanmaken |
@@ -116,19 +148,21 @@ Maak eerst een backup: `bash backup.sh`
 
 ## Nuttige commando's
 
+Vervang `<PROJECT_ID>` met je eigen GCP project ID (default: `integratieproject-mvp`).
+
 ```bash
 # VM status
-gcloud compute instance-groups managed list-instances echo20-mig \
-  --zone=europe-west1-b --project=integratieproject-mvp
+gcloud compute instance-groups managed list-instances treeapp-mig \
+  --zone=europe-west1-b --project=<PROJECT_ID>
 
 # SSL certificaat status
-gcloud certificate-manager certificates list --project=integratieproject-mvp
+gcloud certificate-manager certificates list --project=<PROJECT_ID>
 
 # Statisch IP bekijken
-gcloud compute addresses describe echo20-ip \
-  --global --project=integratieproject-mvp --format="value(address)"
+gcloud compute addresses describe treeapp-ip \
+  --global --project=<PROJECT_ID> --format="value(address)"
 
 # Cloud Armor status
-gcloud compute security-policies describe echo20-security-policy \
-  --project=integratieproject-mvp
+gcloud compute security-policies describe treeapp-security-policy \
+  --project=<PROJECT_ID>
 ```

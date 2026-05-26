@@ -19,8 +19,16 @@ PROJECT_ID="${2:-integratieproject-mvp}"
 SA_NAME="treeapp-vm-sa"
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
-# Base domein afleiden uit het opgegeven domein (bv. "app.youthvoice.com" → "youthvoice.com")
-BASE_DOMAIN=$(echo "$DOMAIN" | awk -F. '{print $(NF-1)"."$NF}')
+# Bron-project voor automatische secret-overname en Cloud DNS beheer.
+# Wijzig deze waarden als je de demo vanuit een ander project wil runnen.
+SECRETS_SOURCE_PROJECT="${SECRETS_SOURCE_PROJECT:-integratieproject-mvp}"
+DNS_ZONE_PROJECT="${DNS_ZONE_PROJECT:-integratieproject-mvp}"
+DNS_ZONE_NAME="${DNS_ZONE_NAME:-test-echo20}"
+
+# Base domein afleiden uit het opgegeven domein (eerste label strippen)
+# bv. "kdg-hogeschool.echo20.com" -> "echo20.com"
+# bv. "kdg-hogeschool.test.echo20.com" -> "test.echo20.com" (voor demo-deployments)
+BASE_DOMAIN="${DOMAIN#*.}"
 BASE_DOMAIN_SLUG=$(echo "$BASE_DOMAIN" | tr '.' '-')
 
 CERT_MAP="${BASE_DOMAIN_SLUG}-cert-map"
@@ -29,6 +37,95 @@ DNS_AUTH_NAME="${BASE_DOMAIN_SLUG}-dns-auth"
 WILDCARD_DOMAIN="*.${BASE_DOMAIN}"
 GCS_BUCKET="${PROJECT_ID}-images"
 GCS_PUBLIC_URL="https://storage.googleapis.com/${GCS_BUCKET}"
+
+# ============================================================
+# Helpers — automatische DNS + secret overname + retry
+# ============================================================
+
+# Voer een commando uit met automatische retry bij netwerk- of API-fouten.
+# 3 pogingen met exponentiele backoff (5s -> 10s -> 20s).
+# Gebruik alleen voor calls waarvan we succes verwachten (niet voor "exists" checks).
+retry() {
+  local MAX=3 DELAY=5 ATTEMPT=1
+  while [ $ATTEMPT -le $MAX ]; do
+    if "$@"; then
+      return 0
+    fi
+    if [ $ATTEMPT -lt $MAX ]; then
+      echo "  (retry) commando faalde, opnieuw na ${DELAY}s (poging $ATTEMPT/$MAX)..." >&2
+      sleep $DELAY
+      DELAY=$((DELAY * 2))
+    fi
+    ATTEMPT=$((ATTEMPT + 1))
+  done
+  echo "  (retry) commando definitief gefaald na $MAX pogingen" >&2
+  return 1
+}
+
+# Zet (of update) een DNS record in de Cloud DNS managed zone.
+# Gebruikt door bootstrap voor CNAME (DNS authorization) en wildcard A-record.
+# Args: NAME (FQDN met trailing dot), TYPE (CNAME/A), TTL, DATA
+dns_record_set() {
+  local NAME="$1" TYPE="$2" TTL="$3" DATA="$4"
+  local EXISTING
+  EXISTING=$(gcloud dns record-sets list \
+    --zone="$DNS_ZONE_NAME" \
+    --project="$DNS_ZONE_PROJECT" \
+    --name="$NAME" \
+    --type="$TYPE" \
+    --format="value(rrdatas)" 2>/dev/null || echo "")
+
+  if [ "$EXISTING" = "$DATA" ]; then
+    echo "  DNS $TYPE $NAME: al correct"
+    return
+  fi
+
+  if [ -n "$EXISTING" ]; then
+    gcloud dns record-sets delete "$NAME" \
+      --zone="$DNS_ZONE_NAME" \
+      --type="$TYPE" \
+      --project="$DNS_ZONE_PROJECT" \
+      --quiet >/dev/null
+  fi
+
+  gcloud dns record-sets create "$NAME" \
+    --zone="$DNS_ZONE_NAME" \
+    --type="$TYPE" \
+    --ttl="$TTL" \
+    --rrdatas="$DATA" \
+    --project="$DNS_ZONE_PROJECT" >/dev/null
+  echo "  DNS $TYPE $NAME -> $DATA"
+}
+
+# Zorg dat een secret in het target project bestaat door 'm uit het source project te kopieren.
+# Gebruikt om db-password, gemini-api-key en gitlab-deploy-* automatisch over te nemen
+# uit integratieproject-mvp zonder dat de gebruiker iets hoeft in te tikken.
+secret_ensure() {
+  local NAME="$1"
+  if gcloud secrets describe "$NAME" --project="$PROJECT_ID" >/dev/null 2>&1; then
+    echo "  $NAME: bestaat al in $PROJECT_ID"
+    return
+  fi
+
+  if [ "$PROJECT_ID" = "$SECRETS_SOURCE_PROJECT" ]; then
+    echo "FOUT: secret '$NAME' ontbreekt in $PROJECT_ID (bron = target, geen kopie mogelijk)"
+    exit 1
+  fi
+
+  if ! gcloud secrets describe "$NAME" --project="$SECRETS_SOURCE_PROJECT" >/dev/null 2>&1; then
+    echo "FOUT: secret '$NAME' bestaat ook niet in bron-project $SECRETS_SOURCE_PROJECT"
+    echo "Maak 'm daar eenmalig aan, of zet SECRETS_SOURCE_PROJECT op een ander project."
+    exit 1
+  fi
+
+  gcloud secrets versions access latest \
+    --secret="$NAME" \
+    --project="$SECRETS_SOURCE_PROJECT" 2>/dev/null | \
+    gcloud secrets create "$NAME" \
+      --data-file=- \
+      --project="$PROJECT_ID" >/dev/null
+  echo "  $NAME: gekopieerd uit $SECRETS_SOURCE_PROJECT"
+}
 
 if [ -z "$DOMAIN" ]; then
   echo "Gebruik: bash bootstrap.sh <DOMAIN>"
@@ -71,6 +168,39 @@ echo "  Ingelogd als: $ACTIVE_ACCOUNT"
 
 gcloud config set project "$PROJECT_ID"
 echo "  Project: $PROJECT_ID"
+
+# Controleer of de Cloud DNS managed zone bestaat (vereist voor autonome DNS-setup).
+if ! gcloud dns managed-zones describe "$DNS_ZONE_NAME" \
+    --project="$DNS_ZONE_PROJECT" >/dev/null 2>&1; then
+  echo ""
+  echo "FOUT: Cloud DNS zone '$DNS_ZONE_NAME' bestaat niet in project '$DNS_ZONE_PROJECT'."
+  echo ""
+  echo "Eenmalige setup (één keer per provider):"
+  echo "  1. Maak de managed zone aan:"
+  echo "       gcloud dns managed-zones create $DNS_ZONE_NAME \\"
+  echo "         --dns-name=${BASE_DOMAIN}. \\"
+  echo "         --description='Auto-DNS voor deployments' \\"
+  echo "         --project=$DNS_ZONE_PROJECT"
+  echo ""
+  echo "  2. Haal de NS records op:"
+  echo "       gcloud dns managed-zones describe $DNS_ZONE_NAME \\"
+  echo "         --project=$DNS_ZONE_PROJECT --format='value(nameServers)'"
+  echo ""
+  echo "  3. Voeg die 4 NS records toe bij OVH voor subdomein '${BASE_DOMAIN%%.*}'."
+  echo ""
+  echo "Daarna draait elke nieuwe deployment volledig autonoom."
+  exit 1
+fi
+echo "  Cloud DNS zone: $DNS_ZONE_NAME (project: $DNS_ZONE_PROJECT)"
+
+# Controleer of het bron-project bereikbaar is voor secret-overname.
+if [ "$PROJECT_ID" != "$SECRETS_SOURCE_PROJECT" ]; then
+  if ! gcloud projects describe "$SECRETS_SOURCE_PROJECT" >/dev/null 2>&1; then
+    echo "FOUT: geen toegang tot bron-project '$SECRETS_SOURCE_PROJECT' (voor secret-overname)"
+    exit 1
+  fi
+  echo "  Bron-project secrets: $SECRETS_SOURCE_PROJECT"
+fi
 
 # ============================================================
 # 3. APIs inschakelen
@@ -122,7 +252,7 @@ for ROLE in "roles/cloudsql.client" "roles/secretmanager.secretAccessor"; do
 done
 
 # Default compute SA heeft ook toegang nodig (gebruikt door VM's via startup.sh)
-PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
+PROJECT_NUMBER=$(retry gcloud projects describe "$PROJECT_ID" --format="value(projectNumber)")
 DEFAULT_COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
 gcloud projects add-iam-policy-binding "$PROJECT_ID" \
   --member="serviceAccount:$DEFAULT_COMPUTE_SA" \
@@ -140,28 +270,12 @@ echo "  IAM rollen toegewezen (cloudsql.client, secretmanager.secretAccessor)"
 # 5. Secrets aanmaken
 # ============================================================
 echo ""
-echo "=== Stap 5: Secrets aanmaken ==="
+echo "=== Stap 5: Secrets overnemen uit bron-project ==="
 
-secret_prompt() {
-  local NAME="$1"
-  local LABEL="$2"
-  if gcloud secrets describe "$NAME" --project="$PROJECT_ID" >/dev/null 2>&1; then
-    echo "  $NAME: bestaat al, overgeslagen"
-  else
-    echo ""
-    echo "  Secret '$NAME' ontbreekt."
-    echo "  $LABEL"
-    read -rsp "  Waarde (verborgen): " VAL
-    echo ""
-    echo -n "$VAL" | gcloud secrets create "$NAME" --data-file=- --project="$PROJECT_ID"
-    echo "  $NAME: aangemaakt"
-  fi
-}
-
-secret_prompt "db-password"            "Database wachtwoord voor Cloud SQL (kies een sterk wachtwoord):"
-secret_prompt "gemini-api-key"         "Google Gemini API sleutel (https://aistudio.google.com/apikey):"
-secret_prompt "gitlab-deploy-username" "GitLab deploy token gebruikersnaam (GitLab > Settings > Repository > Deploy tokens):"
-secret_prompt "gitlab-deploy-token"    "GitLab deploy token waarde:"
+secret_ensure "db-password"
+secret_ensure "gemini-api-key"
+secret_ensure "gitlab-deploy-username"
+secret_ensure "gitlab-deploy-token"
 
 if gcloud secrets describe "sa-key" --project="$PROJECT_ID" >/dev/null 2>&1; then
   echo "  sa-key: bestaat al, overgeslagen"
@@ -213,21 +327,12 @@ else
   DNS_VALUE=$(gcloud certificate-manager dns-authorizations describe "$DNS_AUTH_NAME" \
     --project="$PROJECT_ID" --format="value(dnsResourceRecord.data)")
 
-  DNS_SUBDOMAIN=$(echo "$DNS_CNAME" | sed "s/\\.${BASE_DOMAIN//./\\.}\\.\$//")
+  # Zorg dat name en data eindigen op een trailing dot (vereist door Cloud DNS)
+  DNS_CNAME_FQDN="${DNS_CNAME%.}."
+  DNS_VALUE_FQDN="${DNS_VALUE%.}."
 
-  echo ""
-  echo "  ================================================================"
-  echo "  ACTIE VEREIST: voeg dit CNAME record toe in je DNS provider"
-  echo "  ================================================================"
-  echo "  Type      : CNAME"
-  echo "  Subdomain : $DNS_SUBDOMAIN"
-  echo "  Target    : $DNS_VALUE"
-  echo "  ================================================================"
-  echo "  Tip: vul ALLEEN het subdomain in (zonder .${BASE_DOMAIN})"
-  echo "       bv. '$DNS_SUBDOMAIN' in het 'Subdomain' veld"
-  echo "       en de volledige Target waarde in het 'Target' veld"
-  echo ""
-  read -rp "  Druk op Enter nadat je het CNAME record hebt opgeslagen..."
+  echo "  CNAME record automatisch toevoegen in Cloud DNS..."
+  dns_record_set "$DNS_CNAME_FQDN" "CNAME" 300 "$DNS_VALUE_FQDN"
 
   if ! gcloud certificate-manager certificates describe "$CERT_NAME" --project="$PROJECT_ID" >/dev/null 2>&1; then
     gcloud certificate-manager certificates create "$CERT_NAME" \
@@ -271,21 +376,33 @@ echo ""
 bash "$(dirname "$0")/setup.sh" main "$DOMAIN" "$PROJECT_ID" "$GCS_BUCKET" "$GCS_PUBLIC_URL"
 
 # ============================================================
+# 9. Wildcard A-record automatisch toevoegen
+# ============================================================
+echo ""
+echo "=== Stap 9: Wildcard A-record toevoegen ==="
+STATIC_IP=$(retry gcloud compute addresses describe treeapp-ip --global --project="$PROJECT_ID" --format="value(address)" 2>/dev/null || echo "")
+
+if [ -z "$STATIC_IP" ]; then
+  echo "WAARSCHUWING: kon het statisch IP niet ophalen, A-record niet aangemaakt"
+else
+  dns_record_set "*.${BASE_DOMAIN}." "A" 300 "$STATIC_IP"
+fi
+
+# ============================================================
 # Klaar
 # ============================================================
-STATIC_IP=$(gcloud compute addresses describe treeapp-ip --global --project="$PROJECT_ID" --format="value(address)" 2>/dev/null || echo "<zie output hierboven>")
-
 echo ""
 echo "================================================================"
-echo " Bootstrap voltooid!"
+echo " Bootstrap voltooid — volledig autonoom!"
 echo "================================================================"
 echo ""
-echo " Volgende stap: DNS A-record instellen bij je DNS provider"
-echo "   $DOMAIN  ->  $STATIC_IP"
+echo " Statisch IP : $STATIC_IP"
+echo " Wildcard A  : *.${BASE_DOMAIN} -> $STATIC_IP (auto via Cloud DNS)"
+echo " CNAME       : DNS authorization auto-toegevoegd (zie stap 6)"
 echo ""
-echo " Wacht daarna 15-60 min voor SSL certificaat activatie."
+echo " SSL certificaat valideert nu in de achtergrond (15-60 min)."
 echo " Check SSL status:"
 echo "   gcloud certificate-manager certificates list --project=$PROJECT_ID"
 echo ""
-echo " Applicatie bereikbaar op: https://$DOMAIN"
+echo " Applicatie wordt bereikbaar op: https://$DOMAIN"
 echo ""

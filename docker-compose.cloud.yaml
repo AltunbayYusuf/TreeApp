@@ -13,6 +13,7 @@ services:
       AppSubdomain: ${APP_SUBDOMAIN:-treeapp}
       GoogleCloudStorage__BucketName: ${GCS_BUCKET:-treecompanyimages}
       GoogleCloudStorage__PublicBaseUrl: ${GCS_PUBLIC_URL:-https://storage.googleapis.com/treecompanyimages}
+      Google__ProjectId: ${PROJECT_ID:-integratieproject-mvp}
     volumes:
       - dataprotection-keys:/root/.aspnet/DataProtection-Keys
     depends_on:
