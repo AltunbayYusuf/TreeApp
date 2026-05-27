@@ -276,7 +276,7 @@ De applicatie is beveiligd met **Google Cloud Armor**, gekoppeld aan de load bal
 
 **Wat het doet:**
 
-- Throttelt IP-adressen die meer dan **60 requests per minuut** sturen (HTTP 429)
+- Throttelt IP-adressen die meer dan **300 requests per minuut** sturen (HTTP 429)
 - Blokkeert automatisch volumetrische DDoS-aanvallen
 - Werkt op netwerkniveau, vóór de applicatie bereikt wordt
 
@@ -285,7 +285,7 @@ De applicatie is beveiligd met **Google Cloud Armor**, gekoppeld aan de load bal
 | Parameter | Waarde |
 |-----------|--------|
 | Policy | `echo20-security-policy` |
-| Drempel | 60 requests/min per IP |
+| Drempel | 300 requests/min per IP |
 | Bij overschrijding | HTTP 429 (Too Many Requests) |
 | Gekoppeld aan | `echo20-backend` (backend service) |
 

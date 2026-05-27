@@ -93,7 +93,7 @@ Internet
    |
    +-- :80  --> HTTP redirect naar HTTPS
    |
-   +-- :443 --> HTTPS Load Balancer (Cloud Armor: 60 req/min per IP)
+   +-- :443 --> HTTPS Load Balancer (Cloud Armor: 300 req/min per IP)
                     |
                Backend Service (session affinity, 24u cookie)
                     |

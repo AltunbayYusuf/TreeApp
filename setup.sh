@@ -92,7 +92,7 @@ HTTP_FORWARDING_RULE="treeapp-http-rule"
 # Cloud Armor
 SECURITY_POLICY="treeapp-security-policy"
 # Max. aantal requests per IP per minuut voordat throttling in werking treedt
-RATE_LIMIT_THRESHOLD=60
+RATE_LIMIT_THRESHOLD=300
 
 echo " Setup gestart voor project: $PROJECT_ID"
 echo " Deploying branch: $BRANCH"
@@ -312,6 +312,15 @@ else
 
   echo "   Security policy aangemaakt (throttle: $RATE_LIMIT_THRESHOLD req/min per IP)"
 fi
+
+# Threshold idempotent bijwerken voor bestaande policies bij re-run
+gcloud compute security-policies rules update 1000 \
+  --security-policy="$SECURITY_POLICY" \
+  --project="$PROJECT_ID" \
+  --rate-limit-threshold-count="$RATE_LIMIT_THRESHOLD" \
+  --rate-limit-threshold-interval-sec=60 \
+  >/dev/null 2>&1 || true
+echo "   Rate limit threshold gezet op $RATE_LIMIT_THRESHOLD req/min per IP"
 
 echo "   Security policy koppelen aan backend service..."
 gcloud compute backend-services update "$BACKEND_SERVICE" \
