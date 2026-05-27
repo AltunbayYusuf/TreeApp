@@ -57,7 +57,7 @@ builder.Services.AddDataProtection()
     .SetApplicationName("IntegratieProject");
 
 // Rate limiting ter bescherming tegen overconsumptie van AI tokens.
-// Elke gebruiker (via cookie of IP) mag max 20 AI-verzoeken per uur indienen.
+// Elke gebruiker (via cookie of IP) mag max 60 AI-verzoeken per uur indienen.
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("ai-limit", context =>
@@ -68,7 +68,7 @@ builder.Services.AddRateLimiter(options =>
         return RateLimitPartition.GetFixedWindowLimiter(partitionKey, _ => new FixedWindowRateLimiterOptions
         {
             Window = TimeSpan.FromHours(1),
-            PermitLimit = 20,
+            PermitLimit = 60,
             QueueLimit = 0,
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst
         });
