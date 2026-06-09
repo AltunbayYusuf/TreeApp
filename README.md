@@ -1,168 +1,178 @@
-# TreeApp — Deployment vanaf nul
+<div align="center">
 
-Dit document legt uit hoe je TreeApp volledig deployt op Google Cloud Platform (GCP) vanaf een nieuwe machine.
+# TreeApp
 
----
+**A participatory platform for gathering community ideas and feedback**
 
-## Wat je nodig hebt
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-9.0-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-containerized-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![GCP](https://img.shields.io/badge/Google%20Cloud-deployed-4285F4?logo=google-cloud&logoColor=white)](https://cloud.google.com/)
+[![Gemini AI](https://img.shields.io/badge/Gemini%20AI-integrated-8E75B2?logo=google&logoColor=white)](https://ai.google.dev/)
 
-| Vereiste | Details |
-|----------|---------|
-| **Bash** | Git Bash (Windows), Terminal (Mac/Linux) |
-| **gcloud CLI** | [Installeren](https://cloud.google.com/sdk/docs/install) |
-| **GCP project + billing** | Eigen Google Cloud project met actief billing account |
-| **DNS toegang** | Mogelijkheid om CNAME + A-record in te stellen bij je DNS provider |
-| **GitLab deploy token** | GitLab > Settings > Repository > Deploy tokens |
-| **Gemini API sleutel** | [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey) |
+*School project — Karel de Grote Hogeschool, Integration Project Year 2 (2025–2026)*
 
----
-
-## Quickstart
-
-```bash
-# 1. Clone de repo
-git clone https://gitlab.com/kdg-ti/integratieproject-1/2526/20_echo/integratieproject.git
-cd integratieproject
-
-# 2. Draai bootstrap met jouw domein + project
-bash bootstrap.sh <subdomain>.<jouw-domein.com> <jouw-gcp-project-id>
-
-# Voorbeelden
-bash bootstrap.sh kdg-hogeschool.echo20.com                       # default project
-bash bootstrap.sh kdg-hogeschool.echo20.com mijn-project-id       # ander GCP project
-bash bootstrap.sh kdg-hogeschool.test.echo20.com demo-project-id  # test-deployment naast prod
-```
-
-Het script leidt het base domein automatisch af door het eerste label te strippen:
-- `kdg-hogeschool.echo20.com` → wildcard cert op `*.echo20.com`
-- `kdg-hogeschool.test.echo20.com` → wildcard cert op `*.test.echo20.com` (handig voor een tweede deployment naast prod, zonder DNS-conflict)
-
-Het script vraagt **niets** meer tijdens uitvoering — alles is geautomatiseerd:
-- Secrets (db-password, gemini-api-key, gitlab-deploy-username/token) worden automatisch overgenomen uit het bron-project (`integratieproject-mvp` standaard, zie `SECRETS_SOURCE_PROJECT` constante).
-- DNS records (CNAME voor SSL validatie + wildcard A-record naar het statisch IP) worden automatisch in Cloud DNS gezet.
-
-Wacht 15-60 minuten voor SSL activatie, dan is de applicatie bereikbaar op `https://kdg-hogeschool.echo20.com`.
+</div>
 
 ---
 
-## Eenmalige Cloud DNS setup (voor autonome deployments)
+## What is TreeApp?
 
-Om bootstrap volledig autonoom te laten draaien moet `test.echo20.com` (of welk subdomein je ook gebruikt voor test/demo deployments) gedelegeerd zijn naar Cloud DNS. Dit is een **éénmalige** setup van ~5 minuten.
+TreeApp is a **multi-tenant participatory platform** that lets organizations create projects and collect structured community feedback. Think of it as a digital town square: organizations post projects, citizens submit ideas, vote, and take surveys — all moderated automatically by AI.
 
-```bash
-# 1. Maak de Cloud DNS managed zone aan in je beheer-project
-gcloud dns managed-zones create test-echo20 \
-  --dns-name=test.echo20.com. \
-  --description="Auto-DNS voor test/demo deployments" \
-  --project=integratieproject-mvp
-
-# 2. Haal de 4 NS records op die Cloud DNS heeft toegewezen
-gcloud dns managed-zones describe test-echo20 \
-  --project=integratieproject-mvp --format='value(nameServers)'
-
-# 3. Login bij OVH (of je DNS provider) en voeg deze 4 NS records toe
-#    voor subdomein 'test' onder echo20.com:
-#      test    NS    ns-cloud-aX.googledomains.com.
-#      test    NS    ns-cloud-bX.googledomains.com.
-#      test    NS    ns-cloud-cX.googledomains.com.
-#      test    NS    ns-cloud-dX.googledomains.com.
-```
-
-Vanaf nu beheert Cloud DNS automatisch alles onder `test.echo20.com` en kan elke nieuwe demo-deployment volledig autonoom DNS records aanmaken zonder OVH-tussenkomst.
+Each organization gets its own branded **subplatform** with its own projects, topics, and user base. Submitted ideas are automatically screened for toxic content using Google Gemini before they go live.
 
 ---
 
-## Wat bootstrap.sh doet
+## Features
 
-| Stap | Actie |
-|------|-------|
-| 1 | Prerequisites controleren (gcloud, curl) |
-| 2 | Inloggen bij GCP + Cloud DNS zone + bron-project verifiëren |
-| 3 | Benodigde GCP APIs inschakelen |
-| 4 | Service account aanmaken met Cloud SQL + Secret Manager rechten |
-| 5 | Secrets automatisch overnemen uit bron-project |
-| 6 | Wildcard SSL certificaat + DNS auth CNAME automatisch in Cloud DNS |
-| 7 | GCS bucket aanmaken voor afbeeldingen |
-| 8 | Volledige infrastructure opbouwen via `setup.sh` |
-| 9 | Wildcard A-record automatisch in Cloud DNS |
+- **Multi-tenant subplatforms** — each organization has an isolated branded environment
+- **Project management** — create projects with configurable participation types (open ideas, surveys, Q&A)
+- **Idea submission** — users submit ideas with reactions, media, and topic tags
+- **AI content moderation** — Gemini 2.5 Flash automatically checks submissions for toxicity
+- **AI image generation** — Imagen 3 generates cover images for projects
+- **Surveys & questions** — structured data collection alongside open ideas
+- **Statistics dashboard** — admins see participation trends, idea counts, sentiment breakdowns
+- **Role-based access** — platform admin, sub-admin, and regular user roles
+- **Rate limiting** — Cloud Armor (300 req/min) + app-level AI limiter (60 AI calls/hour)
+- **Zero-downtime deploys** — rolling updates via Managed Instance Group
 
-`setup.sh` bouwt de volgende GCP resources:
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | ASP.NET Core MVC, Tailwind CSS, TypeScript, Vite |
+| **Backend** | ASP.NET Core 9, C# |
+| **Database** | PostgreSQL 16 (Cloud SQL) |
+| **ORM** | Entity Framework Core |
+| **AI** | Google Gemini 2.5 Flash (moderation), Imagen 3 (image generation) |
+| **Auth** | ASP.NET Core Identity |
+| **Storage** | Google Cloud Storage (user-uploaded images) |
+| **Container** | Docker, Docker Compose |
+| **Infrastructure** | Google Cloud Platform (see below) |
+
+---
+
+## Architecture
 
 ```
 Internet
-   |
-   +-- :80  --> HTTP redirect naar HTTPS
-   |
-   +-- :443 --> HTTPS Load Balancer (Cloud Armor: 300 req/min per IP)
-                    |
-               Backend Service (session affinity, 24u cookie)
-                    |
-               Managed Instance Group (1-3 VMs, autoscale op 60% CPU)
-                    |
-               VM: Docker (ASP.NET Core :8080 + Cloud SQL Proxy :5432)
-                    |
-               Cloud SQL PostgreSQL 16
+   │
+   ├── :80  → HTTP Forwarding Rule → redirect to HTTPS
+   │
+   └── :443 → HTTPS Load Balancer (Cloud Armor: 300 req/min per IP)
+                   │
+              Backend Service (session affinity, 24h cookie)
+                   │
+         Managed Instance Group (1–3 VMs, autoscale at 60% CPU)
+                   │
+              VM: e2-medium
+              ┌──────────────────┬─────────────────┐
+              │  web:8080        │  cloudsql-proxy  │
+              │  ASP.NET Core    │  :5432           │
+              │  + Rate Limiter  │                  │
+              └──────────────────┴────────┬─────────┘
+                                          │
+                             Cloud SQL PostgreSQL 16
+```
+
+**GCP services used:**
+
+| Service | Purpose |
+|---------|---------|
+| Compute Engine (MIG) | Auto-scaling VM pool |
+| Cloud SQL | Managed PostgreSQL database |
+| Cloud Load Balancing | HTTPS termination, health checks |
+| Cloud Armor | DDoS protection, rate limiting |
+| Certificate Manager | Free auto-renewing SSL certificate |
+| Secret Manager | Secure storage for credentials |
+| Cloud Storage | User-uploaded images |
+| Cloud DNS | Automated DNS management |
+
+---
+
+## Project Structure
+
+```
+integratieproject/
+├── Domain/          # Domain models (Idea, Project, SubPlatform, Survey, …)
+├── DAL/             # Data access layer (EF Core, repositories)
+├── BL/              # Business logic (managers, AI integration)
+├── UI-MVC/          # ASP.NET Core MVC app (controllers, views, Tailwind)
+├── Tests/           # Integration tests
+├── bootstrap.sh     # One-command GCP deploy from scratch
+├── setup.sh         # Build/update GCP infrastructure
+├── teardown.sh      # Tear down all GCP resources
+├── upgrade.sh       # Zero-downtime app update on VM
+├── backup.sh        # Cloud SQL on-demand backup
+└── restore.sh       # Restore database from backup
 ```
 
 ---
 
-## Scripts overzicht
+## Running Locally
 
-| Script | Waar | Gebruik |
-|--------|------|---------|
-| `bootstrap.sh <DOMAIN> [PROJECT_ID]` | Lokaal | Alles vanaf nul deployen (eerste keer) |
-| `deploy-demo.sh <DOMAIN> <PROJECT_ID>` | Lokaal | Bootstrap met auto-retry — voor live demos waar je niet kunt herstarten |
-| `setup.sh [BRANCH] [DOMAIN]` | Lokaal | Infrastructure opbouwen of updaten |
-| `teardown.sh` | Lokaal | Alle GCP resources verwijderen |
-| `backup.sh` | Lokaal | Database backup aanmaken |
-| `restore.sh` | Lokaal | Database herstellen vanuit backup |
-| `upgrade.sh [BRANCH]` | Op VM | App updaten zonder downtime |
-
----
-
-## Opnieuw deployen (bestaande omgeving)
-
-Na de eerste bootstrap gebruik je voor updates:
+**Prerequisites:** .NET 9 SDK, Docker, PostgreSQL 16
 
 ```bash
-# Code update op draaiende VM (zero-downtime)
-gcloud compute ssh <vm-naam> --zone=europe-west1-b --project=integratieproject-mvp
-bash /opt/intergratieproject/upgrade.sh main
+# 1. Clone the repo
+git clone https://github.com/AltunbayYusuf/TreeApp.git
+cd TreeApp
 
-# Of volledig opnieuw opbouwen
-bash setup.sh main kdg-hogeschool.echo20.com
+# 2. Start the database
+docker compose up -d db
+
+# 3. Set your connection string (appsettings.Development.json)
+#    DefaultConnection: Host=localhost;Port=5432;Database=TreeApp;Username=postgres;Password=...
+
+# 4. Run the app
+cd UI-MVC
+dotnet run
 ```
+
+The app will be available at `https://localhost:5001`.
+
+> **Note:** AI features (Gemini moderation, Imagen) require a Google Cloud project with Vertex AI enabled and valid credentials configured in `appsettings.json`.
 
 ---
 
-## Omgeving verwijderen
+## Deployment (GCP)
+
+Full one-command deployment from scratch:
 
 ```bash
-bash teardown.sh
+bash bootstrap.sh <your-domain.com> <gcp-project-id>
 ```
 
-Vraagt om bevestiging. Verwijdert alle GCP resources inclusief database.
-Maak eerst een backup: `bash backup.sh`
+This sets up the entire GCP infrastructure automatically — SSL certificate, load balancer, autoscaling VMs, Cloud SQL, secrets, and DNS. See [DEPLOYMENT.md](DEPLOYMENT.md) for the full reference.
 
 ---
 
-## Nuttige commando's
+## Scripts Reference
 
-Vervang `<PROJECT_ID>` met je eigen GCP project ID (default: `integratieproject-mvp`).
+| Script | Run on | Description |
+|--------|--------|-------------|
+| `bootstrap.sh <domain> [project]` | Local | Full deploy from scratch |
+| `setup.sh [branch] [domain]` | Local | Build or update infrastructure |
+| `teardown.sh` | Local | Remove all GCP resources |
+| `backup.sh` | Local | Create on-demand database backup |
+| `restore.sh` | Local | Restore database from backup |
+| `upgrade.sh [branch]` | VM | Zero-downtime app update |
 
-```bash
-# VM status
-gcloud compute instance-groups managed list-instances treeapp-mig \
-  --zone=europe-west1-b --project=<PROJECT_ID>
+---
 
-# SSL certificaat status
-gcloud certificate-manager certificates list --project=<PROJECT_ID>
+## School Context
 
-# Statisch IP bekijken
-gcloud compute addresses describe treeapp-ip \
-  --global --project=<PROJECT_ID> --format="value(address)"
+This project was built as the **Integration Project** for year 2 at [Karel de Grote Hogeschool](https://www.kdg.be/) (Antwerp, Belgium). The goal was to design, build, and deploy a full-stack web application end-to-end — from domain modeling to production cloud infrastructure.
 
-# Cloud Armor status
-gcloud compute security-policies describe treeapp-security-policy \
-  --project=<PROJECT_ID>
-```
+**Team:** Echo 20
+
+---
+
+<div align="center">
+
+Made with ASP.NET Core 9 · Deployed on Google Cloud Platform
+
+</div>
